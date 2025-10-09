@@ -26,7 +26,7 @@ const AuthMiddleware = {
                     if (err) {
                         console.error('Error al destruir sesión expirada:', err);
                     }
-                    return res.redirect('/auth/login?expired=true');
+                    return res.redirect('/');
                 });
                 return;
             }
