@@ -944,6 +944,269 @@
     }
 }
 
+/* --- ESTILOS PARA TABLAS MODERNAS --- */
+.modern-table-container {
+    background: var(--gray-50);
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    transition: background-color 0.3s ease;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.modern-table-header {
+    background: linear-gradient(135deg, #04324d 0%, #0d6efd 100%);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modern-table-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modern-table-header .header-icon {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.875rem;
+}
+
+.modern-table thead th {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-weight: 600;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid var(--gray-300);
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    transition: all 0.2s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.modern-table thead th:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.modern-table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.modern-table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.02) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table tbody td {
+    padding: 0.875rem 0.75rem;
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    color: var(--gray-700);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Controles de tabla */
+.table-controls {
+    background: var(--gray-100);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--gray-300);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.table-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.table-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Selectores de registros y columnas */
+.registros-selector,
+.column-selector {
+    position: relative;
+    display: inline-block;
+}
+
+.registros-selector-btn,
+.column-selector-btn {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+    height: 45px;
+}
+
+.registros-selector-btn:hover,
+.column-selector-btn:hover {
+    border-color: #0d6efd;
+    color: #0d6efd;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.registros-selector-btn.active,
+.column-selector-btn.active {
+    border-color: #0d6efd;
+    background: #0d6efd;
+    color: white;
+}
+
+.registros-selector-dropdown,
+.column-selector-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e3e6ea;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    width: max-content;
+    min-width: 150px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+}
+
+.registros-selector-dropdown.show,
+.column-selector-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.registros-selector-header,
+.column-selector-header {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    background: #f8f9fa;
+    border-radius: 6px 6px 0 0;
+}
+
+.registros-selector-list,
+.column-selector-list {
+    padding: 4px 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.registros-option,
+.column-selector-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    font-size: 13px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    white-space: nowrap;
+    border: none;
+    outline: none;
+    width: fit-content;
+    min-width: 100%;
+}
+
+.registros-option:hover,
+.column-selector-item:hover {
+    background: #2c5aa0;
+    color: white;
+}
+
+.registros-option.active {
+    background: var(--secondary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.column-selector-item input[type="checkbox"] {
+    margin-right: 8px;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--secondary-color);
+}
+
+.column-selector-item:hover input[type="checkbox"] {
+    accent-color: #ffffff;
+    filter: invert(1);
+}
+
+.column-selector-item label {
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+    color: #495057;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Etiqueta de registros */
+.registros-label {
+    font-size: 1.08rem;
+    font-weight: bold;
+    color: #222;
+    letter-spacing: 0.01em;
+}
+
+/* Animación fadeInUp */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* --- ESTILOS ADICIONALES PARA TABLAS MODERNAS --- */
 .user-info {
     display: flex;
@@ -1139,6 +1402,101 @@
     background: #0d1117 !important;
     border-color: #30363d !important;
     color: #6e7681 !important;
+}
+
+/* Botones de acciones */
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-width: 200px;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.action-btn:hover::before {
+    left: 100%;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.btn-view {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+.btn-view:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+}
+
+.btn-bitacoras {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+.btn-bitacoras:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+}
+
+.btn-verify {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.btn-verify:hover {
+    background: linear-gradient(135deg, #20c997 0%, #1ea085 100%);
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
 }
 
 /* Estados de formación en mayúsculas */

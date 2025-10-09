@@ -1,10 +1,6 @@
 /* Ruta: public/estilos/components/navbar.css */
 /* Propósito: Estilos para la barra de navegación */
 
-.app-main {
-    flex: 1 0 auto;
-}
-
 /* --- Navegación (Navbar) --- */
 .navbar {
     padding: 5px 0;

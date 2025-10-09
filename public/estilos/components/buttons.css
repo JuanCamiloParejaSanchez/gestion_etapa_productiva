@@ -118,13 +118,14 @@
 
 .btn-warning {
     background: var(--color-warning);
-    color: var(--gray-800);
+    /* color: var(--gray-800); */
+    color: white;
     border-color: var(--color-warning);
 
     &:hover:not(:disabled):not(.disabled) {
         background: color-mix(in srgb, var(--color-warning) 90%, black);
         border-color: color-mix(in srgb, var(--color-warning) 90%, black);
-        color: var(--gray-800);
+        color: white;
     }
 
     &:focus {
