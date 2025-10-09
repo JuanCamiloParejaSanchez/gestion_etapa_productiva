@@ -1,0 +1,84 @@
+<!-- Ruta: views/plantillas/principal.ejs -->
+<!-- Propósito: Layout principal que define la estructura base de todas las páginas del sistema -->
+
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://cdn.datatables.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.datatables.net https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;">
+
+        <!-- Script inline para aplicar tema oscuro inmediatamente y evitar flash -->
+        <script>
+            (function() {
+                const savedTheme = localStorage.getItem('sena-theme-preference');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            })();
+        </script>
+
+        <title><%= typeof title !== 'undefined' ? title : 'Gestión de Etapa Productiva - SENA' %></title>
+        <link rel="icon" href="/imagenes/logos/sena-logo.svg" type="image/x-icon">
+        
+        <!-- Bootstrap y Font Awesome -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
+        <!-- DataTables CSS -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+        <!-- Estilos base y específicos de la página -->
+        <link rel="stylesheet" href="/estilos/base/variables.css?v=1.3">
+        <link rel="stylesheet" href="/estilos/components/buttons.css?v=1.3">
+        <link rel="stylesheet" href="/estilos/general/estilosBase.css?v=1.3">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.min.css">
+        <%- defineContent('styles') %>
+    </head>
+    <body>
+
+        <%- include('../compartido/encabezadoAdmin') %>
+
+        <!-- Slot para la barra de navegación -->
+        <%- defineContent('navigation') %>
+
+        <main class="app-main">
+            <%- body %>
+        </main>
+
+        <%- include('../compartido/piePaginaAdmin') %>
+
+        <!-- Scripts globales -->
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!-- DataTables y Extensiones -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+        <!-- Scripts específicos por vista -->
+        <%- defineContent('scripts') %>
+
+        <!-- Script para el tema oscuro (disponible en todas las páginas) -->
+        <script src="/js/utilidades/themeToggle.js?v=1.1"></script>
+
+        <!-- Datos globales -->
+        <script>
+            window.appData = {
+                user: <%- JSON.stringify(locals.user || null).replace(/</g, '\u003c') %>,
+                userRole: <%- JSON.stringify(locals.userRole || null).replace(/</g, '\u003c') %>
+            };
+        </script>
+    </body>
+</html>

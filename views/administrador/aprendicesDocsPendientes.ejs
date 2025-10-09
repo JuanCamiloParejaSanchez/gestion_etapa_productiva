@@ -1,0 +1,1531 @@
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/administrador/panel-principal">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar al Panel
+            </a>
+        </div>    
+    </div>
+</nav>
+
+<%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+/* Estilos mejorados para el modal de documentos */
+.modal-lg {
+    max-width: 900px;
+}
+
+.aprendiz-info-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.aprendiz-info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-container {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #04324d 0%, #0d6efd 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(4, 50, 77, 0.3);
+}
+
+.aprendiz-details h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #04324d;
+    margin-bottom: 0.25rem;
+}
+
+.aprendiz-details p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.documentos-container {
+    margin-top: 1rem;
+}
+
+.documentos-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.documentos-subidos .section-header {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(25, 135, 84, 0.05) 100%);
+    border-left: 4px solid #198754;
+    color: #198754;
+}
+
+.documentos-pendientes .section-header {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+    border-left: 4px solid #dc3545;
+    color: #dc3545;
+}
+
+.documentos-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.documento-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.documento-item > i {
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.documento-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.documento-item.subido::before {
+    background: #198754;
+}
+
+.documento-item.pendiente::before {
+    background: #dc3545;
+}
+
+.documento-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: #0d6efd;
+}
+
+.documento-item:hover::before {
+    width: 6px;
+}
+
+.documento-info {
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 200px);
+}
+
+.documento-nombre {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.documento-tipo {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.documento-descripcion {
+    font-size: 0.8rem;
+    color: #868e96;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.documento-detalles {
+    font-size: 0.75rem;
+    color: #adb5bd;
+}
+
+.documento-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.estado-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.estado-badge.subido {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border-color: rgba(25, 135, 84, 0.2);
+}
+
+.estado-badge.pendiente {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-color: rgba(220, 53, 69, 0.2);
+}
+
+.documento-fecha {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.documento-acciones {
+    margin-left: 1rem;
+}
+
+.btn-documento {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    background: #f8f9fa;
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.btn-documento:hover {
+    background: #0d6efd;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.documentos-vacio {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+.documentos-vacio i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.documentos-vacio p {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.loading-documentos {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.loading-documentos p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Modo oscuro para el modal */
+.dark-mode .aprendiz-info-card {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+    border-color: #555;
+    color: #adb5bd;
+}
+
+.dark-mode .aprendiz-details h6 {
+    color: #adb5bd;
+}
+
+.dark-mode .aprendiz-details p {
+    color: #adb5bd !important;
+}
+
+.dark-mode .section-header {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+    border-color: #555;
+    color: #adb5bd;
+}
+
+.dark-mode .documentos-subidos .section-header {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.2) 0%, rgba(25, 135, 84, 0.1) 100%);
+    color: #198754;
+}
+
+.dark-mode .documentos-pendientes .section-header {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(220, 53, 69, 0.1) 100%);
+    color: #dc3545;
+}
+
+.dark-mode .documento-item {
+    background: #2d2d2d;
+    border-color: #555;
+    color: #adb5bd;
+}
+
+.dark-mode .documento-item:hover {
+    background: #3d3d3d;
+    border-color: #0d6efd;
+}
+
+.dark-mode .documento-nombre {
+    color: #adb5bd;
+}
+
+.dark-mode .documento-tipo,
+.dark-mode .documento-descripcion,
+.dark-mode .documento-detalles {
+    color: #adb5bd !important;
+}
+
+.dark-mode .documento-fecha {
+    color: #adb5bd;
+}
+
+.dark-mode .btn-documento {
+    background: #3d3d3d;
+    color: #adb5bd;
+    border: 1px solid #555;
+}
+
+.dark-mode .btn-documento:hover {
+    background: #0d6efd;
+    color: #ffffff;
+}
+
+.dark-mode .documentos-vacio {
+    background: #2d2d2d;
+    border-color: #555;
+    color: #adb5bd;
+}
+
+.dark-mode .loading-documentos {
+    color: #adb5bd;
+}
+
+.dark-mode .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.dark-mode .btn-secondary:hover {
+    background-color: #26292b;
+    border-color: #26292b;
+    color: white;
+}
+
+/* Modo oscuro adicional */
+.dark-mode .modern-table-header h2 {
+    color: white;
+}
+
+.dark-mode .btn-secondary:hover {
+    background-color: #26292b !important;
+    border-color: #26292b !important;
+    color: white !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-lg {
+        max-width: 95vw;
+        margin: 0.5rem;
+    }
+
+    .documento-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .documento-estado {
+        align-items: flex-start;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .documento-acciones {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+</style>
+
+<%- contentFor('body') %>
+<div class="container-fluid mt-4">
+    <div class="modern-table-container">
+        <div class="modern-table-header">
+            <h2>
+                <i class="fas fa-users header-icon"></i>
+                Aprendices con documentos pendientes
+            </h2>
+        </div>
+        
+        <div class="card-body" style="padding: 1rem;">
+            <!-- Filtros de búsqueda -->
+            <div class="filters-container">
+                <form id="searchForm" method="GET">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label for="nombreBusqueda" class="modern-form-label">
+                                <i class="fas fa-user me-1"></i>Nombre o Apellido
+                            </label>
+                            <input type="text" class="form-control modern-form-control" id="nombreBusqueda" name="nombre" placeholder="Ingrese nombre o apellido">
+                        </div>
+                        <div class="form-group">
+                            <label for="documentoBusqueda" class="modern-form-label">
+                                <i class="fas fa-id-card me-1"></i>Número de Documento
+                            </label>
+                            <input type="text" class="form-control modern-form-control" id="documentoBusqueda" name="documento" placeholder="Ingrese número de documento">
+                        </div>
+                        <div class="form-group">
+                            <label for="programaBusqueda" class="modern-form-label">
+                                <i class="fas fa-graduation-cap me-1"></i>Programa
+                            </label>
+                            <select class="form-select modern-form-control" id="programaBusqueda" name="programaFormacion">
+                                <option value="">Todos los Programas</option>
+                                <option value="tecnoActividadFisica">Tec. Actividad Física</option>
+                                <option value="tecnoEntrenamientoDeportivo">Tec. Entrenamiento Deportivo</option>
+                                <option value="tecnoAnalisisDesarrollo">Tec. Análisis y Desarrollo</option>
+                                <option value="tecProcesamientoPruebas">Téc. Pruebas de Software</option>
+                                <option value="tecProgramacion">Téc. Programación de Software</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alternativaBusqueda" class="modern-form-label">
+                                <i class="fas fa-briefcase me-1"></i>Alternativa
+                            </label>
+                            <select class="form-select modern-form-control" id="alternativaBusqueda" name="alternativaSeleccionada">
+                                <option value="">Todas las Alternativas</option>
+                                <option value="contratoAprendizaje">Contrato de Aprendizaje</option>
+                                <option value="pasantia">Pasantía</option>
+                                <option value="proyectosProductivos">Proyectos Productivos</option>
+                                <option value="vinculoLaboral">Vínculo laboral</option>
+                                <option value="monitoria">Monitoría</option>
+                                <option value="unidadesProductivas">Unidades productivas familiares</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filters-actions">
+                        <button type="submit" class="btn-custom btn-custom-primary" style="width: 140px; height: 38px;">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="button" id="limpiarFiltrosBtn" class="btn-custom btn-custom-secondary" style="width: 140px; height: 38px;">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                        <button type="button" id="resetearOrdenamientoBtn" class="btn-custom btn-custom-sena" style="width: 160px; height: 38px;">
+                            <i class="fas fa-undo-alt"></i> Resetear Orden
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Controles de tabla -->
+            <div class="table-controls">
+                <div class="table-controls-left">
+                    <!-- Selector de registros por página -->
+                    <div class="d-flex align-items-center">
+                        <label class="form-label mb-0 me-2">Mostrar</label>
+                        <div class="registros-selector">
+                            <button type="button" class="registros-selector-btn" id="registrosSelectorBtn">
+                                <span id="registrosActual">10</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </button>
+                            <div class="registros-selector-dropdown" id="registrosSelectorDropdown">
+                                <div class="registros-selector-header">Seleccionar cantidad</div>
+                                <div class="registros-selector-list">
+                                    <div class="registros-option active" data-value="10">10 registros</div>
+                                    <div class="registros-option" data-value="25">25 registros</div>
+                                    <div class="registros-option" data-value="50">50 registros</div>
+                                    <div class="registros-option" data-value="-1">Todos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="ms-2 registros-label">registros</span>
+                    </div>
+                    
+                    <!-- Selector de columnas -->
+                    <div class="column-selector">
+                        <button type="button" class="column-selector-btn" id="columnSelectorBtn">
+                            <i class="fas fa-columns"></i>
+                            <span>Columnas</span>
+                            <i class="fas fa-chevron-down ms-auto"></i>
+                        </button>
+                        <div class="column-selector-dropdown" id="columnSelectorDropdown">
+                            <div class="column-selector-header">Seleccionar Columnas</div>
+                            <div class="column-selector-list" id="columnSelectorList">
+                                <!-- Las opciones se generarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de exportación -->
+                <div class="table-controls-right">
+                    <button type="button" id="btnExportExcel" class="btn-custom btn-custom-excel" style="width: 120px; height: 32px;">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button type="button" id="btnExportPDF" class="btn-custom btn-custom-pdf" style="width: 120px; height: 32px;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Aprendices con documentos pendientes -->
+            <div class="table-responsive">
+                <table id="aprendicesTable" class="modern-table">
+                    <thead>
+                        <tr>
+                            <th data-column="tipoDocumento">Tipo Documento</th>
+                            <th data-column="numeroDocumento">Número Documento</th>
+                            <th data-column="estadoFormacion">Estado Formación</th>
+                            <th data-column="nombres">Nombres</th>
+                            <th data-column="primerApellido">Primer Apellido</th>
+                            <th data-column="segundoApellido">Segundo Apellido</th>
+                            <th data-column="telefonoFijo">Teléfono</th>
+                            <th data-column="celular">Celular</th>
+                            <th data-column="correoElectronico">Correo</th>
+                            <th data-column="numeroFicha">Ficha</th>
+                            <th data-column="programaFormacion">Programa</th>
+                            <th data-column="alternativaSeleccionada">Alternativa</th>
+                            <th data-column="acciones">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Documentos del Aprendiz -->
+<div class="modal fade" id="modalDocumentosAprendiz" tabindex="-1" aria-labelledby="modalDocumentosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalDocumentosLabel">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Estado de Documentos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Información del Aprendiz -->
+                <div class="aprendiz-info-card mb-4">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-container me-3">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="aprendiz-details">
+                            <h6 class="mb-1" id="aprendizNombre">-</h6>
+                            <p class="text-muted mb-0" id="aprendizInfo">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Documentos -->
+                <div class="documentos-container">
+                    <!-- Documentos Subidos -->
+                    <div class="documentos-section mb-4">
+                        <div class="section-header documentos-subidos">
+                            <span><i class="fas fa-check-circle me-2"></i>Documentos Subidos</span>
+                            <span class="badge bg-success" id="contadorSubidos">0</span>
+                        </div>
+                        <div class="documentos-list" id="documentosSubidos">
+                            <!-- Los documentos subidos se cargarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Documentos Pendientes -->
+                    <div class="documentos-section">
+                        <div class="section-header documentos-pendientes">
+                            <span><i class="fas fa-exclamation-triangle me-2"></i>Documentos Pendientes</span>
+                            <span class="badge bg-danger" id="contadorPendientes">0</span>
+                        </div>
+                        <div class="documentos-list" id="documentosPendientes">
+                            <!-- Los documentos pendientes se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnExportarPDF">
+                    <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/admin/ordenamientoTabla.js"></script>
+<script type="module">
+    import utilidadesAdmin from '/js/admin/utilidadesAdmin.js';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración de columnas
+        const columnasConfig = [
+            { data: "tipoDocumento", title: "Tipo Documento", visible: false },
+            { data: "numeroDocumento", title: "Número Documento", visible: false },
+            { data: "estadoFormacion", title: "Estado Formación", visible: false },
+            { data: "nombres", title: "Nombres", visible: true },
+            { data: "primerApellido", title: "Primer Apellido", visible: true },
+            { data: "segundoApellido", title: "Segundo Apellido", visible: true },
+            { data: "telefonoFijo", title: "Teléfono", visible: true },
+            { data: "celular", title: "Celular", visible: true },
+            { data: "correoElectronico", title: "Email", visible: true },
+            { data: "numeroFicha", title: "Ficha", visible: true },
+            { data: "programaFormacion", title: "Programa", visible: false },
+            { data: "alternativaSeleccionada", title: "Alternativa", visible: false },
+            { data: "acciones", title: "Acciones", visible: true, orderable: false }
+        ];
+
+        // Inicializar selector de registros
+        function inicializarSelectorRegistros() {
+            const dropdown = document.getElementById('registrosSelectorDropdown');
+            const btn = document.getElementById('registrosSelectorBtn');
+            const actualSpan = document.getElementById('registrosActual');
+
+            // Eventos del botón
+            btn.addEventListener('click', () => {
+                dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
+            });
+
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Manejar selección de opciones
+            dropdown.addEventListener('click', (e) => {
+                if (e.target.classList.contains('registros-option')) {
+                    const value = e.target.getAttribute('data-value');
+                    const text = e.target.textContent.replace(' registros', '').replace('Todos', '-1');
+
+                    // Actualizar el texto del botón
+                    actualSpan.textContent = text === '-1' ? 'Todos' : text;
+
+                    // Cambiar la clase active
+                    document.querySelectorAll('.registros-option').forEach(opt => opt.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    // Cambiar registros en la tabla
+                    const valor = parseInt(value);
+                    tabla.page.len(valor).draw();
+
+                    // Cerrar dropdown
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Inicializar selector de columnas
+        function inicializarSelectorColumnas() {
+            const dropdown = document.getElementById('columnSelectorDropdown');
+            const list = document.getElementById('columnSelectorList');
+            const btn = document.getElementById('columnSelectorBtn');
+
+            // Generar opciones de columnas
+            columnasConfig.forEach(col => {
+                if (col.data !== 'acciones') { // Excluir columna de acciones
+                    const item = document.createElement('div');
+                    item.className = 'column-selector-item';
+                    item.innerHTML = `
+                        <input type="checkbox" id="col_${col.data}" ${col.visible ? 'checked' : ''}>
+                        <label for="col_${col.data}">${col.title}</label>
+                    `;
+                    list.appendChild(item);
+                }
+            });
+
+            // Eventos del selector
+            btn.addEventListener('click', () => {
+                dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
+            });
+
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Manejar cambios en las columnas
+            list.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const columnData = e.target.id.replace('col_', '');
+                    const isVisible = e.target.checked;
+
+                    // Actualizar configuración
+                    const colConfig = columnasConfig.find(col => col.data === columnData);
+                    if (colConfig) {
+                        colConfig.visible = isVisible;
+                    }
+
+                    // Actualizar tabla
+                    if (tabla) {
+                        const columnIndex = tabla.column(`[data-column="${columnData}"]`).index();
+                        if (columnIndex !== -1) {
+                            tabla.column(columnIndex).visible(isVisible);
+
+                            // Si se está mostrando la columna, agregar íconos de ordenamiento
+                            if (isVisible && window.ordenamientoTabla) {
+                                setTimeout(() => {
+                                    window.ordenamientoTabla.agregarIconosAColumnasOcultas();
+                                }, 100);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para formatear fechas
+        function formatearFecha(fecha) {
+            if (!fecha) return '';
+            const date = new Date(fecha);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        // Función para obtener clase de estado
+        function getEstadoClass(estado) {
+            const estadoLower = estado.toLowerCase();
+            if (estadoLower.includes('activo') || estadoLower.includes('en curso')) {
+                return 'estado-activo';
+            } else if (estadoLower.includes('inactivo') || estadoLower.includes('finalizado')) {
+                return 'estado-inactivo';
+            } else {
+                return 'estado-pendiente';
+            }
+        }
+
+        // Función para obtener datos de ordenamiento
+        function getOrderData() {
+            const ordenamiento = window.ordenamientoActual;
+            if (!ordenamiento || !ordenamiento.columna) {
+                console.log('No hay ordenamiento activo');
+                return null;
+            }
+            
+            console.log('Ordenamiento actual:', ordenamiento);
+            
+            // Mapear el tipo de ordenamiento a dirección
+            let direccion = 'asc';
+            if (ordenamiento.direccion === 'desc' || ordenamiento.direccion === 'newest') {
+                direccion = 'desc';
+            }
+            
+            // Mapear nombre de columna a índice y tipo
+            // IMPORTANTE: Los índices deben coincidir exactamente con el orden de las columnas en el HTML
+            // Esta tabla tiene solo 13 columnas (diferente a listarAprendices.ejs que tiene 34)
+            const columnMapping = {
+                'tipoDocumento': { index: 0, type: 'text' },
+                'numeroDocumento': { index: 1, type: 'number' },
+                'estadoFormacion': { index: 2, type: 'text' },
+                'nombres': { index: 3, type: 'text' },
+                'primerApellido': { index: 4, type: 'text' },
+                'segundoApellido': { index: 5, type: 'text' },
+                'telefonoFijo': { index: 6, type: 'number' },
+                'celular': { index: 7, type: 'number' },
+                'correoElectronico': { index: 8, type: 'text' },
+                'numeroFicha': { index: 9, type: 'number' },
+                'programaFormacion': { index: 10, type: 'text' },
+                'alternativaSeleccionada': { index: 11, type: 'text' },
+                'acciones': { index: 12, type: 'none' }
+            };
+            
+            const columnInfo = columnMapping[ordenamiento.columna];
+            if (columnInfo) {
+                const orderData = [{
+                    column: columnInfo.index,
+                    dir: direccion
+                }];
+                console.log('Datos de ordenamiento enviados:', orderData);
+                return orderData;
+            }
+            
+            console.log('Columna no encontrada en el mapeo:', ordenamiento.columna);
+            return null;
+        }
+
+        const tabla = utilidadesAdmin.inicializarTablaAprendices('#aprendicesTable', {
+            ajax: { 
+                url: '/administrador/aprendices-data', 
+                type: 'POST', 
+                data: d => ({ 
+                    ...d, 
+                    nombre: $('#nombreBusqueda').val(), 
+                    documento: $('#documentoBusqueda').val(), 
+                    programaFormacion: $('#programaBusqueda').val(), 
+                    alternativaSeleccionada: $('#alternativaBusqueda').val(),
+                    order: getOrderData(),
+                    tableType: 'docsPendientes' // Identificador para esta tabla específica
+                }) 
+            },
+            language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
+            info: false,
+            dom: 'rtip',
+            pageLength: 10,
+            ordering: false, // Deshabilitar ordenamiento nativo de DataTables
+            columns: columnasConfig.map(col => {
+                if (col.data === 'estadoFormacion') {
+                    return {
+                        data: col.data,
+                        visible: col.visible,
+                        render: (data, type, row) => {
+                            if (type === 'display') {
+                                return `<span class="estado-formacion ${getEstadoClass(data)}">${data.toUpperCase()}</span>`;
+                            }
+                            return data;
+                        }
+                    };
+                } else if (col.data === 'acciones') {
+                    return {
+                        data: col.data,
+                        visible: col.visible,
+                        orderable: false,
+                        render: (data, type, row) => {
+                            if (type === 'display') {
+                                const nombreCompleto = `${row.nombres} ${row.primerApellido} ${row.segundoApellido || ''}`.trim();
+                                return `
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary btn-ver-documentos" 
+                                                data-aprendiz-id="${row.numeroDocumento}"
+                                                data-aprendiz-nombre="${nombreCompleto}"
+                                                data-aprendiz-documento="${row.tipoDocumento} - ${row.numeroDocumento}"
+                                                data-aprendiz-programa="${row.programaFormacion || 'No especificado'}"
+                                                data-aprendiz-email="${row.correoElectronico || ''}"
+                                                title="Ver documentos">
+                                            <i class="fas fa-folder-open"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                            return '';
+                        }
+                    };
+                } else if (col.data.includes('fecha') || col.data.includes('Fecha')) {
+                    return {
+                        data: col.data,
+                        visible: col.visible,
+                        render: (data, type, row) => {
+                            if (type === 'display') {
+                                return formatearFecha(data);
+                            }
+                            return data;
+                        }
+                    };
+                } else {
+                    return {
+                        data: col.data,
+                        visible: col.visible
+                    };
+                }
+            })
+        });
+
+        // Inicializar selector de columnas
+        inicializarSelectorColumnas();
+
+        // Inicializar selector de registros
+        inicializarSelectorRegistros();
+
+        // Inicializar sistema de ordenamiento después de que DataTables termine de cargar
+        tabla.on('draw.dt', function() {
+            if (!window.ordenamientoInicializado) {
+                window.ordenamientoTabla = new OrdenamientoTabla();
+                window.ordenamientoInicializado = true;
+            }
+        });
+
+        // Inicialización alternativa después de un breve delay
+        setTimeout(() => {
+            if (!window.ordenamientoInicializado) {
+                window.ordenamientoTabla = new OrdenamientoTabla();
+                window.ordenamientoInicializado = true;
+            }
+        }, 1000);
+
+        // Eventos de formulario
+        $('#searchForm').on('submit', e => { 
+            e.preventDefault(); 
+            tabla.ajax.reload(); 
+        });
+        
+        $('#limpiarFiltrosBtn').on('click', () => { 
+            $('#searchForm')[0].reset(); 
+            tabla.ajax.reload(); 
+        });
+        
+        $('#resetearOrdenamientoBtn').on('click', () => {
+            if (window.ordenamientoTabla) {
+                window.ordenamientoTabla.resetearOrdenamiento();
+                tabla.ajax.reload();
+            }
+        });
+
+        // Botones de exportación
+        $('#btnExportExcel').on('click', function() {
+            tabla.button('.buttons-excel').trigger();
+        });
+
+        $('#btnExportPDF').on('click', function() {
+            tabla.button('.buttons-pdf').trigger();
+        });
+
+        // Función para exportar el modal a PDF - Versión Simplificada
+        function exportarModalAPDF(aprendizInfo) {
+            try {
+                // Verificar que existe la librería html2pdf
+                if (typeof html2pdf === 'undefined') {
+                    throw new Error('La librería html2pdf no está disponible');
+                }
+
+                // Construir nombre completo del aprendiz
+                const nombreCompleto = `${aprendizInfo.nombres} ${aprendizInfo.primerApellido} ${aprendizInfo.segundoApellido || ''}`.trim();
+                const tipoYDocumento = `${aprendizInfo.tipoDocumento} - ${aprendizInfo.numeroDocumento}`;
+                
+                // Obtener contadores
+                const contadorSubidos = document.getElementById('contadorSubidos');
+                const contadorPendientes = document.getElementById('contadorPendientes');
+                const numSubidos = contadorSubidos ? contadorSubidos.textContent : '0';
+                const numPendientes = contadorPendientes ? contadorPendientes.textContent : '0';
+                const totalDocs = parseInt(numSubidos) + parseInt(numPendientes);
+
+                // Recopilar documentos subidos
+                const documentosSubidos = [];
+                const contenedorSubidos = document.getElementById('documentosSubidos');
+                if (contenedorSubidos) {
+                    const docsSubidos = contenedorSubidos.querySelectorAll('.documento-item');
+                    docsSubidos.forEach(doc => {
+                        const nombre = doc.querySelector('.documento-nombre')?.textContent?.trim() || 'Documento sin nombre';
+                        const tipo = doc.querySelector('.documento-tipo')?.textContent?.trim() || 'N/A';
+                        const fecha = doc.querySelector('.documento-fecha')?.textContent?.trim() || 'N/A';
+                        const descripcion = doc.querySelector('.documento-descripcion')?.textContent?.trim() || '';
+                        documentosSubidos.push({ nombre, tipo, descripcion, fecha, estado: 'SUBIDO' });
+                    });
+                }
+
+                // Recopilar documentos pendientes
+                const documentosPendientes = [];
+                const contenedorPendientes = document.getElementById('documentosPendientes');
+                if (contenedorPendientes) {
+                    const docsPendientes = contenedorPendientes.querySelectorAll('.documento-item');
+                    docsPendientes.forEach(doc => {
+                        const nombre = doc.querySelector('.documento-nombre')?.textContent?.trim() || 'Documento sin nombre';
+                        const tipo = doc.querySelector('.documento-tipo')?.textContent?.trim() || 'N/A';
+                        documentosPendientes.push({ nombre, tipo, fecha: 'Pendiente', estado: 'PENDIENTE' });
+                    });
+                }
+
+                // Generar fecha
+                const fechaGeneracion = new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Crear tabla de documentos
+                let tablaDocumentos = '';
+                const todosDocumentos = [...documentosSubidos, ...documentosPendientes];
+
+                if (todosDocumentos.length > 0) {
+                    tablaDocumentos = `
+                        <table class="tabla-documentos">
+                            <thead>
+                                <tr>
+                                    <th>Documento</th>
+                                    <th>Tipo</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${todosDocumentos.map(doc => `
+                                    <tr class="${doc.estado.toLowerCase()}">
+                                        <td>${doc.nombre}</td>
+                                        <td>${doc.tipo}</td>
+                                        <td>${doc.descripcion || 'N/A'}</td>
+                                        <td>${doc.fecha}</td>
+                                        <td><span class="estado-badge ${doc.estado.toLowerCase()}">${doc.estado}</span></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    tablaDocumentos = '<div class="sin-documentos">No hay documentos para mostrar</div>';
+                }
+
+                // HTML simplificado para el PDF
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Reporte de Documentos - ${nombreCompleto}</title>
+                        <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            html, body {
+                                margin: 0;
+                                padding: 0;
+                                font-family: Arial, sans-serif;
+                                line-height: 1.2;
+                                color: #000;
+                                font-size: 12px;
+                            }
+                            body {
+                                padding: 10px;
+                            }
+                            .header { 
+                                background: #04324d; 
+                                color: white; 
+                                padding: 15px; 
+                                text-align: center; 
+                                margin-bottom: 12px;
+                                margin-top: 12px;
+                            }
+                            .header h1 { 
+                                margin: 0 0 10px 0; 
+                                font-size: 18px; 
+                            }
+                            .header p { 
+                                margin: 0; 
+                                font-size: 12px; 
+                            }
+                            .info-aprendiz { 
+                                background: #f8f9fa; 
+                                border: 1px solid #ddd; 
+                                padding: 12px; 
+                                margin-bottom: 15px;
+                            }
+                            .info-aprendiz h2 {
+                                margin: 0 0 10px 0;
+                                color: #000;
+                                font-size: 16px;
+                            }
+                            .info-aprendiz p {
+                                margin: 5px 0;
+                                font-size: 12px;
+                                color: #000;
+                            }
+                            .resumen { 
+                                display: flex; 
+                                justify-content: space-around; 
+                                background: #e9ecef; 
+                                padding: 10px; 
+                                margin-bottom: 10px; 
+                                text-align: center;
+                            }
+                            .resumen-item { 
+                                flex: 1; 
+                            }
+                            .resumen-item h3 {
+                                margin: 0;
+                                font-size: 16px;
+                                color: #000;
+                            }
+                            .resumen-item p {
+                                margin: 5px 0 0 0;
+                                font-size: 12px;
+                                color: #000;
+                            }
+                            .tabla-documentos { 
+                                width: 100%; 
+                                border-collapse: collapse;
+                                margin-top: 0px;
+                                margin-bottom: 15px;
+                            }
+                            .tabla-documentos th, 
+                            .tabla-documentos td { 
+                                border: 1px solid #ddd; 
+                                padding: 8px; 
+                                text-align: left;
+                            }
+                            .tabla-documentos th:nth-child(1),
+                            .tabla-documentos td:nth-child(1) {
+                                width: 25%; /* Columna Documento */
+                                max-width: 200px;
+                                word-wrap: break-word;
+                                text-align: center;
+                            }
+                            .tabla-documentos th:nth-child(2),
+                            .tabla-documentos td:nth-child(2) {
+                                width: 15%; /* Columna Tipo */
+                                text-align: center;
+                            }
+                            .tabla-documentos th:nth-child(3),
+                            .tabla-documentos td:nth-child(3) {
+                                width: 30%; /* Columna Descripción */
+                                max-width: 250px;
+                                word-wrap: break-word;
+                                text-align: center;
+                            }
+                            .tabla-documentos th:nth-child(4),
+                            .tabla-documentos td:nth-child(4) {
+                                width: 15%; /* Columna Fecha */
+                                text-align: center;
+                            }
+                            .tabla-documentos th:nth-child(5),
+                            .tabla-documentos td:nth-child(5) {
+                                width: 15%; /* Columna Estado */
+                                text-align: center;
+                            }
+                            .tabla-documentos th { 
+                                background: #04324d; 
+                                color: white; 
+                                font-weight: bold;
+                            }
+                            .tabla-documentos tr.subido { 
+                                background: rgba(25, 135, 84, 0.1);
+                            }
+                            .tabla-documentos tr.pendiente { 
+                                background: rgba(220, 53, 69, 0.1);
+                            }
+                            .estado-badge { 
+                                padding: 4px 8px; 
+                                border-radius: 4px; 
+                                font-size: 10px; 
+                                font-weight: bold;
+                            }
+                            .estado-badge.subido { 
+                                background: #198754; 
+                                color: white;
+                            }
+                            .estado-badge.pendiente { 
+                                background: #dc3545; 
+                                color: white;
+                            }
+                            .sin-documentos {
+                                text-align: center;
+                                padding: 40px;
+                                color: #000;
+                                font-style: italic;
+                            }
+                            .footer {
+                                margin-top: 30px;
+                                padding-top: 15px;
+                                border-top: 1px solid #ddd;
+                                text-align: center;
+                                font-size: 10px;
+                                color: #000;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>📋 REPORTE DE DOCUMENTOS</h1>
+                            <p>Sistema de Gestión de Etapa Productiva - SENA</p>
+                            <p>Generado el: ${fechaGeneracion}</p>
+                        </div>
+
+                        <div class="info-aprendiz">
+                            <h2>Información del Aprendiz</h2>
+                            <p><strong>Nombre:</strong> ${nombreCompleto}</p>
+                            <p><strong>Documento:</strong> ${tipoYDocumento}</p>
+                            <p><strong>Programa:</strong> ${aprendizInfo.programaFormacion || 'No especificado'}</p>
+                            ${aprendizInfo.correoElectronico ? `<p><strong>Email:</strong> ${aprendizInfo.correoElectronico}</p>` : ''}
+                        </div>
+
+                        <div class="resumen">
+                            <div class="resumen-item">
+                                <h3>${numSubidos}</h3>
+                                <p>Docs Subidos</p>
+                            </div>
+                            <div class="resumen-item">
+                                <h3>${numPendientes}</h3>
+                                <p>Docs Pendientes</p>
+                            </div>
+                            <div class="resumen-item">
+                                <h3>${totalDocs}</h3>
+                                <p>Total Documentos</p>
+                            </div>
+                        </div>
+
+                        ${tablaDocumentos}
+
+                        <div class="footer">
+                            <p><strong>SENA - Servicio Nacional de Aprendizaje</strong></p>
+                            <p>Sistema de Gestión de Etapa Productiva</p>
+                            <p>Este documento fue generado automáticamente el ${fechaGeneracion}</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // Configuración simplificada para html2pdf
+                const nombreArchivo = `Documentos_${nombreCompleto.replace(/[^a-zA-Z0-9\s]/g, '')}_${aprendizInfo.numeroDocumento}.pdf`;
+                
+                const opt = {
+                    margin: [0, 10, 0, 10], // [top, right, bottom, left] en mm - Solo márgenes laterales
+                    filename: nombreArchivo,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        scrollX: 0,
+                        scrollY: 0
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    }
+                };
+
+                // Generar PDF directamente
+                html2pdf().from(htmlContent).set(opt).save().then(() => {
+                    // Mostrar mensaje de éxito
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡PDF Generado!',
+                            text: `Reporte descargado: ${nombreArchivo}`,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        alert(`PDF generado exitosamente: ${nombreArchivo}`);
+                    }
+                }).catch(error => {
+                    console.error('Error al generar PDF:', error);
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al Generar PDF',
+                            text: 'No se pudo generar el archivo PDF. Intente nuevamente.',
+                            confirmButtonText: 'Entendido'
+                        });
+                    } else {
+                        alert('Error al generar el PDF. Intente nuevamente.');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error en exportarModalAPDF:', error);
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al generar el PDF: ' + error.message,
+                        confirmButtonText: 'Entendido'
+                    });
+                } else {
+                    alert('Error al generar el PDF: ' + error.message);
+                }
+            }
+        }
+
+        // Función para cargar documentos del aprendiz
+        async function cargarDocumentosAprendiz(numeroDocumento) {
+            try {
+                const response = await fetch(`/administrador/aprendiz/${numeroDocumento}/documentos`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error al cargar documentos:', error);
+                throw error;
+            }
+        }
+
+        // Función para formatear fecha
+        function formatearFechaModal(fecha) {
+            if (!fecha) return '';
+            const date = new Date(fecha);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Función para mostrar documentos en el modal
+        function mostrarDocumentosEnModal(documentosData, aprendizInfo) {
+            // Usar información del aprendiz desde la respuesta del servidor si está disponible
+            const infoAprendiz = documentosData.aprendiz || aprendizInfo;
+            
+            // Construir nombre completo
+            const nombreCompleto = `${infoAprendiz.nombres} ${infoAprendiz.primerApellido} ${infoAprendiz.segundoApellido || ''}`.trim();
+            
+            // Construir información adicional
+            const tipoYNumeroDoc = `${infoAprendiz.tipoDocumento} - ${infoAprendiz.numeroDocumento}`;
+            const programa = infoAprendiz.programaFormacion || 'Programa no especificado';
+            
+            // Actualizar información del aprendiz en el modal
+            document.getElementById('aprendizNombre').textContent = nombreCompleto;
+            document.getElementById('aprendizInfo').textContent = `${tipoYNumeroDoc} • ${programa}`;
+
+            // Separar documentos subidos y pendientes
+            const documentosSubidos = documentosData.subidos || [];
+            const documentosPendientes = documentosData.pendientes || [];
+
+            // Actualizar contadores
+            document.getElementById('contadorSubidos').textContent = documentosSubidos.length;
+            document.getElementById('contadorPendientes').textContent = documentosPendientes.length;
+
+            // Contenedores
+            const contenedorSubidos = document.getElementById('documentosSubidos');
+            const contenedorPendientes = document.getElementById('documentosPendientes');
+
+            // Limpiar contenedores
+            contenedorSubidos.innerHTML = '';
+            contenedorPendientes.innerHTML = '';
+
+            // Mostrar documentos subidos
+            if (documentosSubidos.length > 0) {
+                documentosSubidos.forEach(doc => {
+                    const fechaSubida = doc.fechaSubida || doc.fecha_subida;
+                    const nombreOriginal = doc.nombreOriginal || doc.nombre_original;
+                    const nombreGuardado = doc.nombreGuardado || doc.nombre_guardado;
+                    const tipoDocumento = doc.tipoDocumento || doc.tipo_documento;
+                    const descripcion = doc.descripcion || '';
+                    const tamanoBytes = doc.tamanoBytes || doc.tamano_bytes || 0;
+
+                    // Calcular tamaño en MB
+                    const tamanoMB = (tamanoBytes / (1024 * 1024)).toFixed(2);
+
+                    // Determinar tipo de archivo para el icono
+                    const extension = nombreOriginal.split('.').pop()?.toLowerCase() || '';
+                    let iconoArchivo = 'fas fa-file';
+                    let colorIcono = '#6c757d';
+                    
+                    switch(extension) {
+                        case 'pdf':
+                            iconoArchivo = 'fas fa-file-pdf';
+                            colorIcono = '#dc3545';
+                            break;
+                        case 'doc':
+                        case 'docx':
+                            iconoArchivo = 'fas fa-file-word';
+                            colorIcono = '#0d6efd';
+                            break;
+                        case 'xls':
+                        case 'xlsx':
+                            iconoArchivo = 'fas fa-file-excel';
+                            colorIcono = '#198754';
+                            break;
+                        case 'jpg':
+                        case 'jpeg':
+                        case 'png':
+                            iconoArchivo = 'fas fa-file-image';
+                            colorIcono = '#fd7e14';
+                            break;
+                    }
+
+                    const docElement = document.createElement('div');
+                    docElement.className = 'documento-item subido';
+                    docElement.innerHTML = `
+                        <i class="${iconoArchivo}" style="color: ${colorIcono}; font-size: 1.5rem;"></i>
+                        <div class="documento-info">
+                            <div class="documento-nombre">${nombreOriginal}</div>
+                            <div class="documento-tipo">${tipoDocumento}</div>
+                            ${descripcion ? `<div class="documento-descripcion">${descripcion}</div>` : ''}
+                            <div class="documento-detalles">
+                                <small>${tamanoMB} MB</small>
+                            </div>
+                        </div>
+                        <div class="documento-estado">
+                            <span class="estado-badge subido">Subido</span>
+                            <div class="documento-fecha">${formatearFechaModal(fechaSubida)}</div>
+                        </div>
+                        <div class="documento-acciones">
+                            <a href="/uploads/documentos/${nombreGuardado}"
+                               class="btn-documento btn-ver"
+                               target="_blank"
+                               title="Ver documento">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    `;
+                    contenedorSubidos.appendChild(docElement);
+                });
+            } else {
+                contenedorSubidos.innerHTML = `
+                    <div class="documentos-vacio">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No hay documentos subidos</p>
+                    </div>
+                `;
+            }
+
+            // Mostrar documentos pendientes
+            if (documentosPendientes.length > 0) {
+                documentosPendientes.forEach(doc => {
+                    const docElement = document.createElement('div');
+                    docElement.className = 'documento-item pendiente';
+                    docElement.innerHTML = `
+                        <i class="fas fa-exclamation-circle" style="color: #dc3545; font-size: 1.5rem;"></i>
+                        <div class="documento-info">
+                            <div class="documento-nombre">${doc.nombre}</div>
+                            <div class="documento-tipo">${doc.tipo}</div>
+                        </div>
+                        <div class="documento-estado">
+                            <span class="estado-badge pendiente">Pendiente</span>
+                            <div class="documento-fecha">Sin subir</div>
+                        </div>
+                    `;
+                    contenedorPendientes.appendChild(docElement);
+                });
+            } else {
+                contenedorPendientes.innerHTML = `
+                    <div class="documentos-vacio">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Todos los documentos han sido subidos</p>
+                    </div>
+                `;
+            }
+
+            // Configurar botón "Exportar PDF"
+            document.getElementById('btnExportarPDF').onclick = function() {
+                exportarModalAPDF(infoAprendiz);
+            };
+        }
+
+        // Evento para abrir modal de documentos
+        $(document).on('click', '.btn-ver-documentos', async function() {
+            const boton = this;
+            const numeroDocumento = boton.dataset.aprendizId;
+            
+            // Información básica del aprendiz desde los atributos del botón (fallback)
+            const aprendizInfoFallback = {
+                nombres: boton.dataset.aprendizNombre?.split(' ')[0] || '',
+                primerApellido: boton.dataset.aprendizNombre?.split(' ')[1] || '',
+                segundoApellido: boton.dataset.aprendizNombre?.split(' ').slice(2).join(' ') || '',
+                tipoDocumento: boton.dataset.aprendizDocumento?.split(' - ')[0] || '',
+                numeroDocumento: numeroDocumento,
+                programaFormacion: boton.dataset.aprendizPrograma || '',
+                correoElectronico: boton.dataset.aprendizEmail || ''
+            };
+
+            // Mostrar loading
+            const modal = new bootstrap.Modal(document.getElementById('modalDocumentosAprendiz'));
+            modal.show();
+
+            // Mostrar estado de carga
+            document.getElementById('aprendizNombre').textContent = 'Cargando...';
+            document.getElementById('aprendizInfo').textContent = 'Obteniendo información...';
+            document.getElementById('documentosSubidos').innerHTML = `
+                <div class="loading-documentos">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p>Cargando documentos...</p>
+                </div>
+            `;
+            document.getElementById('documentosPendientes').innerHTML = '';
+
+            try {
+                const documentosData = await cargarDocumentosAprendiz(numeroDocumento);
+                
+                // Si el servidor devolvió la información del aprendiz, usarla; si no, usar el fallback
+                const infoCompleta = documentosData.aprendiz || aprendizInfoFallback;
+                
+                mostrarDocumentosEnModal(documentosData, infoCompleta);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('aprendizNombre').textContent = 'Error';
+                document.getElementById('aprendizInfo').textContent = 'No se pudo cargar la información';
+                document.getElementById('documentosSubidos').innerHTML = `
+                    <div class="documentos-vacio">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error al cargar los documentos. Intente nuevamente.</p>
+                    </div>
+                `;
+                document.getElementById('documentosPendientes').innerHTML = '';
+            }
+        });
+    });
+</script>

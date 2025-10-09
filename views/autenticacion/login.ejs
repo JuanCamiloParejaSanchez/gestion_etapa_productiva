@@ -1,0 +1,80 @@
+<!-- Ruta: vistas/autenticacion/login.ejs -->
+<!-- Propósito: Vista de login para aprendices y administradores -->
+
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container-fluid">
+    <div class="d-flex">
+      <a href="/" class="btn btn-primary d-flex align-items-center">
+        <i class="fas fa-arrow-left me-2"></i>
+        Regresar
+      </a>
+    </div>
+  </div>
+</nav>
+
+<%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/autenticacion/estilosLogin.css">
+
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0 text-center">Iniciar Sesión</h4>
+        </div>
+        <div class="card-body">
+
+          <!-- Mensaje de error si se recibió ?error=1 -->
+          <% if (error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <%= error %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+          <% } %>
+
+          <form id="loginForm">
+            <input type="hidden" name="role" id="roleInput" value="<%= rol || '' %>">
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required>
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="form-text mt-1">
+                <strong>Requisitos generales:</strong> Al crear o restablecer tu contraseña, debe tener al menos 12 caracteres, incluir mayúsculas, minúsculas, números y símbolos.
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Iniciar Sesión
+              </button>
+              <a href="/auth/recuperar-contrasena" class="btn btn-link">¿Olvidaste tu contraseña?</a>
+            </div>
+          </form>
+
+          <hr>
+          <div class="text-center">
+            <p class="mb-0">¿No tienes una cuenta?</p>
+            <a href="/" class="btn btn-link">Regístrate aquí</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/autenticacion/login.js"></script>

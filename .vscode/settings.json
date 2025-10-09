@@ -1,0 +1,6 @@
+{
+    "github.branchProtection": true,
+    "IDX.aI.enableInlineCompletion": true,
+    "IDX.aI.enableCodebaseIndexing": true,
+    "kiroAgent.configureMCP": "Enabled"
+}

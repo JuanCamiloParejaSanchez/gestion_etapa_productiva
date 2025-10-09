@@ -1,0 +1,795 @@
+<!-- Ruta: vistas/aprendiz/registroInicial.ejs -->
+<!-- Propósito: Formulario principal para el registro de nuevos aprendices. -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="/estilos/autenticacion/estilosLogin.css">
+
+<%- contentFor('styles') %>
+<style>
+/* Estilos específicos para botones de navbar */
+.navbar .btn-primary {
+    background-color: #39a900 !important;
+    border-color: #39a900 !important;
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.navbar .btn-primary:hover {
+    background-color: #2d8500 !important;
+    border-color: #2d8500 !important;
+}
+    .is-valid {
+        border-color: #28a745 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.8.78 4.05-4.05-.78-.78L3.09 5.9z'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4m-2.4 0 2.4-2.4'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+
+    .form-text.text-danger {
+        display: none;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545 !important;
+    }
+
+    .validating {
+        position: relative;
+    }
+
+    .validating::after {
+        content: '';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid #007bff;
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+    }
+
+    .popup-overlay.active {
+        display: block;
+    }
+
+    .popup-info {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 9999;
+        max-width: 90%;
+        max-height: 80%;
+        overflow-y: auto;
+    }
+
+    .popup-info.active {
+        display: block;
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+
+<%- contentFor('body') %>
+<!-- Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <div class="navbar-nav w-100 justify-content-between">
+            <a href="/" class="btn btn-primary d-flex align-items-center">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <!-- Formulario principal -->
+        <div class="col-lg-12 col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="form-header mb-0">DATOS DEL APRENDIZ</h2>
+                </div>
+                <div class="card-body">
+                    <div id="messageContainer" class="mb-3"></div>
+                    
+                    <!-- Botón informativo integrado en el formulario -->
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-outline-info btn-sm" id="btnInfo">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Alternativas de Etapa Productiva
+                        </button>
+                    </div>
+                    
+                    <form id="aprendizForm" action="/registrar-aprendiz" method="POST">
+
+                        <h3 class="form-subheader mt-4">Datos Personales</h3>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nombres" class="form-label">Nombres <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="nombres" name="nombres" required placeholder="Ej: JUAN CARLOS">
+                                <small id="nombresHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="primerApellido" class="form-label">Primer apellido <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="primerApellido" name="primerApellido" required placeholder="Ej: PÉREZ">
+                                <small id="primerApellidoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="segundoApellido" class="form-label">Segundo apellido</label>
+                                <input type="text" class="form-control" id="segundoApellido" name="segundoApellido" placeholder="Ej: GÓMEZ">
+                                <small id="segundoApellidoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="tipoDocumento" class="form-label">Tipo de documento <span class="required">*</span></label>
+                                <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
+                                    <option value="">SELECCIONE...</option>
+                                    <option value="CC">CÉDULA DE CIUDADANÍA</option>
+                                    <option value="TI">TARJETA DE IDENTIDAD</option>
+                                    <option value="CE">CÉDULA DE EXTRANJERÍA</option>
+                                    <option value="PEP">PEP</option>
+                                    <option value="PPT">PERMISO DE PROTECCIÓN TEMPORAL</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="numeroDocumento" class="form-label">Número de documento <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" required placeholder="Ej: 1234567890">
+                                <small id="numeroDocumentoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="fechaNacimiento" class="form-label">Fecha de nacimiento <span class="required">*</span></label>
+                                <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required aria-label="Fecha de nacimiento">
+                                <small id="fechaNacimientoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="eps" class="form-label">EPS <span class="required">*</span></label>
+                                <select class="form-select" id="eps" name="eps" required>
+                                    <option value="">SELECCIONE...</option>
+                                    <option value="COOSALUD EPS-S">COOSALUD EPS-S</option>
+                                    <option value="NUEVA EPS">NUEVA EPS</option>
+                                    <option value="MUTUAL SER">MUTUAL SER</option>
+                                    <option value="ALIANSALUD EPS">ALIANSALUD EPS</option>
+                                    <option value="SALUD TOTAL EPS S.A.">SALUD TOTAL EPS S.A.</option>
+                                    <option value="EPS SANITAS">EPS SANITAS</option>
+                                    <option value="EPS SURA">EPS SURA</option>
+                                    <option value="FAMISANAR">FAMISANAR</option>
+                                    <option value="SERVICIO OCCIDENTAL DE SALUD EPS SOS">SERVICIO OCCIDENTAL DE SALUD EPS SOS</option>
+                                    <option value="SALUD MIA">SALUD MIA</option>
+                                    <option value="COMFENALCO VALLE">COMFENALCO VALLE</option>
+                                    <option value="COMPENSAR EPS">COMPENSAR EPS</option>
+                                    <option value="EPM - EMPRESAS PUBLICAS DE MEDELLIN">EPM - EMPRESAS PUBLICAS DE MEDELLIN</option>
+                                    <option value="FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA">FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA</option>
+                                    <option value="CAJACOPI ATLANTICO">CAJACOPI ATLANTICO</option>
+                                    <option value="CAPRESOCA">CAPRESOCA</option>
+                                    <option value="COMFACHOCO">COMFACHOCO</option>
+                                    <option value="COMFAORIENTE">COMFAORIENTE</option>
+                                    <option value="EPS FAMILIAR DE COLOMBIA">EPS FAMILIAR DE COLOMBIA</option>
+                                    <option value="ASMET SALUD">ASMET SALUD</option>
+                                    <option value="EMSSANAR E.S.S.">EMSSANAR E.S.S.</option>
+                                    <option value="CAPITAL SALUD EPS-S">CAPITAL SALUD EPS-S</option>
+                                    <option value="SAVIA SALUD EPS">SAVIA SALUD EPS</option>
+                                    <option value="DUSAKAWI EPSI">DUSAKAWI EPSI</option>
+                                    <option value="ASOCIACION INDIGENA DEL CAUCA EPSI">ASOCIACION INDIGENA DEL CAUCA EPSI</option>
+                                    <option value="ANAS WAYUU EPSI">ANAS WAYUU EPSI</option>
+                                    <option value="MALLAMAS EPSI">MALLAMAS EPSI</option>
+                                    <option value="PIJAOS SALUD EPSI">PIJAOS SALUD EPSI</option>
+                                    <option value="SALUD BÓLIVAR EPS SAS">SALUD BÓLIVAR EPS SAS</option>
+                                    <option value="NO APLICA">NO APLICA</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3 class="form-subheader mt-4">Datos de Ubicación</h3>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="telefonoFijo" class="form-label">Teléfono fijo</label>
+                                <input type="tel" class="form-control" id="telefonoFijo" name="telefonoFijo" placeholder="Ej: 1234567">
+                                <small id="telefonoFijoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="celular" class="form-label">Celular <span class="required">*</span></label>
+                                <input type="tel" class="form-control" id="celular" name="celular" required placeholder="Ej: 3001234567">
+                                <small id="celularHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="direccion" class="form-label">Dirección de residencia <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="direccion" name="direccion" required placeholder="Ej: CRA 10 #20-30">
+                                <small id="direccionHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="barrio" class="form-label">Barrio <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="barrio" name="barrio" required placeholder="Ej: CENTRO">
+                                <small id="barrioHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="departamento" class="form-label">Departamento <span class="required">*</span></label>
+                                <select class="form-select" id="departamento" name="departamento" required>
+                                    <option value="">SELECCIONE...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="municipio" class="form-label">Municipio <span class="required">*</span></label>
+                                <select class="form-select" id="municipio" name="municipio" required>
+                                    <option value="">SELECCIONE UN MUNICIPIO...</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="correoElectronico" class="form-label">Correo electrónico <span class="required">*</span></label>
+                                <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" required placeholder="Ej: ejemplo@correo.com">
+                                <small id="correoElectronicoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                        </div>
+
+                        <h3 class="form-subheader mt-4">Datos de la Formación</h3>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="fechaInicioLectiva" class="form-label">Fecha inicio etapa lectiva <span class="required">*</span></label>
+                                <input type="date" class="form-control" id="fechaInicioLectiva" name="fechaInicioLectiva" required aria-label="Fecha inicio etapa lectiva">
+                                <small id="fechaInicioLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="fechaFinLectiva" class="form-label">Fecha fin etapa lectiva <span class="required">*</span></label>
+                                <input type="date" class="form-control" id="fechaFinLectiva" name="fechaFinLectiva" required aria-label="Fecha fin etapa lectiva">
+                                <small id="fechaFinLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="instructorLectiva" class="form-label">Instructor/a responsable etapa lectiva <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="instructorLectiva" name="instructorLectiva" required placeholder="Ej: MARÍA GONZÁLEZ">
+                                <small id="instructorLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="instructorProductiva" class="form-label">Instructor/a responsable etapa productiva <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="instructorProductiva" name="instructorProductiva" required placeholder="Ej: CARLOS RODRÍGUEZ">
+                                <small id="instructorProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="numeroFicha" class="form-label">Número de ficha <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="numeroFicha" name="numeroFicha" required placeholder="Ej: 1234567">
+                                <small id="numeroFichaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-9">
+                                <label for="programaFormacion" class="form-label">Programa de formación <span class="required">*</span></label>
+                                <select class="form-select" id="programaFormacion" name="programaFormacion" required>
+                                    <option value="">SELECCIONE...</option>
+                                    <option value="tecnoActividadFisica">TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
+                                    <option value="tecnoEntrenamientoDeportivo">TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
+                                    <option value="tecnoAnalisisDesarrollo">TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
+                                    <option value="tecProcesamientoPruebas">TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
+                                    <option value="tecProgramacion">TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h3 class="form-subheader mt-4">Datos de la Alternativa de Etapa Productiva</h3>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada <span class="required">*</span></label>
+                                <select class="form-select" id="alternativaSeleccionada" name="alternativaSeleccionada" required>
+                                    <option value="">SELECCIONE...</option>
+                                    <option value="contratoAprendizaje">CONTRATO DE APRENDIZAJE</option>
+                                    <option value="pasantia">PASANTÍA</option>
+                                    <option value="apoyoEntidades">APOYO A ENTIDADES</option>
+                                    <option value="vinculoLaboral">VÍNCULO LABORAL</option>
+                                    <option value="proyectosProductivos">PROYECTOS PRODUCTIVOS</option>
+                                    <option value="monitoria">MONITORÍA</option>
+                                    <option value="unidadesProductivas">UNIDADES PRODUCTIVAS FAMILIARES</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="areaFormacion" class="form-label">¿En el área de formación? <span class="required">*</span></label>
+                                <select class="form-select" id="areaFormacion" name="areaFormacion" required>
+                                    <option value="SI">SÍ</option>
+                                    <option value="NO">NO</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="fechaInicioProductiva" class="form-label">Fecha inicio etapa productiva <span class="required">*</span></label>
+                                <input type="date" class="form-control" id="fechaInicioProductiva" name="fechaInicioProductiva" required>
+                                <small id="fechaInicioProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="fechaFinProductiva" class="form-label">Fecha fin etapa productiva <span class="required">*</span></label>
+                                <input type="date" class="form-control" id="fechaFinProductiva" name="fechaFinProductiva" required>
+                                <small id="fechaFinProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="empresaPatrocinadora" class="form-label">Empresa patrocinadora <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="empresaPatrocinadora" name="empresaPatrocinadora" required placeholder="Ej: EMPRESA ABC S.A.S">
+                                <small id="empresaPatrocinadoraHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="areaPractica" class="form-label">Área donde realiza la práctica <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="areaPractica" name="areaPractica" required placeholder="Ej: DESARROLLO DE SOFTWARE">
+                                <small id="areaPracticaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="jefeInmediato" class="form-label">Nombre del jefe inmediato <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="jefeInmediato" name="jefeInmediato" required placeholder="Ej: ANA MARTÍNEZ">
+                                <small id="jefeInmediatoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="telefonoEmpresa" class="form-label">Teléfono fijo</label>
+                                <input type="tel" class="form-control" id="telefonoEmpresa" name="telefonoEmpresa" placeholder="Ej: 1234567">
+                                <small id="telefonoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="celularEmpresa" class="form-label">Celular <span class="required">*</span></label>
+                                <input type="tel" class="form-control" id="celularEmpresa" name="celularEmpresa" required placeholder="Ej: 3001234567">
+                                <small id="celularEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="direccionEmpresa" class="form-label">Dirección de la empresa <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="direccionEmpresa" name="direccionEmpresa" required placeholder="Ej: CRA 15 #25-30">
+                                <small id="direccionEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="correoEmpresa" class="form-label">Correo de la empresa <span class="required">*</span></label>
+                                <input type="email" class="form-control" id="correoEmpresa" name="correoEmpresa" required placeholder="Ej: contacto@empresa.com">
+                                <small id="correoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="horario" class="form-label">Horario <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="horario" name="horario" required placeholder="Ej: L a V 8:00am a 5:00pm">
+                                <small id="horarioHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">Enviar</button>
+                        <p class="mt-3" style="font-size:0.98rem;"><span class="required">*</span> Campos obligatorios</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popup Informativo -->
+<div class="popup-overlay" id="popupOverlay"></div>
+<div class="popup-info" id="popupInfo">
+    <h3>Alternativas de Etapa Productiva</h3>
+    <div class="popup-content">
+        <div class="alternativa">
+            <h4>Contrato de Aprendizaje</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Pasantía</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Apoyo a Entidades</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Vínculo Laboral</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Proyectos Productivos</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Monitoría</h4>
+        </div>
+        <div class="alternativa">
+            <h4>Unidades Productivas Familiares</h4>
+            <p>Conoce más sobre las etapas productivas dando clic en el botón
+                <a href="/imagenes/pdf/alternativas/alternativas-etapa-productiva.pdf"
+                   target="_blank"
+                   class="link-alternativas"
+                   style="color: #39a900; text-decoration: none;">
+                    Alternativas de etapa productiva
+                </a>
+            </p>
+        </div>
+        <button class="btn btn-primary mt-3" id="btnCerrarPopup">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal de Registro Exitoso -->
+<div class="modal fade" id="modalRegistroExitoso" tabindex="-1" aria-labelledby="modalRegistroExitosoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalRegistroExitosoLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ¡Registro Exitoso!
+                </h5>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="mb-4">
+                    <svg class="text-success" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h4 class="mb-3">¡Datos guardados correctamente!</h4>
+                <p class="mb-4">
+                    Tu registro ha sido procesado exitosamente. 
+                    Ahora necesitas crear una contraseña segura para acceder a tu cuenta.
+                </p>
+                <div class="alert alert-info">
+                    <small>
+                        <strong>Siguiente paso:</strong> Crear tu contraseña de acceso al sistema
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary btn-lg" id="btnContinuarCrearPassword">
+                    <i class="fas fa-key me-2"></i>
+                    Crear Contraseña
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script type="module" src="/js/formValidation.js"></script>
+<script src="/js/utilidades/utils.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+
+        // Función para mostrar mensajes de error/éxito
+        function mostrarMensaje(mensaje, tipo = 'danger') {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    <i class="fas ${tipo === 'danger' ? 'fa-exclamation-circle' : tipo === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                    ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            // Auto-ocultar después de 10 segundos para mensajes de error
+            if (tipo === 'danger') {
+                setTimeout(() => {
+                    const alert = messageContainer.querySelector('.alert');
+                    if (alert) alert.remove();
+                }, 10000);
+            }
+        }
+
+        // Función para validar duplicados en tiempo real
+        async function validarDuplicados(campo, valor) {
+            if (!valor || valor.trim() === '') return;
+            
+            try {
+                const response = await fetch('/verificar-duplicado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        campo: campo,
+                        valor: campo === 'correoElectronico' ? valor.toLowerCase() : valor.toUpperCase()
+                    })
+                });
+
+                const data = await response.json();
+                
+                const mensaje = campo === 'correoElectronico'
+                    ? 'Este correo electrónico ya está registrado'
+                    : 'Este número de documento ya está registrado';
+
+                if (data.existe) {
+                    const fieldElement = document.getElementById(campo);
+                    fieldElement.classList.add('is-invalid');
+                    fieldElement.classList.remove('is-valid');
+                    const helpElement = document.getElementById(campo + 'Help');
+                    if (helpElement) {
+                        helpElement.style.display = 'block';
+                        helpElement.textContent = mensaje;
+                        helpElement.classList.add('text-danger');
+                        helpElement.classList.remove('text-success');
+                    }
+                    return false;
+                } else {
+                    const fieldElement = document.getElementById(campo);
+                    fieldElement.classList.remove('is-invalid');
+                    fieldElement.classList.add('is-valid');
+                    const helpElement = document.getElementById(campo + 'Help');
+                    if (helpElement) {
+                        helpElement.style.display = 'none';
+                        helpElement.textContent = '';
+                        helpElement.classList.remove('text-danger', 'text-success');
+                    }
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error validando duplicados:', error);
+                return true; // En caso de error, permitir continuar
+            }
+        }
+
+        // Debounce function para evitar demasiadas peticiones
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Validación en tiempo real para correo electrónico
+        const correoInput = document.getElementById('correoElectronico');
+        if (correoInput) {
+            const validarCorreoDebounced = debounce(async (event) => {
+                const valor = event.target.value.trim();
+                if (valor && valor.includes('@')) {
+                    await validarDuplicados('correoElectronico', valor);
+                }
+            }, 1000);
+
+            correoInput.addEventListener('blur', validarCorreoDebounced);
+            correoInput.addEventListener('input', function() {
+                this.classList.remove('is-invalid', 'is-valid');
+                const helpElement = document.getElementById('correoElectronicoHelp');
+                if (helpElement) helpElement.style.display = 'none';
+            });
+        }
+
+        // Validación en tiempo real para número de documento
+        const documentoInput = document.getElementById('numeroDocumento');
+        if (documentoInput) {
+            const validarDocumentoDebounced = debounce(async (event) => {
+                const valor = event.target.value.trim();
+                if (valor && valor.length >= 7) {
+                    await validarDuplicados('numeroDocumento', valor);
+                }
+            }, 1000);
+
+            documentoInput.addEventListener('blur', validarDocumentoDebounced);
+            documentoInput.addEventListener('input', function() {
+                this.classList.remove('is-invalid', 'is-valid');
+                const helpElement = document.getElementById('numeroDocumentoHelp');
+                if (helpElement) helpElement.style.display = 'none';
+            });
+        }
+
+        // Interceptar el envío del formulario para validar duplicados
+        const form = document.getElementById('aprendizForm');
+        if (form) {
+            // El formulario será manejado por formValidation.js
+            console.log('Formulario encontrado, será manejado por formValidation.js');
+            
+            // Configurar manejo del modal de éxito
+            const modal = document.getElementById('modalRegistroExitoso');
+            const btnContinuar = document.getElementById('btnContinuarCrearPassword');
+            
+            if (modal && btnContinuar) {
+                console.log('Modal de registro exitoso encontrado');
+                
+                // Escuchar cuando se muestre el modal
+                modal.addEventListener('shown.bs.modal', function () {
+                    console.log('Modal mostrado exitosamente');
+                    btnContinuar.focus();
+                });
+                
+                // Configurar el botón de continuar
+                btnContinuar.addEventListener('click', function(e) {
+                    console.log('Botón continuar clickeado');
+                    e.preventDefault();
+                    
+                    // Cerrar el modal y redirigir
+                    const bootstrapModal = bootstrap.Modal.getInstance(modal);
+                    if (bootstrapModal) {
+                        bootstrapModal.hide();
+                    }
+                    
+                    setTimeout(() => {
+                        console.log('Redirigiendo a crear contraseña...');
+                        window.location.href = '/crear-contrasena';
+                    }, 300);
+                });
+            } else {
+                console.warn('Modal o botón de continuar no encontrado');
+            }
+        }
+
+        // Manejo del popup
+        const setupPopup = () => {
+            const btnInfo = document.getElementById('btnInfo');
+            const popupInfo = document.getElementById('popupInfo');
+            const popupOverlay = document.getElementById('popupOverlay');
+            const btnCerrarPopup = document.getElementById('btnCerrarPopup');
+            const linkAlternativas = document.querySelector('.link-alternativas');
+
+            if (btnInfo) {
+                btnInfo.addEventListener('click', () => {
+                    popupInfo.classList.add('active');
+                    popupOverlay.classList.add('active');
+                });
+            }
+
+            if (btnCerrarPopup) {
+                btnCerrarPopup.addEventListener('click', () => {
+                    popupInfo.classList.remove('active');
+                    popupOverlay.classList.remove('active');
+                });
+            }
+
+            if (popupOverlay) {
+                popupOverlay.addEventListener('click', () => {
+                    popupInfo.classList.remove('active');
+                    popupOverlay.classList.remove('active');
+                });
+            }
+
+            if (linkAlternativas) {
+                linkAlternativas.addEventListener('click', () => {
+                    popupInfo.classList.remove('active');
+                    popupOverlay.classList.remove('active');
+                    window.open('/imagenes/pdf/alternativas/alternativas-etapa-productiva.pdf', '_blank');
+                });
+            }
+        };
+
+        // Cargar datos de ubicación
+        const cargarDatosUbicacion = async () => {
+            try {
+                console.log('Iniciando carga de datos...');
+                const response = await fetch('/data/colombia.json');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Datos cargados:', data);
+
+                const departamentoSelect = document.getElementById('departamento');
+                const municipioSelect = document.getElementById('municipio');
+
+                if (!departamentoSelect || !municipioSelect) {
+                    console.error('Selectores no encontrados');
+                    return;
+                }
+
+                // Cargar departamentos
+                departamentoSelect.innerHTML = '<option value="">SELECCIONE...</option>';
+                data.forEach(item => {
+                    if (item && item.departamento) {
+                        const option = document.createElement('option');
+                        option.value = item.departamento;
+                        option.textContent = item.departamento.toUpperCase(); // Mostrar en mayúsculas
+                        departamentoSelect.appendChild(option);
+                    }
+                });
+
+                // Evento change para departamentos
+                departamentoSelect.addEventListener('change', function() {
+                    const selectedDep = this.value;
+                    console.log('Departamento seleccionado:', selectedDep);
+
+                    municipioSelect.innerHTML = '<option value="">SELECCIONE UN MUNICIPIO...</option>';
+                    if (!selectedDep) return;
+
+                    const departamento = data.find(d => d.departamento === selectedDep);
+                    if (departamento?.ciudades) {
+                        departamento.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad.toUpperCase(); // Mostrar en mayúsculas
+                            municipioSelect.appendChild(option);
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+            }
+        };
+
+        // Cargar datos estáticos que no estén ya cargados
+        const cargarDatosEstaticos = () => {
+            // Verificar que los selectores de tipo documento y EPS tengan opciones
+            const tipoDocSelect = document.getElementById('tipoDocumento');
+            const epsSelect = document.getElementById('eps');
+            
+            if (tipoDocSelect && tipoDocSelect.options.length <= 1) {
+                console.log('Cargando opciones de tipo documento...');
+                const opciones = [
+                    { value: 'CC', text: 'CÉDULA DE CIUDADANÍA' },
+                    { value: 'TI', text: 'TARJETA DE IDENTIDAD' },
+                    { value: 'CE', text: 'CÉDULA DE EXTRANJERÍA' },
+                    { value: 'PEP', text: 'PEP' },
+                    { value: 'PPT', text: 'PERMISO DE PROTECCIÓN TEMPORAL' }
+                ];
+                
+                opciones.forEach(opcion => {
+                    const option = document.createElement('option');
+                    option.value = opcion.value;
+                    option.textContent = opcion.text;
+                    tipoDocSelect.appendChild(option);
+                });
+            }
+            
+            // Establecer valor por defecto para areaFormacion si no está seleccionado
+            const areaFormacionSelect = document.getElementById('areaFormacion');
+            if (areaFormacionSelect && !areaFormacionSelect.value) {
+                areaFormacionSelect.selectedIndex = 1; // Seleccionar "SÍ" por defecto
+            }
+        };
+
+        // Inicializar
+        setupPopup();
+        cargarDatosEstaticos();
+        await cargarDatosUbicacion();
+
+        // Normalizar inputs y selects a mayúsculas en frontend (EXCEPTO EMAIL)
+        const upperCaseInputs = document.querySelectorAll('input[type="text"], input[type="tel"]');
+        upperCaseInputs.forEach(input => {
+            input.style.textTransform = 'uppercase';
+            input.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+
+        // Manejar email por separado (convertir a minúsculas)
+        const emailInput = document.querySelector('input[type="email"]');
+        if (emailInput) {
+            emailInput.style.textTransform = 'lowercase';
+            emailInput.addEventListener('input', function() {
+                this.value = this.value.toLowerCase();
+            });
+        }
+
+        // Normalizar selects a mayúsculas visualmente
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.style.textTransform = 'uppercase';
+        });
+
+        // Restringir entrada en campos de texto (solo letras, espacios y caracteres especiales), excepto dirección y horario
+        const textInputs = document.querySelectorAll('input[type="text"]:not([name="numeroDocumento"]):not([name="numeroFicha"]):not([name="direccion"]):not([name="direccionEmpresa"]):not([name="horario"])');
+        textInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
+            });
+        });
+
+        // Restringir entrada en campos numéricos (solo dígitos)
+        const numberInputs = document.querySelectorAll('input[type="tel"], input[name="numeroDocumento"], input[name="numeroFicha"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        });
+    });
+</script>

@@ -1,0 +1,317 @@
+<%- contentFor('styles') %>
+<style>
+.descripcion-columna {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mejorar el diseño del tooltip de Bootstrap */
+.tooltip-inner {
+  max-width: 400px;
+  background-color: #343a40;
+  color: #fff;
+  font-size: 1rem;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.bs-tooltip-auto[x-placement^=top] .arrow::before, .bs-tooltip-top .arrow::before {
+  border-top-color: #343a40;
+}
+
+/* Modo oscuro para la tabla de documentos */
+html.dark-mode #documentos-table,
+html.dark-mode #documentos-table.table {
+  background-color: #161b22 !important;
+  color: #f0f6fc !important;
+}
+
+html.dark-mode #documentos-table thead th {
+  background: #0d1117 !important;
+  color: #f0f6fc !important;
+  border-color: #30363d !important;
+}
+
+html.dark-mode #documentos-table tbody tr {
+  border-color: #30363d !important;
+  background-color: #161b22 !important;
+}
+
+html.dark-mode #documentos-table tbody tr:hover {
+  background-color: #21262d !important;
+}
+
+html.dark-mode #documentos-table tbody td,
+html.dark-mode #documentos-table tbody th {
+  border-color: #30363d !important;
+  color: #f0f6fc !important;
+  background-color: transparent !important;
+}
+
+/* Ajuste para tooltips en modo oscuro */
+.dark-mode .tooltip-inner {
+  background-color: #8b949e;
+  color: #0d1117;
+}
+.dark-mode .bs-tooltip-auto[x-placement^=top] .arrow::before,
+.dark-mode .bs-tooltip-top .arrow::before {
+  border-top-color: #8b949e;
+}
+</style>
+<%- contentFor('body') %>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/aprendiz/dashboard">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar al Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0"><i class="fas fa-folder"></i> Gestión de Documentos</h2>
+        </div>
+        <div class="card-body">
+            <div id="messageContainer" class="mb-3"></div>
+
+            <div class="mb-4 p-3 border rounded">
+                <h4><i class="fas fa-upload"></i> Subir Nuevo Documento</h4>
+                <form id="uploadDocumentForm" enctype="multipart/form-data" action="/aprendiz/documentos/subir" method="POST">
+                    <div class="mb-3">
+                        <label for="documento" class="form-label">Seleccionar Archivo</label>
+                        <input type="file" class="form-control" id="documento" name="documento" required>
+                        <div class="form-text-format">Formatos permitidos: PDF, DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG. Tamaño máximo: 5MB.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                        <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
+                            <option value="">Seleccione el tipo de documento</option>
+                            <option value="Bitácora 1">Bitácora 1</option>
+                            <option value="Bitácora 2">Bitácora 2</option>
+                            <option value="Bitácora 3">Bitácora 3</option>
+                            <option value="Bitácora 4">Bitácora 4</option>
+                            <option value="Bitácora 5">Bitácora 5</option>
+                            <option value="Bitácora 6">Bitácora 6</option>
+                            <option value="Bitácora 7">Bitácora 7</option>
+                            <option value="Bitácora 8">Bitácora 8</option>
+                            <option value="Bitácora 9">Bitácora 9</option>
+                            <option value="Bitácora 10">Bitácora 10</option>
+                            <option value="Bitácora 11">Bitácora 11</option>
+                            <option value="Bitácora 12">Bitácora 12</option>
+                            <option value="Propuesta de intervención">Propuesta de intervención</option>
+                            <option value="Diagnóstico">Diagnóstico</option>
+                            <option value="GFPI-F-023 V5">GFPI-F-023 V5</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción (opcional)</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Ej: Certificado de etapa productiva, Informe final de proyecto..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">
+                        <i class="fas fa-cloud-upload-alt"></i> Subir Documento
+                    </button>
+                </form>
+            </div>
+
+            <h4 class="mt-4 mb-2"><i class="fas fa-list-alt"></i> Mis Documentos Subidos</h4>
+            
+            <% if (typeof documentos !== 'undefined' && documentos.length > 0) { %>
+                <div class="table-responsive">
+                    <div class="d-flex flex-wrap justify-content-end align-items-center gap-2 mb-2">
+                        <button id="descargar-seleccionados-btn" class="btn btn-success flex-grow-1 flex-md-grow-0" disabled>
+                            <i class="fas fa-download me-1"></i> Descargar Seleccionados
+                        </button>
+                        <button id="eliminar-seleccionados-btn" class="btn btn-danger flex-grow-1 flex-md-grow-0" disabled>
+                            <i class="fas fa-trash me-1"></i> Eliminar Seleccionados
+                        </button>
+                    </div>
+                    <table class="table table-hover table-custom-striped" id="documentos-table">
+                        <thead>
+                            <tr>
+                                <th class="acciones-documento-columna text-center" scope="col"><input type="checkbox" id="select-all-docs"></th>
+                                <th scope="col">#</th>
+                                <th scope="col">Nombre del Archivo</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Tipo de Documento</th>
+                                <th scope="col">Tipo de Archivo</th>
+                                <th scope="col">Tamaño</th>
+                                <th scope="col">Fecha de Subida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% documentos.forEach((doc, index) => { %>
+                                <%
+                                    // Hacemos el código robusto para aceptar tanto camelCase como snake_case
+                                    const id = doc.id;
+                                    const nombreGuardado = doc.nombreGuardado || doc.nombre_guardado;
+                                    const nombreOriginal = doc.nombreOriginal || doc.nombre_original;
+                                    const descripcion = doc.descripcion;
+                                    const tipoDocumento = doc.tipo_documento || doc.tipoDocumento;
+                                    const tipoMime = doc.tipoMime || doc.tipo_mime;
+                                    const tamanoBytes = doc.tamanoBytes || doc.tamano_bytes;
+                                    const fechaSubida = doc.fechaSubida || doc.fecha_subida;
+                                %>
+                                <tr>
+                                    <td class="acciones-documento-columna text-center"><input type="checkbox" class="select-doc-checkbox" data-doc-id="<%= id %>" data-nombre-guardado="<%= nombreGuardado %>"></td>
+                                    <th scope="row"><%= index + 1 %></th>
+                                    <td class="nombre-archivo-columna" data-bs-toggle="tooltip" data-bs-placement="top" title="<%= nombreOriginal %>"><%= nombreOriginal %></td>
+                                    <td class="descripcion-columna" data-bs-toggle="tooltip" data-bs-placement="top" title="<%= descripcion || 'N/A' %>"><%= descripcion || 'N/A' %></td>
+                                    <td><%= tipoDocumento || 'N/A' %></td>
+                                    <td>
+                                        <%
+                                            const originalFileName = nombreOriginal || '';
+                                            const lastDotIndex = originalFileName.lastIndexOf('.');
+                                            let fileExtension = '';
+                                            if (lastDotIndex > 0 && lastDotIndex < originalFileName.length - 1) {
+                                                fileExtension = originalFileName.substring(lastDotIndex + 1).toLowerCase();
+                                            }
+                                            switch(fileExtension) {
+                                                case 'pdf': %>PDF Documento<% break;
+                                                case 'doc': case 'docx': %>Microsoft Word<% break;
+                                                case 'xls': case 'xlsx': %>Microsoft Excel<% break;
+                                                case 'jpg': case 'jpeg': case 'png': %>Imagen<% break;
+                                                default: %><%=(tipoMime)%><% break;
+                                            }
+                                        %>
+                                    </td>
+                                    <td><%= (tamanoBytes / (1024 * 1024)).toFixed(2) %> MB</td>
+                                    <td><%= new Date(fechaSubida).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info mt-3" role="alert">
+                    Aún no has subido ningún documento.
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+$(document).ready(function() {
+    // Lógica para subir documentos (sin cambios)
+    $('#uploadDocumentForm').on('submit', async function(event) {
+        event.preventDefault(); 
+        const formData = new FormData(this);
+        const submitButton = $(this).find('button[type="submit"]');
+        submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Subiendo...');
+        try {
+            const response = await fetch($(this).attr('action'), { method: 'POST', body: formData });
+            const data = await response.json();
+            if (data.success) {
+                await Swal.fire({ icon: 'success', title: '¡Éxito!', text: data.message, timer: 2000, showConfirmButton: false });
+                window.location.reload();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+            }
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo conectar con el servidor.' });
+        } finally {
+            submitButton.prop('disabled', false).html('<i class="fas fa-cloud-upload-alt"></i> Subir Documento');
+        }
+    });
+
+    // Lógica para la tabla de documentos
+    const table = $('#documentos-table').DataTable({
+        "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json" },
+        "columnDefs": [{ "orderable": false, "targets": 0 }],
+        "order": [[ 1, 'asc' ]],
+        "searching": false,
+        "lengthChange": false,
+        "info": false,
+        "paging": false
+    });
+
+    function updateButtonStates() {
+        const checkedCount = table.rows().nodes().to$().find('.select-doc-checkbox:checked').length;
+        $('#descargar-seleccionados-btn, #eliminar-seleccionados-btn').prop('disabled', checkedCount === 0);
+    }
+    $('#select-all-docs').on('change', function() {
+        table.rows({ page: 'current' }).nodes().to$().find('.select-doc-checkbox').prop('checked', this.checked);
+        updateButtonStates();
+    });
+    $('#documentos-table tbody').on('change', '.select-doc-checkbox', function() {
+        updateButtonStates();
+        if (!this.checked) $('#select-all-docs').prop('checked', false);
+    });
+
+    // Lógica de descarga (AJUSTADA)
+    $('#descargar-seleccionados-btn').on('click', async function() {
+        const selectedCheckboxes = table.rows().nodes().to$().find('.select-doc-checkbox:checked');
+        const selectedIds = selectedCheckboxes.map(function() { return $(this).data('doc-id'); }).get();
+        
+        if (selectedIds.length === 0) return;
+
+        // Si es un solo archivo, descarga directa sin ZIP.
+        if (selectedIds.length === 1) {
+            const nombreGuardado = selectedCheckboxes.first().data('nombre-guardado');
+            if (nombreGuardado) {
+                window.location.href = `/aprendiz/documentos/descargar/${nombreGuardado}`;
+            }
+            return;
+        }
+
+        // Si son varios, descarga en ZIP (sin alerta de carga).
+        try {
+            const response = await fetch('/aprendiz/documentos/descargar-multiples', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selectedIds })
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `documentos_SENA_${new Date().getTime()}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } else {
+                const errorText = await response.text();
+                Swal.fire('Error', `No se pudo generar el archivo ZIP: ${errorText}`, 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'Hubo un problema de conexión al intentar descargar los archivos.', 'error');
+        }
+    });
+
+    // Lógica de eliminación (sin cambios)
+    $('#eliminar-seleccionados-btn').on('click', async function() {
+        const selectedIds = table.rows().nodes().to$().find('.select-doc-checkbox:checked').map(function() { return $(this).data('doc-id'); }).get();
+        if (selectedIds.length === 0) return;
+        const result = await Swal.fire({ title: '¿Estás seguro?', text: `Se eliminarán ${selectedIds.length} documento(s).`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Sí, ¡elimínalos!', cancelButtonText: 'Cancelar' });
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Eliminando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            try {
+                const response = await fetch('/aprendiz/documentos/eliminar-multiples', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: selectedIds }) });
+                const data = await response.json();
+                if (data.success) {
+                    await Swal.fire('¡Eliminados!', data.message, 'success');
+                    window.location.reload();
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Error de conexión al eliminar.', 'error');
+            }
+        }
+    });
+
+    updateButtonStates();
+});
+</script>

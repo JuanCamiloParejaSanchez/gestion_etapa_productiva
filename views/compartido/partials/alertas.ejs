@@ -1,0 +1,22 @@
+<!-- Componente reutilizable para alertas -->
+<%_
+const {
+    tipo = 'info',
+    mensaje,
+    icono,
+    dismissible = true,
+    clases = ''
+} = typeof alert !== 'undefined' ? alert : {};
+_%>
+
+<% if (mensaje) { %>
+<div class="alert alert-<%= tipo %> <%= dismissible ? 'alert-dismissible fade show' : '' %> <%= clases %>" role="alert">
+    <% if (icono) { %>
+        <i class="<%= icono %> me-2"></i>
+    <% } %>
+    <%= mensaje %>
+    <% if (dismissible) { %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <% } %>
+</div>
+<% } %>

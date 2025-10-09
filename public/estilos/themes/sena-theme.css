@@ -1,0 +1,431 @@
+/* Ruta: public/estilos/themes/sena-theme.css */
+/* Propósito: Tema específico para la aplicación SENA */
+
+/* Tema SENA - Override de variables específicas */
+.theme-sena {
+    /* Colores institucionales SENA */
+    --color-sena-primary: #04324d;
+    --color-sena-secondary: #39a900;
+    --color-sena-accent: #f3e827ff;
+    --color-sena-neutral: #6c757d;
+
+    /* Gradientes SENA */
+    --gradient-sena-primary: linear-gradient(135deg, var(--color-sena-primary) 0%, #0d6efd 50%, var(--color-sena-secondary) 100%);
+    --gradient-sena-secondary: linear-gradient(135deg, var(--color-sena-secondary) 0%, #2d8500 100%);
+    --gradient-sena-accent: linear-gradient(135deg, var(--color-sena-accent) 0%, #aca51c 100%);
+
+    /* Sombras con colores SENA */
+    --shadow-sena-primary: 0 4px 14px rgba(4, 50, 77, 0.15);
+    --shadow-sena-secondary: 0 4px 14px rgba(57, 169, 0, 0.15);
+    --shadow-sena-accent: 0 4px 14px rgba(243, 232, 39, 0.15);
+}
+
+/* Navbar SENA */
+.theme-sena .navbar {
+    background: var(--gradient-sena-primary);
+    border-bottom: 3px solid var(--color-sena-secondary);
+    box-shadow: var(--shadow-sena-primary);
+}
+
+.theme-sena .navbar-brand,
+.theme-sena .navbar-title {
+    color: white !important;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.theme-sena .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    transition: var(--transition-normal);
+}
+
+.theme-sena .navbar-nav .nav-link:hover {
+    color: var(--color-sena-accent) !important;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+}
+
+/* Botones SENA */
+.theme-sena .btn-primary {
+    background: var(--gradient-sena-secondary);
+    border: 2px solid var(--color-sena-secondary);
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: var(--shadow-sena-secondary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: var(--gradient-sena-secondary);
+        border-color: color-mix(in srgb, var(--color-sena-secondary) 80%, black);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(57, 169, 0, 0.3);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.25);
+    }
+}
+
+.theme-sena .btn-secondary {
+    background: var(--gradient-sena-primary);
+    border: 2px solid var(--color-sena-primary);
+    color: white;
+    font-weight: 600;
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--color-sena-primary) 80%, black) 0%, #0a58ca 50%, color-mix(in srgb, var(--color-sena-secondary) 80%, black) 100%);
+        border-color: color-mix(in srgb, var(--color-sena-primary) 80%, black);
+    }
+}
+
+.theme-sena .btn-success {
+    background: var(--gradient-sena-secondary);
+    border-color: var(--color-sena-secondary);
+    box-shadow: var(--shadow-sena-secondary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        box-shadow: 0 8px 25px rgba(57, 169, 0, 0.3);
+    }
+}
+
+.theme-sena .btn-warning {
+    background: var(--gradient-sena-accent);
+    border-color: color-mix(in srgb, var(--color-sena-accent) 80%, black);
+    color: var(--color-sena-primary);
+    font-weight: 600;
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--color-sena-accent) 80%, black) 0%, #8a8516 100%);
+        border-color: #8a8516;
+    }
+}
+
+/* Cards SENA */
+.theme-sena .card {
+    border: 2px solid rgba(var(--color-sena-primary-rgb), 0.1);
+    border-top: 4px solid var(--color-sena-secondary);
+    box-shadow: var(--shadow-sena-primary);
+    transition: var(--transition-normal);
+
+    &:hover {
+        border-color: rgba(var(--color-sena-secondary-rgb), 0.3);
+        box-shadow: 0 8px 25px rgba(4, 50, 77, 0.15);
+        transform: translateY(-2px);
+    }
+}
+
+.theme-sena .card-header {
+    background: var(--gradient-sena-primary);
+    color: white;
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.theme-sena .card-header.bg-primary {
+    background: var(--gradient-sena-primary) !important;
+}
+
+/* Formularios SENA */
+.theme-sena .form-control,
+.theme-sena .form-select {
+    border: 2px solid rgba(var(--color-sena-primary-rgb), 0.2);
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-normal);
+
+    &:focus {
+        border-color: var(--color-sena-secondary);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.15);
+        background: white;
+    }
+
+    &.is-valid {
+        border-color: var(--color-sena-secondary);
+        box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.15);
+    }
+
+    &.is-invalid {
+        border-color: var(--color-danger);
+        box-shadow: 0 0 0 3px rgba(var(--color-danger-rgb), 0.15);
+    }
+}
+
+.theme-sena .form-label {
+    color: var(--color-sena-primary);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Estados de validación SENA */
+.theme-sena .valid-feedback {
+    color: var(--color-sena-secondary);
+    font-weight: 500;
+}
+
+.theme-sena .invalid-feedback {
+    color: var(--color-danger);
+    font-weight: 500;
+}
+
+/* Tablas SENA */
+.theme-sena .table {
+    border-color: rgba(var(--color-sena-primary-rgb), 0.2);
+}
+
+.theme-sena .table thead th {
+    background: var(--gradient-sena-primary);
+    color: white;
+    border-color: rgba(var(--color-sena-secondary-rgb), 0.3);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: var(--font-size-xs);
+}
+
+.theme-sena .table tbody tr {
+    transition: var(--transition-fast);
+
+    &:hover {
+        background: rgba(var(--color-sena-secondary-rgb), 0.05);
+    }
+
+    &:nth-child(even) {
+        background: rgba(var(--color-sena-primary-rgb), 0.02);
+    }
+}
+
+.theme-sena .table tbody td {
+    border-color: rgba(var(--color-sena-primary-rgb), 0.1);
+    vertical-align: middle;
+}
+
+/* Estados de formación en tablas */
+.theme-sena .estado-formacion.estado-activo {
+    background: rgba(var(--color-sena-secondary-rgb), 0.1);
+    color: var(--color-sena-secondary);
+    border: 1px solid rgba(var(--color-sena-secondary-rgb), 0.2);
+}
+
+.theme-sena .estado-formacion.estado-inactivo {
+    background: rgba(var(--color-danger-rgb), 0.1);
+    color: var(--color-danger);
+    border: 1px solid rgba(var(--color-danger-rgb), 0.2);
+}
+
+.theme-sena .estado-formacion.estado-pendiente {
+    background: rgba(var(--color-warning-rgb), 0.1);
+    color: var(--color-warning);
+    border: 1px solid rgba(var(--color-warning-rgb), 0.2);
+}
+
+/* Footer SENA */
+.theme-sena .sena-footer {
+    background: var(--gradient-sena-primary);
+    border-top: 4px solid var(--color-sena-secondary);
+}
+
+/* Alertas SENA */
+.theme-sena .alert-success {
+    background: rgba(var(--color-sena-secondary-rgb), 0.1);
+    border-color: rgba(var(--color-sena-secondary-rgb), 0.3);
+    color: var(--color-sena-primary);
+}
+
+.theme-sena .alert-danger {
+    background: rgba(var(--color-danger-rgb), 0.1);
+    border-color: rgba(var(--color-danger-rgb), 0.3);
+    color: var(--color-danger);
+}
+
+.theme-sena .alert-warning {
+    background: rgba(var(--color-warning-rgb), 0.1);
+    border-color: rgba(var(--color-warning-rgb), 0.3);
+    color: color-mix(in srgb, var(--color-warning) 70%, black);
+}
+
+.theme-sena .alert-info {
+    background: rgba(var(--color-info-rgb), 0.1);
+    border-color: rgba(var(--color-info-rgb), 0.3);
+    color: var(--color-info);
+}
+
+/* Badges SENA */
+.theme-sena .badge {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.theme-sena .badge.bg-success {
+    background: var(--gradient-sena-secondary) !important;
+}
+
+.theme-sena .badge.bg-primary {
+    background: var(--gradient-sena-primary) !important;
+}
+
+/* Progress bars SENA */
+.theme-sena .progress-bar {
+    background: var(--gradient-sena-secondary);
+}
+
+/* Modales SENA */
+.theme-sena .modal-header {
+    background: var(--gradient-sena-primary);
+    color: white;
+    border-bottom: none;
+}
+
+.theme-sena .modal-title {
+    font-weight: 600;
+}
+
+/* Dropdowns SENA */
+.theme-sena .dropdown-menu {
+    border: 2px solid rgba(var(--color-sena-primary-rgb), 0.1);
+    box-shadow: var(--shadow-sena-primary);
+}
+
+.theme-sena .dropdown-item:hover {
+    background: rgba(var(--color-sena-secondary-rgb), 0.1);
+    color: var(--color-sena-primary);
+}
+
+/* Tooltips SENA */
+.theme-sena .tooltip-inner {
+    background: var(--color-sena-primary);
+}
+
+.theme-sena .tooltip .tooltip-arrow::before {
+    border-top-color: var(--color-sena-primary);
+}
+
+/* Popover SENA */
+.theme-sena .popover {
+    border: 2px solid rgba(var(--color-sena-primary-rgb), 0.2);
+    box-shadow: var(--shadow-sena-primary);
+}
+
+.theme-sena .popover-header {
+    background: var(--gradient-sena-primary);
+    color: white;
+    border-bottom: none;
+}
+
+/* Pagination SENA */
+.theme-sena .dataTables_paginate .paginate_button {
+    border-color: rgba(var(--color-sena-primary-rgb), 0.3);
+    color: var(--color-sena-primary) !important;
+
+    &.current,
+    &:active {
+        background: var(--gradient-sena-primary) !important;
+        border-color: var(--color-sena-primary) !important;
+    }
+
+    &:hover {
+        background: rgba(var(--color-sena-secondary-rgb), 0.1) !important;
+        color: var(--color-sena-secondary) !important;
+        border-color: var(--color-sena-secondary) !important;
+    }
+}
+
+/* Loading states SENA */
+.theme-sena .loading-shimmer {
+    background: linear-gradient(90deg,
+        rgba(var(--color-sena-primary-rgb), 0.1) 25%,
+        rgba(var(--color-sena-secondary-rgb), 0.1) 50%,
+        rgba(var(--color-sena-primary-rgb), 0.1) 75%);
+    background-size: 200% 100%;
+}
+
+/* Animaciones específicas SENA */
+.theme-sena .animate-pulse {
+    animation: pulse-sena 2s infinite;
+}
+
+@keyframes pulse-sena {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(var(--color-sena-secondary-rgb), 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(var(--color-sena-secondary-rgb), 0);
+    }
+}
+
+/* Responsive adjustments SENA */
+@media (max-width: 768px) {
+    .theme-sena .card {
+        border-top-width: 3px;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .theme-sena .btn {
+        width: 100%;
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .theme-sena .navbar-title {
+        font-size: 1rem;
+    }
+}
+
+/* Dark mode support para SENA */
+@media (prefers-color-scheme: dark) {
+    .theme-sena {
+        --color-sena-primary: #8b949e;
+        --color-sena-secondary: #c9d1d9;
+        --color-sena-accent: #b1bac4;
+    }
+
+    .theme-sena .card {
+        background: #161b22;
+        border-color: #30363d;
+        color: #f0f6fc;
+    }
+
+    .theme-sena .form-control,
+    .theme-sena .form-select {
+        background: #161b22;
+        border-color: #30363d;
+        color: #f0f6fc;
+
+        &:focus {
+            background: #21262d;
+        }
+    }
+
+    .theme-sena .table {
+        background: #161b22;
+        color: #f0f6fc;
+    }
+
+    .theme-sena .table thead th {
+        background: linear-gradient(135deg, #8b949e 0%, #484f58 50%, #c9d1d9 100%);
+    }
+}
+
+/* Print styles SENA */
+@media print {
+    .theme-sena .card {
+        border: 2px solid var(--color-sena-primary);
+        box-shadow: none;
+        break-inside: avoid;
+    }
+
+    .theme-sena .btn {
+        display: none;
+    }
+
+    .theme-sena .table {
+        border: 1px solid var(--color-sena-primary);
+    }
+
+    .theme-sena .table thead th {
+        background: var(--color-sena-primary) !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

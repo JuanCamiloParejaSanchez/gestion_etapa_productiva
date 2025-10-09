@@ -1,0 +1,678 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<%- contentFor('styles') %>
+<style>
+    .edit-profile-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    .edit-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-radius: 10px 10px 0 0;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .form-section {
+        border-left: 4px solid #007bff;
+        background: #f8f9fa;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .section-title {
+        color: #007bff;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+    }
+    .required {
+        color: #dc3545;
+    }
+    .btn-save-profile {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s;
+    }
+    .btn-save-profile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+    }
+    .btn-cancel {
+        border: 2px solid #6c757d;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #6c757d;
+        background: transparent;
+        transition: all 0.3s;
+    }
+    .btn-cancel:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+
+/* Estilos para modo oscuro */
+html.dark-mode .edit-profile-card {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode .edit-header {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+}
+
+html.dark-mode .form-section {
+    background: #334155;
+    border-left-color: #60a5fa;
+}
+
+html.dark-mode .section-title {
+    color: #60a5fa;
+}
+
+html.dark-mode .form-label {
+    color: #cbd5e1;
+}
+
+html.dark-mode .required {
+    color: #dc3545;
+}
+</style>
+
+<%- contentFor('body') %>
+
+<!-- Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <div class="d-flex">
+            <a href="/aprendiz/perfil" class="btn btn-primary btn-navbar">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver al Perfil
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card edit-profile-card">
+                <div class="edit-header">
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Editar Mi Perfil
+                    </h2>
+                    <p class="mb-0 opacity-75">Actualiza tu información personal y de contacto</p>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div id="messageContainer" class="mb-3"></div>
+
+                    <% if (typeof aprendiz !== 'undefined') { %>
+                        <form id="editarMiPerfilForm" action="/aprendiz/perfil/actualizar" method="POST">
+
+                            <input type="hidden" name="id" value="<%= aprendiz.id %>">
+
+                            <!-- Datos Personales -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-user me-2"></i>
+                                    Datos Personales
+                                </h3>
+
+                                <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="nombres" class="form-label">Nombres <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="nombres" name="nombres" value="<%= aprendiz.nombres || '' %>" required placeholder="Ej: JUAN CARLOS">
+                                    <small id="nombresHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="primerApellido" class="form-label">Primer apellido <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="primerApellido" name="primerApellido" value="<%= aprendiz.primerApellido || '' %>" required placeholder="Ej: PÉREZ">
+                                    <small id="primerApellidoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="segundoApellido" class="form-label">Segundo apellido</label>
+                                    <input type="text" class="form-control" id="segundoApellido" name="segundoApellido" value="<%= aprendiz.segundoApellido || '' %>" placeholder="Ej: GÓMEZ">
+                                    <small id="segundoApellidoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="tipoDocumento" class="form-label">Tipo de documento <span class="required">*</span></label>
+                                    <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
+                                        <option value="">SELECCIONE...</option>
+                                        <option value="CC" <%= aprendiz.tipoDocumento === 'CC' ? 'selected' : '' %>>CÉDULA DE CIUDADANÍA</option>
+                                        <option value="TI" <%= aprendiz.tipoDocumento === 'TI' ? 'selected' : '' %>>TARJETA DE IDENTIDAD</option>
+                                        <option value="CE" <%= aprendiz.tipoDocumento === 'CE' ? 'selected' : '' %>>CÉDULA DE EXTRANJERÍA</option>
+                                        <option value="PEP" <%= aprendiz.tipoDocumento === 'PEP' ? 'selected' : '' %>>PEP</option>
+                                        <option value="PPT" <%= aprendiz.tipoDocumento === 'PPT' ? 'selected' : '' %>>PERMISO DE PROTECCIÓN TEMPORAL</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="numeroDocumento" class="form-label">Número de documento <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" value="<%= aprendiz.numeroDocumento || '' %>" required placeholder="Ej: 1234567890">
+                                    <small id="numeroDocumentoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento <span class="required">*</span></label>
+                                    <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" value="<%= aprendiz.fechaNacimiento || '' %>" required aria-label="Fecha de nacimiento">
+                                    <small id="fechaNacimientoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="eps" class="form-label">EPS <span class="required">*</span></label>
+                                    <select class="form-select" id="eps" name="eps" required>
+                                        <option value="">SELECCIONE...</option>
+                                        <option value="COOSALUD EPS-S" <%= aprendiz.eps === 'COOSALUD EPS-S' ? 'selected' : '' %>>COOSALUD EPS-S</option>
+                                        <option value="NUEVA EPS" <%= aprendiz.eps === 'NUEVA EPS' ? 'selected' : '' %>>NUEVA EPS</option>
+                                        <option value="MUTUAL SER" <%= aprendiz.eps === 'MUTUAL SER' ? 'selected' : '' %>>MUTUAL SER</option>
+                                        <option value="ALIANSALUD EPS" <%= aprendiz.eps === 'ALIANSALUD EPS' ? 'selected' : '' %>>ALIANSALUD EPS</option>
+                                        <option value="SALUD TOTAL EPS S.A." <%= aprendiz.eps === 'SALUD TOTAL EPS S.A.' ? 'selected' : '' %>>SALUD TOTAL EPS S.A.</option>
+                                        <option value="EPS SANITAS" <%= aprendiz.eps === 'EPS SANITAS' ? 'selected' : '' %>>EPS SANITAS</option>
+                                        <option value="EPS SURA" <%= aprendiz.eps === 'EPS SURA' ? 'selected' : '' %>>EPS SURA</option>
+                                        <option value="FAMISANAR" <%= aprendiz.eps === 'FAMISANAR' ? 'selected' : '' %>>FAMISANAR</option>
+                                        <option value="SERVICIO OCCIDENTAL DE SALUD EPS SOS" <%= aprendiz.eps === 'SERVICIO OCCIDENTAL DE SALUD EPS SOS' ? 'selected' : '' %>>SERVICIO OCCIDENTAL DE SALUD EPS SOS</option>
+                                        <option value="SALUD MIA" <%= aprendiz.eps === 'SALUD MIA' ? 'selected' : '' %>>SALUD MIA</option>
+                                        <option value="COMFENALCO VALLE" <%= aprendiz.eps === 'COMFENALCO VALLE' ? 'selected' : '' %>>COMFENALCO VALLE</option>
+                                        <option value="COMPENSAR EPS" <%= aprendiz.eps === 'COMPENSAR EPS' ? 'selected' : '' %>>COMPENSAR EPS</option>
+                                        <option value="EPM - EMPRESAS PUBLICAS DE MEDELLIN" <%= aprendiz.eps === 'EPM - EMPRESAS PUBLICAS DE MEDELLIN' ? 'selected' : '' %>>EPM - EMPRESAS PUBLICAS DE MEDELLIN</option>
+                                        <option value="FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA" <%= aprendiz.eps === 'FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA' ? 'selected' : '' %>>FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA</option>
+                                        <option value="CAJACOPI ATLANTICO" <%= aprendiz.eps === 'CAJACOPI ATLANTICO' ? 'selected' : '' %>>CAJACOPI ATLANTICO</option>
+                                        <option value="CAPRESOCA" <%= aprendiz.eps === 'CAPRESOCA' ? 'selected' : '' %>>CAPRESOCA</option>
+                                        <option value="COMFACHOCO" <%= aprendiz.eps === 'COMFACHOCO' ? 'selected' : '' %>>COMFACHOCO</option>
+                                        <option value="COMFAORIENTE" <%= aprendiz.eps === 'COMFAORIENTE' ? 'selected' : '' %>>COMFAORIENTE</option>
+                                        <option value="EPS FAMILIAR DE COLOMBIA" <%= aprendiz.eps === 'EPS FAMILIAR DE COLOMBIA' ? 'selected' : '' %>>EPS FAMILIAR DE COLOMBIA</option>
+                                        <option value="ASMET SALUD" <%= aprendiz.eps === 'ASMET SALUD' ? 'selected' : '' %>>ASMET SALUD</option>
+                                        <option value="EMSSANAR E.S.S." <%= aprendiz.eps === 'EMSSANAR E.S.S.' ? 'selected' : '' %>>EMSSANAR E.S.S.</option>
+                                        <option value="CAPITAL SALUD EPS-S" <%= aprendiz.eps === 'CAPITAL SALUD EPS-S' ? 'selected' : '' %>>CAPITAL SALUD EPS-S</option>
+                                        <option value="SAVIA SALUD EPS" <%= aprendiz.eps === 'SAVIA SALUD EPS' ? 'selected' : '' %>>SAVIA SALUD EPS</option>
+                                        <option value="DUSAKAWI EPSI" <%= aprendiz.eps === 'DUSAKAWI EPSI' ? 'selected' : '' %>>DUSAKAWI EPSI</option>
+                                        <option value="ASOCIACION INDIGENA DEL CAUCA EPSI" <%= aprendiz.eps === 'ASOCIACION INDIGENA DEL CAUCA EPSI' ? 'selected' : '' %>>ASOCIACION INDIGENA DEL CAUCA EPSI</option>
+                                        <option value="ANAS WAYUU EPSI" <%= aprendiz.eps === 'ANAS WAYUU EPSI' ? 'selected' : '' %>>ANAS WAYUU EPSI</option>
+                                        <option value="MALLAMAS EPSI" <%= aprendiz.eps === 'MALLAMAS EPSI' ? 'selected' : '' %>>MALLAMAS EPSI</option>
+                                        <option value="PIJAOS SALUD EPSI" <%= aprendiz.eps === 'PIJAOS SALUD EPSI' ? 'selected' : '' %>>PIJAOS SALUD EPSI</option>
+                                        <option value="SALUD BÓLIVAR EPS SAS" <%= aprendiz.eps === 'SALUD BÓLIVAR EPS SAS' ? 'selected' : '' %>>SALUD BÓLIVAR EPS SAS</option>
+                                        <option value="NO APLICA" <%= aprendiz.eps === 'NO APLICA' ? 'selected' : '' %>>NO APLICA</option>
+                                    </select>
+                                </div>
+                               </div>
+                           </div>
+
+                           <!-- Datos de Ubicación -->
+                           <div class="form-section">
+                               <h3 class="section-title">
+                                   <i class="fas fa-map-marker-alt me-2"></i>
+                                   Datos de Ubicación
+                               </h3>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="telefonoFijo" class="form-label">Teléfono fijo</label>
+                                    <input type="tel" class="form-control" id="telefonoFijo" name="telefonoFijo" value="<%= aprendiz.telefonoFijo || '' %>" placeholder="Ej: 1234567">
+                                    <small id="telefonoFijoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="celular" class="form-label">Celular <span class="required">*</span></label>
+                                    <input type="tel" class="form-control" id="celular" name="celular" value="<%= aprendiz.celular || '' %>" required placeholder="Ej: 3001234567">
+                                    <small id="celularHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="direccion" class="form-label">Dirección de residencia <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="direccion" name="direccion" value="<%= aprendiz.direccion || '' %>" required placeholder="Ej: CRA 10 #20-30">
+                                    <small id="direccionHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="barrio" class="form-label">Barrio <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="barrio" name="barrio" value="<%= aprendiz.barrio || '' %>" required placeholder="Ej: CENTRO">
+                                    <small id="barrioHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="departamento" class="form-label">Departamento <span class="required">*</span></label>
+                                    <select class="form-select" id="departamento" name="departamento" required>
+                                        <option value="">SELECCIONE...</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="municipio" class="form-label">Municipio <span class="required">*</span></label>
+                                    <select class="form-select" id="municipio" name="municipio" required>
+                                        <option value="">SELECCIONE UN MUNICIPIO...</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="correoElectronico" class="form-label">Correo electrónico <span class="required">*</span></label>
+                                    <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" value="<%= aprendiz.correoElectronico || '' %>" required placeholder="Ej: ejemplo@correo.com">
+                                    <small id="correoElectronicoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                               </div>
+                           </div>
+
+                           <!-- Datos de la Formación -->
+                           <div class="form-section">
+                               <h3 class="section-title">
+                                   <i class="fas fa-graduation-cap me-2"></i>
+                                   Datos de la Formación
+                               </h3>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="fechaInicioLectiva" class="form-label">Fecha inicio etapa lectiva <span class="required">*</span></label>
+                                    <input type="date" class="form-control" id="fechaInicioLectiva" name="fechaInicioLectiva" value="<%= aprendiz.fechaInicioLectiva || '' %>" required aria-label="Fecha inicio etapa lectiva">
+                                    <small id="fechaInicioLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="fechaFinLectiva" class="form-label">Fecha fin etapa lectiva <span class="required">*</span></label>
+                                    <input type="date" class="form-control" id="fechaFinLectiva" name="fechaFinLectiva" value="<%= aprendiz.fechaFinLectiva || '' %>" required aria-label="Fecha fin etapa lectiva">
+                                    <small id="fechaFinLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="instructorLectiva" class="form-label">Instructor/a responsable etapa lectiva <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="instructorLectiva" name="instructorLectiva" value="<%= aprendiz.instructorLectiva || '' %>" required placeholder="Ej: MARÍA GONZÁLEZ">
+                                    <small id="instructorLectivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="instructorProductiva" class="form-label">Instructor/a responsable etapa productiva <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="instructorProductiva" name="instructorProductiva" value="<%= aprendiz.instructorProductiva || '' %>" required placeholder="Ej: CARLOS RODRÍGUEZ">
+                                    <small id="instructorProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="numeroFicha" class="form-label">Número de ficha <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="numeroFicha" name="numeroFicha" value="<%= aprendiz.numeroFicha || '' %>" required placeholder="Ej: 1234567">
+                                    <small id="numeroFichaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-9">
+                                    <label for="programaFormacion" class="form-label">Programa de formación <span class="required">*</span></label>
+                                    <select class="form-select" id="programaFormacion" name="programaFormacion" required>
+                                        <option value="">SELECCIONE...</option>
+                                        <option value="tecnoActividadFisica" <%= aprendiz.programaFormacion === 'tecnoActividadFisica' ? 'selected' : '' %>>TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
+                                        <option value="tecnoEntrenamientoDeportivo" <%= aprendiz.programaFormacion === 'tecnoEntrenamientoDeportivo' ? 'selected' : '' %>>TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
+                                        <option value="tecnoAnalisisDesarrollo" <%= aprendiz.programaFormacion === 'tecnoAnalisisDesarrollo' ? 'selected' : '' %>>TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
+                                        <option value="tecProcesamientoPruebas" <%= aprendiz.programaFormacion === 'tecProcesamientoPruebas' ? 'selected' : '' %>>TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
+                                        <option value="tecProgramacion" <%= aprendiz.programaFormacion === 'tecProgramacion' ? 'selected' : '' %>>TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
+                                    </select>
+                               </div>
+                           </div>
+                           </div>
+
+                           <!-- Datos de la Alternativa de Etapa Productiva -->
+                           <div class="form-section">
+                               <h3 class="section-title">
+                                   <i class="fas fa-briefcase me-2"></i>
+                                   Datos de la Alternativa de Etapa Productiva
+                               </h3>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada <span class="required">*</span></label>
+                                    <select class="form-select" id="alternativaSeleccionada" name="alternativaSeleccionada" required>
+                                        <option value="">SELECCIONE...</option>
+                                        <option value="contratoAprendizaje" <%= aprendiz.alternativaSeleccionada === 'contratoAprendizaje' ? 'selected' : '' %>>CONTRATO DE APRENDIZAJE</option>
+                                        <option value="pasantia" <%= aprendiz.alternativaSeleccionada === 'pasantia' ? 'selected' : '' %>>PASANTÍA</option>
+                                        <option value="apoyoEntidades" <%= aprendiz.alternativaSeleccionada === 'apoyoEntidades' ? 'selected' : '' %>>APOYO A ENTIDADES</option>
+                                        <option value="vinculoLaboral" <%= aprendiz.alternativaSeleccionada === 'vinculoLaboral' ? 'selected' : '' %>>VÍNCULO LABORAL</option>
+                                        <option value="proyectosProductivos" <%= aprendiz.alternativaSeleccionada === 'proyectosProductivos' ? 'selected' : '' %>>PROYECTOS PRODUCTIVOS</option>
+                                        <option value="monitoria" <%= aprendiz.alternativaSeleccionada === 'monitoria' ? 'selected' : '' %>>MONITORÍA</option>
+                                        <option value="unidadesProductivas" <%= aprendiz.alternativaSeleccionada === 'unidadesProductivas' ? 'selected' : '' %>>UNIDADES PRODUCTIVAS FAMILIARES</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="areaFormacion" class="form-label">¿En el área de formación? <span class="required">*</span></label>
+                                    <select class="form-select" id="areaFormacion" name="areaFormacion" required>
+                                        <option value="SI" <%= aprendiz.areaFormacion === 'SI' ? 'selected' : '' %>>SÍ</option>
+                                        <option value="NO" <%= aprendiz.areaFormacion === 'NO' ? 'selected' : '' %>>NO</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="fechaInicioProductiva" class="form-label">Fecha inicio etapa productiva <span class="required">*</span></label>
+                                    <input type="date" class="form-control" id="fechaInicioProductiva" name="fechaInicioProductiva" value="<%= aprendiz.fechaInicioProductiva || '' %>" required>
+                                    <small id="fechaInicioProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="fechaFinProductiva" class="form-label">Fecha fin etapa productiva <span class="required">*</span></label>
+                                    <input type="date" class="form-control" id="fechaFinProductiva" name="fechaFinProductiva" value="<%= aprendiz.fechaFinProductiva || '' %>" required>
+                                    <small id="fechaFinProductivaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="empresaPatrocinadora" class="form-label">Empresa patrocinadora <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="empresaPatrocinadora" name="empresaPatrocinadora" value="<%= aprendiz.empresaPatrocinadora || '' %>" required placeholder="Ej: EMPRESA ABC S.A.S">
+                                    <small id="empresaPatrocinadoraHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="areaPractica" class="form-label">Área donde realiza la práctica <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="areaPractica" name="areaPractica" value="<%= aprendiz.areaPractica || '' %>" required placeholder="Ej: DESARROLLO DE SOFTWARE">
+                                    <small id="areaPracticaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="jefeInmediato" class="form-label">Nombre del jefe inmediato <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="jefeInmediato" name="jefeInmediato" value="<%= aprendiz.jefeInmediato || '' %>" required placeholder="Ej: ANA MARTÍNEZ">
+                                    <small id="jefeInmediatoHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="telefonoEmpresa" class="form-label">Teléfono fijo</label>
+                                    <input type="tel" class="form-control" id="telefonoEmpresa" name="telefonoEmpresa" value="<%= aprendiz.telefonoEmpresa || '' %>" placeholder="Ej: 1234567">
+                                    <small id="telefonoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="celularEmpresa" class="form-label">Celular <span class="required">*</span></label>
+                                    <input type="tel" class="form-control" id="celularEmpresa" name="celularEmpresa" value="<%= aprendiz.celularEmpresa || '' %>" required placeholder="Ej: 3001234567">
+                                    <small id="celularEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="direccionEmpresa" class="form-label">Dirección de la empresa <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="direccionEmpresa" name="direccionEmpresa" value="<%= aprendiz.direccionEmpresa || '' %>" required placeholder="Ej: CRA 15 #25-30">
+                                    <small id="direccionEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="correoEmpresa" class="form-label">Correo de la empresa <span class="required">*</span></label>
+                                    <input type="email" class="form-control" id="correoEmpresa" name="correoEmpresa" value="<%= aprendiz.correoEmpresa || '' %>" required placeholder="Ej: contacto@empresa.com">
+                                    <small id="correoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="horario" class="form-label">Horario <span class="required">*</span></label>
+                                    <input type="text" class="form-control" id="horario" name="horario" value="<%= aprendiz.horario || '' %>" required placeholder="Ej: L a V 8:00am a 5:00pm">
+                                    <small id="horarioHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                               </div>
+                           </div>
+
+                            <!-- Botones de acción -->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success btn-save-profile me-3">
+                                    <i class="fas fa-save me-2"></i>
+                                    Guardar Cambios
+                                </button>
+                                <a href="/aprendiz/perfil" class="btn btn-cancel">
+                                    <i class="fas fa-times me-2"></i>
+                                    Cancelar
+                                </a>
+                            </div>
+                            
+                            <p class="text-center mt-3" style="font-size:0.98rem;">
+                                <span class="required">*</span> Campos obligatorios
+                            </p>
+                        </form>
+                    <% } else { %>
+                        <div class="alert alert-danger">
+                            No se encontraron datos de su perfil para editar.
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ¡Éxito!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-success mb-3">Perfil Actualizado</h4>
+                <p class="mb-0">Tu información personal ha sido actualizada exitosamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success px-4" id="confirmButton">
+                    <i class="fas fa-check me-2"></i>
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error de Validación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-danger mb-3">Fechas Inválidas</h4>
+                <div id="errorModalBody"></div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('editarMiPerfilForm');
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Animación de entrada
+        document.querySelector('.edit-profile-card').style.opacity = '0';
+        document.querySelector('.edit-profile-card').style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            document.querySelector('.edit-profile-card').style.transition = 'all 0.5s ease-in-out';
+            document.querySelector('.edit-profile-card').style.opacity = '1';
+            document.querySelector('.edit-profile-card').style.transform = 'translateY(0)';
+        }, 100);
+
+        if (form) {
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                // Validar fechas antes de enviar
+                const fechaInicioLectiva = document.getElementById('fechaInicioLectiva').value;
+                const fechaFinLectiva = document.getElementById('fechaFinLectiva').value;
+                const fechaInicioProductiva = document.getElementById('fechaInicioProductiva').value;
+                const fechaFinProductiva = document.getElementById('fechaFinProductiva').value;
+
+                if (fechaInicioLectiva && fechaFinLectiva && new Date(fechaFinLectiva) < new Date(fechaInicioLectiva)) {
+                    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                    document.getElementById('errorModalBody').innerHTML = '<p>La fecha de fin de la etapa lectiva no puede ser anterior a la fecha de inicio.</p>';
+                    errorModal.show();
+                    return;
+                }
+
+                if (fechaInicioProductiva && fechaFinProductiva && new Date(fechaFinProductiva) < new Date(fechaInicioProductiva)) {
+                    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                    document.getElementById('errorModalBody').innerHTML = '<p>La fecha de fin de la etapa productiva no puede ser anterior a la fecha de inicio.</p>';
+                    errorModal.show();
+                    return;
+                }
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Mostrar modal de éxito
+                        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+
+                        // Configurar el botón de aceptar para redirigir
+                        document.getElementById('confirmButton').addEventListener('click', function() {
+                            window.location.href = '/aprendiz/perfil?t=' + Date.now();
+                        });
+                    } else {
+                        throw new Error(result.message || 'Ocurrió un error en el servidor.');
+                    }
+                } catch (error) {
+                    console.error('Error al enviar el formulario:', error);
+                    messageContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-save me-2"></i> Guardar Cambios';
+                }
+            });
+        } else {
+            // PRUEBA DE ERROR: El script no encontró el formulario
+            console.error('ERROR: ¡El script se ejecutó PERO no pudo encontrar el formulario!');
+        }
+        
+        console.log('Formulario de edición de perfil de aprendiz cargado correctamente');
+
+        // Cargar datos de ubicación
+        const cargarDatosUbicacion = async () => {
+            try {
+                console.log('Iniciando carga de datos...');
+                const response = await fetch('/data/colombia.json');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Datos cargados:', data);
+
+                const departamentoSelect = document.getElementById('departamento');
+                const municipioSelect = document.getElementById('municipio');
+
+                if (!departamentoSelect || !municipioSelect) {
+                    console.error('Selectores no encontrados');
+                    return;
+                }
+
+                // Cargar departamentos
+                departamentoSelect.innerHTML = '<option value="">SELECCIONE...</option>';
+                data.forEach(item => {
+                    if (item && item.departamento) {
+                        const option = document.createElement('option');
+                        option.value = item.departamento;
+                        option.textContent = item.departamento.toUpperCase(); // Mostrar en mayúsculas
+                        if (item.departamento === '<%- aprendiz.departamento %>') {
+                            option.selected = true;
+                        }
+                        departamentoSelect.appendChild(option);
+                    }
+                });
+
+                // Evento change para departamentos
+                departamentoSelect.addEventListener('change', function() {
+                    const selectedDep = this.value;
+                    console.log('Departamento seleccionado:', selectedDep);
+
+                    municipioSelect.innerHTML = '<option value="">SELECCIONE UN MUNICIPIO...</option>';
+                    if (!selectedDep) return;
+
+                    const departamento = data.find(d => d.departamento === selectedDep);
+                    if (departamento?.ciudades) {
+                        departamento.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad.toUpperCase(); // Mostrar en mayúsculas
+                            if (ciudad === '<%- aprendiz.municipio %>') {
+                                option.selected = true;
+                            }
+                            municipioSelect.appendChild(option);
+                        });
+                    }
+                });
+
+                // Cargar municipios del departamento actual si existe
+                if ('<%- aprendiz.departamento %>') {
+                    const departamento = data.find(d => d.departamento === '<%- aprendiz.departamento %>');
+                    if (departamento?.ciudades) {
+                        departamento.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad.toUpperCase();
+                            if (ciudad === '<%- aprendiz.municipio %>') {
+                                option.selected = true;
+                            }
+                            municipioSelect.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+            }
+        };
+
+        // Inicializar carga de datos
+        cargarDatosUbicacion();
+
+        // Normalizar inputs y selects a mayúsculas en frontend (EXCEPTO EMAIL)
+        const upperCaseInputs = document.querySelectorAll('input[type="text"], input[type="tel"]');
+        upperCaseInputs.forEach(input => {
+            input.style.textTransform = 'uppercase';
+            input.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+
+        // Manejar email por separado (convertir a minúsculas)
+        const emailInput = document.querySelector('input[type="email"]');
+        if (emailInput) {
+            emailInput.style.textTransform = 'lowercase';
+            emailInput.addEventListener('input', function() {
+                this.value = this.value.toLowerCase();
+            });
+        }
+
+        // Normalizar selects a mayúsculas visualmente
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.style.textTransform = 'uppercase';
+        });
+
+        // Restringir entrada en campos de texto (solo letras, espacios y caracteres especiales), excepto dirección y horario
+        const textInputs = document.querySelectorAll('input[type="text"]:not([name="numeroDocumento"]):not([name="numeroFicha"]):not([name="direccion"]):not([name="direccionEmpresa"]):not([name="horario"])');
+        textInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
+            });
+        });
+
+        // Restringir entrada en campos numéricos (solo dígitos)
+        const numberInputs = document.querySelectorAll('input[type="tel"], input[name="numeroDocumento"], input[name="numeroFicha"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '');
+            });
+        });
+    });
+</script>

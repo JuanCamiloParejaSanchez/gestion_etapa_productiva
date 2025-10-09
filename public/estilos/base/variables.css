@@ -1,0 +1,444 @@
+/* Ruta: public/estilos/base/variables.css */
+/* Propósito: Variables CSS del sistema de diseño SENA */
+
+/* --- Variables de Color SENA Mejoradas --- */
+:root {
+    /* Colores SENA principales */
+    --color-primary: #04324d;
+    --color-secondary: #39a900;
+    --color-accent: #f3e827ff;
+
+    /* Estados y feedback */
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --color-info: #17a2b8;
+
+    /* Escala de grises moderna */
+    --gray-50: #f8f9fa;
+    --gray-100: #e9ecef;
+    --gray-200: #dee2e6;
+    --gray-300: #ced4da;
+    --gray-400: #adb5bd;
+    --gray-500: #6c757d;
+    --gray-600: #495057;
+    --gray-700: #343a40;
+    --gray-800: #212529;
+    --gray-900: #000000;
+
+    /* Compatibilidad hacia atrás */
+    --primary-color: var(--color-primary);
+    --secondary-color: var(--color-secondary);
+    --light-gray: var(--gray-50);
+    --dark-text: var(--gray-700);
+    --border-color: var(--gray-300);
+
+    /* Espaciado consistente */
+    --spacing-xs: 0.25rem;    /* 4px */
+    --spacing-sm: 0.5rem;     /* 8px */
+    --spacing-md: 1rem;       /* 16px */
+    --spacing-lg: 1.5rem;     /* 24px */
+    --spacing-xl: 3rem;       /* 48px */
+
+    /* Bordes */
+    --border-radius-sm: 0.25rem;   /* 4px */
+    --border-radius-md: 0.375rem;  /* 6px */
+    --border-radius-lg: 0.5rem;    /* 8px */
+    --border-radius-xl: 1rem;      /* 16px */
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Transiciones */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+
+    /* Tipografía */
+    --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-family-mono: 'Courier New', monospace;
+
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.875rem;  /* 14px */
+    --font-size-base: 1rem;    /* 16px */
+    --font-size-lg: 1.125rem;  /* 18px */
+    --font-size-xl: 1.25rem;   /* 20px */
+    --font-size-2xl: 1.5rem;   /* 24px */
+    --font-size-3xl: 1.875rem; /* 30px */
+
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Líneas y alturas */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+
+    /* Z-index layers */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+
+    /* Breakpoints */
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+}
+
+/* Variables RGB para transparencias */
+:root {
+    --color-primary-rgb: 4, 50, 77;
+    --color-secondary-rgb: 57, 169, 0;
+    --color-success-rgb: 40, 167, 69;
+    --color-warning-rgb: 255, 193, 7;
+    --color-danger-rgb: 220, 53, 69;
+    --color-info-rgb: 23, 162, 184;
+}
+
+/* Tema oscuro - Inspirado en GitHub */
+html.dark-mode body {
+    --color-primary: #8b949e;
+    --color-secondary: #c9d1d9;
+    --color-accent: #b1bac4;
+
+    --gray-50: #0d1117;
+    --gray-100: #161b22;
+    --gray-200: #21262d;
+    --gray-300: #30363d;
+    --gray-400: #484f58;
+    --gray-500: #6e7681;
+    --gray-600: #8b949e;
+    --gray-700: #b1bac4;
+    --gray-800: #c9d1d9;
+    --gray-900: #f0f6fc;
+
+    background-color: #0d1117;
+    color: #f0f6fc;
+}
+
+html.dark-mode body .card {
+    background-color: #161b22;
+    border-color: #30363d;
+    color: #f0f6fc;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode body .navbar {
+    background: #161b22 !important;
+    border-bottom: 1px solid #30363d;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+html.dark-mode body .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #484f58 100%);
+    border-color: var(--color-primary);
+}
+
+html.dark-mode body .btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+html.dark-mode body .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+html.dark-mode body .table {
+    background-color: #161b22;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
+html.dark-mode body .table thead th {
+    background: #0d1117;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
+html.dark-mode body .table tbody tr {
+    border-color: #30363d;
+}
+
+html.dark-mode body .table tbody tr:hover {
+    background-color: #21262d;
+}
+
+html.dark-mode body .table tbody td {
+    border-color: #30363d;
+}
+
+html.dark-mode body a {
+    color: var(--color-primary);
+}
+
+html.dark-mode body a:hover {
+    color: var(--color-secondary);
+}
+
+
+/* Logo SVG en tema oscuro */
+html.dark-mode body .navbar-logo {
+    background-color: #161b22;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* Formularios en modo oscuro */
+html.dark-mode body .form-control,
+html.dark-mode body .form-select {
+    background-color: #161b22;
+    border-color: #30363d;
+    color: #f0f6fc;
+}
+
+html.dark-mode body .form-control:focus,
+html.dark-mode body .form-select:focus {
+    background-color: #21262d;
+    border-color: #8b949e;
+    color: #f0f6fc;
+    box-shadow: 0 0 0 0.2rem rgba(139, 148, 158, 0.25);
+}
+
+html.dark-mode body .form-control::placeholder {
+    color: #999999;
+}
+
+/* Modales en modo oscuro */
+html.dark-mode body .modal-content {
+    background-color: #0d1117;
+    color: #f0f6fc;
+}
+
+html.dark-mode body .modal-header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    color: white;
+    border-bottom: none;
+}
+
+html.dark-mode body .modal-footer {
+    background-color: #161b22;
+    border-top: 1px solid #30363d;
+}
+
+/* Dropdowns en modo oscuro */
+html.dark-mode body .dropdown-menu {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    color: #f0f6fc;
+}
+
+html.dark-mode body .dropdown-item {
+    color: #f0f6fc;
+}
+
+html.dark-mode body .dropdown-item:hover {
+    background-color: rgba(139, 148, 158, 0.1);
+    color: var(--color-primary);
+}
+
+/* Badges en modo oscuro */
+html.dark-mode body .badge {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* Alertas en modo oscuro */
+html.dark-mode body .alert {
+    background-color: rgba(74, 144, 226, 0.1);
+    border-color: rgba(74, 144, 226, 0.3);
+    color: #e6e6e6;
+}
+
+html.dark-mode body .alert-success {
+    background-color: rgba(92, 184, 92, 0.1);
+    border-color: rgba(92, 184, 92, 0.3);
+}
+
+html.dark-mode body .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+html.dark-mode body .alert-warning {
+    background-color: rgba(240, 173, 78, 0.1);
+    border-color: rgba(240, 173, 78, 0.3);
+}
+
+/* Paginación en modo oscuro */
+html.dark-mode body .dataTables_paginate .paginate_button {
+    background-color: #161b22;
+    border-color: #30363d;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .dataTables_paginate .paginate_button.current,
+html.dark-mode body .dataTables_paginate .paginate_button:active {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%) !important;
+    border-color: var(--color-primary) !important;
+    color: white !important;
+}
+
+html.dark-mode body .dataTables_paginate .paginate_button:hover {
+    background-color: rgba(139, 148, 158, 0.1) !important;
+    color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+/* Footer en modo oscuro */
+html.dark-mode body .sena-footer {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-top: 4px solid var(--color-secondary);
+    color: white;
+}
+
+/* Tooltips en modo oscuro */
+html.dark-mode body .tooltip-inner {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+html.dark-mode body .tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--color-primary);
+}
+
+html.dark-mode body .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--color-primary);
+}
+
+html.dark-mode body .tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--color-primary);
+}
+
+html.dark-mode body .tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--color-primary);
+}
+
+/* Popovers en modo oscuro */
+html.dark-mode body .popover {
+    background-color: #161b22;
+    border-color: #30363d;
+}
+
+html.dark-mode body .popover-header {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    color: white;
+    border-bottom-color: #30363d;
+}
+
+html.dark-mode body .popover-body {
+    color: #f0f6fc;
+}
+
+/* Progress bars en modo oscuro */
+html.dark-mode body .progress {
+    background-color: #0d1117;
+}
+
+html.dark-mode body .progress-bar {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, #484f58 100%);
+}
+
+/* Loading states en modo oscuro */
+html.dark-mode body .spinner-border {
+    color: var(--color-secondary);
+}
+
+html.dark-mode body .spinner-grow {
+    color: var(--color-secondary);
+}
+
+/* Animaciones específicas para modo oscuro */
+html.dark-mode body .loading-shimmer {
+    background: linear-gradient(90deg,
+        rgba(15, 52, 96, 0.1) 25%,
+        rgba(22, 33, 62, 0.1) 50%,
+        rgba(15, 52, 96, 0.1) 75%);
+    background-size: 200% 100%;
+}
+
+/* Botón de toggle de tema */
+.theme-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    z-index: 1050;
+    transition: var(--transition-normal);
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-xl);
+}
+
+html.dark-mode .theme-toggle-btn {
+    background: #161b22;
+    color: #f0f6fc;
+}
+
+/* Soporte para preferencia del sistema */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --system-prefers-dark: true;
+    }
+}
+
+/* Variables específicas de componentes */
+:root {
+    /* Navbar */
+    --navbar-height: 60px;
+    --navbar-shadow: var(--shadow-md);
+
+    /* Cards */
+    --card-padding: var(--spacing-lg);
+    --card-border-radius: var(--border-radius-lg);
+    --card-shadow: var(--shadow-sm);
+    --card-shadow-hover: var(--shadow-md);
+
+    /* Formularios */
+    --form-control-height: 45px;
+    --form-control-padding: var(--spacing-sm) var(--spacing-md);
+    --form-control-border-width: 2px;
+    --form-control-focus-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+
+    /* Botones */
+    --btn-border-radius: var(--border-radius-md);
+    --btn-padding-sm: var(--spacing-xs) var(--spacing-sm);
+    --btn-padding-md: var(--spacing-sm) var(--spacing-md);
+    --btn-padding-lg: var(--spacing-md) var(--spacing-xl);
+    --btn-font-weight: 500;
+    --btn-transition: var(--transition-normal);
+
+    /* Tablas */
+    --table-border-color: var(--gray-200);
+    --table-header-bg: linear-gradient(135deg, var(--gray-50), white);
+    --table-row-hover-bg: rgba(var(--color-primary-rgb), 0.02);
+    --table-row-hover-transform: translateY(-1px);
+
+    /* Animaciones */
+    --animation-duration-fast: 150ms;
+    --animation-duration-normal: 300ms;
+    --animation-duration-slow: 500ms;
+    --animation-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}

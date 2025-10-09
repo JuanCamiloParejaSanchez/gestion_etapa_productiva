@@ -1,0 +1,165 @@
+/* Ruta: public/estilos/autenticacion/estilosLogin.css */
+/* Propósito: Estilos para las vistas de autenticación. */
+
+/* Estilos de la tarjeta */
+.card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white;
+    border-radius: 8px 8px 0 0 !important;
+    padding: 1rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Selector de rol */
+.role-selector {
+    margin-bottom: 1.5rem;
+}
+
+.role-selector .btn-group {
+    width: 100%;
+}
+
+.role-selector .btn {
+    flex: 1;
+    padding: 0.5rem 0;
+}
+
+.btn-outline-primary {
+    color: #04324d;
+    border-color: #04324d;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary.active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white;
+}
+
+/* Formularios */
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #39a900;
+    box-shadow: 0 0 0 0.25rem rgba(57, 169, 0, 0.25);
+}
+
+/* Botones */
+.btn-primary {
+    background-color: #39a900 !important;
+    border-color: #39a900 !important;
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: #2d8500 !important;
+    border-color: #2d8500 !important;
+}
+
+.btn-warning {
+    background-color: #f3e827ff;
+    border-color: #f3e827ff;
+    padding: 0.75rem;
+    font-weight: 500;
+}
+
+.btn-warning:hover {
+    background-color: #aca51cff;
+    border-color: #aca51cff;
+}
+
+.btn-link {
+    color: #39a900;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.btn-link:hover {
+    color: #2d8500;
+    text-decoration: underline;
+}
+
+/* Input groups y toggle password */
+.input-group-text,
+#togglePassword {
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+    cursor: pointer;
+}
+
+.input-group-text:hover,
+#togglePassword:hover {
+    background-color: #e9ecef;
+}
+
+/* Alertas y mensajes */
+.alert {
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+#messageContainer {
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Estilos para modo oscuro */
+html.dark-mode .form-label {
+    color: #f0f6fc;
+}
+
+html.dark-mode .form-text {
+    color: #c9d1d9;
+}
+
+html.dark-mode .form-text-format {
+    color: #f0f6fc;
+}
+
+html.dark-mode .btn-link {
+    color: #c9d1d9;
+}
+
+html.dark-mode .btn-link:hover {
+    color: #f0f6fc;
+}
+
+html.dark-mode .card-body p {
+    color: #f0f6fc;
+}
+
+html.dark-mode .card-body a:not(.btn) {
+    color: #c9d1d9;
+}
+
+html.dark-mode .card-body a:not(.btn):hover {
+    color: #f0f6fc;
+}

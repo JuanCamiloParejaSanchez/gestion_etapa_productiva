@@ -1,0 +1,173 @@
+/* Ruta: public/estilos/components/bitacoras.css */
+/* Propósito: Estilos para gestión de bitácoras */
+
+/* --- FILAS EXPANDIBLES PARA BITÁCORAS --- */
+.fila-bitacora {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fila-bitacora:hover {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 110, 253, 0.02) 100%);
+}
+
+.fila-bitacora.expanded {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.12) 0%, rgba(13, 110, 253, 0.06) 100%);
+    border-left: 4px solid #0d6efd;
+}
+
+.expand-row {
+    background: #f8f9fa;
+    border-left: 4px solid #0d6efd;
+}
+
+.expand-content {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 0 0 8px 8px;
+}
+
+.bitacoras-content {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bitacoras-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.bitacora-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.bitacora-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.bitacora-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.bitacora-date {
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.bitacora-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-pendiente {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.status-aprobada {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border: 1px solid rgba(25, 135, 84, 0.2);
+}
+
+.bitacora-content {
+    color: #495057;
+    line-height: 1.6;
+}
+
+.no-bitacoras {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.no-bitacoras i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* --- ANIMACIONES --- */
+.expand-row {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.expand-row.show {
+    display: table-row !important;
+}
+
+.expand-row.hide {
+    display: none !important;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modern-table-container {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* --- ESTADOS DE CARGA --- */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- MENSAJE DE NO DATOS --- */
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.no-data i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}

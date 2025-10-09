@@ -1,0 +1,318 @@
+<%- contentFor('styles') %>
+<style>
+    .dashboard-card {
+        margin-bottom: 20px;
+        height: 100%;
+    }
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .indicator-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .indicator-label {
+        font-size: 0.9em;
+        color: #666;
+    }
+    .trend-positive {
+        color: #28a745;
+    }
+    .trend-negative {
+        color: #dc3545;
+    }
+    .trend-stable {
+        color: #ffc107;
+    }
+    .alert-info {
+        background-color: #e8f4f8;
+        border-color: #b8e7f3;
+        color: #0c5460;
+    }
+    .badge-alerta-visual {
+        position: absolute;
+        top: -12px;
+        right: -12px;
+        min-width: 32px;
+        height: 32px;
+        padding: 0 8px;
+        background: linear-gradient(135deg, #ff3b3b 0%, #ff9800 100%);
+        color: #fff;
+        font-size: 1.15em;
+        font-weight: bold;
+        border-radius: 50%;
+        box-shadow: 0 4px 16px rgba(220,53,69,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border: 2.5px solid #fff;
+        transition: transform 0.2s;
+    }
+    .badge-alerta-visual[style*="display: none"] {
+        display: none !important;
+    }
+
+    /* Animación de rebote */
+    @keyframes badge-bump {
+        0% { transform: scale(1); }
+        10% { transform: scale(1.2); }
+        30% { transform: scale(0.95); }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.98); }
+        100% { transform: scale(1); }
+    }
+    .badge-alerta-visual.rebote {
+        animation: badge-bump 0.4s;
+    }
+
+    /* Estilos para modal de alertas en modo oscuro */
+    .modal-alertas .modal-header {
+        background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    }
+    html.dark-mode .modal-alertas .modal-header {
+        background: linear-gradient(135deg, #8b0000 0%, #dc3545 100%);
+    }
+    html.dark-mode .modal-alertas .modal-body .list-group-item {
+        background-color: #334155;
+        color: #e6e6e6;
+        border-color: #475569;
+    }
+    html.dark-mode .modal-alertas .modal-body .text-muted {
+        color: #94a3b8 !important;
+    }
+    /* Mejoras UX: hover en items de lista */
+    .modal-alertas .list-group-item {
+        transition: background-color 0.2s ease;
+    }
+    .modal-alertas .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    html.dark-mode .modal-alertas .list-group-item:hover {
+        background-color: #475569;
+    }
+    /* Mejor padding para el modal */
+    .modal-alertas .modal-body {
+        padding: 2rem;
+    }
+
+    .dark-mode .btn-cerrar-modal:hover {
+    background-color: #26292b !important;
+    border-color: #26292b !important;
+    color: white !important;
+}
+
+/* Estilos para modal de confirmación de logout */
+.confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
+}
+.confirm-logout-modal .modal-body {
+    text-align: center;
+    padding: 2rem;
+}
+.confirm-logout-modal .modal-body .fa-question-circle {
+    font-size: 4rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+}
+.confirm-logout-modal .modal-body h4 {
+    color: #ffc107;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.confirm-logout-modal .modal-footer {
+    justify-content: center;
+    padding: 1.5rem;
+}
+.confirm-logout-modal .btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.confirm-logout-modal .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Modo oscuro para modal de logout */
+html.dark-mode .confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: #e2e8f0;
+}
+html.dark-mode .confirm-logout-modal .modal-content {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+html.dark-mode .confirm-logout-modal .modal-body .fa-question-circle {
+    color: #fbbf24;
+}
+html.dark-mode .confirm-logout-modal .modal-body h4 {
+    color: #fbbf24;
+}
+html.dark-mode .confirm-logout-modal .btn-secondary {
+    background-color: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+html.dark-mode .confirm-logout-modal .btn-secondary:hover {
+    background-color: #2d3748;
+    border-color: #2d3748;
+}
+html.dark-mode .confirm-logout-modal .btn-warning {
+    background-color: #d97706;
+    border-color: #d97706;
+}
+html.dark-mode .confirm-logout-modal .btn-warning:hover {
+    background-color: #b45309;
+    border-color: #b45309;
+}
+</style>
+
+<%- contentFor('navigation') %>
+<!-- Barra de navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-end">
+            <a href="#" class="btn btn-primary btn-navbar" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="mb-0">Bienvenido, <%= user.name %>!</h1>
+            <p class="lead">Aquí podrás gestionar la información relevante de tu etapa productiva.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tarjeta de Información Personal -->
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-user-circle me-2"></i>Mi Información Personal
+                </div>
+                <div class="card-body">
+                    <p>Accede y actualiza tus datos de contacto y detalles personales.</p>
+                    <a href="/aprendiz/perfil" class="btn btn-success">Ver Mi Perfil</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Alertas -->
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card position-relative">
+                <div class="card-header bg-danger text-white d-flex align-items-center position-relative">
+                    <i class="fas fa-bell me-2"></i>Alertas
+                    <!-- Badge en la esquina superior derecha -->
+                    <span id="badge-alertas" class="badge-alerta-visual" style="display:none;">0</span>
+                </div>
+                <div class="card-body">
+                    <p>Revisa tus alertas y mantente al día con tus pendientes.</p>
+                    <button id="btn-ver-alertas" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalAlertas">
+                        Ver Alertas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Documentación -->
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-warning text-white">
+                    <i class="fas fa-folder-open me-2"></i>Gestión de Documentos
+                </div>
+                <div class="card-body">
+                    <p>Sube y administra los documentos requeridos para tu seguimiento.</p>
+                    <a href="/aprendiz/documentos" class="btn btn-warning">Gestionar Documentos</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarjeta de Bitácora -->
+        <div class="col-md-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-book-open me-2"></i>Mi progreso
+                </div>
+                <div class="card-body">
+                    <p>Registra tus avances, desafíos y logros.</p>
+                    <a href="/aprendiz/bitacora" class="btn btn-info">Registrar Progreso</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<!-- Modal de Alertas -->
+<div class="modal fade modal-alertas" id="modalAlertas" tabindex="-1" aria-labelledby="modalAlertasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header text-white">
+        <h5 class="modal-title" id="modalAlertasLabel"><i class="fas fa-bell me-2"></i>Documentos Pendientes</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <ul id="lista-alertas" class="list-group">
+          <!-- Aquí se insertan las alertas dinámicamente -->
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-cerrar-modal" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Cierre de Sesión -->
+<div class="modal fade confirm-logout-modal" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmLogoutModalLabel">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          Confirmar Cierre de Sesión
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-question-circle text-warning" style="font-size: 4rem;"></i>
+        </div>
+        <h4 class="text-warning mb-3">¿Estás seguro?</h4>
+        <p class="mb-0">¿Estás seguro de que deseas cerrar sesión?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-warning px-4" id="confirmLogoutBtn">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+  window.location.href = '/auth/logout';
+});
+</script>
+<script src="/js/alertasDashboard.js"></script>

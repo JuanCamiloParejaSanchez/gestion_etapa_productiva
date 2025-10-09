@@ -1,0 +1,65 @@
+<!-- Ruta: vistas/autenticacion/recuperarContrasena.ejs -->
+<!-- Propósito: Formulario para solicitar recuperación de contraseña
+     Autor: JuanBogotá -->
+
+<%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/autenticacion/estilosLogin.css">
+
+<%- contentFor('body') %>
+<!-- Paso 1: Solicitar código -->
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0 text-center">Recuperar Contraseña</h4>
+                </div>
+                <div class="card-body">
+                    <div id="messageContainer"></div>
+                    <form id="recuperarForm">
+                        <div class="mb-4">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Enviar Código</button>
+                        </div>
+                    </form>
+                    <!-- Aquí se insertará el formulario del segundo paso -->
+                    <div id="codigoFormContainer" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ¡Éxito!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="text-success mb-3">Contraseña Restablecida</h4>
+                <p class="mb-0">Tu contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success px-4" id="confirmButton">
+                    <i class="fas fa-check me-2"></i>
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/autenticacion/recuperarContrasena.js"></script>

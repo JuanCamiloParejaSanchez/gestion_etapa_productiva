@@ -1,0 +1,22 @@
+<!-- Componente reutilizable para botones -->
+<%_
+const {
+    tipo = 'primary',
+    texto,
+    icono,
+    clases = '',
+    atributos = '',
+    disabled = false,
+    size = 'md'
+} = typeof button !== 'undefined' ? button : {};
+_%>
+
+<button type="button"
+        class="btn btn-<%= tipo %> btn-<%= size %> <%= disabled ? 'disabled' : '' %> <%= clases %>"
+        <%= disabled ? 'disabled' : '' %>
+        <%= atributos %>>
+    <% if (icono) { %>
+        <i class="<%= icono %>"></i>
+    <% } %>
+    <%= texto %>
+</button>

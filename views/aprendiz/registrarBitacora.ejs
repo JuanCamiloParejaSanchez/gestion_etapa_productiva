@@ -1,0 +1,124 @@
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/aprendiz/dashboard">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar al Dashboard
+            </a>
+        </div>    
+    </div>
+</nav>
+
+<%- contentFor('body') %>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Seguimiento etapa productiva</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">
+                        Tómate un momento para reflexionar sobre tu semana. Tus respuestas son valiosas para tu seguimiento.
+                    </p>
+                    
+                    <!-- Formulario que envía los datos a la ruta POST /aprendiz/bitacora -->
+                    <form action="/aprendiz/bitacora" method="POST">
+                        
+                        <!-- Pregunta 1: Desafíos -->
+                        <div class="mb-4">
+                            <label for="respuesta_desafio" class="form-label fw-bold">1. ¿Cuál fue el mayor desafío al que te enfrentaste esta semana y cómo lo superaste?</label>
+                            <textarea class="form-control" id="respuesta_desafio" name="respuesta_desafio" rows="5" placeholder="Describe aquí los obstáculos, los problemas que resolviste o las dificultades que encontraste..." required></textarea>
+                        </div>
+                        
+                        <!-- Pregunta 2: Logros -->
+                        <div class="mb-4">
+                            <label for="respuesta_logro" class="form-label fw-bold">2. Describe un logro o momento del que te sientas especialmente orgulloso/a esta semana.</label>
+                            <textarea class="form-control" id="respuesta_logro" name="respuesta_logro" rows="5" placeholder="Puede ser una tarea completada con éxito, un nuevo aprendizaje, un reconocimiento, etc." required></textarea>
+                        </div>
+                        
+                        <!-- Pregunta 3: Comunicación -->
+                        <div class="mb-4">
+                            <label for="respuesta_comunicacion" class="form-label fw-bold">3. ¿Cómo ha sido la comunicación y el apoyo que has recibido de tu jefe y equipo de trabajo?</label>
+                            <textarea class="form-control" id="respuesta_comunicacion" name="respuesta_comunicacion" rows="5" placeholder="Habla sobre la colaboración, el ambiente de trabajo, la ayuda que recibiste o que ofreciste..." required></textarea>
+                        </div>
+
+                        <hr>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                Guardar progreso
+                            </button>
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+$(document).ready(function() {
+    $('form').on('submit', async function(event) {
+        event.preventDefault(); // Evita el envío tradicional del formulario
+
+        const form = $(this);
+        const submitButton = form.find('button[type="submit"]');
+        const originalButtonHtml = submitButton.html();
+
+        // Deshabilita el botón y muestra un spinner
+        submitButton.prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...'
+        );
+
+        const formData = {
+            respuestaDesafio: $('#respuesta_desafio').val(),
+            respuestaLogro: $('#respuesta_logro').val(),
+            respuestaComunicacion: $('#respuesta_comunicacion').val()
+        };
+
+        try {
+            const response = await fetch(form.attr('action'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Bitácora Guardada!',
+                    text: result.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                // Redirige al dashboard después del éxito
+                window.location.href = '/aprendiz/dashboard';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al Guardar',
+                    text: result.message || 'No se pudo guardar la bitácora. Por favor, inténtalo de nuevo.'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Conexión',
+                text: 'No se pudo comunicar con el servidor. Revisa tu conexión a internet.'
+            });
+        } finally {
+            // Restaura el botón a su estado original
+            submitButton.prop('disabled', false).html(originalButtonHtml);
+        }
+    });
+});
+</script>

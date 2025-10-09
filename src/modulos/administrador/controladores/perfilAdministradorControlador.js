@@ -1,0 +1,268 @@
+// src/modulos/administrador/controladores/perfilAdministradorControlador.js
+// Propósito: Maneja las operaciones del perfil personal del administrador
+// Autor: Sistema
+
+const { pool } = require('../../../configuracion/baseDatos');
+
+const perfilAdministradorControlador = {
+
+    // Mostrar el perfil del administrador
+    async mostrarPerfil(req, res) {
+        try {
+            console.log('🔍 [PERFIL] Accediendo al perfil del administrador');
+            console.log('🔍 [PERFIL] Usuario ID de sesión:', req.session.userId);
+            console.log('🔍 [PERFIL] Nombre de usuario de sesión:', req.session.userName);
+            
+            const adminId = req.session.userId;
+            
+            if (!adminId) {
+                console.log('❌ [PERFIL] No hay ID de usuario en sesión, redirigiendo a login');
+                return res.redirect('/auth/login');
+            }
+
+            // Consultar los datos del administrador
+            const consulta = `
+                SELECT 
+                    id,
+                    nombreCompleto,
+                    correoInstitucional,
+                    numeroIdentificacion,
+                    telefono,
+                    departamento,
+                    cargo,
+                    created_at as fechaRegistro
+                FROM administradores 
+                WHERE id = ?
+            `;
+            
+            const [resultados] = await pool.execute(consulta, [adminId]);
+            
+            if (resultados.length === 0) {
+                return res.status(404).render('compartido/paginaError', {
+                    titulo: 'Administrador no encontrado',
+                    mensaje: 'No se encontró la información del administrador',
+                    layout: 'plantillas/autenticacion'
+                });
+            }
+
+            const administrador = resultados[0];
+            
+            // Verificar si hay mensaje de éxito
+            const success = req.query.success === '1';
+            
+            res.render('administrador/verMiPerfilAdministrador', {
+                titulo: 'Mi Perfil - Administrador',
+                administrador,
+                success,
+                layout: 'plantillas/principal'
+            });
+
+        } catch (error) {
+            console.error('Error al mostrar perfil del administrador:', error);
+            res.status(500).render('compartido/paginaError', {
+                titulo: 'Error del Sistema',
+                mensaje: 'Error al cargar la información del perfil',
+                layout: 'plantillas/principal'
+            });
+        }
+    },
+
+    // Mostrar formulario de edición del perfil
+    async editarPerfil(req, res) {
+        try {
+            const adminId = req.session.userId;
+            
+            if (!adminId) {
+                return res.redirect('/auth/login');
+            }
+
+            // Consultar los datos actuales del administrador
+            const consulta = `
+                SELECT 
+                    id,
+                    nombreCompleto,
+                    correoInstitucional,
+                    numeroIdentificacion,
+                    telefono,
+                    departamento,
+                    cargo
+                FROM administradores 
+                WHERE id = ?
+            `;
+            
+            const [resultados] = await pool.execute(consulta, [adminId]);
+            
+            if (resultados.length === 0) {
+                return res.status(404).render('compartido/paginaError', {
+                    titulo: 'Administrador no encontrado',
+                    mensaje: 'No se encontró la información del administrador',
+                    layout: 'plantillas/autenticacion'
+                });
+            }
+
+            const administrador = resultados[0];
+            
+            res.render('administrador/editarPerfilAdministrador', {
+                titulo: 'Editar Mi Perfil - Administrador',
+                administrador,
+                layout: 'plantillas/principal'
+            });
+
+        } catch (error) {
+            console.error('Error al cargar formulario de edición:', error);
+            res.status(500).render('compartido/paginaError', {
+                titulo: 'Error del Sistema',
+                mensaje: 'Error al cargar el formulario de edición',
+                layout: 'plantillas/principal'
+            });
+        }
+    },
+
+    // Actualizar el perfil del administrador
+    async actualizarPerfil(req, res) {
+        try {
+            const adminId = req.session.userId;
+            
+            if (!adminId) {
+                return res.redirect('/auth/login');
+            }
+
+            const {
+                nombreCompleto,
+                correoInstitucional,
+                numeroIdentificacion,
+                telefono,
+                departamento,
+                cargo
+            } = req.body;
+
+            // Normalizar email a minúsculas
+            const correoNormalizado = correoInstitucional ? correoInstitucional.toLowerCase().trim() : '';
+
+            // Validaciones básicas
+            if (!nombreCompleto || !correoNormalizado || !numeroIdentificacion || !telefono || !departamento || !cargo) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Todos los campos son obligatorios'
+                });
+            }
+
+            // Validar formato de correo
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(correoNormalizado)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El formato del correo electrónico no es válido'
+                });
+            }
+
+            // Validar número de identificación
+            if (!/^\d{7,12}$/.test(numeroIdentificacion)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El número de identificación debe tener entre 7 y 12 dígitos'
+                });
+            }
+
+            // Validar teléfono
+            if (!/^\d{10}$/.test(telefono)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El teléfono debe tener exactamente 10 dígitos'
+                });
+            }
+
+            // Verificar que el correo no esté en uso por otro administrador
+            const verificarCorreo = `
+                SELECT id FROM administradores 
+                WHERE correoInstitucional = ? AND id != ?
+            `;
+            const [correoExistente] = await pool.execute(verificarCorreo, [correoNormalizado, adminId]);
+            
+            if (correoExistente.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El correo electrónico ya está registrado por otro administrador'
+                });
+            }
+
+            // Verificar que el número de identificación no esté en uso por otro administrador
+            const verificarIdentificacion = `
+                SELECT id FROM administradores 
+                WHERE numeroIdentificacion = ? AND id != ?
+            `;
+            const [identificacionExistente] = await pool.execute(verificarIdentificacion, [numeroIdentificacion, adminId]);
+            
+            if (identificacionExistente.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El número de identificación ya está registrado por otro administrador'
+                });
+            }
+
+            // Actualizar los datos del administrador
+            const actualizarConsulta = `
+                UPDATE administradores 
+                SET 
+                    nombreCompleto = ?,
+                    correoInstitucional = ?,
+                    numeroIdentificacion = ?,
+                    telefono = ?,
+                    departamento = ?,
+                    cargo = ?
+                WHERE id = ?
+            `;
+
+            const [resultado] = await pool.execute(actualizarConsulta, [
+                nombreCompleto,
+                correoNormalizado,
+                numeroIdentificacion,
+                telefono,
+                departamento,
+                cargo,
+                adminId
+            ]);
+
+            // Verificar si la actualización fue exitosa
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'No se encontró el administrador para actualizar'
+                });
+            }
+
+            // Actualizar la sesión con el nuevo nombre si cambió
+            if (req.session.userName !== nombreCompleto) {
+                req.session.userName = nombreCompleto;
+            }
+
+            // Responder con éxito
+            res.json({ success: true, message: 'Perfil actualizado exitosamente.' });
+
+        } catch (error) {
+            console.error('Error al actualizar perfil del administrador:', error);
+            
+            // Manejar errores específicos de base de datos
+            if (error.code === 'ER_DUP_ENTRY') {
+                if (error.message.includes('correo_institucional')) {
+                    return res.status(409).json({
+                        success: false,
+                        message: 'Ya existe un administrador con este correo institucional'
+                    });
+                } else if (error.message.includes('numero_identificacion')) {
+                    return res.status(409).json({
+                        success: false,
+                        message: 'Ya existe un administrador con este número de identificación'
+                    });
+                }
+            }
+
+            res.status(500).json({
+                success: false,
+                message: 'Error interno del servidor al actualizar el perfil'
+            });
+        }
+    }
+};
+
+module.exports = perfilAdministradorControlador;

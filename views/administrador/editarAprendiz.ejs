@@ -1,0 +1,119 @@
+<!-- Ruta: vistas/administrador/editarAprendiz.ejs -->
+<!-- Propósito: Interfaz para modificar la información de un aprendiz existente.
+     Permite actualizar todos los campos del registro de un aprendiz.
+     Autor: JuanBogotá -->
+
+<%- contentFor('styles') %>
+
+<%- contentFor('body') %>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/administrador/listar-aprendices">Regresar</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Editar Aprendiz</h2>
+        </div>
+        <div class="card-body">
+            <div id="messageContainer"></div>
+
+    <% if (typeof aprendiz !== 'undefined') { %>
+                <form id="editarAprendizForm"
+                      data-tipo="admin"
+                      method="POST"
+                      action="/administrador/aprendiz/actualizar/<%= aprendiz.id %>">
+            <% for (let key in aprendiz) { %>
+                <% if (key !== 'id' && key !== 'created_at') { %>
+                    <div class="mb-3">
+                        <label for="<%= key %>" class="form-label">
+                            <%= key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim() %>
+                        </label>
+
+                        <% if (key.toLowerCase().includes('fecha')) { %>
+                            <input type="date"
+                                   class="form-control"
+                                   id="<%= key %>"
+                                   name="<%= key %>"
+                                   value="<%= aprendiz[key] ? new Date(aprendiz[key]).toISOString().split('T')[0] : '' %>">
+
+                        <% } else if (key === 'tipoDocumento') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="CC" <%= aprendiz[key] === 'CC' ? 'selected' : '' %>>Cédula de Ciudadanía</option>
+                                <option value="TI" <%= aprendiz[key] === 'TI' ? 'selected' : '' %>>Tarjeta de Identidad</option>
+                                <option value="CE" <%= aprendiz[key] === 'CE' ? 'selected' : '' %>>Cédula de Extranjería</option>
+                                <option value="PEP" <%= aprendiz[key] === 'PEP' ? 'selected' : '' %>>Permiso Especial de Permanencia</option>
+                                <option value="PPT" <%= aprendiz[key] === 'PPT' ? 'selected' : '' %>>Permiso por Protección Temporal</option>
+                            </select>
+
+                        <% } else if (key === 'alternativaSeleccionada') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="contratoAprendizaje" <%= aprendiz[key] === 'contratoAprendizaje' ? 'selected' : '' %>>
+                                    Contrato de Aprendizaje
+                                </option>
+                                <option value="pasantia" <%= aprendiz[key] === 'pasantia' ? 'selected' : '' %>>
+                                    Pasantía
+                                </option>
+                                <option value="apoyoEntidades" <%= aprendiz[key] === 'apoyoEntidades' ? 'selected' : '' %>>
+                                    Apoyo a Entidades
+                                </option>
+                                <option value="proyectosProductivos" <%= aprendiz[key] === 'proyectosProductivos' ? 'selected' : '' %>>
+                                    Proyecto Productivo
+                                </option>
+                                <option value="monitoria" <%= aprendiz[key] === 'monitoria' ? 'selected' : '' %>>
+                                    Monitoría
+                                </option>
+                            </select>
+
+                        <% } else if (key === 'estadoFormacion') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="activo" <%= aprendiz[key] === 'activo' ? 'selected' : '' %>>Activo</option>
+                                <option value="inactivo" <%= aprendiz[key] === 'inactivo' ? 'selected' : '' %>>Inactivo</option>
+                                <option value="aplazado" <%= aprendiz[key] === 'aplazado' ? 'selected' : '' %>>Aplazado</option>
+                                <option value="retirado" <%= aprendiz[key] === 'retirado' ? 'selected' : '' %>>Retirado</option>
+                            </select>
+
+                        <% } else { %>
+                            <input type="text"
+                                   class="form-control"
+                                   id="<%= key %>"
+                                   name="<%= key %>"
+                                   value="<%= aprendiz[key] || '' %>">
+                        <% } %>
+                    </div>
+                <% } %>
+            <% } %>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <span class="button-text">Guardar Cambios</span>
+                </button>
+                <a href="/administrador/listar-aprendices" class="btn btn-secondary btn-cancel-editar">Cancelar</a>
+            </div>
+        </form>
+    <% } else { %>
+        <div class="alert alert-danger">
+            No se encontraron datos del aprendiz.
+        </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script type="module">
+    import utilidadesAdmin from '/js/admin/utilidadesAdmin.js';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('editarAprendizForm');
+        if (form) {
+            utilidadesAdmin.configurarEventosFormulario();
+        }
+    });
+</script>

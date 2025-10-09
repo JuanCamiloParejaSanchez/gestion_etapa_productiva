@@ -1,0 +1,51 @@
+<!-- Ruta: vistas/compartido/crearContrasena.ejs -->
+<!-- Propósito: Permite al aprendiz crear una contraseña para su cuenta después del registro inicial.
+     Se muestra después de la página de registro exitoso y completa el proceso de registro.
+     Autor: JuanBogotá -->
+
+
+<%- contentFor('styles') %>
+
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Crear Contraseña</h2>
+                    <div class="alert alert-info">
+                        <strong>Requisitos de la contraseña:</strong>
+                        <ul class="mb-0">
+                            <li>Mínimo 12 caracteres</li>
+                            <li>Al menos una letra mayúscula</li>
+                            <li>Al menos una letra minúscula</li>
+                            <li>Al menos un número</li>
+                            <li>Al menos un símbolo (por ejemplo: !@#$%^&*)</li>
+                        </ul>
+                    </div>
+                    <div id="messageContainer"></div>
+                    <form id="crearPasswordForm">
+                        <div class="mb-3">
+                            <label for="correoElectronico" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" value="<%= email %>" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Crear Contraseña</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/utilidades/utils.js"></script>
+<script src="/js/crearPassword.js"></script>

@@ -1,0 +1,607 @@
+/* Ruta: public/estilos/components/buttons.css */
+/* Propósito: Sistema unificado de botones */
+
+/* Base button system */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--btn-padding-md);
+    border-radius: var(--btn-border-radius);
+    font-weight: var(--btn-font-weight);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--btn-transition);
+    position: relative;
+    overflow: hidden;
+
+    /* Focus states for accessibility */
+    &:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+    }
+
+    /* Hover effects */
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Active states */
+    &:active {
+        transform: translateY(0);
+    }
+
+    /* Disabled states */
+    &:disabled,
+    &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        pointer-events: none;
+    }
+
+    /* Loading state */
+    &.loading {
+        position: relative;
+        color: transparent;
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1rem;
+            height: 1rem;
+            margin: -0.5rem 0 0 -0.5rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    }
+}
+
+/* Button variants */
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: color-mix(in srgb, var(--color-primary) 90%, black);
+        border-color: color-mix(in srgb, var(--color-primary) 90%, black);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+    }
+}
+
+.btn-secondary {
+    background: var(--gray-600);
+    color: white;
+    border-color: var(--gray-600);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: var(--gray-700);
+        border-color: var(--gray-700);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--gray-600-rgb), 0.25);
+    }
+}
+
+.btn-success {
+    background: var(--color-success);
+    color: white;
+    border-color: var(--color-success);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: color-mix(in srgb, var(--color-success) 90%, black);
+        border-color: color-mix(in srgb, var(--color-success) 90%, black);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-success-rgb), 0.25);
+    }
+}
+
+.btn-warning {
+    background: var(--color-warning);
+    color: var(--gray-800);
+    border-color: var(--color-warning);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: color-mix(in srgb, var(--color-warning) 90%, black);
+        border-color: color-mix(in srgb, var(--color-warning) 90%, black);
+        color: var(--gray-800);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-warning-rgb), 0.25);
+    }
+}
+
+.btn-danger {
+    background: var(--color-danger);
+    color: white;
+    border-color: var(--color-danger);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: color-mix(in srgb, var(--color-danger) 90%, black);
+        border-color: color-mix(in srgb, var(--color-danger) 90%, black);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-danger-rgb), 0.25);
+    }
+}
+
+.btn-info {
+    background: var(--color-info);
+    color: white;
+    border-color: var(--color-info);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: color-mix(in srgb, var(--color-info) 90%, black);
+        border-color: color-mix(in srgb, var(--color-info) 90%, black);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-info-rgb), 0.25);
+    }
+}
+
+/* Button sizes */
+.btn-sm {
+    padding: var(--btn-padding-sm);
+    font-size: var(--font-size-xs);
+    border-radius: calc(var(--btn-border-radius) - 1px);
+}
+
+.btn-lg {
+    padding: var(--btn-padding-lg);
+    font-size: var(--font-size-base);
+    border-radius: calc(var(--btn-border-radius) + 1px);
+}
+
+/* Button with icons */
+.btn-icon {
+    padding: var(--spacing-sm);
+    width: 2.5rem;
+    height: 2.5rem;
+
+    i, svg {
+        margin: 0;
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Outline buttons */
+.btn-outline-primary {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+    }
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--gray-600);
+    border-color: var(--gray-600);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: var(--gray-600);
+        border-color: var(--gray-600);
+        color: white;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--gray-600-rgb), 0.25);
+    }
+}
+
+/* Link buttons */
+.btn-link {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: transparent;
+    text-decoration: none;
+    padding: 0;
+    font-weight: var(--font-weight-medium);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: transparent;
+        color: color-mix(in srgb, var(--color-primary) 80%, black);
+        text-decoration: underline;
+        transform: none;
+        box-shadow: none;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.25);
+    }
+}
+
+/* Button groups */
+.btn-group {
+    display: inline-flex;
+
+    .btn {
+        border-radius: 0;
+        margin: 0;
+
+        &:first-child {
+            border-top-left-radius: var(--btn-border-radius);
+            border-bottom-left-radius: var(--btn-border-radius);
+        }
+
+        &:last-child {
+            border-top-right-radius: var(--btn-border-radius);
+            border-bottom-right-radius: var(--btn-border-radius);
+        }
+
+        &:not(:first-child) {
+            border-left: 0;
+        }
+
+        &:focus {
+            z-index: 1;
+        }
+    }
+}
+
+/* Button animations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.btn-shimmer {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+        );
+        transition: left 0.5s;
+    }
+
+    &:hover::before {
+        left: 100%;
+    }
+}
+
+/* Special SENA buttons */
+.btn-sena {
+    background: linear-gradient(135deg, var(--color-secondary) 0%, color-mix(in srgb, var(--color-secondary) 80%, black) 100%);
+    color: white;
+    border-color: var(--color-secondary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--color-secondary) 80%, black) 0%, color-mix(in srgb, var(--color-secondary) 60%, black) 100%);
+        border-color: color-mix(in srgb, var(--color-secondary) 80%, black);
+        color: white;
+    }
+}
+
+.btn-sena-outline {
+    background: transparent;
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+
+    &:hover:not(:disabled):not(.disabled) {
+        background: var(--color-secondary);
+        border-color: var(--color-secondary);
+        color: white;
+    }
+}
+
+/* Responsive button adjustments */
+@media (max-width: 576px) {
+    .btn {
+        padding: var(--btn-padding-sm);
+        font-size: var(--font-size-xs);
+    }
+
+    .btn-group {
+        flex-direction: column;
+
+        .btn {
+            border-radius: 0;
+
+            &:first-child {
+                border-top-left-radius: var(--btn-border-radius);
+                border-top-right-radius: var(--btn-border-radius);
+                border-bottom-left-radius: var(--btn-border-radius);
+            }
+
+            &:last-child {
+                border-bottom-left-radius: var(--btn-border-radius);
+                border-bottom-right-radius: var(--btn-border-radius);
+                border-top-right-radius: var(--btn-border-radius);
+            }
+
+            &:not(:first-child) {
+                border-left: 2px solid var(--gray-300);
+                border-top: 0;
+            }
+        }
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+
+    .btn-outline-primary,
+    .btn-outline-secondary {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+
+        &.loading::after {
+            animation: none;
+        }
+    }
+
+    .btn-shimmer::before {
+        display: none;
+    }
+}
+
+/* Theme Toggle Button - Diseño Minimalista como Cursor.com */
+.theme-toggle-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn:active {
+    transform: translateY(0);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn i {
+    font-size: 1.2rem;
+    color: #374151;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.theme-toggle-btn .fa-sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1.5);
+    color: #b8860b;
+}
+
+.theme-toggle-btn .fa-moon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1.5);
+    opacity: 1;
+    color: #00008b;
+}
+
+/* Dark mode active state */
+body.dark-mode .theme-toggle-btn {
+    background: rgba(22, 27, 34, 0.8);
+    border-color: rgba(48, 54, 61, 0.3);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.3),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .theme-toggle-btn:hover {
+    background: rgba(22, 27, 34, 0.95);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .theme-toggle-btn i {
+    color: #f0f6fc;
+}
+
+body.dark-mode .theme-toggle-btn .fa-sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.8);
+}
+
+body.dark-mode .theme-toggle-btn .fa-moon {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    color: #fbbf24;
+}
+
+/* Responsive adjustments for theme toggle */
+@media (max-width: 768px) {
+    .theme-toggle-btn {
+        width: 40px;
+        height: 40px;
+        top: 20px;
+        right: 20px;
+    }
+
+    .theme-toggle-btn i {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-toggle-btn {
+        width: 36px;
+        height: 36px;
+        top: 16px;
+        right: 16px;
+    }
+
+    .theme-toggle-btn i {
+        font-size: 1rem;
+    }
+}
+
+/* Animation for theme transition */
+@keyframes themeTransition {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.2) rotate(90deg);
+    }
+    50% {
+        transform: scale(1.3) rotate(180deg);
+    }
+    75% {
+        transform: scale(1.1) rotate(270deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+@keyframes sunMoonTransition {
+    0% {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: rotate(180deg) scale(1.1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.theme-toggle-btn.transitioning {
+    animation: themeTransition 0.6s ease-in-out;
+}
+
+.theme-toggle-btn.transitioning i {
+    animation: sunMoonTransition 0.6s ease-in-out;
+}
+
+/* Efecto de pulso sutil para atraer atención */
+@keyframes subtlePulse {
+    0%, 100% {
+        box-shadow:
+            0 8px 25px rgba(0, 0, 0, 0.15),
+            0 4px 10px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 8px 25px rgba(0, 0, 0, 0.2),
+            0 4px 10px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4),
+            0 0 0 8px rgba(57, 169, 0, 0.1);
+    }
+}
+
+.theme-toggle-btn:not(:hover) {
+    animation: subtlePulse 3s ease-in-out infinite;
+}
+
+/* Asegurar que el botón sea visible y funcional */
+.theme-toggle-btn {
+    pointer-events: auto !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+/* Mejorar la visibilidad del botón */
+.theme-toggle-btn:focus {
+    outline: none;
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.15),
+        0 4px 10px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 3px rgba(57, 169, 0, 0.3);
+}
+
+/* Estilos específicos para modo oscuro */
+.dark-mode .btn-guardar-editar,
+.dark-mode .btn-cancel-editar {
+    height: 2.5rem;
+    border-color: #30363d;
+}
+
+.dark-mode .btn-cancel-editar:hover {
+    background: #21262d !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}

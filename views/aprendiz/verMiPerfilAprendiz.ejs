@@ -1,0 +1,73 @@
+<%- contentFor('styles') %>
+<%- contentFor('body') %>
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex">
+            <a class="btn btn-primary btn-navbar" href="/aprendiz/dashboard">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar al Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<%- contentFor('body') %>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Mi Perfil de Aprendiz</h2>
+        </div>
+        <div class="card-body">
+            <% if (typeof aprendiz !== 'undefined' && aprendiz) { %>
+                <p><strong>Nombres:</strong> <%= aprendiz.nombres || 'N/A' %></p>
+                <p><strong>Primer Apellido:</strong> <%= aprendiz.primerApellido || 'N/A' %></p>
+                <p><strong>Segundo Apellido:</strong> <%= aprendiz.segundoApellido || 'N/A' %></p>
+                <p><strong>Tipo de Documento:</strong> <%= aprendiz.tipoDocumento || 'N/A' %></p>
+                <p><strong>Número de Documento:</strong> <%= aprendiz.numeroDocumento || 'N/A' %></p>
+                <p><strong>Correo Electrónico:</strong> <%= aprendiz.correoElectronico || 'N/A' %></p>
+                <p><strong>Teléfono Fijo:</strong> <%= aprendiz.telefonoFijo || 'N/A' %></p>
+                <p><strong>Número de Celular:</strong> <%= aprendiz.celular || 'N/A' %></p>
+                <p><strong>Dirección:</strong> <%= aprendiz.direccion || 'N/A' %></p>
+                <p><strong>Barrio:</strong> <%= aprendiz.barrio || 'N/A' %></p>
+                <p><strong>Departamento:</strong> <%= aprendiz.departamento || 'N/A' %></p>
+                <p><strong>Municipio:</strong> <%= aprendiz.municipio || 'N/A' %></p>
+                <p><strong>Fecha de Nacimiento:</strong> <%= aprendiz.fechaNacimiento || 'N/A' %></p>
+                <p><strong>Programa de Formación:</strong> <%= aprendiz.programaFormacion || 'N/A' %></p>
+                <p><strong>Ficha:</strong> <%= aprendiz.numeroFicha || 'N/A' %></p>
+                <p><strong>Estado de Formación:</strong> <%= aprendiz.estadoFormacion ? aprendiz.estadoFormacion.charAt(0).toUpperCase() + aprendiz.estadoFormacion.slice(1) : 'N/A' %></p>
+                <p><strong>Alternativa Seleccionada:</strong> <%= aprendiz.alternativaSeleccionada ? aprendiz.alternativaSeleccionada.toUpperCase() : 'N/A' %></p>
+                <p><strong>EPS:</strong> <%= aprendiz.eps || 'N/A' %></p>
+                <p><strong>Fecha Inicio Etapa Lectiva:</strong> <%= aprendiz.fechaInicioLectiva || 'N/A' %></p>
+                <p><strong>Fecha Fin Etapa Lectiva:</strong> <%= aprendiz.fechaFinLectiva || 'N/A' %></p>
+                <p><strong>Instructor Etapa Lectiva:</strong> <%= aprendiz.instructorLectiva || 'N/A' %></p>
+                <p><strong>Instructor Etapa Productiva:</strong> <%= aprendiz.instructorProductiva || 'N/A' %></p>
+                <p><strong>Área de Formación:</strong> <%= aprendiz.areaFormacion ? aprendiz.areaFormacion.toUpperCase() : 'N/A' %></p>
+                <p><strong>Fecha Inicio Etapa Productiva:</strong> <%= aprendiz.fechaInicioProductiva || 'N/A' %></p>
+                <p><strong>Fecha Fin Etapa Productiva:</strong> <%= aprendiz.fechaFinProductiva || 'N/A' %></p>
+                <p><strong>Empresa Patrocinadora:</strong> <%= aprendiz.empresaPatrocinadora || 'N/A' %></p>
+                <p><strong>Área donde Realiza la Práctica:</strong> <%= aprendiz.areaPractica || 'N/A' %></p>
+                <p><strong>Nombre del Jefe Inmediato:</strong> <%= aprendiz.jefeInmediato || 'N/A' %></p>
+                <p><strong>Teléfono Fijo Empresa:</strong> <%= aprendiz.telefonoEmpresa || 'N/A' %></p>
+                <p><strong>Celular Empresa:</strong> <%= aprendiz.celularEmpresa || 'N/A' %></p>
+                <p><strong>Dirección Empresa:</strong> <%= aprendiz.direccionEmpresa || 'N/A' %></p>
+                <p><strong>Correo Empresa:</strong> <%= aprendiz.correoEmpresa || 'N/A' %></p>
+                <p><strong>Horario:</strong> <%= aprendiz.horario || 'N/A' %></p>
+                <p><strong>Fecha de Registro:</strong> <%= aprendiz.created_at ? new Date(aprendiz.created_at).toISOString().split('T')[0] : 'N/A' %></p>
+
+                <div class="mt-4 text-center">
+                    <a href="/aprendiz/perfil/editar" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </a>
+                </div>
+
+            <% } else { %>
+                <div class="alert alert-danger">
+                    No se encontró información para su perfil.
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>

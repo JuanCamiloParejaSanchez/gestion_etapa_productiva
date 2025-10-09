@@ -1,0 +1,601 @@
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/administrador/panel-principal">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar al Panel
+            </a>
+        </div>
+    </div>
+</nav>
+
+<%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+</style>
+
+<%- contentFor('body') %>
+<div class="container-fluid mt-4">
+    <div class="modern-table-container">
+        <div class="modern-table-header">
+            <h2>
+                <i class="fas fa-users header-icon"></i>
+                Listado de Aprendices
+            </h2>
+        </div>
+        
+        <div class="card-body" style="padding: 1rem;">
+            <!-- Filtros de búsqueda -->
+            <div class="filters-container">
+                <form id="searchForm" method="GET">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label for="nombreBusqueda" class="modern-form-label">
+                                <i class="fas fa-user me-1"></i>Nombre o Apellido
+                            </label>
+                            <input type="text" class="form-control modern-form-control" id="nombreBusqueda" name="nombre" placeholder="Ingrese nombre o apellido">
+                        </div>
+                        <div class="form-group">
+                            <label for="documentoBusqueda" class="modern-form-label">
+                                <i class="fas fa-id-card me-1"></i>Número de Documento
+                            </label>
+                            <input type="text" class="form-control modern-form-control" id="documentoBusqueda" name="documento" placeholder="Ingrese número de documento">
+                        </div>
+                        <div class="form-group">
+                            <label for="programaBusqueda" class="modern-form-label">
+                                <i class="fas fa-graduation-cap me-1"></i>Programa
+                            </label>
+                            <select class="form-select modern-form-control" id="programaBusqueda" name="programaFormacion">
+                                <option value="">Todos los Programas</option>
+                                <option value="tecnoActividadFisica">Tec. Actividad Física</option>
+                                <option value="tecnoEntrenamientoDeportivo">Tec. Entrenamiento Deportivo</option>
+                                <option value="tecnoAnalisisDesarrollo">Tec. Análisis y Desarrollo</option>
+                                <option value="tecProcesamientoPruebas">Téc. Pruebas de Software</option>
+                                <option value="tecProgramacion">Téc. Programación de Software</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alternativaBusqueda" class="modern-form-label">
+                                <i class="fas fa-briefcase me-1"></i>Alternativa
+                            </label>
+                            <select class="form-select modern-form-control" id="alternativaBusqueda" name="alternativaSeleccionada">
+                                <option value="">Todas las Alternativas</option>
+                                <option value="contratoAprendizaje">Contrato de Aprendizaje</option>
+                                <option value="pasantia">Pasantía</option>
+                                <option value="proyectosProductivos">Proyectos Productivos</option>
+                                <option value="vinculoLaboral">Vínculo laboral</option>
+                                <option value="monitoria">Monitoría</option>
+                                <option value="unidadesProductivas">Unidades productivas familiares</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filters-actions">
+                        <button type="submit" class="btn-custom btn-custom-primary" style="width: 140px; height: 38px;">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="button" id="limpiarFiltrosBtn" class="btn-custom btn-custom-secondary" style="width: 140px; height: 38px;">
+                            <i class="fas fa-eraser"></i> Limpiar
+                        </button>
+                        <button type="button" id="resetearOrdenamientoBtn" class="btn-custom btn-custom-sena" style="width: 160px; height: 38px;">
+                            <i class="fas fa-undo-alt"></i> Resetear Orden
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Controles de tabla -->
+            <div class="table-controls">
+                <div class="table-controls-left">
+                    <!-- Selector de registros por página -->
+                    <div class="d-flex align-items-center">
+                        <label class="form-label mb-0 me-2">Mostrar</label>
+                        <div class="registros-selector">
+                            <button type="button" class="registros-selector-btn" id="registrosSelectorBtn">
+                                <span id="registrosActual">10</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </button>
+                            <div class="registros-selector-dropdown" id="registrosSelectorDropdown">
+                                <div class="registros-selector-header">Seleccionar cantidad</div>
+                                <div class="registros-selector-list">
+                                    <div class="registros-option active" data-value="10">10 registros</div>
+                                    <div class="registros-option" data-value="25">25 registros</div>
+                                    <div class="registros-option" data-value="50">50 registros</div>
+                                    <div class="registros-option" data-value="-1">Todos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="ms-2 registros-label">registros</span>
+                    </div>
+                    
+                    <!-- Selector de columnas -->
+                    <div class="column-selector">
+                        <button type="button" class="column-selector-btn" id="columnSelectorBtn">
+                            <i class="fas fa-columns"></i>
+                            <span>Columnas</span>
+                            <i class="fas fa-chevron-down ms-auto"></i>
+                        </button>
+                        <div class="column-selector-dropdown" id="columnSelectorDropdown">
+                            <div class="column-selector-header">Seleccionar Columnas</div>
+                            <div class="column-selector-list" id="columnSelectorList">
+                                <!-- Las opciones se generarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de exportación -->
+                <div class="table-controls-right">
+                    <button type="button" id="btnExportExcel" class="btn-custom btn-custom-excel" style="width: 120px; height: 32px;">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                    <button type="button" id="btnExportPDF" class="btn-custom btn-custom-pdf" style="width: 120px; height: 32px;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Aprendices -->
+            <div class="table-responsive">
+                <table id="aprendicesTable" class="modern-table">
+                    <thead>
+                        <tr>
+                            <th data-column="tipoDocumento">Tipo Documento</th>
+                            <th data-column="numeroDocumento">Número Documento</th>
+                            <th data-column="estadoFormacion">Estado Formación</th>
+                            <th data-column="nombres">Nombres</th>
+                            <th data-column="primerApellido">Primer Apellido</th>
+                            <th data-column="segundoApellido">Segundo Apellido</th>
+                            <th data-column="fechaNacimiento">Fecha Nacimiento</th>
+                            <th data-column="eps">EPS</th>
+                            <th data-column="telefonoFijo">Teléfono</th>
+                            <th data-column="celular">Celular</th>
+                            <th data-column="direccion">Dirección</th>
+                            <th data-column="barrio">Barrio</th>
+                            <th data-column="departamento">Departamento</th>
+                            <th data-column="municipio">Municipio</th>
+                            <th data-column="correoElectronico">Correo</th>
+                            <th data-column="fechaInicioLectiva">Inicio Lectiva</th>
+                            <th data-column="fechaFinLectiva">Fin Lectiva</th>
+                            <th data-column="fechaInicioProductiva">Inicio Productiva</th>
+                            <th data-column="fechaFinProductiva">Fin Productiva</th>
+                            <th data-column="instructorLectiva">Instructor Lectiva</th>
+                            <th data-column="instructorProductiva">Instructor Productiva</th>
+                            <th data-column="numeroFicha">Ficha</th>
+                            <th data-column="programaFormacion">Programa</th>
+                            <th data-column="alternativaSeleccionada">Alternativa</th>
+                            <th data-column="areaFormacion">Área Formación</th>
+                            <th data-column="empresaPatrocinadora">Empresa</th>
+                            <th data-column="areaPractica">Área Práctica</th>
+                            <th data-column="jefeInmediato">Jefe Inmediato</th>
+                            <th data-column="telefonoEmpresa">Teléfono Empresa</th>
+                            <th data-column="celularEmpresa">Celular Empresa</th>
+                            <th data-column="direccionEmpresa">Dirección Empresa</th>
+                            <th data-column="correoEmpresa">Email Empresa</th>
+                            <th data-column="horario">Horario</th>
+                            <th data-column="acciones" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de que desea eliminar a este aprendiz? Esta acción no se puede deshacer.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/admin/ordenamientoTabla.js"></script>
+<script type="module">
+    import utilidadesAdmin from '/js/admin/utilidadesAdmin.js';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuración de columnas
+        const columnasConfig = [
+            { data: "tipoDocumento", title: "Tipo Documento", visible: true },
+            { data: "numeroDocumento", title: "Número Documento", visible: true },
+            { data: "estadoFormacion", title: "Estado Formación", visible: true },
+            { data: "nombres", title: "Nombres", visible: true },
+            { data: "primerApellido", title: "Primer Apellido", visible: true },
+            { data: "segundoApellido", title: "Segundo Apellido", visible: true },
+            { data: "fechaNacimiento", title: "Fecha Nacimiento", visible: false },
+            { data: "eps", title: "EPS", visible: false },
+            { data: "telefonoFijo", title: "Teléfono", visible: false },
+            { data: "celular", title: "Celular", visible: false },
+            { data: "direccion", title: "Dirección", visible: false },
+            { data: "barrio", title: "Barrio", visible: false },
+            { data: "departamento", title: "Departamento", visible: false },
+            { data: "municipio", title: "Municipio", visible: false },
+            { data: "correoElectronico", title: "Email", visible: true },
+            { data: "fechaInicioLectiva", title: "Inicio Lectiva", visible: false },
+            { data: "fechaFinLectiva", title: "Fin Lectiva", visible: false },
+            { data: "fechaInicioProductiva", title: "Inicio Productiva", visible: false },
+            { data: "fechaFinProductiva", title: "Fin Productiva", visible: false },
+            { data: "instructorLectiva", title: "Instructor Lectiva", visible: false },
+            { data: "instructorProductiva", title: "Instructor Productiva", visible: false },
+            { data: "numeroFicha", title: "Ficha", visible: true },
+            { data: "programaFormacion", title: "Programa", visible: true },
+            { data: "alternativaSeleccionada", title: "Alternativa", visible: true },
+            { data: "areaFormacion", title: "Área Formación", visible: false },
+            { data: "empresaPatrocinadora", title: "Empresa", visible: false },
+            { data: "areaPractica", title: "Área Práctica", visible: false },
+            { data: "jefeInmediato", title: "Jefe Inmediato", visible: false },
+            { data: "telefonoEmpresa", title: "Teléfono Empresa", visible: false },
+            { data: "celularEmpresa", title: "Celular Empresa", visible: false },
+            { data: "direccionEmpresa", title: "Dirección Empresa", visible: false },
+            { data: "correoEmpresa", title: "Email Empresa", visible: false },
+            { data: "horario", title: "Horario", visible: false },
+            { data: "acciones", title: "Acciones", visible: true }
+        ];
+
+        // Inicializar selector de registros
+        function inicializarSelectorRegistros() {
+            const dropdown = document.getElementById('registrosSelectorDropdown');
+            const btn = document.getElementById('registrosSelectorBtn');
+            const actualSpan = document.getElementById('registrosActual');
+
+            // Eventos del botón
+            btn.addEventListener('click', () => {
+                dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
+            });
+
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Manejar selección de opciones
+            dropdown.addEventListener('click', (e) => {
+                if (e.target.classList.contains('registros-option')) {
+                    const value = e.target.getAttribute('data-value');
+                    const text = e.target.textContent.replace(' registros', '').replace('Todos', '-1');
+
+                    // Actualizar el texto del botón
+                    actualSpan.textContent = text === '-1' ? 'Todos' : text;
+
+                    // Cambiar la clase active
+                    document.querySelectorAll('.registros-option').forEach(opt => opt.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    // Cambiar registros en la tabla
+                    const valor = parseInt(value);
+                    tabla.page.len(valor).draw();
+
+                    // Cerrar dropdown
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Inicializar selector de columnas
+        function inicializarSelectorColumnas() {
+            const dropdown = document.getElementById('columnSelectorDropdown');
+            const list = document.getElementById('columnSelectorList');
+            const btn = document.getElementById('columnSelectorBtn');
+
+            // Generar opciones de columnas
+            columnasConfig.forEach(col => {
+                if (col.data !== 'acciones') { // Excluir columna de acciones
+                    const item = document.createElement('div');
+                    item.className = 'column-selector-item';
+                    item.innerHTML = `
+                        <input type="checkbox" id="col_${col.data}" ${col.visible ? 'checked' : ''}>
+                        <label for="col_${col.data}">${col.title}</label>
+                    `;
+                    list.appendChild(item);
+                }
+            });
+
+            // Eventos del selector
+            btn.addEventListener('click', () => {
+                dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
+            });
+
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Manejar cambios en las columnas
+            list.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    const columnData = e.target.id.replace('col_', '');
+                    const isVisible = e.target.checked;
+
+                    // Actualizar configuración
+                    const colConfig = columnasConfig.find(col => col.data === columnData);
+                    if (colConfig) {
+                        colConfig.visible = isVisible;
+                    }
+
+                    // Actualizar tabla
+                    if (tabla) {
+                        const columnIndex = tabla.column(`[data-column="${columnData}"]`).index();
+                        if (columnIndex !== -1) {
+                            tabla.column(columnIndex).visible(isVisible);
+
+                            // Si se está mostrando la columna, agregar íconos de ordenamiento
+                            if (isVisible && window.ordenamientoTabla) {
+                                setTimeout(() => {
+                                    window.ordenamientoTabla.agregarIconosAColumnasOcultas();
+                                }, 100);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para formatear fechas
+        function formatearFecha(fecha) {
+            if (!fecha) return '';
+            const date = new Date(fecha);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        // Función para obtener clase de estado
+        function getEstadoClass(estado) {
+            const estadoLower = estado.toLowerCase();
+            if (estadoLower.includes('activo') || estadoLower.includes('en curso')) {
+                return 'estado-activo';
+            } else if (estadoLower.includes('inactivo') || estadoLower.includes('finalizado')) {
+                return 'estado-inactivo';
+            } else {
+                return 'estado-pendiente';
+            }
+        }
+
+        // Función para obtener datos de ordenamiento
+        function getOrderData() {
+            const ordenamiento = window.ordenamientoActual;
+            if (!ordenamiento || !ordenamiento.columna) {
+                console.log('No hay ordenamiento activo');
+                return null;
+            }
+            
+            console.log('Ordenamiento actual:', ordenamiento);
+            
+            // Mapear el tipo de ordenamiento a dirección
+            let direccion = 'asc';
+            if (ordenamiento.direccion === 'desc' || ordenamiento.direccion === 'newest') {
+                direccion = 'desc';
+            }
+            
+            // Mapear nombre de columna a índice y tipo
+            const columnMapping = {
+                'tipoDocumento': { index: 0, type: 'text' },
+                'numeroDocumento': { index: 1, type: 'number' },
+                'estadoFormacion': { index: 2, type: 'text' },
+                'nombres': { index: 3, type: 'text' },
+                'primerApellido': { index: 4, type: 'text' },
+                'segundoApellido': { index: 5, type: 'text' },
+                'fechaNacimiento': { index: 6, type: 'date' },
+                'eps': { index: 7, type: 'text' },
+                'telefonoFijo': { index: 8, type: 'number' },
+                'celular': { index: 9, type: 'number' },
+                'direccion': { index: 10, type: 'text' },
+                'barrio': { index: 11, type: 'text' },
+                'departamento': { index: 12, type: 'text' },
+                'municipio': { index: 13, type: 'text' },
+                'correoElectronico': { index: 14, type: 'text' },
+                'fechaInicioLectiva': { index: 15, type: 'date' },
+                'fechaFinLectiva': { index: 16, type: 'date' },
+                'fechaInicioProductiva': { index: 17, type: 'date' },
+                'fechaFinProductiva': { index: 18, type: 'date' },
+                'instructorLectiva': { index: 19, type: 'text' },
+                'instructorProductiva': { index: 20, type: 'text' },
+                'numeroFicha': { index: 21, type: 'number' },
+                'programaFormacion': { index: 22, type: 'text' },
+                'alternativaSeleccionada': { index: 23, type: 'text' },
+                'areaFormacion': { index: 24, type: 'text' },
+                'empresaPatrocinadora': { index: 25, type: 'text' },
+                'areaPractica': { index: 26, type: 'text' },
+                'jefeInmediato': { index: 27, type: 'text' },
+                'telefonoEmpresa': { index: 28, type: 'number' },
+                'celularEmpresa': { index: 29, type: 'number' },
+                'direccionEmpresa': { index: 30, type: 'text' },
+                'correoEmpresa': { index: 31, type: 'text' },
+                'horario': { index: 32, type: 'text' }
+            };
+            
+            const columnInfo = columnMapping[ordenamiento.columna];
+            if (columnInfo) {
+                const orderData = [{
+                    column: columnInfo.index,
+                    dir: direccion
+                }];
+                console.log('Datos de ordenamiento enviados:', orderData);
+                return orderData;
+            }
+            
+            console.log('Columna no encontrada en el mapeo:', ordenamiento.columna);
+            return null;
+        }
+
+        const tabla = utilidadesAdmin.inicializarTablaAprendices('#aprendicesTable', {
+            ajax: { 
+                url: '/administrador/aprendices-data', 
+                type: 'POST', 
+                data: d => ({ 
+                    ...d, 
+                    nombre: $('#nombreBusqueda').val(), 
+                    documento: $('#documentoBusqueda').val(), 
+                    programaFormacion: $('#programaBusqueda').val(), 
+                    alternativaSeleccionada: $('#alternativaBusqueda').val(),
+                    order: getOrderData()
+                }) 
+            },
+            language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
+            info: false,
+            dom: 'rtip',
+            pageLength: 10,
+            ordering: false, // Deshabilitar ordenamiento nativo de DataTables
+            columns: columnasConfig.map(col => {
+                if (col.data === 'estadoFormacion') {
+                    return {
+                        data: col.data,
+                        visible: col.visible,
+                        render: (data, type, row) => {
+                            if (type === 'display') {
+                                return `<span class="estado-formacion ${getEstadoClass(data)}">${data.toUpperCase()}</span>`;
+                            }
+                            return data;
+                        }
+                    };
+                } else if (col.data === 'acciones') {
+                    return {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        className: 'text-center',
+                        visible: col.visible,
+                        render: (data, type, row) => `
+                            <div class="action-buttons">
+                                <a href="/administrador/aprendiz/${row.id}" class="action-btn btn-view" title="Ver Perfil Completo">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/administrador/aprendiz/${row.id}/bitacoras" class="action-btn btn-bitacoras" title="Análisis de Bitácoras">
+                                    <i class="fas fa-book-reader"></i>
+                                </a>
+                                <a href="/administrador/aprendiz/verificar-documentacion/${row.id}" class="action-btn btn-verify" title="Verificar Documentos">
+                                    <i class="fas fa-check-double"></i>
+                                </a>
+                                <a href="/administrador/aprendiz/editar/${row.id}" class="action-btn btn-edit" title="Editar Aprendiz">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn btn-delete eliminar-aprendiz" data-id="${row.id}" title="Eliminar Aprendiz">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `
+                    };
+                } else if (col.data.includes('fecha') || col.data.includes('Fecha')) {
+                    return {
+                        data: col.data,
+                        visible: col.visible,
+                        render: (data, type, row) => {
+                            if (type === 'display') {
+                                return formatearFecha(data);
+                            }
+                            return data;
+                        }
+                    };
+                } else {
+                    return {
+                        data: col.data,
+                        visible: col.visible
+                    };
+                }
+            })
+        });
+
+        // Inicializar selector de columnas
+        inicializarSelectorColumnas();
+
+        // Inicializar selector de registros
+        inicializarSelectorRegistros();
+
+        // Inicializar sistema de ordenamiento después de que DataTables termine de cargar
+        tabla.on('draw.dt', function() {
+            if (!window.ordenamientoInicializado) {
+                window.ordenamientoTabla = new OrdenamientoTabla();
+                window.ordenamientoInicializado = true;
+            }
+        });
+
+        // Inicialización alternativa después de un breve delay
+        setTimeout(() => {
+            if (!window.ordenamientoInicializado) {
+                window.ordenamientoTabla = new OrdenamientoTabla();
+                window.ordenamientoInicializado = true;
+            }
+        }, 1000);
+
+        // Eventos de formulario
+        $('#searchForm').on('submit', e => {
+            e.preventDefault();
+            tabla.ajax.reload();
+        });
+
+        $('#limpiarFiltrosBtn').on('click', () => {
+            $('#searchForm')[0].reset();
+            tabla.ajax.reload();
+        });
+
+        $('#resetearOrdenamientoBtn').on('click', () => {
+            if (window.ordenamientoTabla) {
+                window.ordenamientoTabla.resetearOrdenamiento();
+                tabla.ajax.reload();
+            }
+        });
+
+        // Modal de eliminación
+        const confirmDeleteModal = new bootstrap.Modal($('#confirmDeleteModal'));
+        let aprendizAEliminar = null;
+
+        $('#aprendicesTable').on('click', '.eliminar-aprendiz', function() {
+            aprendizAEliminar = $(this).data('id');
+            confirmDeleteModal.show();
+        });
+
+        $('#confirmDelete').on('click', async () => {
+            if (!aprendizAEliminar) return;
+            try {
+                const response = await fetch(`/administrador/aprendiz/${aprendizAEliminar}`, { method: 'DELETE' });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    tabla.ajax.reload();
+                } else {
+                    throw new Error(data.message || 'Error al eliminar');
+                }
+            } catch (err) {
+                console.error('Error al eliminar aprendiz:', err);
+            } finally {
+                confirmDeleteModal.hide();
+                aprendizAEliminar = null;
+            }
+        });
+
+        // Botones de exportación
+        $('#btnExportExcel').on('click', function() {
+            tabla.button('.buttons-excel').trigger();
+        });
+
+        $('#btnExportPDF').on('click', function() {
+            tabla.button('.buttons-pdf').trigger();
+        });
+    });
+</script>

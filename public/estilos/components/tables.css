@@ -1,0 +1,1142 @@
+/* Ruta: public/estilos/components/tables.css */
+/* Propósito: Estilos para tablas y DataTables */
+
+/* =============================================== */
+/* ---             DATA TABLES               --- */
+/* =============================================== */
+.dataTables_wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.dataTables_info {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dataTables_info::before {
+    content: "📊";
+    font-size: 1.1rem;
+}
+
+.dataTables_paginate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(4, 50, 77, 0.1);
+}
+
+.dataTables_paginate .paginate_button {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    color: var(--primary-color) !important;
+    border-radius: 10px;
+    padding: 8px 16px;
+    margin: 0 3px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(4, 50, 77, 0.08);
+    position: relative;
+    overflow: hidden;
+    min-width: 44px;
+    text-align: center;
+}
+
+.dataTables_paginate .paginate_button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(57, 169, 0, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.dataTables_paginate .paginate_button:hover::before {
+    left: 100%;
+}
+
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button:active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0d6efd 50%, var(--secondary-color) 100%);
+    color: #ffffff !important;
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 20px rgba(4, 50, 77, 0.25);
+    transform: translateY(-2px);
+    font-weight: 700;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    color: var(--secondary-color) !important;
+    border-color: var(--secondary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(57, 169, 0, 0.2);
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    background: #f8f9fa !important;
+    color: #adb5bd !important;
+    border-color: #e9ecef !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.dataTables_paginate .paginate_button.disabled:hover {
+    background: #f8f9fa !important;
+    color: #adb5bd !important;
+    border-color: #e9ecef !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.dataTables_paginate .ellipsis {
+    color: var(--primary-color);
+    font-size: 1.2em;
+    font-weight: 700;
+    padding: 0 12px;
+    opacity: 0.7;
+}
+
+/* --- SELECTOR DE REGISTROS ELEGANTE --- */
+.dataTables_length {
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid rgba(4, 50, 77, 0.1);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dataTables_length label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+}
+
+.dataTables_length label::before {
+    content: "📄";
+    font-size: 1.2rem;
+}
+
+.dataTables_length select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    background: #ffffff;
+    margin-left: 0.75rem;
+    min-width: 100px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(4, 50, 77, 0.08);
+    appearance: none;
+}
+
+.dataTables_length select:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.15);
+    background-color: #f8fff8;
+}
+
+.dataTables_length select:focus {
+    border-color: var(--secondary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+/* --- FILTROS DE BÚSQUEDA --- */
+.dataTables_filter {
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid rgba(4, 50, 77, 0.1);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dataTables_filter label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+}
+
+.dataTables_filter label::before {
+    content: "🔍";
+    font-size: 1.2rem;
+}
+
+.dataTables_filter input {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    background: #ffffff;
+    margin-left: 0.75rem;
+    min-width: 250px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(4, 50, 77, 0.08);
+}
+
+.dataTables_filter input:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(57, 169, 0, 0.15);
+    background-color: #f8fff8;
+}
+
+.dataTables_filter input:focus {
+    border-color: var(--secondary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(57, 169, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.dataTables_filter input::placeholder {
+    color: #adb5bd;
+    font-style: italic;
+}
+
+/* --- ESTILOS RESPONSIVOS PARA PAGINACIÓN --- */
+@media (max-width: 768px) {
+    .dataTables_wrapper {
+        padding: 0.75rem;
+    }
+
+    .dataTables_length,
+    .dataTables_filter {
+        padding: 0.75rem 1rem;
+    }
+
+    .dataTables_length label,
+    .dataTables_filter label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .dataTables_length select,
+    .dataTables_filter input {
+        margin-left: 0;
+        width: 100%;
+        min-width: auto;
+    }
+
+    .dataTables_paginate {
+        gap: 0.5rem;
+        padding: 1rem 0;
+        flex-wrap: wrap;
+    }
+
+    .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        min-width: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dataTables_paginate .paginate_button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        min-width: 32px;
+    }
+
+    .dataTables_length label::before,
+    .dataTables_filter label::before {
+        font-size: 1rem;
+    }
+}
+
+/* --- ANIMACIONES SUAVES PARA CARGA --- */
+@keyframes datatable-load {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dataTables_wrapper {
+    animation: datatable-load 0.5s ease-out;
+}
+
+/* --- ESTADOS DE CARGA Y PROCESAMIENTO --- */
+.dataTables_processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 60px;
+    margin-left: -100px;
+    margin-top: -30px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    box-shadow: 0 8px 25px rgba(4, 50, 77, 0.3);
+    z-index: 1000;
+}
+
+.dataTables_processing::before {
+    content: "⏳";
+    margin-right: 0.5rem;
+    animation: spin 2s linear infinite;
+}
+
+/* --- MEJORAS ADICIONALES DE ACCESIBILIDAD --- */
+.dataTables_paginate .paginate_button:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+.dataTables_length select:focus,
+.dataTables_filter input:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+/* --- ESTILOS PARA ORDENAMIENTO DE TABLA --- */
+.sortable-header {
+    position: relative;
+    cursor: pointer;
+    padding: 1rem 0.75rem !important;
+    user-select: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid transparent;
+    overflow: hidden;
+    position: relative;
+}
+
+.sortable-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(57, 169, 0, 0.08), transparent);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sortable-header:hover::before {
+    left: 100%;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    min-height: 24px;
+}
+
+.header-text {
+    font-weight: 600;
+    color: var(--primary-color);
+    flex: 1;
+    transition: all 0.3s ease;
+    letter-spacing: 0.025em;
+}
+
+.sortable-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    color: var(--secondary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.15);
+    border-bottom-color: var(--secondary-color);
+}
+
+.sortable-header:hover .header-text {
+    color: var(--secondary-color);
+    transform: translateX(2px);
+}
+
+.sort-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(108, 117, 125, 0.3);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.sort-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sort-icon:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 1);
+    border-color: var(--secondary-color);
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(57, 169, 0, 0.2);
+}
+
+.sort-icon:hover::before {
+    opacity: 0.1;
+}
+
+.sort-icon i {
+    font-size: 0.875rem;
+    color: #343a40;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+}
+
+.sortable-header:hover .sort-icon i {
+    color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.sortable-header.sort-asc {
+    background: linear-gradient(135deg, rgba(57, 169, 0, 0.1) 0%, rgba(57, 169, 0, 0.05) 100%);
+    color: var(--secondary-color);
+    border-bottom-color: var(--secondary-color);
+    box-shadow: 0 2px 8px rgba(57, 169, 0, 0.15);
+}
+
+.sortable-header.sort-asc .header-text {
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+.sortable-header.sort-asc .sort-icon {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(57, 169, 0, 0.3);
+}
+
+.sortable-header.sort-asc .sort-icon i {
+    color: white;
+    transform: scale(1.1);
+}
+
+.sortable-header.sort-desc {
+    background: linear-gradient(135deg, rgba(4, 50, 77, 0.1) 0%, rgba(4, 50, 77, 0.05) 100%);
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(4, 50, 77, 0.15);
+}
+
+.sortable-header.sort-desc .header-text {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.sortable-header.sort-desc .sort-icon {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(4, 50, 77, 0.3);
+}
+
+.sortable-header.sort-desc .sort-icon i {
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Estilos específicos para diferentes tipos de íconos de ordenamiento */
+.sort-icon .fa-sort,
+.sort-icon .fas.fa-sort {
+    opacity: 0.8;
+}
+
+.sort-icon .fa-sort-up,
+.sort-icon .fas.fa-sort-up,
+.sort-icon .fa-caret-up {
+    color: var(--secondary-color);
+}
+
+.sort-icon .fa-sort-down,
+.sort-icon .fas.fa-sort-down,
+.sort-icon .fa-caret-down {
+    color: var(--primary-color);
+}
+
+/* Estados específicos para íconos en headers activos */
+.sortable-header.sort-asc .sort-icon .fa-sort-up,
+.sortable-header.sort-asc .sort-icon .fa-caret-up {
+    color: white;
+    transform: scale(1.2);
+}
+
+.sortable-header.sort-desc .sort-icon .fa-sort-down,
+.sortable-header.sort-desc .sort-icon .fa-caret-down {
+    color: white;
+    transform: scale(1.2);
+}
+
+/* Asegurar que el ícono sea visible y esté bien posicionado */
+.header-content .sort-icon {
+    margin-left: auto;
+    margin-right: 0;
+    flex-shrink: 0;
+}
+
+.header-text {
+    margin-right: 8px;
+}
+
+/* Forzar visibilidad de íconos Font Awesome */
+.sort-icon i::before {
+    font-weight: 900 !important;
+    font-family: "Font Awesome 5 Free" !important;
+    display: inline-block !important;
+}
+
+.sort-icon .fa-sort::before { content: "\f0dc" !important; }
+.sort-icon .fa-sort-up::before { content: "\f0de" !important; }
+.sort-icon .fa-sort-down::before { content: "\f0dd" !important; }
+.sort-icon .fa-sort-alpha-down::before { content: "\f15d" !important; }
+.sort-icon .fa-sort-alpha-up::before { content: "\f15e" !important; }
+.sort-icon .fa-sort-numeric-down::before { content: "\f162" !important; }
+.sort-icon .fa-sort-numeric-up::before { content: "\f163" !important; }
+
+/* Estilos adicionales para mayor visibilidad */
+.sortable-header .sort-icon {
+    background: rgba(248, 249, 250, 0.95) !important;
+    border: 1px solid rgba(108, 117, 125, 0.4) !important;
+    opacity: 1 !important;
+}
+
+.sortable-header .sort-icon i {
+    color: #495057 !important;
+    font-size: 0.875rem !important;
+    font-weight: 900 !important;
+}
+
+/* --- ESTILOS PARA DROPDOWN DE ORDENAMIENTO --- */
+.sort-dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #ffffff;
+    border: 1px solid #e3e6ea;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    width: max-content !important;
+    min-width: 180px !important;
+    max-width: 250px !important;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    overflow: visible;
+    display: block;
+    white-space: nowrap;
+}
+
+/* Asegurar posicionamiento relativo para el header */
+.sortable-header {
+    position: relative;
+}
+
+.sort-dropdown::before {
+    display: none;
+}
+
+.sort-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.sort-dropdown-header {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 6px 6px 0 0;
+    width: fit-content;
+    min-width: 100%;
+}
+
+.sort-dropdown-header h6 {
+    margin: 0;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sort-dropdown-header i {
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+.sort-dropdown-item, .sort-option {
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    font-size: 14px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    white-space: nowrap;
+    border: none;
+    outline: none;
+    width: fit-content;
+    min-width: 100%;
+}
+
+.sort-dropdown-item::before, .sort-option::before {
+    display: none;
+}
+
+.sort-dropdown-item:last-child, .sort-option:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.sort-dropdown-item:hover, .sort-option:hover {
+    background: #2c5aa0;
+    color: white;
+}
+
+.sort-dropdown-item:hover::before, .sort-option:hover::before {
+    display: none;
+}
+
+.sort-dropdown-item.active, .sort-option.active {
+    background: var(--secondary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.sort-dropdown-item.active::before, .sort-option.active::before {
+    display: none;
+}
+
+.sort-dropdown-item i, .sort-option i {
+    width: 14px;
+    text-align: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.sort-dropdown-item:hover i, .sort-option:hover i {
+    color: white;
+}
+
+.sort-dropdown-item.active i, .sort-option.active i {
+    color: white;
+}
+
+/* Indicador de estado de ordenamiento global */
+.sorting-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #2d8500 100%);
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 25px;
+    box-shadow: 0 8px 20px rgba(57, 169, 0, 0.3);
+    z-index: 1050;
+    transform: translateY(-100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.sorting-indicator.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.sorting-indicator i {
+    font-size: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Estilos para botones de reseteo de ordenamiento */
+.reset-sorting-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.reset-sorting-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.reset-sorting-btn:hover {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(108, 117, 125, 0.3);
+}
+
+.reset-sorting-btn:hover::before {
+    transform: translateX(100%);
+}
+
+.reset-sorting-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2);
+}
+
+/* Indicador visual de columna ordenable */
+.sortable-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-50%);
+}
+
+.sortable-header:hover::after {
+    width: 80%;
+}
+
+.sortable-header.sort-asc::after,
+.sortable-header.sort-desc::after {
+    width: 100%;
+}
+
+/* Tooltip mejorado para iconos de ordenamiento */
+.sort-icon[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(4, 50, 77, 0.3);
+}
+
+.sort-icon[data-tooltip]::after {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--primary-color);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.sort-icon:hover[data-tooltip]::before,
+.sort-icon:hover[data-tooltip]::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-3px);
+}
+
+/* Animación de carga para el reordenamiento */
+.table-sorting-loading {
+    position: relative;
+}
+
+.table-sorting-loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--secondary-color), transparent);
+    background-size: 50% 100%;
+    animation: loading-sweep 1.5s infinite;
+    z-index: 10;
+}
+
+@keyframes loading-sweep {
+    0% { background-position: -50% 0; }
+    100% { background-position: 150% 0; }
+}
+
+/* Estilos para el estado sin ordenamiento */
+.no-sorting-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-style: italic;
+    background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(233, 236, 239, 0.8) 100%);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.no-sorting-state i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #adb5bd;
+}
+
+.no-sorting-state h6 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.no-sorting-state p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* Responsive para sistema de ordenamiento */
+@media (max-width: 768px) {
+    .sort-icon {
+        width: 24px;
+        height: 24px;
+        margin-left: 6px;
+    }
+
+    .sort-dropdown {
+        min-width: 160px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        max-width: 200px;
+    }
+
+    .sort-dropdown.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .sorting-indicator {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 1rem auto;
+        transform: none;
+        opacity: 1;
+    }
+
+    .header-text {
+        font-size: 0.875rem;
+    }
+
+    .sortable-header {
+        padding: 0.75rem 0.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sort-dropdown-item, .sort-option {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .sort-dropdown {
+        min-width: 140px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-8px);
+        max-width: 180px;
+    }
+
+    .sort-dropdown.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .reset-sorting-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* --- ESTILOS ADICIONALES PARA TABLAS MODERNAS --- */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #343a40;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.user-document {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.programa-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.programa-name {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.programa-code {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.etapa-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+    white-space: nowrap;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.email, .phone {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #495057;
+    gap: 0.25rem;
+}
+
+.email i, .phone i {
+    color: #6c757d;
+    width: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state i {
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.empty-state h5 {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #adb5bd;
+    font-size: 0.9rem;
+}
+
+/* Modo oscuro para elementos de DataTables */
+.dark-mode .dataTables_wrapper {
+    background: #0d1117;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
+.dark-mode .dataTables_length {
+    background: #161b22;
+    border-color: #30363d;
+    color: #f0f6fc;
+}
+
+.dark-mode .dataTables_length label {
+    color: #f0f6fc;
+}
+
+.dark-mode .dataTables_length select {
+    background: #161b22;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
+.dark-mode .dataTables_length select:hover {
+    background: #21262d;
+    border-color: #c9d1d9;
+}
+
+.dark-mode .dataTables_length select:focus {
+    background: #21262d;
+    border-color: #c9d1d9;
+}
+
+.dark-mode .dataTables_filter {
+    background: #161b22;
+    border-color: #30363d;
+}
+
+.dark-mode .dataTables_filter label {
+    color: #f0f6fc;
+}
+
+.dark-mode .dataTables_filter input {
+    background: #161b22;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
+.dark-mode .dataTables_filter input:hover {
+    background: #21262d;
+    border-color: #c9d1d9;
+}
+
+.dark-mode .dataTables_filter input:focus {
+    background: #21262d;
+    border-color: #c9d1d9;
+}
+
+.dark-mode .dataTables_paginate {
+    background: #161b22 !important;
+    border-color: #30363d !important;
+}
+
+.dark-mode .dataTables_paginate .paginate_button {
+    background: #161b22 !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+.dark-mode .dataTables_paginate .paginate_button:hover {
+    background: #21262d !important;
+    border-color: #c9d1d9 !important;
+    color: #f0f6fc !important;
+}
+
+.dark-mode .dataTables_paginate .paginate_button.current,
+.dark-mode .dataTables_paginate .paginate_button:active {
+    background: #0d1117 !important;
+    border-color: #0d1117 !important;
+    color: #f0f6fc !important;
+}
+
+.dark-mode .dataTables_paginate .paginate_button.disabled {
+    background: #0d1117 !important;
+    border-color: #30363d !important;
+    color: #6e7681 !important;
+}

@@ -1,0 +1,268 @@
+<!-- Ruta: vistas/administrador/panelPrincipal.ejs -->
+<!-- Propósito: Panel principal del administrador con acceso a las funcionalidades clave. -->
+<!-- Autor: JuanBogotá -->
+
+<%- contentFor('styles') %>
+<style>
+    .dashboard-card {
+        margin-bottom: 20px;
+        height: 100%;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+    }
+    .card-header i {
+        font-size: 1.1em;
+    }
+
+/* Estilos para modal de confirmación de logout */
+.confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
+}
+.confirm-logout-modal .modal-body {
+    text-align: center;
+    padding: 2rem;
+}
+.confirm-logout-modal .modal-body .fa-question-circle {
+    font-size: 4rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+}
+.confirm-logout-modal .modal-body h4 {
+    color: #ffc107;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+.confirm-logout-modal .modal-footer {
+    justify-content: center;
+    padding: 1.5rem;
+}
+.confirm-logout-modal .btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.confirm-logout-modal .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Modo oscuro para modal de logout */
+html.dark-mode .confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: #e2e8f0;
+}
+html.dark-mode .confirm-logout-modal .modal-content {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+html.dark-mode .confirm-logout-modal .modal-body .fa-question-circle {
+    color: #fbbf24;
+}
+html.dark-mode .confirm-logout-modal .modal-body h4 {
+    color: #fbbf24;
+}
+html.dark-mode .confirm-logout-modal .btn-secondary {
+    background-color: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+html.dark-mode .confirm-logout-modal .btn-secondary:hover {
+    background-color: #2d3748;
+    border-color: #2d3748;
+}
+html.dark-mode .confirm-logout-modal .btn-warning {
+    background-color: #d97706;
+    border-color: #d97706;
+}
+html.dark-mode .confirm-logout-modal .btn-warning:hover {
+    background-color: #b45309;
+    border-color: #b45309;
+}
+</style>
+
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-end">
+             <a href="#" class="btn btn-primary btn-navbar" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+<%- contentFor('body') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="mb-0">Bienvenido, <%= user.name %>!</h1>
+            <p class="lead">Gestiona y supervisa la información de los aprendices y del sistema.</p>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Tarjeta de Mi Información Personal -->
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="card-title mb-0">Mi Información Personal</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Accede y actualiza tus datos de contacto y detalles personales como administrador.</p>
+                    <a href="/administrador/perfil" class="btn btn-orange">
+                        <i class="fas fa-user-edit me-2"></i>
+                        Ver Mi Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta para Gestión de Aprendices -->
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Gestión de Aprendices</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Visualiza, edita y gestiona la información de todos los aprendices registrados.</p>
+                    <a href="/administrador/listar-aprendices" class="btn btn-primary">
+                        <i class="fas fa-users me-2"></i>
+                        Listar Aprendices
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta para Documentos Pendientes del Aprendiz -->
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">Documentos Pendientes del Aprendiz</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Revisa y gestiona los documentos pendientes de entrega por parte de los aprendices.</p>
+                    <a href="/administrador/alertas/bitacora" class="btn btn-warning">
+                        <i class="fas fa-book me-2"></i>
+                        Ver Documentos Pendientes
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta para Reportes y Estadísticas -->
+        <div class="col-md-4 mt-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Reportes y Estadísticas</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Analiza datos y visualiza métricas clave sobre el progreso de los aprendices.</p>
+                    <a href="/administrador/reportes" class="btn btn-info">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Ver Reportes
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Tarjeta para Gestión de Administradores -->
+        <div class="col-md-4 mt-4 mb-4">
+            <div class="card dashboard-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Gestión de Administradores</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Visualiza y gestiona la información de todos los administradores registrados.</p>
+                    <a href="/administrador/listar-administradores" class="btn btn-success">
+                        <i class="fas fa-user-shield me-2"></i>
+                        Listar Administradores
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prevenir cualquier inicialización de DataTables en el panel principal
+        window.skipDataTableInit = true;
+        
+        // Limpiar cualquier tabla DataTable residual
+        if ($.fn.DataTable && $.fn.DataTable.isDataTable('#aprendicesTable')) {
+            $('#aprendicesTable').DataTable().destroy();
+            console.log('Tabla DataTable residual eliminada');
+        }
+        
+        // Evitar que se ejecuten scripts de ordenamiento de tabla
+        if (window.OrdenamientoTabla) {
+            console.log('Prevención de inicialización de OrdenamientoTabla en panel principal');
+            return;
+        }
+        
+        // Lógica específica del panel principal
+        console.log('Panel principal cargado correctamente');
+        
+        // Verificar que no hay elementos de tabla que no deberían estar aquí
+        const tablaAprendices = document.getElementById('aprendicesTable');
+        if (tablaAprendices) {
+            console.warn('¡ADVERTENCIA! Se encontró tabla aprendicesTable en panel principal');
+            tablaAprendices.remove();
+        }
+    });
+</script>
+
+<!-- Modal de Confirmación de Cierre de Sesión -->
+<div class="modal fade confirm-logout-modal" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmLogoutModalLabel">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          Confirmar Cierre de Sesión
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <i class="fas fa-question-circle text-warning" style="font-size: 4rem;"></i>
+        </div>
+        <h4 class="text-warning mb-3">¿Estás seguro?</h4>
+        <p class="mb-0">¿Estás seguro de que deseas cerrar sesión?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-warning px-4" id="confirmLogoutBtn">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
+  window.location.href = '/auth/logout';
+});
+</script>
