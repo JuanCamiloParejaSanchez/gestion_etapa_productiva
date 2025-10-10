@@ -1,6 +1,12 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/base/variables.css">
+<link rel="stylesheet" href="/estilos/base/layout.css">
+<link rel="stylesheet" href="/estilos/components/navbar.css">
+<link rel="stylesheet" href="/estilos/components/buttons.css">
+<link rel="stylesheet" href="/estilos/components/forms.css">
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <style>
+    /* Estilos específicos para editar perfil de aprendiz */
     .edit-profile-card {
         border: none;
         border-radius: 10px;
@@ -26,18 +32,6 @@
         font-weight: 600;
         margin-bottom: 1rem;
         font-size: 1.1rem;
-    }
-    .form-label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-    }
-    .required {
-        color: #dc3545;
     }
     .btn-save-profile {
         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -67,35 +61,26 @@
         transform: translateY(-2px);
     }
 
+    /* Estilos para modo oscuro */
+    html.dark-mode .edit-profile-card {
+        background-color: #1e293b;
+        color: #f1f5f9;
+        border: none;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
 
-/* Estilos para modo oscuro */
-html.dark-mode .edit-profile-card {
-    background-color: #1e293b;
-    color: #f1f5f9;
-    border: none;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
+    html.dark-mode .edit-header {
+        background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+    }
 
-html.dark-mode .edit-header {
-    background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-}
+    html.dark-mode .form-section {
+        background: #334155;
+        border-left-color: #60a5fa;
+    }
 
-html.dark-mode .form-section {
-    background: #334155;
-    border-left-color: #60a5fa;
-}
-
-html.dark-mode .section-title {
-    color: #60a5fa;
-}
-
-html.dark-mode .form-label {
-    color: #cbd5e1;
-}
-
-html.dark-mode .required {
-    color: #dc3545;
-}
+    html.dark-mode .section-title {
+        color: #60a5fa;
+    }
 </style>
 
 <%- contentFor('body') %>

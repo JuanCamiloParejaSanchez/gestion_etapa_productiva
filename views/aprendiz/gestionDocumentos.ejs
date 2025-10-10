@@ -1,65 +1,44 @@
 <%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/base/variables.css">
+<link rel="stylesheet" href="/estilos/base/layout.css">
+<link rel="stylesheet" href="/estilos/components/navbar.css">
+<link rel="stylesheet" href="/estilos/components/buttons.css">
+<link rel="stylesheet" href="/estilos/components/forms.css">
+<link rel="stylesheet" href="/estilos/components/tables.css">
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <style>
-.descripcion-columna {
-  max-width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    /* Estilos específicos para gestión de documentos */
+    .descripcion-columna {
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-/* Mejorar el diseño del tooltip de Bootstrap */
-.tooltip-inner {
-  max-width: 400px;
-  background-color: #343a40;
-  color: #fff;
-  font-size: 1rem;
-  padding: 10px 15px;
-  border-radius: 8px;
-  text-align: left;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.bs-tooltip-auto[x-placement^=top] .arrow::before, .bs-tooltip-top .arrow::before {
-  border-top-color: #343a40;
-}
+    /* Mejorar el diseño del tooltip de Bootstrap */
+    .tooltip-inner {
+      max-width: 400px;
+      background-color: #343a40;
+      color: #fff;
+      font-size: 1rem;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-align: left;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .bs-tooltip-auto[x-placement^=top] .arrow::before, .bs-tooltip-top .arrow::before {
+      border-top-color: #343a40;
+    }
 
-/* Modo oscuro para la tabla de documentos */
-html.dark-mode #documentos-table,
-html.dark-mode #documentos-table.table {
-  background-color: #161b22 !important;
-  color: #f0f6fc !important;
-}
-
-html.dark-mode #documentos-table thead th {
-  background: #0d1117 !important;
-  color: #f0f6fc !important;
-  border-color: #30363d !important;
-}
-
-html.dark-mode #documentos-table tbody tr {
-  border-color: #30363d !important;
-  background-color: #161b22 !important;
-}
-
-html.dark-mode #documentos-table tbody tr:hover {
-  background-color: #21262d !important;
-}
-
-html.dark-mode #documentos-table tbody td,
-html.dark-mode #documentos-table tbody th {
-  border-color: #30363d !important;
-  color: #f0f6fc !important;
-  background-color: transparent !important;
-}
-
-/* Ajuste para tooltips en modo oscuro */
-.dark-mode .tooltip-inner {
-  background-color: #8b949e;
-  color: #0d1117;
-}
-.dark-mode .bs-tooltip-auto[x-placement^=top] .arrow::before,
-.dark-mode .bs-tooltip-top .arrow::before {
-  border-top-color: #8b949e;
-}
+    /* Ajuste para tooltips en modo oscuro */
+    .dark-mode .tooltip-inner {
+      background-color: #8b949e;
+      color: #0d1117;
+    }
+    .dark-mode .bs-tooltip-auto[x-placement^=top] .arrow::before,
+    .dark-mode .bs-tooltip-top .arrow::before {
+      border-top-color: #8b949e;
+    }
 </style>
 <%- contentFor('body') %>
 
