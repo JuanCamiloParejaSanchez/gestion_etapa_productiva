@@ -2,99 +2,11 @@
 <!-- Propósito: Panel principal del administrador con acceso a las funcionalidades clave. -->
 
 <%- contentFor('styles') %>
-<style>
-    .dashboard-card {
-        margin-bottom: 20px;
-        height: 100%;
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .card-body {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    .card-header {
-        display: flex;
-        align-items: center;
-        font-weight: 600;
-    }
-    .card-header i {
-        font-size: 1.1em;
-    }
-
-/* Estilos para modal de confirmación de logout */
-.confirm-logout-modal .modal-header {
-    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-    color: #212529;
-}
-.confirm-logout-modal .modal-body {
-    text-align: center;
-    padding: 2rem;
-}
-.confirm-logout-modal .modal-body .fa-question-circle {
-    font-size: 4rem;
-    color: #ffc107;
-    margin-bottom: 1rem;
-}
-.confirm-logout-modal .modal-body h4 {
-    color: #ffc107;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-.confirm-logout-modal .modal-footer {
-    justify-content: center;
-    padding: 1.5rem;
-}
-.confirm-logout-modal .btn {
-    border-radius: 25px;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-.confirm-logout-modal .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-/* Modo oscuro para modal de logout */
-html.dark-mode .confirm-logout-modal .modal-header {
-    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-    color: #e2e8f0;
-}
-html.dark-mode .confirm-logout-modal .modal-content {
-    background-color: #1a202c;
-    color: #e2e8f0;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-html.dark-mode .confirm-logout-modal .modal-body .fa-question-circle {
-    color: #fbbf24;
-}
-html.dark-mode .confirm-logout-modal .modal-body h4 {
-    color: #fbbf24;
-}
-html.dark-mode .confirm-logout-modal .btn-secondary {
-    background-color: #4a5568;
-    border-color: #4a5568;
-    color: #e2e8f0;
-}
-html.dark-mode .confirm-logout-modal .btn-secondary:hover {
-    background-color: #2d3748;
-    border-color: #2d3748;
-}
-html.dark-mode .confirm-logout-modal .btn-warning {
-    background-color: #d97706;
-    border-color: #d97706;
-}
-html.dark-mode .confirm-logout-modal .btn-warning:hover {
-    background-color: #b45309;
-    border-color: #b45309;
-}
-</style>
+<link rel="stylesheet" href="/estilos/base/variables.css">
+<link rel="stylesheet" href="/estilos/base/layout.css">
+<link rel="stylesheet" href="/estilos/components/navbar.css">
+<link rel="stylesheet" href="/estilos/components/buttons.css">
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
 
 <%- contentFor('navigation') %>
 <nav class="navbar navbar-expand-lg navbar-dark">

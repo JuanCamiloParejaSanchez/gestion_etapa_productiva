@@ -398,4 +398,140 @@ html.dark-mode .confirm-logout-modal .btn-warning:hover {
     border-color: #b45309;
 }
 
+/* --- ESTILOS PARA REPORTES --- */
+
+/* KPI Cards para métricas */
+.kpi-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.kpi-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Contenedor de gráficos */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 50vh;
+    width: 100%;
+}
+
+/* Botones de exportación */
+.export-buttons {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.export-btn {
+    margin: 0 5px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+/* --- ESTILOS PARA EDICIÓN DE PERFILES --- */
+
+.edit-profile-card {
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(4, 50, 77, 0.15);
+    transition: all 0.3s ease;
+}
+
+.edit-profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(4, 50, 77, 0.2);
+}
+
+.edit-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0d6efd 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px 10px 0 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+    opacity: 0.95;
+}
+
+.form-section {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.btn-save-profile {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #2d8500 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-save-profile:hover {
+    background: linear-gradient(135deg, #2d8500 0%, #1f5e00 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(57, 169, 0, 0.3);
+}
+
+.btn-cancel {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+    transition: background-color 0.2s;
+}
+
+.export-btn:hover {
+    opacity: 0.8;
+}
+
+.btn-png {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-pdf {
+    background-color: #dc3545;
+    color: white;
+}
 /* Dark mode selector styles moved to components/tables.css */

@@ -11,61 +11,11 @@
 </nav>
 
 <%- contentFor('styles') %>
-<style>
-    .chart-container {
-        position: relative;
-        margin: auto;
-        height: 50vh; /* Altura consistente para todos los gráficos */
-        width: 100%;
-    }
-
-    .kpi-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 10px;
-        padding: 20px;
-        color: white;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-    }
-
-    .kpi-card:hover {
-        transform: translateY(-2px);
-    }
-
-    .kpi-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-
-    .kpi-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .export-buttons {
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .export-btn {
-        margin: 0 5px;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background-color 0.2s;
-    }
-
-    .export-btn:hover {
-        opacity: 0.8;
-    }
-
-    .btn-png { background-color: #28a745; color: white; }
-    .btn-pdf { background-color: #dc3545; color: white; }
-</style>
+<link rel="stylesheet" href="/estilos/base/variables.css">
+<link rel="stylesheet" href="/estilos/base/layout.css">
+<link rel="stylesheet" href="/estilos/components/navbar.css">
+<link rel="stylesheet" href="/estilos/components/buttons.css">
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
 
 <%- contentFor('body') %>
 <div class="container-fluid mt-4">
