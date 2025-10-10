@@ -1,7 +1,6 @@
 // Ruta: src/modulos/aprendiz/servicios/servicioRecuperacion.js
 // Propósito: Maneja las operaciones de base de datos y envío de correos
 // para el proceso de recuperación de contraseña con códigos de verificación
-// Autor: JuanBogotá
 
 const { pool } = require('../../../configuracion/baseDatos');
 

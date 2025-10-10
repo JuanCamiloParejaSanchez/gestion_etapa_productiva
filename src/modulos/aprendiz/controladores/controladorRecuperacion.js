@@ -1,6 +1,5 @@
 // Ruta: src/modulos/aprendiz/controladores/controladorRecuperacion.js
 // Propósito: Maneja la lógica de recuperación de contraseña con códigos de verificación
-// Autor: JuanBogotá
 
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');

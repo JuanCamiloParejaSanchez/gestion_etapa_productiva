@@ -1,6 +1,5 @@
 // Ruta: public/js/autenticacion/resetPassword.js
 // Propósito: Maneja la lógica del formulario de restablecimiento de contraseña
-// Autor: JuanBogotá
 
 document.addEventListener('DOMContentLoaded', function() {
     const resetForm = document.getElementById('resetPasswordForm');

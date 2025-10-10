@@ -33,9 +33,6 @@ a:hover {
     text-decoration: none; /* Bootstrap ya maneja esto, pero lo aseguramos */
 }
 
-/* main styles moved to layout.css */
-
-/* Navbar styles moved to components/navbar.css */
 
 /* --- Tarjetas y Contenedores --- */
 .card {
@@ -54,12 +51,6 @@ a:hover {
     font-size: 1.25rem;
     border-bottom: 0;
 }
-
-.card-header .
-
-/* Form styles moved to components/forms.css */
-
-/* Navbar button styles moved to components/navbar.css */
 
 .form-text.text-danger, .form-text.text-success {
     display: block;
@@ -132,7 +123,7 @@ a:hover {
 .form-header { background-color: var(--primary-color); }
 .form-subheader { background-color: var(--secondary-color); }
 
-/* Button styles moved to components/buttons.css */
+
 
 /* --- Pie de página (Footer) --- */
 .sena-footer {
@@ -286,15 +277,6 @@ a:hover {
     }
 }
 
-/* DataTables styles moved to components/tables.css */
-
-/* DataTables responsive and animation styles moved to components/tables.css */
-
-/* Table sorting styles moved to components/tables.css */
-
-/* Sorting dropdown styles moved to components/tables.css */
-
-/* Efectos adicionales para el dropdown - REMOVIDOS PARA SIMPLICIDAD */
 
 /* Animación simplificada */
 .sort-dropdown.show .sort-dropdown-item,
@@ -302,19 +284,118 @@ a:hover {
     animation: none;
 }
 
-/* Animación removida para mejor rendimiento */
 
-/* Additional sorting system styles moved to components/tables.css */
+/* Dashboard card styles */
+.dashboard-card {
+    margin-bottom: 20px;
+    height: 100%;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
 
-/* Responsive sorting styles moved to components/tables.css */
-/* User info and badge styles moved to components/tables.css */
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 
-/* Modal document styles moved to components/modals.css */
+/* Orange styles for dashboard cards */
+.bg-orange {
+    background-color: #ff6b35 !important;
+}
 
-/* Expandable bitacora rows styles moved to components/documents.css */
+.btn-orange {
+    background-color: #ff6b35 !important;
+    border-color: #ff6b35 !important;
+    color: white !important;
+}
 
-/* Additional table and animation styles moved to components/tables.css */
+.btn-orange:hover {
+    background-color: #ac4824ff !important;
+    border-color: #ac4824ff !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
 
-/* Button styles moved to components/buttons.css */
+/* Modal styles for logout confirmation */
+.confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
+}
+
+.confirm-logout-modal .modal-body {
+    text-align: center;
+    padding: 2rem;
+}
+
+.confirm-logout-modal .modal-body .fa-question-circle {
+    font-size: 4rem;
+    color: #ffc107;
+    margin-bottom: 1rem;
+}
+
+.confirm-logout-modal .modal-body h4 {
+    color: #ffc107;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.confirm-logout-modal .modal-footer {
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.confirm-logout-modal .btn {
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.confirm-logout-modal .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Dark mode for logout modal */
+html.dark-mode .confirm-logout-modal .modal-header {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    color: #e2e8f0;
+}
+
+html.dark-mode .confirm-logout-modal .modal-content {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+html.dark-mode .confirm-logout-modal .modal-body .fa-question-circle {
+    color: #fbbf24;
+}
+
+html.dark-mode .confirm-logout-modal .modal-body h4 {
+    color: #fbbf24;
+}
+
+html.dark-mode .confirm-logout-modal .btn-secondary {
+    background-color: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+html.dark-mode .confirm-logout-modal .btn-secondary:hover {
+    background-color: #2d3748;
+    border-color: #2d3748;
+}
+
+html.dark-mode .confirm-logout-modal .btn-warning {
+    background-color: #d97706;
+    border-color: #d97706;
+}
+
+html.dark-mode .confirm-logout-modal .btn-warning:hover {
+    background-color: #b45309;
+    border-color: #b45309;
+}
 
 /* Dark mode selector styles moved to components/tables.css */

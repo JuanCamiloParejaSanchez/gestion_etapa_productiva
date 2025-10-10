@@ -1,6 +1,5 @@
 // Ruta: src/servicios/servicioAprendiz.js
 // Propósito: Lógica de negocio y operaciones con la base de datos para aprendices
-// Autor: JuanBogotá
 
 
 const { pool } = require('../../../configuracion/baseDatos');

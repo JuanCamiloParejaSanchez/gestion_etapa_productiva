@@ -1,6 +1,5 @@
 // src/modulos/administrador/rutas/rutasGestionAprendices.js
 // Propósito: Define todas las rutas relacionadas con la gestión de aprendices por parte del administrador.
-// Autor: Juan Bogotá
 
 const express = require('express');
 const router = express.Router();

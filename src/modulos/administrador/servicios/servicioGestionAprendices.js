@@ -1,6 +1,5 @@
 // src/modulos/administrador/servicios/servicioGestionAprendices.js
 // Propósito: Servicio de negocio para la gestión de aprendices
-// Autor: Refactorizado desde controlador
 
 const { pool } = require('../../../configuracion/baseDatos');
 const { logger } = require('../../../compartido/utilidades/logger');

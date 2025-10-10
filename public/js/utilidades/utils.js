@@ -1,7 +1,6 @@
 // Ruta: public/js/utils.js
 // Propósito: Funciones de utilidad generales para toda la aplicación.
 // Maneja mensajes y validaciones básicas que se usan en múltiples partes.
-// Autor: JuanBogotá
 
 // Sistema de mensajes
 function showMessage(message, type) {

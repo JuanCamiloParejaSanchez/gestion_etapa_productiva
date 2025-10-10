@@ -1,6 +1,5 @@
 // src/modulos/administrador/controladores/gestionAprendicesControlador.js
 // Propósito: Controlador para la gestión de aprendices - maneja requests HTTP y responses
-// Autor: Refactorizado - lógica de negocio movida a servicios
 
 const { pool } = require('../../../configuracion/baseDatos');
 const ServicioWatsonSentimientos = require('../servicios/servicioWatsonSentimientos');

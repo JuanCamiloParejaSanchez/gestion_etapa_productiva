@@ -1,6 +1,5 @@
 // src/compartido/controladores/baseController.js
 // Propósito: Clase base para controladores con métodos comunes
-// Autor: Implementado como mejora arquitectónica
 
 const { validationResult } = require('express-validator');
 const { logger } = require('../utilidades/logger');

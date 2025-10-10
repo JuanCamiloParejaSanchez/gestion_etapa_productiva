@@ -1,6 +1,5 @@
 // src/modulos/administrador/rutas/rutasAdministrador.js
 // Propósito: Define todas las rutas relacionadas con la gestión de administradores.
-// Autor: Juan Bogotá
 
 const express = require('express');
 const router = express.Router();

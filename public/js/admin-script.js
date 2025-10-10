@@ -1,6 +1,5 @@
 // Ruta: public/js/admin-script.js
 // Propósito: Maneja la funcionalidad del panel de administración
-// Autor: JuanBogotá (optimizado por IA)
 
 document.addEventListener('DOMContentLoaded', function () {
     // Carga contenido dinámicamente en el panel principal

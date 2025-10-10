@@ -1,6 +1,5 @@
 // src/modulos/aprendiz/controladores/controladorDashboardAprendiz.js
 // Propósito: Maneja la lógica para el dashboard del aprendiz, su perfil y bitácoras.
-// Autor: Juan Camilo Pareja Sanchez
 
 const { pool } = require('../../../configuracion/baseDatos'); // Importamos el pool de la BD
 const ServicioAprendiz = require('../servicios/servicioAprendiz');

@@ -1,7 +1,6 @@
 // Ruta: public/js/utilidades/validacionesUI.js
 // Propósito: Centraliza todas las validaciones y utilidades de UI para formularios del frontend.
-//           Proporciona funciones de validación reutilizables y mensajes estandarizados.
-// Autor: JuanBogotá
+// Proporciona funciones de validación reutilizables y mensajes estandarizados.
 
 
 export const REGEX = {

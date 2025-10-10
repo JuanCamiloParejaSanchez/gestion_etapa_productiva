@@ -3,7 +3,7 @@
 // Importa los tipos de Express para poder extenderlos
 // NOTA: Si este archivo es un módulo global (sin imports/exports de nivel superior),
 // TypeScript lo puede detectar automáticamente. Si es un módulo, necesitarás los imports.
-// Para mayor seguridad y compatibilidad, lo haremos como si fuera un módulo.
+
 import { Request, Response } from 'express'; // <--- AÑADE ESTA LÍNEA
 
 declare global { // <--- AÑADE ESTO para que las declaraciones sean globales si es un módulo

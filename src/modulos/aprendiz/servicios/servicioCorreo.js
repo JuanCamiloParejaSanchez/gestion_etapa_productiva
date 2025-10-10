@@ -1,6 +1,5 @@
 // Ruta: src/modulos/aprendiz/servicios/servicioCorreo.js
 // Propósito: Maneja el envío de correos electrónicos para toda la aplicación
-// Autor: JuanBogotá
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();

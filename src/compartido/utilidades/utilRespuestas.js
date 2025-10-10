@@ -1,6 +1,5 @@
 // Ruta: src/utilidades/utilRespuestas.js
 // Propósito: Estandarizar el formato de respuestas HTTP en la aplicación
-// Autor: JuanBogotá
 
 /**
  * Formatea una respuesta HTTP

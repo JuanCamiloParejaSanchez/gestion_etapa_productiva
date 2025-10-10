@@ -1,6 +1,5 @@
 // src/modulos/administrador/controladores/perfilAdministradorControlador.js
 // Propósito: Maneja las operaciones del perfil personal del administrador
-// Autor: Sistema
 
 const { pool } = require('../../../configuracion/baseDatos');
 

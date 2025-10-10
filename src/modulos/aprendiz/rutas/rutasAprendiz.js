@@ -1,7 +1,6 @@
 // src/modulos/aprendiz/rutas/rutasAprendiz.js
 // Propósito: Define las rutas específicas para el módulo del aprendiz,
 // como el dashboard y otras funcionalidades del perfil del aprendiz.
-// Autor: Juan Camilo Pareja Sanchez
 
 const express = require('express');
 const router = express.Router();

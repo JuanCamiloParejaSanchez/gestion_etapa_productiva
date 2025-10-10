@@ -1,6 +1,5 @@
 // Ruta: src/modulos/aprendiz/controladores/controladorRegistroAprendiz.js
 // Propósito: Maneja la lógica de registro de nuevos aprendices
-// Autor: JuanBogotá
 
 
 const ServicioAprendiz = require('../servicios/servicioAprendiz');

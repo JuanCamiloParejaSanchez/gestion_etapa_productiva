@@ -1,6 +1,5 @@
 // public/js/formValidation.js
 // Propósito: Maneja la validación y envío del formulario de registro de aprendices
-// Autor: JuanBogotá
 
 import { validacionesUI, MESSAGES } from './utilidades/validacionesUI.js';
 

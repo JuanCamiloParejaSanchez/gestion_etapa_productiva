@@ -1,6 +1,5 @@
 // src/validaciones/esquemasValidacion.js
 // Propósito: Esquemas de validación centralizados usando Joi
-// Autor: Implementado como mejora de validación
 
 const Joi = require('joi');
 

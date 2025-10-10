@@ -1,6 +1,5 @@
 // Ruta: src/modulos/aprendiz/rutas/rutasRegistroAprendiz.js
 // Propósito: Define las rutas relacionadas con el registro y autenticación de aprendices.
-// Autor: JuanBogotá
 
 const express = require('express');
 const router = express.Router();

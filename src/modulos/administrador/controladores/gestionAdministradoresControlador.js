@@ -1,6 +1,5 @@
 // src/modulos/administrador/controladores/gestionAdministradoresControlador.js
 // Propósito: Maneja las operaciones CRUD para la gestión de administradores.
-// Autor: Juan Bogotá
 
 const { pool } = require('../../../configuracion/baseDatos');
 

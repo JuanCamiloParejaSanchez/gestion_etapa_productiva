@@ -50,6 +50,28 @@
     box-shadow: 0 6px 16px rgba(57,169,0,0.13);
 }
 
+/* Dark mode styles for navbar */
+html.dark-mode .navbar {
+    background-color: var(--primary-color) !important;
+    border-bottom: 1px solid #30363d;
+}
+
+html.dark-mode .navbar-dark {
+    background-color: var(--primary-color) !important;
+}
+
+html.dark-mode .navbar .btn-navbar {
+    background-color: #21262d !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .navbar .btn-navbar:hover {
+    background-color: #30363d !important;
+    border-color: #c9d1d9 !important;
+    color: #ffffff !important;
+}
+
 /* Responsive para navbar */
 @media (max-width: 767.98px) {
     .sena-css-logo {

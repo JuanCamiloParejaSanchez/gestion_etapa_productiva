@@ -1,6 +1,5 @@
 // Ruta: public/js/autenticacion/recuperarContrasena.js
 // Propósito: Maneja la lógica del formulario de recuperación de contraseña
-// Autor: JuanBogotá
 
 document.addEventListener('DOMContentLoaded', function() {
     const recuperarForm = document.getElementById('recuperarForm');

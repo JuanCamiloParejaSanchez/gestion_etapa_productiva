@@ -1,7 +1,6 @@
 // Ruta: src/compartido/middlewares/middlewareAutenticacion.js
 // Propósito: Proporciona middlewares para proteger rutas y validar el estado
 // de autenticación de los usuarios.
-// Autor: JuanBogotá (corregido por IA)
 
 const AuthMiddleware = {
     // Configuración de tiempo de expiración (30 minutos)

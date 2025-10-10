@@ -1,6 +1,5 @@
 // Ruta: src/compartido/utilidades/utilValidaciones.js
 // Propósito: Utilidades para validación y limpieza de campos de formularios
-// Autor: JuanBogotá
 
 /**
  * Constantes de Validación

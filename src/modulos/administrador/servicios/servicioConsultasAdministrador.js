@@ -1,6 +1,5 @@
 // src/modulos/administrador/servicios/servicioConsultasAdministrador.js
 // Propósito: Contiene las consultas SQL relacionadas con los administradores
-// Autor: Juan Camilo Pareja Sanchez
 
 const { pool } = require('../../../configuracion/baseDatos');
 

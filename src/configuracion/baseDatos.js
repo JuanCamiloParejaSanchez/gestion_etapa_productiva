@@ -1,6 +1,5 @@
 // Ruta: src/config/baseDatos.js
 // Propósito: Configuración y conexión a la base de datos
-// Autor: Juan Bogotá
 
 const mysql = require('mysql2/promise');
 require('dotenv').config();

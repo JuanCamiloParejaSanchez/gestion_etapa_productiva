@@ -1,6 +1,5 @@
 // Ruta: src/modulos/aprendiz/rutas/rutasAutenticacion.js
 // Propósito: Define las rutas para la autenticación de usuarios
-// Autor: JuanBogotá
 
 const express = require('express');
 const router = express.Router();
