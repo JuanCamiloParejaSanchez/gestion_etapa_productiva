@@ -33,6 +33,10 @@ a:hover {
     text-decoration: none; /* Bootstrap ya maneja esto, pero lo aseguramos */
 }
 
+.container {
+    max-width: 1400px; /* Ajusta este valor según necesites, por defecto es ~1140px */
+}
+
 
 /* --- Tarjetas y Contenedores --- */
 .card {
@@ -77,7 +81,7 @@ a:hover {
 }
 
 /* Ajuste de ancho y alineación para el formulario de registro de aprendiz */
-.col-lg-12.col-md-12 {
+.col-lg-12 .col-md-12 {
     max-width: 100%;
     min-width: 100%;
 }
@@ -129,11 +133,12 @@ a:hover {
 .sena-footer {
     background-color: var(--primary-color);
     color: white;
-    padding: 20px 0;
+    padding: 40px 0 50px 0;
     text-align: center;
     position: relative;
     overflow: hidden;
     border-top: 4px solid var(--secondary-color);
+    min-height: 240px;
 }
 
 .footer-content {
@@ -156,6 +161,16 @@ a:hover {
     height: 120px;
     fill: var(--secondary-color);
     opacity: 0.08;
+}
+
+
+/* Dark mode for footer */
+html.dark-mode .sena-footer {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+html.dark-mode .footer-text {
+    color: #e2e8f0;
 }
 
 /* --- Sección de Información Lateral --- */
@@ -287,14 +302,22 @@ a:hover {
 
 /* Dashboard card styles */
 .dashboard-card {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 20px;
     height: 100%;
+    min-height: 200px;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .dashboard-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dashboard-card .card-body {
+    padding-bottom: 0.5rem !important;
+    justify-content: space-between;
 }
 
 /* Orange styles for dashboard cards */
