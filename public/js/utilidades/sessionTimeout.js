@@ -6,20 +6,23 @@
     const WARNING_TIME = 2 * 60 * 1000; // Mostrar advertencia 2 minutos antes
     let inactivityTimer;
     let warningShown = false;
+    let userResponded = false; // Nueva variable para controlar si el usuario respondió
 
     function resetTimer() {
         clearTimeout(inactivityTimer);
-        if (warningShown) {
-            hideWarning();
+        // NO ocultar la advertencia automáticamente - esperar respuesta del usuario
+        // Solo resetear el timer si no hay advertencia activa
+        if (!warningShown) {
+            inactivityTimer = setTimeout(() => {
+                showWarning();
+            }, INACTIVITY_TIMEOUT - WARNING_TIME);
         }
-        inactivityTimer = setTimeout(() => {
-            showWarning();
-        }, INACTIVITY_TIMEOUT - WARNING_TIME);
     }
 
     function showWarning() {
         if (warningShown) return;
         warningShown = true;
+        userResponded = false; // Resetear el flag de respuesta
 
         // Crear modal de advertencia
         const warningModal = document.createElement('div');
@@ -42,7 +45,7 @@
                         <p>¿Deseas continuar trabajando?</p>
                     </div>
                     <div class="modal-footer justify-content-center">
-                        <button type="button" class="btn btn-secondary px-4" onclick="extendSession()">
+                        <button type="button" class="btn btn-secondary px-4" id="extendSessionBtn">
                             <i class="fas fa-check me-2"></i>
                             Continuar
                         </button>
@@ -55,9 +58,15 @@
         const modal = new bootstrap.Modal(warningModal);
         modal.show();
 
+        // Agregar event listener al botón después de que el modal esté en el DOM
+        const continueButton = warningModal.querySelector('#extendSessionBtn');
+        if (continueButton) {
+            continueButton.addEventListener('click', extendSession);
+        }
+
         // Auto-logout después de 2 minutos si no se extiende
         setTimeout(() => {
-            if (warningShown) {
+            if (warningShown && !userResponded) {
                 logout();
             }
         }, WARNING_TIME);
@@ -76,6 +85,7 @@
     }
 
     function extendSession() {
+        userResponded = true; // Marcar que el usuario respondió
         hideWarning();
         resetTimer();
     }
@@ -93,11 +103,27 @@
         });
     }
 
-    // Eventos de actividad del usuario
+    // Eventos de actividad del usuario (solo si no hay modal activo)
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
 
     events.forEach(event => {
-        document.addEventListener(event, resetTimer, true);
+        document.addEventListener(event, (e) => {
+            // Si el modal está activo y el usuario no ha respondido, ignorar TODOS los eventos
+            if (warningShown && !userResponded) {
+                // Solo permitir clics en el botón del modal
+                const target = e.target;
+                const modal = document.getElementById('inactivityWarningModal');
+                const continueButton = modal ? modal.querySelector('#extendSessionBtn') : null;
+
+                // Si el clic NO es en el botón continuar, bloquear el evento
+                if (!(continueButton && target instanceof Node && continueButton.contains(target))) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            resetTimer();
+        }, true);
     });
 
     // Iniciar el timer
