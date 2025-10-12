@@ -139,18 +139,25 @@ class ControladorDashboardAprendiz extends BaseController {
             // Obtener alertas del aprendiz
             const alertas = await servicioAlertas.obtenerAlertasAprendiz(aprendizId);
 
-            // Enviar correo solo si hay alertas y ha pasado al menos una semana desde el último envío
+            // Enviar correo solo si hay alertas, ha pasado al menos una semana desde el último envío y es lunes
             let enviarCorreo = false;
             const ahora = new Date();
+            const diaSemana = ahora.getDay(); // 0=domingo, 1=lunes, 2=martes, ..., 6=sábado
+            const esLunes = diaSemana === 1;
             const fechaUltimoCorreo = aprendiz.fechaUltimoCorreoAlerta;
             console.log('Fecha último correo en BD:', fechaUltimoCorreo);
+            console.log('Día de la semana actual:', diaSemana, '(0=domingo, 1=lunes, etc.)');
+            console.log('¿Es lunes?:', esLunes);
+
             if (!fechaUltimoCorreo) {
-                enviarCorreo = true;
+                // Si nunca se ha enviado correo, enviar solo si es lunes
+                enviarCorreo = esLunes;
             } else {
                 const ultima = new Date(fechaUltimoCorreo);
                 const diferenciaDias = (ahora - ultima) / (1000 * 60 * 60 * 24);
                 console.log('Días desde último correo:', diferenciaDias);
-                if (diferenciaDias >= 7) {
+                // Enviar solo si han pasado al menos 7 días Y es lunes
+                if (diferenciaDias >= 7 && esLunes) {
                     enviarCorreo = true;
                 }
             }

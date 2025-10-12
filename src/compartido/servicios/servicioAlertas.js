@@ -11,16 +11,33 @@ const servicioAlertas = {
     async obtenerAlertasAprendiz(aprendizId) {
         const alertas = [];
 
-        // 1. Bitácora semanal no enviada
+        // 1. Bitácora quincenal (cada 15 días) no enviada
+        // Determinar el periodo actual del mes (1-15 o 16-31)
+        const hoy = new Date();
+        const diaDelMes = hoy.getDate();
+        const periodoActual = diaDelMes <= 15 ? 1 : 2; // 1 = primeros 15 días, 2 = últimos 15 días
+
+        // Calcular el año y mes actual
+        const year = hoy.getFullYear();
+        const month = hoy.getMonth() + 1; // getMonth() devuelve 0-11
+
         const [bitacoraRows] = await pool.query(
-            `SELECT id FROM bitacoras WHERE aprendizId = ? AND YEARWEEK(fechaCreacion, 1) = YEARWEEK(CURDATE(), 1)`,
-            [aprendizId]
+            `SELECT id FROM bitacoras
+             WHERE aprendizId = ?
+               AND YEAR(fechaCreacion) = ?
+               AND MONTH(fechaCreacion) = ?
+               AND (
+                   (DAY(fechaCreacion) BETWEEN 1 AND 15 AND ? = 1) OR
+                   (DAY(fechaCreacion) > 15 AND ? = 2)
+               )`,
+            [aprendizId, year, month, periodoActual, periodoActual]
         );
         const bitacoraArray = Array.isArray(bitacoraRows) ? bitacoraRows : [];
         if (bitacoraArray.length === 0) {
+            const periodoTexto = periodoActual === 1 ? 'primeros 15 días' : 'últimos 15 días';
             alertas.push({
                 tipo: 'bitacora',
-                mensaje: 'No has registrado tu bitácora de esta semana.'
+                mensaje: `No has registrado tu bitácora correspondiente a los ${periodoTexto} del mes.`
             });
         }
 
@@ -71,19 +88,33 @@ const servicioAlertas = {
     async obtenerAlertasAdministrador() {
         const alertasPorTipo = { bitacora: [] };
 
-        // Aprendices con documentos pendientes de entrega (bitácoras no registradas esta semana)
+        // Aprendices con bitácoras quincenales pendientes (cada 15 días)
+        const hoy = new Date();
+        const diaDelMes = hoy.getDate();
+        const periodoActual = diaDelMes <= 15 ? 1 : 2;
+        const year = hoy.getFullYear();
+        const month = hoy.getMonth() + 1;
+
         const [pendientesRows] = await pool.query(
             `SELECT a.id, a.nombres, a.primerApellido, a.numeroDocumento
              FROM aprendices a
-             LEFT JOIN bitacoras b ON a.id = b.aprendizId AND YEARWEEK(b.fechaCreacion, 1) = YEARWEEK(CURDATE(), 1)
-             WHERE b.id IS NULL`
+             LEFT JOIN bitacoras b ON a.id = b.aprendizId
+               AND YEAR(b.fechaCreacion) = ?
+               AND MONTH(b.fechaCreacion) = ?
+               AND (
+                   (DAY(b.fechaCreacion) BETWEEN 1 AND 15 AND ? = 1) OR
+                   (DAY(b.fechaCreacion) > 15 AND ? = 2)
+               )
+             WHERE b.id IS NULL`,
+            [year, month, periodoActual, periodoActual]
         );
         const pendientes = Array.isArray(pendientesRows) ? pendientesRows : [];
         pendientes.forEach(function(apr) {
             if (apr && apr.nombres && apr.primerApellido && apr.numeroDocumento) {
+                const periodoTexto = periodoActual === 1 ? 'primeros 15 días' : 'últimos 15 días';
                 alertasPorTipo.bitacora.push({
                     tipo: 'bitacora',
-                    mensaje: 'El aprendiz ' + apr.nombres + ' ' + apr.primerApellido + ' (' + apr.numeroDocumento + ') no ha registrado su bitácora esta semana.'
+                    mensaje: 'El aprendiz ' + apr.nombres + ' ' + apr.primerApellido + ' (' + apr.numeroDocumento + ') no ha registrado su bitácora correspondiente a los ' + periodoTexto + ' del mes.'
                 });
             }
         });

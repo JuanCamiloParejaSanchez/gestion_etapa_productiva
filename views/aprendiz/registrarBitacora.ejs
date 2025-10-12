@@ -27,8 +27,15 @@
                     <h4 class="mb-0">Seguimiento etapa productiva</h4>
                 </div>
                 <div class="card-body">
+                    <%
+                        const hoy = new Date();
+                        const diaDelMes = hoy.getDate();
+                        const periodoActual = diaDelMes <= 15 ? 'primeros 15 días' : 'últimos 15 días';
+                        const mesActual = hoy.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+                    %>
                     <p class="card-text text-muted">
-                        Tómate un momento para reflexionar sobre tu semana. Tus respuestas son valiosas para tu seguimiento.
+                        Tómate un momento para reflexionar sobre los <strong><%= periodoActual %></strong> de <strong><%= mesActual %></strong>.
+                        Tus respuestas son valiosas para tu seguimiento quincenal.
                     </p>
                     
                     <!-- Formulario que envía los datos a la ruta POST /aprendiz/bitacora -->
