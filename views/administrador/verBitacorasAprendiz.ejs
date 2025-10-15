@@ -20,63 +20,83 @@
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <%- contentFor('styles') %>
 <style>
-    .sentiment-score {
-        font-size: 1.2em;
-        font-weight: bold;
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        text-align: center;
-    }
-    .sentiment-very-positive { background-color: #d4edda; color: #155724; }
-    .sentiment-positive { background-color: #d1ecf1; color: #0c5460; }
-    .sentiment-neutral { background-color: #fff3cd; color: #856404; }
-    .sentiment-negative { background-color: #f8d7da; color: #721c24; }
-    .sentiment-very-negative { background-color: #f5c6cb; color: #721c24; }
-    
-    .alert-card {
-        border-left: 4px solid;
-        margin-bottom: 1rem;
-    }
-    .alert-high { border-left-color: #dc3545; }
-    .alert-medium { border-left-color: #ffc107; }
-    .alert-low { border-left-color: #17a2b8; }
-    
-    .trend-indicator {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.875em;
-        font-weight: bold;
-    }
-    .trend-improving { background-color: #d4edda; color: #155724; }
-    .trend-stable { background-color: #fff3cd; color: #856404; }
-    .trend-worsening { background-color: #f8d7da; color: #721c24; }
+/* Debug: Inline styles for testing */
+html.dark-mode .accordion-item {
+    background-color: #161b22 !important;
+    border-color: #30363d !important;
+}
 
-    /* Nuevos estilos para la interfaz optimizada */
-    .estado-principal {
-        transition: all 0.3s ease;
-    }
-    .estado-principal:hover {
-        transform: scale(1.05);
-    }
+html.dark-mode .accordion-button {
+    background-color: #21262d !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+}
 
-    .metrica-card {
-        transition: all 0.2s ease;
-        border-radius: 0.5rem;
-    }
-    .metrica-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
+html.dark-mode .accordion-body {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+}
 
-    .acciones-recomendadas {
-        border-left: 4px solid #007bff;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
+html.dark-mode .accordion-body .card {
+    background-color: #21262d !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
 
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    }
+html.dark-mode .accordion-body .bg-light {
+    background-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+/* Additional styles for remaining elements */
+html.dark-mode .card-header.bg-light {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+}
+
+html.dark-mode .card-header.bg-light .fas {
+    color: #8b949e !important;
+}
+
+html.dark-mode .acciones-recomendadas h6 .fas {
+    color: #8b949e !important;
+}
+
+html.dark-mode .acciones-recomendadas .text-danger .fas,
+html.dark-mode .acciones-recomendadas .text-danger {
+    color: #dc3545 !important;
+}
+
+html.dark-mode .acciones-recomendadas .text-warning .fas,
+html.dark-mode .acciones-recomendadas .text-warning {
+    color: #ffc107 !important;
+}
+
+html.dark-mode .acciones-recomendadas .text-success .fas,
+html.dark-mode .acciones-recomendadas .text-success {
+    color: #28a745 !important;
+}
+
+html.dark-mode .acciones-recomendadas .text-info .fas,
+html.dark-mode .acciones-recomendadas .text-info {
+    color: #17a2b8 !important;
+}
+
+/* Estilos para modo oscuro en la sección de acciones recomendadas */
+html.dark-mode .acciones-recomendadas {
+    background: linear-gradient(135deg, #21262d 0%, #161b22 100%) !important;
+    border-left-color: #58a6ff !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .acciones-recomendadas h6 {
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .acciones-recomendadas small {
+    color: #f0f6fc !important;
+}
 </style>
 
 <%- contentFor('body') %>
@@ -316,8 +336,25 @@
                                 <% accionesRecomendadas.forEach((accion, index) => { %>
                                 <div class="col-md-6 mb-2">
                                     <div class="d-flex align-items-center">
-                                        <i class="<%= accion.icono %> text-<%= accion.prioridad %> me-2"></i>
-                                        <small class="flex-grow-1"><%= accion.texto %></small>
+                                        <%
+                                        let colorClass = '';
+                                        let colorStyle = '';
+                                        if (accion.prioridad === 'danger') {
+                                            colorClass = 'text-danger';
+                                            colorStyle = 'color: #dc3545 !important;';
+                                        } else if (accion.prioridad === 'warning') {
+                                            colorClass = 'text-warning';
+                                            colorStyle = 'color: #ffc107 !important;';
+                                        } else if (accion.prioridad === 'success') {
+                                            colorClass = 'text-success';
+                                            colorStyle = 'color: #28a745 !important;';
+                                        } else if (accion.prioridad === 'info') {
+                                            colorClass = 'text-info';
+                                            colorStyle = 'color: #17a2b8 !important;';
+                                        }
+                                        %>
+                                        <i class="<%= accion.icono %> <%= colorClass %> me-2" style="<%= colorStyle %>"></i>
+                                        <small class="flex-grow-1 <%= colorClass %>"><%= accion.texto %></small>
                                     </div>
                                 </div>
                                 <% }); %>
@@ -388,115 +425,10 @@
     </div>
 </div>
 
-<!-- Estilos específicos -->
-<style>
-.sentiment-score {
-    font-size: 2em;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 50%;
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    color: white;
-}
-
-.sentiment-muy-positivo { background-color: #28a745; }
-.sentiment-positivo { background-color: #5cb85c; }
-.sentiment-neutral { background-color: #6c757d; }
-.sentiment-negativo { background-color: #dc3545; }
-.sentiment-muy-negativo { background-color: #c82333; }
-
-.trend-indicator {
-    font-size: 1.2em;
-    font-weight: bold;
-    padding: 10px;
-}
-
-.trend-mejorando { color: #28a745; }
-.trend-estable { color: #6c757d; }
-.trend-empeorando { color: #dc3545; }
-
-.variability-indicator {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #6c757d;
-}
-
-.patterns-container .badge {
-    margin-right: 5px;
-    padding: 8px 12px;
-}
-
-.recommendations-container .alert {
-    margin-bottom: 10px;
-    padding: 15px;
-}
-
-.contexts-container .badge {
-    padding: 8px 12px;
-    margin: 3px;
-}
-
-.emotion-badge {
-    font-size: 0.8em;
-    padding: 4px 8px;
-    margin: 2px;
-}
-
-.keyword-badge {
-    font-size: 0.8em;
-    padding: 4px 8px;
-    margin: 2px;
-    background-color: #6c757d;
-    color: white;
-}
-
-.analysis-table th {
-    font-size: 0.9em;
-    font-weight: bold;
-    background-color: #f8f9fa;
-}
-
-.analysis-table td {
-    font-size: 0.85em;
-    vertical-align: middle;
-}
-
-.confidence-bar {
-    height: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.recommendation-card {
-    border-left: 4px solid;
-    transition: transform 0.2s;
-}
-
-.recommendation-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.recommendation-high {
-    border-left-color: #dc3545;
-}
-
-.recommendation-medium {
-    border-left-color: #ffc107;
-}
-
-.recommendation-low {
-    border-left-color: #17a2b8;
-}
-</style>
 
 <%- contentFor('scripts') %>
 <script src="/js/utilidades/sessionTimeout.js"></script>
+<script src="/js/utilidades/themeToggle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -621,21 +553,3 @@
     });
 </script>
 
-<!-- Estilos adicionales -->
-<style>
-    .engagement-level {
-        font-size: 1.5em;
-        font-weight: bold;
-        padding: 10px;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-    }
-
-    .engagement-level:hover {
-        background-color: rgba(0,0,0,0.1);
-    }
-
-    #accionesRecomendadas .list-group-item {
-        border-left: 3px solid #007bff;
-    }
-</style>

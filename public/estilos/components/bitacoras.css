@@ -1,173 +1,422 @@
 /* Ruta: public/estilos/components/bitacoras.css */
-/* Propósito: Estilos para gestión de bitácoras */
+/* Propósito: Estilos específicos para el módulo de bitácoras, incluyendo modo oscuro */
 
-/* --- FILAS EXPANDIBLES PARA BITÁCORAS --- */
-.fila-bitacora {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+/* =============================================== */
+/* --- ESTILOS GENERALES PARA BITÁCORAS --- */
+/* =============================================== */
 
-.fila-bitacora:hover {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 110, 253, 0.02) 100%);
-}
-
-.fila-bitacora.expanded {
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.12) 0%, rgba(13, 110, 253, 0.06) 100%);
-    border-left: 4px solid #0d6efd;
-}
-
-.expand-row {
-    background: #f8f9fa;
-    border-left: 4px solid #0d6efd;
-}
-
-.expand-content {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 0 0 8px 8px;
-}
-
-.bitacoras-content {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.bitacoras-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.bitacora-item {
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    transition: all 0.2s ease;
-}
-
-.bitacora-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-}
-
-.bitacora-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.bitacora-date {
-    font-weight: 600;
-    color: #0d6efd;
-}
-
-.bitacora-status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.status-pendiente {
-    background: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
-    border: 1px solid rgba(255, 193, 7, 0.2);
-}
-
-.status-aprobada {
-    background: rgba(25, 135, 84, 0.1);
-    color: #198754;
-    border: 1px solid rgba(25, 135, 84, 0.2);
-}
-
-.bitacora-content {
-    color: #495057;
-    line-height: 1.6;
-}
-
-.no-bitacoras {
+.sentiment-score {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     text-align: center;
-    padding: 2rem;
+}
+
+.sentiment-very-positive { background-color: #d4edda; color: #155724; }
+.sentiment-positive { background-color: #d1ecf1; color: #0c5460; }
+.sentiment-neutral { background-color: #fff3cd; color: #856404; }
+.sentiment-negative { background-color: #f8d7da; color: #721c24; }
+.sentiment-very-negative { background-color: #f5c6cb; color: #721c24; }
+
+.alert-card {
+    border-left: 4px solid;
+    margin-bottom: 1rem;
+}
+.alert-high { border-left-color: #dc3545; }
+.alert-medium { border-left-color: #ffc107; }
+.alert-low { border-left-color: #17a2b8; }
+
+.trend-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    font-weight: bold;
+}
+.trend-improving { background-color: #d4edda; color: #155724; }
+.trend-stable { background-color: #fff3cd; color: #856404; }
+.trend-worsening { background-color: #f8d7da; color: #721c24; }
+
+/* Nuevos estilos para la interfaz optimizada */
+.estado-principal {
+    transition: all 0.3s ease;
+}
+.estado-principal:hover {
+    transform: scale(1.05);
+}
+
+.metrica-card {
+    transition: all 0.2s ease;
+    border-radius: 0.5rem;
+}
+.metrica-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.acciones-recomendadas {
+    border-left: 4px solid #007bff;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+/* =============================================== */
+/* --- ESTILOS PARA MODO OSCURO --- */
+/* =============================================== */
+
+html.dark-mode body .sentiment-score {
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .sentiment-muy-positivo { background-color: #28a745; }
+html.dark-mode body .sentiment-positivo { background-color: #5cb85c; }
+html.dark-mode body .sentiment-neutral { background-color: #8b949e; }
+html.dark-mode body .sentiment-negativo { background-color: #dc3545; }
+html.dark-mode body .sentiment-muy-negativo { background-color: #c82333; }
+
+html.dark-mode body .trend-mejorando { color: #28a745; }
+html.dark-mode body .trend-estable { color: #8b949e; }
+html.dark-mode body .trend-empeorando { color: #dc3545; }
+
+html.dark-mode body .keyword-badge {
+    background-color: #8b949e !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .analysis-table th {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .analysis-table td {
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .recommendation-card {
+    background-color: #161b22;
+    border-color: #30363d;
+}
+
+html.dark-mode body .engagement-level {
+    color: #f0f6fc;
+}
+
+html.dark-mode body .engagement-level:hover {
+    background-color: rgba(139, 148, 158, 0.1);
+}
+
+/* Ajustes para elementos específicos del dashboard */
+html.dark-mode body .acciones-recomendadas {
+    background: linear-gradient(135deg, #161b22 0%, #21262d 100%) !important;
+    border-left-color: #8b949e;
+}
+
+html.dark-mode body .bg-gradient-primary {
+    background: linear-gradient(135deg, #8b949e 0%, #484f58 100%) !important;
+}
+
+html.dark-mode body .bg-light {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .text-primary {
+    color: #8b949e !important;
+}
+
+html.dark-mode body .text-success {
+    color: #28a745 !important;
+}
+
+html.dark-mode body .text-warning {
+    color: #ffc107 !important;
+}
+
+html.dark-mode body .text-danger {
+    color: #dc3545 !important;
+}
+
+html.dark-mode body .text-info {
+    color: #17a2b8 !important;
+}
+
+/* Ajustes para badges y elementos de estado */
+html.dark-mode body .badge {
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+html.dark-mode body .badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+html.dark-mode body .badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+html.dark-mode body .badge.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+html.dark-mode body .badge.bg-secondary {
+    background-color: #8b949e !important;
+}
+
+/* Ajustes para el gráfico Chart.js */
+html.dark-mode body canvas {
+    background-color: transparent;
+}
+
+/* Ajustes para alertas */
+html.dark-mode body .alert {
+    background-color: rgba(74, 144, 226, 0.1);
+    border-color: rgba(74, 144, 226, 0.3);
+    color: #e6e6e6;
+}
+
+html.dark-mode body .alert-success {
+    background-color: rgba(92, 184, 92, 0.1);
+    border-color: rgba(92, 184, 92, 0.3);
+}
+
+html.dark-mode body .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+}
+
+html.dark-mode body .alert-warning {
+    background-color: rgba(240, 173, 78, 0.1);
+    border-color: rgba(240, 173, 78, 0.3);
+}
+
+html.dark-mode body .alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    border-color: rgba(23, 162, 184, 0.3);
+}
+
+/* =============================================== */
+/* --- ESTILOS ADICIONALES PARA BITÁCORAS --- */
+/* =============================================== */
+
+.sentiment-score {
+    font-size: 2em;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+}
+
+.sentiment-muy-positivo { background-color: #28a745; }
+.sentiment-positivo { background-color: #5cb85c; }
+.sentiment-neutral { background-color: #6c757d; }
+.sentiment-negativo { background-color: #dc3545; }
+.sentiment-muy-negativo { background-color: #c82333; }
+
+.trend-indicator {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.trend-mejorando { color: #28a745; }
+.trend-estable { color: #6c757d; }
+.trend-empeorando { color: #dc3545; }
+
+.variability-indicator {
+    font-size: 1.5em;
+    font-weight: bold;
     color: #6c757d;
 }
 
-.no-bitacoras i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+.patterns-container .badge {
+    margin-right: 5px;
+    padding: 8px 12px;
 }
 
-/* --- ANIMACIONES --- */
-.expand-row {
-    transition: all 0.3s ease;
+.recommendations-container .alert {
+    margin-bottom: 10px;
+    padding: 15px;
+}
+
+.contexts-container .badge {
+    padding: 8px 12px;
+    margin: 3px;
+}
+
+.emotion-badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    margin: 2px;
+}
+
+.keyword-badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+    margin: 2px;
+    background-color: #6c757d;
+    color: white;
+}
+
+.analysis-table th {
+    font-size: 0.9em;
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+
+.analysis-table td {
+    font-size: 0.85em;
+    vertical-align: middle;
+}
+
+.confidence-bar {
+    height: 20px;
+    border-radius: 10px;
     overflow: hidden;
 }
 
-.expand-row.show {
-    display: table-row !important;
+.recommendation-card {
+    border-left: 4px solid;
+    transition: transform 0.2s;
 }
 
-.expand-row.hide {
-    display: none !important;
+.recommendation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.recommendation-high {
+    border-left-color: #dc3545;
 }
 
-.modern-table-container {
-    animation: fadeInUp 0.5s ease-out;
+.recommendation-medium {
+    border-left-color: #ffc107;
 }
 
-/* --- ESTADOS DE CARGA --- */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
+.recommendation-low {
+    border-left-color: #17a2b8;
 }
 
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #0d6efd;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+/* Estilos adicionales */
+.engagement-level {
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.engagement-level:hover {
+    background-color: rgba(0,0,0,0.1);
 }
 
-/* --- MENSAJE DE NO DATOS --- */
-.no-data {
-    text-align: center;
-    padding: 2rem;
-    color: #6c757d;
-    font-style: italic;
+#accionesRecomendadas .list-group-item {
+    border-left: 3px solid #007bff;
 }
 
-.no-data i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+/* =============================================== */
+/* --- ESTILOS PARA TARJETAS DE BITÁCORAS --- */
+/* =============================================== */
+
+/* Override Bootstrap accordion styles for dark mode */
+html.dark-mode .accordion-item {
+    background-color: #161b22 !important;
+    border-color: #30363d !important;
+}
+
+html.dark-mode .accordion-button {
+    background-color: #21262d !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+}
+
+html.dark-mode .accordion-button:not(.collapsed) {
+    background-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(139, 148, 158, 0.25) !important;
+}
+
+html.dark-mode .accordion-body {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .accordion-body .card {
+    background-color: #21262d !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .accordion-body .card .card-title {
+    color: #8b949e !important;
+}
+
+html.dark-mode .accordion-body .bg-light {
+    background-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode .accordion-body strong {
+    color: #f0f6fc !important;
+}
+
+/* Additional specific overrides for bitacoras page */
+html.dark-mode body .accordion-item {
+    background-color: #161b22 !important;
+    border-color: #30363d !important;
+}
+
+html.dark-mode body .accordion-button {
+    background-color: #21262d !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+}
+
+html.dark-mode body .accordion-button:not(.collapsed) {
+    background-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .accordion-button:focus {
+    box-shadow: 0 0 0 0.2rem rgba(139, 148, 158, 0.25) !important;
+}
+
+html.dark-mode body .accordion-body {
+    background-color: #161b22 !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .accordion-body .card {
+    background-color: #21262d !important;
+    border-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .accordion-body .card .card-title {
+    color: #8b949e !important;
+}
+
+html.dark-mode body .accordion-body .bg-light {
+    background-color: #30363d !important;
+    color: #f0f6fc !important;
+}
+
+html.dark-mode body .accordion-body strong {
+    color: #f0f6fc !important;
 }
