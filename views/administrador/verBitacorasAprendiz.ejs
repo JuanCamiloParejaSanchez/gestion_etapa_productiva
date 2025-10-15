@@ -51,6 +51,32 @@
     .trend-improving { background-color: #d4edda; color: #155724; }
     .trend-stable { background-color: #fff3cd; color: #856404; }
     .trend-worsening { background-color: #f8d7da; color: #721c24; }
+
+    /* Nuevos estilos para la interfaz optimizada */
+    .estado-principal {
+        transition: all 0.3s ease;
+    }
+    .estado-principal:hover {
+        transform: scale(1.05);
+    }
+
+    .metrica-card {
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+    }
+    .metrica-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .acciones-recomendadas {
+        border-left: 4px solid #007bff;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
 </style>
 
 <%- contentFor('body') %>
@@ -76,12 +102,11 @@
     </div>
 
     <!-- Análisis de Sentimientos -->
-    <% if (erroresAnalisis && erroresAnalisis.some(error => !/Data truncated for column/.test(error.error))) { %>
+    <% if (erroresAnalisis && erroresAnalisis.length > 0) { %>
         <div class="alert alert-warning mb-4">
             <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Advertencias en el Análisis</h5>
             <ul class="mb-0">
                 <% erroresAnalisis.forEach(error => { %>
-                    <% if (!/Data truncated for column/.test(error.error)) { %>
                     <li>
                         <% if (error.bitacoraId) { %>
                             Error en bitácora #<%= error.bitacoraId %>: <%= error.error %>
@@ -92,12 +117,10 @@
                             <% } %>
                         <% } %>
                     </li>
-                    <% } %>
                 <% }); %>
             </ul>
         </div>
     <% } %>
-    <% /* Estado de IBM Watson AI eliminado por solicitud del usuario */ %>
 
     <!-- Modal de Alertas -->
     <div class="modal fade" id="alertaCompromiso" tabindex="-1" aria-labelledby="alertaCompromisoLabel" aria-hidden="true">
@@ -126,273 +149,187 @@
     </div>
 
     <% if (analisisSentimientos && analisisSentimientos.sentimientoGeneral) { %>
+        <!-- Dashboard Simplificado y Centrado en lo Esencial -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>Análisis de Sentimientos - IA</h5>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Estado del Aprendiz</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h6>Score Promedio</h6>
-                                    <div class="sentiment-score sentiment-<%= analisisSentimientos.sentimientoGeneral.toLowerCase().replace('_', '-') %>">
-                                        <%= analisisSentimientos.scorePromedio ? analisisSentimientos.scorePromedio.toFixed(2) : '0.00' %>
-                                    </div>
+                        <!-- Indicador Principal Simplificado -->
+                        <div class="row mb-4">
+                            <div class="col-12 text-center">
+                                <%
+                                let estadoClase = 'secondary';
+                                let estadoIcono = '😐';
+                                let estadoMensaje = 'Sin datos suficientes';
+                                let estadoAccion = 'Continuar monitoreando';
+
+                                const score = analisisSentimientos.scorePromedio || 0;
+                                const compromiso = analisisSentimientos.nivelCompromiso || 0;
+                                const tendencia = analisisSentimientos.tendencia || 'sin_datos';
+
+                                if (score >= 2 && compromiso >= 70) {
+                                    estadoClase = 'success';
+                                    estadoIcono = '😊';
+                                    estadoMensaje = 'Estado Excelente';
+                                    estadoAccion = 'Mantener el buen trabajo';
+                                } else if (score >= 0.5 && compromiso >= 50) {
+                                    estadoClase = 'info';
+                                    estadoIcono = '🙂';
+                                    estadoMensaje = 'Estado Bueno';
+                                    estadoAccion = 'Seguimiento regular';
+                                } else if (score >= -1 && compromiso >= 30) {
+                                    estadoClase = 'warning';
+                                    estadoIcono = '😐';
+                                    estadoMensaje = 'Requiere Atención';
+                                    estadoAccion = 'Programar check-in';
+                                } else {
+                                    estadoClase = 'danger';
+                                    estadoIcono = '😟';
+                                    estadoMensaje = 'Estado Crítico';
+                                    estadoAccion = 'Acción inmediata';
+                                }
+                                %>
+                                <div class="estado-principal bg-<%= estadoClase %> text-white p-4 rounded-circle d-inline-block mb-3" style="width: 120px; height: 120px; font-size: 3rem; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                    <%= estadoIcono %>
+                                </div>
+                                <h4 class="text-<%= estadoClase %> fw-bold mb-2"><%= estadoMensaje %></h4>
+                                <p class="lead mb-4"><%= estadoAccion %></p>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores Clave Simplificados -->
+                        <div class="row text-center mb-4">
+                            <div class="col-md-4">
+                                <div class="metrica-card p-3 border rounded">
+                                    <i class="fas fa-heart fa-2x text-<%= estadoClase %> mb-2"></i>
+                                    <h6 class="fw-bold">Estado Emocional</h6>
+                                    <span class="badge bg-<%= estadoClase %> fs-6">
+                                        <%= analisisSentimientos.sentimientoGeneral.replace('_', ' ') %>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h6>Tendencia</h6>
-                                    <div class="trend-indicator <%= analisisSentimientos.tendencia ? analisisSentimientos.tendencia.toLowerCase() : 'neutral' %>">
-                                        <% if (analisisSentimientos.tendencia === 'positiva') { %>
-                                            <span class="text-success"><i class="fas fa-arrow-up"></i> Mejorando</span>
-                                        <% } else if (analisisSentimientos.tendencia === 'negativa') { %>
-                                            <span class="text-danger"><i class="fas fa-arrow-down"></i> Empeorando</span>
-                                        <% } else { %>
-                                            <span class="text-secondary"><i class="fas fa-arrows-alt-h"></i> Estable</span>
-                                        <% } %>
-                                    </div>
+                            <div class="col-md-4">
+                                <div class="metrica-card p-3 border rounded">
+                                    <%
+                                    let tendenciaIcono = 'fa-minus';
+                                    let tendenciaColor = 'secondary';
+                                    if (tendencia === 'mejorando') {
+                                        tendenciaIcono = 'fa-arrow-up';
+                                        tendenciaColor = 'success';
+                                    } else if (tendencia === 'empeorando') {
+                                        tendenciaIcono = 'fa-arrow-down';
+                                        tendenciaColor = 'danger';
+                                    }
+                                    %>
+                                    <i class="fas <%= tendenciaIcono %> fa-2x text-<%= tendenciaColor %> mb-2"></i>
+                                    <h6 class="fw-bold">Tendencia</h6>
+                                    <span class="badge bg-<%= tendenciaColor %> fs-6">
+                                        <% if (tendencia === 'mejorando') { %>Mejorando<% } else if (tendencia === 'empeorando') { %>Empeorando<% } else { %>Estable<% } %>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h6>Variabilidad</h6>
-                                    <div class="variability-indicator">
-                                        <%= (analisisSentimientos.variabilidad * 100).toFixed(1) %>%
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="text-center">
-                                    <h6>Nivel de Compromiso</h6>
-                                    <div class="engagement-level">
-                                        <%= analisisSentimientos && analisisSentimientos.nivelCompromiso ? analisisSentimientos.nivelCompromiso : 0 %>/100
-                                    </div>
+                            <div class="col-md-4">
+                                <div class="metrica-card p-3 border rounded">
+                                    <%
+                                    let compromisoIcono = 'fa-battery-half';
+                                    let compromisoColor = 'warning';
+                                    if (compromiso >= 70) {
+                                        compromisoIcono = 'fa-battery-full';
+                                        compromisoColor = 'success';
+                                    } else if (compromiso < 40) {
+                                        compromisoIcono = 'fa-battery-empty';
+                                        compromisoColor = 'danger';
+                                    }
+                                    %>
+                                    <i class="fas <%= compromisoIcono %> fa-2x text-<%= compromisoColor %> mb-2"></i>
+                                    <h6 class="fw-bold">Compromiso</h6>
+                                    <span class="badge bg-<%= compromisoColor %> fs-6"><%= Math.round(compromiso) %></span>
                                 </div>
                             </div>
                         </div>
-                        <!-- Gráfico de tendencia de scores históricos -->
-                        <% if (bitacoras && bitacoras.length > 1) { %>
-                        <div class="row mt-4">
+
+                        <!-- Gráfico de Evolución de Métricas -->
+                        <% if (analisisSentimientos && analisisSentimientos.analisisDetallado && analisisSentimientos.analisisDetallado.length > 1) { %>
+                        <div class="row mb-3">
                             <div class="col-12">
-                                <canvas id="sentimentTrendChart" height="80"></canvas>
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Evolución de Estado Emocional y Compromiso</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div style="height: 200px;">
+                                            <canvas id="metricasChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <% } %>
+
+                        <!-- Acciones Recomendadas Simplificadas -->
+                        <%
+                        let accionesRecomendadas = [];
+                        if (score < -1) {
+                            accionesRecomendadas.push({
+                                icono: 'fas fa-user-friends',
+                                texto: 'Programar reunión personal con el aprendiz',
+                                prioridad: 'danger'
+                            });
+                        }
+                        if (compromiso < 50) {
+                            accionesRecomendadas.push({
+                                icono: 'fas fa-tasks',
+                                texto: 'Revisar carga de trabajo y motivación',
+                                prioridad: 'warning'
+                            });
+                        }
+                        if (tendencia === 'empeorando') {
+                            accionesRecomendadas.push({
+                                icono: 'fas fa-search',
+                                texto: 'Identificar factores de estrés',
+                                prioridad: 'warning'
+                            });
+                        }
+                        if (score >= 2 && compromiso >= 70) {
+                            accionesRecomendadas.push({
+                                icono: 'fas fa-star',
+                                texto: 'Reconocer buen desempeño',
+                                prioridad: 'success'
+                            });
+                        }
+                        if (accionesRecomendadas.length === 0) {
+                            accionesRecomendadas.push({
+                                icono: 'fas fa-check-circle',
+                                texto: 'Mantener seguimiento regular',
+                                prioridad: 'info'
+                            });
+                        }
+                        %>
+
+                        <% if (accionesRecomendadas.length > 0) { %>
+                        <div class="acciones-recomendadas bg-light p-3 rounded mb-3">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-clipboard-check me-2"></i>Acciones Recomendadas</h6>
+                            <div class="row">
+                                <% accionesRecomendadas.forEach((accion, index) => { %>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="<%= accion.icono %> text-<%= accion.prioridad %> me-2"></i>
+                                        <small class="flex-grow-1"><%= accion.texto %></small>
+                                    </div>
+                                </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                        <% } %>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Análisis Detallado de Watson -->
-        <% if (analisisSentimientos && analisisSentimientos.analisisDetallado && analisisSentimientos.analisisDetallado.length > 0) { %>
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Análisis Detallado por Bitácora</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Desafíos</th>
-                                            <th>Logros</th>
-                                            <th>Comunicación</th>
-                                            <th>Score Promedio</th>
-                                            <th>Confianza</th>
-                                            <th>Emociones Detectadas</th>
-                                            <th>Palabras Clave</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% analisisSentimientos.analisisDetallado.forEach((analisis, index) => { %>
-                                            <tr>
-                                                <td><%= bitacoras[index] ? new Date(bitacoras[index].fechaCreacion).toLocaleDateString() : 'N/A' %></td>
-                                                <td>
-                                                    <div class="small">
-                                                        <strong>Score:</strong> <%= analisis.analisisDetallado.desafio.score.toFixed(2) %>
-                                                        <br>
-                                                        <span class="badge bg-<%= analisis.analisisDetallado.desafio.sentimiento === 'positivo' ? 'success' : 
-                                                                                analisis.analisisDetallado.desafio.sentimiento === 'negativo' ? 'danger' : 
-                                                                                'warning' %>">
-                                                            <%= analisis.analisisDetallado.desafio.sentimiento %>
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="small">
-                                                        <strong>Score:</strong> <%= analisis.analisisDetallado.logro.score.toFixed(2) %>
-                                                        <br>
-                                                        <span class="badge bg-<%= analisis.analisisDetallado.logro.sentimiento === 'positivo' ? 'success' : 
-                                                                                analisis.analisisDetallado.logro.sentimiento === 'negativo' ? 'danger' : 
-                                                                                'warning' %>">
-                                                            <%= analisis.analisisDetallado.logro.sentimiento %>
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="small">
-                                                        <strong>Score:</strong> <%= analisis.analisisDetallado.comunicacion.score.toFixed(2) %>
-                                                        <br>
-                                                        <span class="badge bg-<%= analisis.analisisDetallado.comunicacion.sentimiento === 'positivo' ? 'success' : 
-                                                                                analisis.analisisDetallado.comunicacion.sentimiento === 'negativo' ? 'danger' : 
-                                                                                'warning' %>">
-                                                            <%= analisis.analisisDetallado.comunicacion.sentimiento %>
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <strong><%= analisis.scorePromedio.toFixed(2) %></strong>
-                                                </td>
-                                                <td>
-                                                    <div class="progress" style="height: 20px;">
-                                                        <div class="progress-bar" role="progressbar" 
-                                                             style="width: <%= (analisis.confianzaGeneral * 100) %>%"
-                                                             aria-valuenow="<%= (analisis.confianzaGeneral * 100) %>" 
-                                                             aria-valuemin="0" aria-valuemax="100">
-                                                            <%= (analisis.confianzaGeneral * 100).toFixed(0) %>%
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <% if (analisis.analisisDetallado.desafio.emociones && Object.keys(analisis.analisisDetallado.desafio.emociones).length > 0) { %>
-                                                        <% Object.entries(analisis.analisisDetallado.desafio.emociones).forEach(([emotion, score]) => { %>
-                                                            <% if (score > 0.3) { %>
-                                                                <span class="badge bg-info me-1 mb-1">
-                                                                    <%= emotion %>: <%= (score * 100).toFixed(0) %>%
-                                                                </span>
-                                                            <% } %>
-                                                        <% }); %>
-                                                    <% } else { %>
-                                                        <span class="text-muted small">Sin datos</span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (analisis.analisisDetallado.desafio.palabrasClave && analisis.analisisDetallado.desafio.palabrasClave.length > 0) { %>
-                                                        <% analisis.analisisDetallado.desafio.palabrasClave.slice(0, 3).forEach(palabra => { %>
-                                                            <span class="badge bg-secondary me-1 mb-1">
-                                                                <%= palabra.text %>
-                                                            </span>
-                                                        <% }); %>
-                                                    <% } else { %>
-                                                        <span class="text-muted small">Sin datos</span>
-                                                    <% } %>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recomendaciones de Watson -->
-            <% if (analisisSentimientos.recomendaciones && analisisSentimientos.recomendaciones.length > 0) { %>
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header bg-warning text-dark">
-                                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Recomendaciones de IA</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <% analisisSentimientos.recomendaciones.forEach(recomendacion => { %>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="alert alert-<%= recomendacion.prioridad === 'alta' ? 'danger' : 
-                                                                     recomendacion.prioridad === 'media' ? 'warning' : 
-                                                                     'info' %>">
-                                                <h6 class="alert-heading">
-                                                    <i class="fas fa-<%= recomendacion.prioridad === 'alta' ? 'exclamation-triangle' : 
-                                                                       recomendacion.prioridad === 'media' ? 'info-circle' : 
-                                                                       'check-circle' %> me-2"></i>
-                                                    <%= recomendacion.area %>
-                                                </h6>
-                                                <p class="mb-2"><%= recomendacion.mensaje %></p>
-                                                <% if (recomendacion.acciones && recomendacion.acciones.length > 0) { %>
-                                                    <ul class="mb-0 small">
-                                                        <% recomendacion.acciones.forEach(accion => { %>
-                                                            <li><%= accion %></li>
-                                                        <% }); %>
-                                                    </ul>
-                                                <% } %>
-                                            </div>
-                                        </div>
-                                    <% }); %>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-
-            <!-- Entidades y Contextos Detectados -->
-            <% if (analisisSentimientos && analisisSentimientos.analisisDetallado && analisisSentimientos.analisisDetallado.length > 0) { %>
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Entidades Detectadas</h5>
-                            </div>
-                            <div class="card-body">
-                                <% 
-                                const todasLasEntidades = [];
-                                analisisSentimientos.analisisDetallado.forEach(analisis => {
-                                    if (analisis.analisisDetallado.desafio.entidades) {
-                                        todasLasEntidades.push(...analisis.analisisDetallado.desafio.entidades);
-                                    }
-                                    if (analisis.analisisDetallado.logro.entidades) {
-                                        todasLasEntidades.push(...analisis.analisisDetallado.logro.entidades);
-                                    }
-                                    if (analisis.analisisDetallado.comunicacion.entidades) {
-                                        todasLasEntidades.push(...analisis.analisisDetallado.comunicacion.entidades);
-                                    }
-                                });
-                                const entidadesUnicas = [...new Set(todasLasEntidades.map(e => e.text))];
-                                %>
-                                <% if (entidadesUnicas.length > 0) { %>
-                                    <div class="contexts-container">
-                                        <% entidadesUnicas.slice(0, 10).forEach(entidad => { %>
-                                            <span class="badge bg-primary me-1 mb-1">
-                                                <%= entidad %>
-                                            </span>
-                                        <% }); %>
-                                    </div>
-                                <% } else { %>
-                                    <p class="text-muted">No se detectaron entidades específicas.</p>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header bg-secondary text-white">
-                                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Contextos Identificados</h5>
-                            </div>
-                            <div class="card-body">
-                                <% if (analisisSentimientos.contextosGenerales && analisisSentimientos.contextosGenerales.length > 0) { %>
-                                    <div class="contexts-container">
-                                        <% analisisSentimientos.contextosGenerales.forEach(contexto => { %>
-                                            <span class="badge bg-secondary me-1 mb-1">
-                                                <%= contexto %>
-                                            </span>
-                                        <% }); %>
-                                    </div>
-                                <% } else { %>
-                                    <p class="text-muted">No se identificaron contextos específicos.</p>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-        <% } %>
     <% } else { %>
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>No hay suficientes datos para realizar un análisis de sentimientos.
@@ -414,8 +351,9 @@
                                 <h2 class="accordion-header" id="heading-<%= b.id %>">
                                     <button class="accordion-button <%= idx !== 0 ? 'collapsed' : '' %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= b.id %>" aria-expanded="<%= idx === 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= b.id %>">
                                         <strong>Bitácora del <%= new Date(b.fechaCreacion).toLocaleDateString() %></strong>
-                                        &nbsp;| Sentimiento general: <span class="badge bg-<%= b.sentimiento_general === 'positivo' ? 'success' : (b.sentimiento_general === 'negativo' ? 'danger' : 'secondary') %>"><%= b.sentimiento_general %></span>
-                                        &nbsp;| Score promedio: <%= b.score_promedio %>
+                                        <% if (b.sentimiento_general && b.sentimiento_general !== 'neutral') { %>
+                                            &nbsp;| Estado: <span class="badge bg-<%= b.sentimiento_general === 'positivo' || b.sentimiento_general === 'muy_positivo' ? 'success' : (b.sentimiento_general === 'negativo' || b.sentimiento_general === 'muy_negativo' ? 'danger' : 'warning') %>"><%= b.sentimiento_general.replace('_', ' ') %></span>
+                                        <% } %>
                                     </button>
                                 </h2>
                                 <div id="collapse-<%= b.id %>" class="accordion-collapse collapse <%= idx === 0 ? 'show' : '' %>" aria-labelledby="heading-<%= b.id %>" data-bs-parent="#bitacorasAccordion">
@@ -435,128 +373,6 @@
                                                     <div class="col-md-4 mb-2">
                                                         <strong>Comunicación:</strong>
                                                         <p class="bg-light rounded p-2"><%= b.respuesta_comunicacion %></p>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <h6 class="mb-2 text-success"><i class="fas fa-brain me-2"></i>Métricas de Watson</h6>
-                                                <div class="row">
-                                                    <div class="col-md-4 mb-2">
-                                                        <div class="border rounded p-2 mb-2">
-                                                            <strong>Score Desafío:</strong> <%= b.score_desafio %><br>
-                                                            <strong>Sentimiento:</strong> <%= b.sentimiento_desafio %><br>
-                                                            <strong>Emociones:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let emocionesDesafio = {}; if (b.emociones_desafio && b.emociones_desafio !== '{}' && b.emociones_desafio !== 'null') { try { emocionesDesafio = JSON.parse(b.emociones_desafio) || {}; } catch(e) { emocionesDesafio = {}; } } %>
-                                                                <% if (Object.keys(emocionesDesafio).length > 0) { %>
-                                                                    <% for (let emo in emocionesDesafio) { %>
-                                                                        <li><%= emo %>: <%= emocionesDesafio[emo] %></li>
-                                                                    <% } %>
-                                                                <% } else { %>
-                                                                    <li class="text-muted">Sin datos</li>
-                                                                <% } %>
-                                                            </ul>
-                                                            <strong>Entidades:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let entidadesDesafio = []; if (b.entidades_desafio) { try { entidadesDesafio = JSON.parse(b.entidades_desafio) || []; } catch(e) { entidadesDesafio = []; } } %>
-                                                                <% entidadesDesafio.forEach(function(e) { %>
-                                                                    <li><%= e.text %> (<%= e.type %>)</li>
-                                                                <% }) %>
-                                                            </ul>
-                                                            <strong>Palabras clave:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let palabrasDesafio = []; if (b.palabras_clave_desafio && b.palabras_clave_desafio !== '[]' && b.palabras_clave_desafio !== 'null') { try { palabrasDesafio = JSON.parse(b.palabras_clave_desafio) || []; } catch(e) { palabrasDesafio = []; } } %>
-                                                                <% if (palabrasDesafio.length > 0) { %>
-                                                                    <% palabrasDesafio.forEach(function(p) { %>
-                                                                        <li><%= p.text %></li>
-                                                                    <% }) %>
-                                                                <% } else { %>
-                                                                    <li class="text-muted">Sin datos</li>
-                                                                <% } %>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-2">
-                                                        <div class="border rounded p-2 mb-2">
-                                                            <strong>Score Logro:</strong> <%= b.score_logro %><br>
-                                                            <strong>Sentimiento:</strong> <%= b.sentimiento_logro %><br>
-                                                            <strong>Emociones:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let emocionesLogro = {}; if (b.emociones_logro) { try { emocionesLogro = JSON.parse(b.emociones_logro) || {}; } catch(e) { emocionesLogro = {}; } } %>
-                                                                <% for (let emo in emocionesLogro) { %>
-                                                                    <li><%= emo %>: <%= emocionesLogro[emo] %></li>
-                                                                <% } %>
-                                                            </ul>
-                                                            <strong>Entidades:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let entidadesLogro = []; if (b.entidades_logro) { try { entidadesLogro = JSON.parse(b.entidades_logro) || []; } catch(e) { entidadesLogro = []; } } %>
-                                                                <% entidadesLogro.forEach(function(e) { %>
-                                                                    <li><%= e.text %> (<%= e.type %>)</li>
-                                                                <% }) %>
-                                                            </ul>
-                                                            <strong>Palabras clave:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let palabrasLogro = []; if (b.palabras_clave_logro) { try { palabrasLogro = JSON.parse(b.palabras_clave_logro) || []; } catch(e) { palabrasLogro = []; } } %>
-                                                                <% palabrasLogro.forEach(function(p) { %>
-                                                                    <li><%= p.text %></li>
-                                                                <% }) %>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 mb-2">
-                                                        <div class="border rounded p-2 mb-2">
-                                                            <strong>Score Comunicación:</strong> <%= b.score_comunicacion %><br>
-                                                            <strong>Sentimiento:</strong> <%= b.sentimiento_comunicacion %><br>
-                                                            <strong>Emociones:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let emocionesComunicacion = {}; if (b.emociones_comunicacion) { try { emocionesComunicacion = JSON.parse(b.emociones_comunicacion) || {}; } catch(e) { emocionesComunicacion = {}; } } %>
-                                                                <% for (let emo in emocionesComunicacion) { %>
-                                                                    <li><%= emo %>: <%= emocionesComunicacion[emo] %></li>
-                                                                <% } %>
-                                                            </ul>
-                                                            <strong>Entidades:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let entidadesComunicacion = []; if (b.entidades_comunicacion) { try { entidadesComunicacion = JSON.parse(b.entidades_comunicacion) || []; } catch(e) { entidadesComunicacion = []; } } %>
-                                                                <% entidadesComunicacion.forEach(function(e) { %>
-                                                                    <li><%= e.text %> (<%= e.type %>)</li>
-                                                                <% }) %>
-                                                            </ul>
-                                                            <strong>Palabras clave:</strong>
-                                                            <ul class="mb-1">
-                                                                <% let palabrasComunicacion = []; if (b.palabras_clave_comunicacion) { try { palabrasComunicacion = JSON.parse(b.palabras_clave_comunicacion) || []; } catch(e) { palabrasComunicacion = []; } } %>
-                                                                <% palabrasComunicacion.forEach(function(p) { %>
-                                                                    <li><%= p.text %></li>
-                                                                <% }) %>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-2">
-                                                        <strong>Contextos detectados:</strong>
-                                                        <ul>
-                                                            <% let contextos = []; if (b.contextos_detectados) { try { contextos = JSON.parse(b.contextos_detectados) || []; } catch(e) { contextos = []; } } %>
-                                                            <% if (Array.isArray(contextos)) { contextos.forEach(function(c) { %>
-                                                                <li><%= c %></li>
-                                                            <% }) } else { for (let c in contextos) { %>
-                                                                <li><%= c %>: <%= contextos[c] %></li>
-                                                            <% } } %>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-md-6 mb-2">
-                                                        <strong>Recomendaciones:</strong>
-                                                        <ul>
-                                                            <% let recomendaciones = []; if (b.recomendaciones) { try { recomendaciones = JSON.parse(b.recomendaciones) || []; } catch(e) { recomendaciones = []; } } %>
-                                                            <% recomendaciones.forEach(function(r) { %>
-                                                                <li><%= r.mensaje %> <small>(<%= r.area %>, prioridad: <%= r.prioridad %>)</small></li>
-                                                            <% }) %>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-12 mt-2">
-                                                        <strong>Comentarios del instructor:</strong>
-                                                        <p class="bg-light rounded p-2"><%= b.comentarios_instructor || 'Sin comentarios' %></p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -684,189 +500,124 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Función para mostrar el modal con las alertas
-        function mostrarAlertaCompromiso(nivelCompromiso, sentimientoGeneral, tendencia) {
-            const modal = document.getElementById('alertaCompromiso');
-            const estadoDiv = document.getElementById('estadoAprendiz');
-            const accionesList = document.getElementById('accionesRecomendadas');
-            
-            let estado = '';
-            let clase = '';
-            let acciones = [];
-            
-            // Determinar estado y acciones según el nivel de compromiso
-            if (nivelCompromiso < 50) {
-                estado = '<div class="alert alert-danger">¡Atención! Nivel de compromiso bajo</div>';
-                acciones = [
-                    'Programar reunión inmediata con el aprendiz',
-                    'Revisar y ajustar el plan de seguimiento',
-                    'Identificar barreras y dificultades específicas',
-                    'Considerar apoyo adicional o recursos complementarios'
-                ];
-            } else if (nivelCompromiso < 75) {
-                estado = '<div class="alert alert-warning">Nivel de compromiso medio - Requiere atención</div>';
-                acciones = [
-                    'Programar check-in de seguimiento',
-                    'Revisar objetivos y expectativas',
-                    'Proponer estrategias de mejora',
-                    'Mantener monitoreo regular'
-                ];
-            } else {
-                estado = '<div class="alert alert-success">¡Buen nivel de compromiso!</div>';
-                acciones = [
-                    'Mantener el seguimiento regular',
-                    'Reconocer y reforzar el buen desempeño',
-                    'Identificar oportunidades de crecimiento'
-                ];
-            }
+        // Inicializar tooltips de Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
 
-            // Agregar información adicional basada en sentimiento y tendencia
-            if (sentimientoGeneral === 'negativo' && tendencia !== 'positiva') {
-                acciones.push('Evaluar posibles factores de desmotivación');
-                acciones.push('Considerar intervención del equipo de bienestar');
-            }
+        // Gráfico de evolución de métricas
+        if (document.getElementById('metricasChart')) {
+            const analisisData = <%- JSON.stringify(analisisSentimientos.analisisDetallado || []) %>;
 
-            // Actualizar el contenido del modal
-            estadoDiv.innerHTML = estado;
-            accionesList.innerHTML = acciones.map(accion => 
-                `<li class="list-group-item">
-                    <i class="fas fa-check-circle text-primary me-2"></i>
-                    ${accion}
-                </li>`
-            ).join('');
+            if (analisisData && analisisData.length > 1) {
+                // Preparar datos para el gráfico
+                const labels = analisisData.map((item, index) => `Bitácora ${index + 1}`);
+                const estadoEmocional = analisisData.map(item => item.scorePromedio || 0);
+                const compromiso = analisisData.map(item => item.nivelCompromiso || 0);
 
-            // Mostrar el modal
-            const modalBootstrap = new bootstrap.Modal(modal);
-            modalBootstrap.show();
-        }
-
-        // Mostrar el modal automáticamente solo si el sentimiento general es negativo
-        <% if (analisisSentimientos && analisisSentimientos.sentimientoGeneral === 'negativo') { %>
-            mostrarAlertaCompromiso(
-                <%= analisisSentimientos.nivelCompromiso %>,
-                '<%= analisisSentimientos.sentimientoGeneral || 'neutral' %>',
-                '<%= analisisSentimientos.tendencia || 'sin_datos' %>'
-            );
-        <% } %>
-
-        // Agregar botón para mostrar el modal manualmente
-        const compromiso = document.querySelector('.engagement-level');
-        if (compromiso) {
-            compromiso.style.cursor = 'pointer';
-            compromiso.addEventListener('click', () => {
-                mostrarAlertaCompromiso(
-                    <%= analisisSentimientos && analisisSentimientos.nivelCompromiso ? analisisSentimientos.nivelCompromiso : 0 %>,
-                    '<%= analisisSentimientos && analisisSentimientos.sentimientoGeneral ? analisisSentimientos.sentimientoGeneral : 'neutral' %>',
-                    '<%= analisisSentimientos && analisisSentimientos.tendencia ? analisisSentimientos.tendencia : 'sin_datos' %>'
-                );
-            });
-        }
-
-        <% if (analisisSentimientos && analisisSentimientos.analisisPorFecha && analisisSentimientos.analisisPorFecha.length > 0) { %>
-            // Datos para el gráfico de tendencias
-            const datosSentimientos = <%- JSON.stringify(analisisSentimientos.analisisPorFecha) %>;
-            
-            const ctx = document.getElementById('sentimentChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: datosSentimientos.map((analisis, index) => {
-                        const fecha = new Date(analisis.fecha);
-                        return fecha.toLocaleDateString('es-CO', { month: 'short', day: 'numeric' });
-                    }),
-                    datasets: [{
-                        label: 'Score de Sentimiento',
-                        data: datosSentimientos.map(analisis => analisis.scoreGeneral),
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
+                // Crear gráfico de líneas
+                const ctx = document.getElementById('metricasChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Estado Emocional',
+                            data: estadoEmocional,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgb(75, 192, 192)',
+                            yAxisID: 'y'
+                        }, {
+                            label: 'Compromiso (%)',
+                            data: compromiso,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgb(255, 99, 132)',
+                            yAxisID: 'y1'
+                        }]
                     },
-                    plugins: {
-                        legend: {
-                            display: false
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Score: ${context.parsed.y.toFixed(2)}`;
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Estado Emocional (-5 a 5)'
+                                },
+                                min: -5,
+                                max: 5,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Compromiso (%)'
+                                },
+                                min: 0,
+                                max: 100,
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.datasetIndex === 0) {
+                                            // Estado emocional
+                                            label += context.parsed.y.toFixed(1);
+                                        } else {
+                                            // Compromiso
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-        <% } %>
-        // Gráfico de tendencia de scores históricos
-        <% if (bitacoras && bitacoras.length > 1) { %>
-        const ctxTrend = document.getElementById('sentimentTrendChart').getContext('2d');
-        const trendScores = [
-            <% bitacoras.slice().reverse().forEach(function(b, idx) { %>
-                <%= typeof b.score_promedio === 'number' ? b.score_promedio.toFixed(2) : (parseFloat(b.score_promedio) || 0).toFixed(2) %><%= idx < bitacoras.length - 1 ? ',' : '' %>
-            <% }); %>
-        ];
-        const trendLabels = [
-            <% bitacoras.slice().reverse().forEach(function(b, idx) { %>
-                '<%= new Date(b.fechaCreacion).toLocaleDateString() %>'<%= idx < bitacoras.length - 1 ? ',' : '' %>
-            <% }); %>
-        ];
-        new Chart(ctxTrend, {
-            type: 'line',
-            data: {
-                labels: trendLabels,
-                datasets: [{
-                    label: 'Score de Sentimiento',
-                    data: trendScores,
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.2,
-                    fill: true,
-                    pointRadius: 4,
-                    pointBackgroundColor: 'rgb(75, 192, 192)'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `Score: ${context.parsed.y}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        min: -1,
-                        max: 1,
-                        title: { display: true, text: 'Score' }
-                    },
-                    x: {
-                        title: { display: true, text: 'Fecha' }
-                    }
-                }
+                });
             }
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar tooltips de Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-        <% } %>
+
+
     });
 </script>
 

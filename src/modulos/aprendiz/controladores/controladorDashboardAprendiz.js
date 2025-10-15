@@ -5,7 +5,7 @@ const { pool } = require('../../../configuracion/baseDatos'); // Importamos el p
 const ServicioAprendiz = require('../servicios/servicioAprendiz');
 const servicioAprendiz = new ServicioAprendiz();
 const { formatearError } = require('../../../compartido/utilidades/utilRespuestas');
-const BaseController = require('../../../compartido/controladores/baseController');
+const BaseController = require('../../compartido/controladores/baseController');
 const { aprendizSchemas } = require('../../../validaciones/esquemasValidacion');
 const path = require('path');
 const fs = require('fs');
@@ -520,8 +520,9 @@ class ControladorDashboardAprendiz extends BaseController {
         try {
             const aprendizId = req.session.userId;
 
-            // Validar datos de entrada
-            const { valido, errores, datos } = this.validate(req.body, aprendizSchemas.bitacora);
+            // Validar datos de entrada usando la función validarDatos
+            const { validarDatos } = require('../../../validaciones/esquemasValidacion');
+            const { valido, errores, datos } = validarDatos(req.body, aprendizSchemas.bitacora);
             if (!valido) {
                 return this.validationError(res, errores);
             }

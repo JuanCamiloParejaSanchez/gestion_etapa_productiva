@@ -188,6 +188,10 @@ html.dark-mode body a:hover {
     color: var(--color-secondary);
 }
 
+html.dark-mode body .text-muted-adaptable {
+    color: var(--gray-600) !important;
+}
+
 
 /* Logo SVG en tema oscuro */
 html.dark-mode body .navbar-logo {

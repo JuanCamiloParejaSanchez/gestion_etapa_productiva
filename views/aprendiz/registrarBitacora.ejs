@@ -33,7 +33,7 @@
                         const periodoActual = diaDelMes <= 15 ? 'primeros 15 días' : 'últimos 15 días';
                         const mesActual = hoy.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
                     %>
-                    <p class="card-text text-muted">
+                    <p class="card-text text-muted text-muted-adaptable">
                         Tómate un momento para reflexionar sobre los <strong><%= periodoActual %></strong> de <strong><%= mesActual %></strong>.
                         Tus respuestas son valiosas para tu seguimiento quincenal.
                     </p>
@@ -44,19 +44,28 @@
                         <!-- Pregunta 1: Desafíos -->
                         <div class="mb-4">
                             <label for="respuesta_desafio" class="form-label fw-bold">1. ¿Cuál fue el mayor desafío al que te enfrentaste esta semana y cómo lo superaste?</label>
-                            <textarea class="form-control" id="respuesta_desafio" name="respuesta_desafio" rows="5" placeholder="Describe aquí los obstáculos, los problemas que resolviste o las dificultades que encontraste..." required></textarea>
+                            <textarea class="form-control" id="respuesta_desafio" name="respuesta_desafio" rows="5" maxlength="2000" placeholder="Describe aquí los obstáculos, los problemas que resolviste o las dificultades que encontraste..." required></textarea>
+                            <div class="form-text">
+                                <small class="text-muted text-muted-adaptable">Mínimo 50 caracteres. <span id="contador-desafio" class="fw-bold">0</span> / 2000 caracteres</small>
+                            </div>
                         </div>
-                        
+
                         <!-- Pregunta 2: Logros -->
                         <div class="mb-4">
                             <label for="respuesta_logro" class="form-label fw-bold">2. Describe un logro o momento del que te sientas especialmente orgulloso/a esta semana.</label>
-                            <textarea class="form-control" id="respuesta_logro" name="respuesta_logro" rows="5" placeholder="Puede ser una tarea completada con éxito, un nuevo aprendizaje, un reconocimiento, etc." required></textarea>
+                            <textarea class="form-control" id="respuesta_logro" name="respuesta_logro" rows="5" maxlength="2000" placeholder="Puede ser una tarea completada con éxito, un nuevo aprendizaje, un reconocimiento, etc." required></textarea>
+                            <div class="form-text">
+                                <small class="text-muted text-muted-adaptable">Mínimo 50 caracteres. <span id="contador-logro" class="fw-bold">0</span> / 2000 caracteres</small>
+                            </div>
                         </div>
-                        
+
                         <!-- Pregunta 3: Comunicación -->
                         <div class="mb-4">
                             <label for="respuesta_comunicacion" class="form-label fw-bold">3. ¿Cómo ha sido la comunicación y el apoyo que has recibido de tu jefe y equipo de trabajo?</label>
-                            <textarea class="form-control" id="respuesta_comunicacion" name="respuesta_comunicacion" rows="5" placeholder="Habla sobre la colaboración, el ambiente de trabajo, la ayuda que recibiste o que ofreciste..." required></textarea>
+                            <textarea class="form-control" id="respuesta_comunicacion" name="respuesta_comunicacion" rows="5" maxlength="2000" placeholder="Habla sobre la colaboración, el ambiente de trabajo, la ayuda que recibiste o que ofreciste..." required></textarea>
+                            <div class="form-text">
+                                <small class="text-muted text-muted-adaptable">Mínimo 50 caracteres. <span id="contador-comunicacion" class="fw-bold">0</span> / 2000 caracteres</small>
+                            </div>
                         </div>
 
                         <hr>
@@ -79,7 +88,87 @@
 <script src="/js/utilidades/sessionTimeout.js"></script>
 <script>
 $(document).ready(function() {
+    // Función para actualizar contador de caracteres
+    function actualizarContador(textarea, contador) {
+        const texto = textarea.val() || '';
+        const caracteres = texto.length;
+
+        // Actualizar el número en el span del contador
+        contador.text(caracteres);
+
+        // Cambiar color del contador según límites
+        contador.removeClass('text-warning text-danger text-success');
+        if (caracteres < 50) {
+            contador.addClass('text-danger');
+        } else if (caracteres > 1800) {
+            contador.addClass('text-warning');
+        } else {
+            contador.addClass('text-success');
+        }
+
+        // Debug: mostrar en consola
+        console.log('Contador actualizado:', caracteres, 'caracteres');
+    }
+
+    // Inicializar contadores
+    const $desafio = $('#respuesta_desafio');
+    const $logro = $('#respuesta_logro');
+    const $comunicacion = $('#respuesta_comunicacion');
+
+    const $contadorDesafio = $('#contador-desafio');
+    const $contadorLogro = $('#contador-logro');
+    const $contadorComunicacion = $('#contador-comunicacion');
+
+    // Eventos para actualizar contadores en tiempo real
+    $desafio.on('input keyup paste', function() {
+        actualizarContador($desafio, $contadorDesafio);
+    });
+    $logro.on('input keyup paste', function() {
+        actualizarContador($logro, $contadorLogro);
+    });
+    $comunicacion.on('input keyup paste', function() {
+        actualizarContador($comunicacion, $contadorComunicacion);
+    });
+
+    // Inicializar contadores con valores actuales
+    actualizarContador($desafio, $contadorDesafio);
+    actualizarContador($logro, $contadorLogro);
+    actualizarContador($comunicacion, $contadorComunicacion);
+
+    // Debug inicial
+    console.log('Contadores inicializados');
+
+    // Validación antes del envío
     $('form').on('submit', async function(event) {
+        const formData = {
+            respuestaDesafio: $desafio.val(),
+            respuestaLogro: $logro.val(),
+            respuestaComunicacion: $comunicacion.val()
+        };
+
+        // Validar longitudes mínimas
+        const errores = [];
+        if ((formData.respuestaDesafio || '').length < 50) {
+            errores.push('La respuesta del desafío debe tener al menos 50 caracteres');
+        }
+        if ((formData.respuestaLogro || '').length < 50) {
+            errores.push('La respuesta del logro debe tener al menos 50 caracteres');
+        }
+        if ((formData.respuestaComunicacion || '').length < 50) {
+            errores.push('La respuesta de comunicación debe tener al menos 50 caracteres');
+        }
+
+        if (errores.length > 0) {
+            event.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validación',
+                html: errores.join('<br>'),
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+
         event.preventDefault(); // Evita el envío tradicional del formulario
 
         const form = $(this);
@@ -90,12 +179,6 @@ $(document).ready(function() {
         submitButton.prop('disabled', true).html(
             '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...'
         );
-
-        const formData = {
-            respuestaDesafio: $('#respuesta_desafio').val(),
-            respuestaLogro: $('#respuesta_logro').val(),
-            respuestaComunicacion: $('#respuesta_comunicacion').val()
-        };
 
         try {
             const response = await fetch(form.attr('action'), {

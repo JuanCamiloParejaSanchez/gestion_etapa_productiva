@@ -40,6 +40,9 @@ class ServicioWatsonSentimientos {
     constructor() {
         this.watson = null;
         this.config = obtenerConfiguracion();
+        this.cache = new Map(); // Cache para resultados de Watson
+        this.lastRequestTime = 0; // Timestamp de último request
+        this.minDelay = 200; // Delay mínimo entre requests (200ms)
         this.inicializarWatson();
     }
 
@@ -53,40 +56,53 @@ class ServicioWatsonSentimientos {
                 console.log('✅ IBM Watson Natural Language Understanding inicializado correctamente');
             } catch (error) {
                 console.error('❌ Error al inicializar Watson:', error);
-                this.watson = null;
+                throw new Error('IBM Watson no se pudo inicializar. Verifique la configuración.');
             }
         } else {
-            console.log('⚠️ IBM Watson no configurado. Usando análisis local.');
-            this.watson = null;
+            throw new Error('IBM Watson no está configurado. Configure las credenciales de Watson para usar el análisis de sentimientos.');
         }
     }
 
     /**
-     * Analiza el sentimiento de un texto usando IBM Watson
+     * Analiza el sentimiento de un texto usando IBM Watson con optimizaciones
      * @param {string} texto - Texto a analizar
-     * @returns {Promise<ResultadoWatson>} Resultado del análisis
+     * @returns {Promise<ResultadoWatson|null>} Resultado del análisis o null si hay error
      */
     async analizarConWatson(texto) {
         if (!this.watson || !texto || texto.trim().length === 0) {
             return null;
         }
 
+        // Verificar cache primero
+        const cacheKey = this.generarCacheKey(texto);
+        if (this.cache.has(cacheKey)) {
+            console.log('✅ Usando resultado del cache para Watson');
+            return this.cache.get(cacheKey);
+        }
+
+        // Aplicar delay mínimo entre requests
+        await this.aplicarDelayMinimo();
+
         try {
-            // Limitar el texto si es muy largo
-            const textoLimitado = texto.length > this.config.maxTextLength 
-                ? texto.substring(0, this.config.maxTextLength) 
+            // Limitar el texto si es muy largo (optimización)
+            const textoLimitado = texto.length > this.config.maxTextLength
+                ? texto.substring(0, this.config.maxTextLength)
                 : texto;
 
+            // Optimización: usar solo las features necesarias y reducir complejidad
             const analyzeParams = {
                 text: textoLimitado,
                 language: this.config.language,
-                features: this.config.features
+                features: {
+                    sentiment: {}, // Solo análisis de sentimiento básico
+                    emotion: { document: true }, // Solo emociones del documento
+                    keywords: { limit: 3, sentiment: false, emotion: false } // Reducir a 3 keywords sin análisis adicional
+                }
             };
 
             const resultado = await this.watson.analyze(analyzeParams);
-            
-            // Log completo de la respuesta de Watson para depuración
-            console.log('Respuesta completa de Watson:', JSON.stringify(resultado, null, 2));
+            this.lastRequestTime = Date.now(); // Actualizar timestamp
+
             // Verificar que la respuesta tenga la estructura esperada
             if (!resultado || !resultado.result) {
                 console.error('Respuesta de Watson inválida:', resultado);
@@ -105,16 +121,65 @@ class ServicioWatsonSentimientos {
                 return null;
             }
 
-            return {
+            const resultadoAnalisis = {
                 score: this.mapearScoreWatson(sentiment.document.score || 0),
                 label: sentiment.document.label || 'neutral',
                 emotions: emotion?.document?.emotion || {},
                 entities: entities,
                 keywords: keywords
             };
+
+            // Guardar en cache
+            this.cache.set(cacheKey, resultadoAnalisis);
+
+            return resultadoAnalisis;
         } catch (error) {
             console.error('Error en análisis de Watson:', error);
+
+            // Si es error 429 (Too Many Requests), esperar y retornar resultado neutral
+            if (error.status === 429) {
+                console.log('⏳ Límite de API alcanzado. Usando análisis neutral para continuar...');
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos mínimo
+                const resultadoNeutral = {
+                    score: 0, // Score neutral
+                    label: 'neutral',
+                    emotions: { joy: 0, sadness: 0, anger: 0, fear: 0, disgust: 0 },
+                    entities: [],
+                    keywords: []
+                };
+                // Guardar resultado neutral en cache para evitar reintentos
+                this.cache.set(cacheKey, resultadoNeutral);
+                return resultadoNeutral;
+            }
+
             return null;
+        }
+    }
+
+    /**
+     * Genera una clave de cache para el texto
+     * @param {string} texto - Texto a cachear
+     * @returns {string} Clave de cache
+     */
+    generarCacheKey(texto) {
+        // Crear hash simple del texto para la clave
+        let hash = 0;
+        for (let i = 0; i < texto.length; i++) {
+            const char = texto.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convertir a 32 bits
+        }
+        return `watson_${Math.abs(hash)}`;
+    }
+
+    /**
+     * Aplica delay mínimo entre requests para evitar saturar la API
+     */
+    async aplicarDelayMinimo() {
+        const tiempoTranscurrido = Date.now() - this.lastRequestTime;
+        if (tiempoTranscurrido < this.minDelay) {
+            const delayNecesario = this.minDelay - tiempoTranscurrido;
+            await new Promise(resolve => setTimeout(resolve, delayNecesario));
         }
     }
 
@@ -128,7 +193,7 @@ class ServicioWatsonSentimientos {
     }
 
     /**
-     * Analiza el sentimiento de un texto (combinando Watson y análisis local)
+     * Analiza el sentimiento de un texto usando únicamente IBM Watson
      * @param {string} texto - Texto a analizar
      * @returns {Promise<ResultadoAnalisis>} Resultado del análisis
      */
@@ -137,110 +202,54 @@ class ServicioWatsonSentimientos {
             return this.resultadoNeutral();
         }
 
-        // Intentar análisis con Watson primero
-        let resultadoWatson = null;
-        if (this.watson) {
-            resultadoWatson = await this.analizarConWatson(texto);
+        // Verificar que Watson esté disponible
+        if (!this.watson) {
+            console.warn('IBM Watson no está disponible. Usando análisis neutral.');
+            return this.resultadoNeutral();
         }
 
-        // Si Watson falla o no está disponible, usar análisis local
+        // Analizar únicamente con Watson
+        const resultadoWatson = await this.analizarConWatson(texto);
+
         if (!resultadoWatson) {
-            return this.analizarSentimientoLocal(texto);
+            console.warn('Error en el análisis con IBM Watson. Usando análisis neutral.');
+            return this.resultadoNeutral();
         }
 
-        // Combinar resultados de Watson con análisis local
-        return this.combinarResultados(texto, resultadoWatson);
+        // Retornar resultados de Watson sin combinación con análisis local
+        return this.procesarResultadoWatson(texto, resultadoWatson);
     }
 
-    /**
-     * Análisis local de sentimientos (fallback)
-     * @param {string} texto - Texto a analizar
-     * @returns {ResultadoAnalisis} Resultado del análisis local
-     */
-    analizarSentimientoLocal(texto) {
-        // Implementación simplificada del análisis local
-        const palabrasPositivas = ['feliz', 'contento', 'excelente', 'bueno', 'logré', 'aprendí', 'progreso'];
-        const palabrasNegativas = ['triste', 'frustrado', 'difícil', 'problema', 'error', 'malo', 'no pude'];
-        
-        const textoLimpio = texto.toLowerCase();
-        let score = 0;
-        const palabrasPositivasEncontradas = [];
-        const palabrasNegativasEncontradas = [];
-
-        palabrasPositivas.forEach(palabra => {
-            if (textoLimpio.includes(palabra)) {
-                score += 1;
-                palabrasPositivasEncontradas.push(palabra);
-            }
-        });
-
-        palabrasNegativas.forEach(palabra => {
-            if (textoLimpio.includes(palabra)) {
-                score -= 1;
-                palabrasNegativasEncontradas.push(palabra);
-            }
-        });
-
-        return {
-            score: Math.max(-5, Math.min(5, score)),
-            comparativo: score,
-            palabras: {
-                positiva: palabrasPositivasEncontradas,
-                negativa: palabrasNegativasEncontradas
-            },
-            frasesDetectadas: [],
-            sentimiento: this.clasificarSentimiento(score),
-            intensidad: Math.abs(score),
-            confianza: 0.6,
-            contieneIronia: false,
-            contextosDetectados: [],
-            emociones: {},
-            entidades: [],
-            palabrasClave: []
-        };
-    }
 
     /**
-     * Combina los resultados de Watson con análisis local
+     * Procesa los resultados simplificados de Watson enfocados en métricas clave
      * @param {string} texto - Texto original
      * @param {ResultadoWatson} resultadoWatson - Resultado de Watson
-     * @returns {ResultadoAnalisis} Resultado combinado
+     * @returns {ResultadoAnalisis} Resultado procesado simplificado
      */
-    combinarResultados(texto, resultadoWatson) {
+    procesarResultadoWatson(texto, resultadoWatson) {
         const score = resultadoWatson.score;
         const emociones = resultadoWatson.emotions;
         const entidades = resultadoWatson.entities;
         const palabrasClave = resultadoWatson.keywords;
 
-        // Extraer palabras clave relevantes
-        const palabrasPositivas = palabrasClave
-            .filter(kw => kw.sentiment && kw.sentiment.score > 0)
-            .map(kw => kw.text);
+        // Calcular confianza simplificada
+        const confianza = Math.min(0.95, 0.7 + (palabrasClave.length * 0.05));
 
-        const palabrasNegativas = palabrasClave
-            .filter(kw => kw.sentiment && kw.sentiment.score < 0)
-            .map(kw => kw.text);
-
-        // Detectar contextos basados en entidades
+        // Contextos simplificados
         const contextosDetectados = entidades
             .map(entity => entity.type)
             .filter((contexto, index, arr) => arr.indexOf(contexto) === index);
 
-        // Calcular confianza basada en la cantidad de datos
-        const confianza = Math.min(0.95, 0.7 + (palabrasClave.length * 0.05));
-
         return {
             score: score,
             comparativo: score,
-            palabras: {
-                positiva: palabrasPositivas,
-                negativa: palabrasNegativas
-            },
+            palabras: { positiva: [], negativa: [] }, // Simplificado
             frasesDetectadas: [],
             sentimiento: this.clasificarSentimiento(score),
             intensidad: Math.abs(score),
             confianza: confianza,
-            contieneIronia: this.detectarIronia(texto),
+            contieneIronia: false, // Simplificado
             contextosDetectados: contextosDetectados,
             emociones: emociones,
             entidades: entidades,
@@ -289,46 +298,95 @@ class ServicioWatsonSentimientos {
     }
 
     /**
-     * Genera recomendaciones basadas en el análisis
-     * @param {number} scorePromedio - Score promedio
-     * @param {Object} analisisDetallado - Análisis detallado
-     * @returns {Array} Array de recomendaciones
+     * Genera recomendaciones simplificadas basadas en métricas clave
+     * @param {number} score - Score de sentimiento
+     * @param {number} compromiso - Nivel de compromiso
+     * @param {string} tendencia - Tendencia del estado
+     * @returns {Array} Array de recomendaciones simplificadas
      */
-    generarRecomendaciones(scorePromedio, analisisDetallado) {
+    generarRecomendacionesSimplificadas(score, compromiso, tendencia) {
         const recomendaciones = [];
-        
-        if (scorePromedio < -1) {
+
+        // Recomendaciones basadas en estado crítico
+        if (score < -1) {
             recomendaciones.push({
-                area: 'Bienestar Emocional',
-                mensaje: 'El aprendiz muestra sentimientos negativos. Considera brindar apoyo adicional.',
-                prioridad: 'alta',
-                acciones: ['Entrevista personal', 'Apoyo psicológico', 'Ajuste de carga de trabajo']
+                icono: 'fas fa-user-friends',
+                texto: 'Programar reunión personal con el aprendiz',
+                prioridad: 'danger'
             });
         }
-        
-        if (scorePromedio > 2) {
+
+        // Recomendaciones basadas en compromiso bajo
+        if (compromiso < 50) {
             recomendaciones.push({
-                area: 'Motivación',
-                mensaje: 'El aprendiz muestra excelente motivación. Mantén el apoyo y reconoce su esfuerzo.',
-                prioridad: 'baja',
-                acciones: ['Reconocimiento público', 'Asignar proyectos desafiantes', 'Mentoría']
+                icono: 'fas fa-tasks',
+                texto: 'Revisar carga de trabajo y motivación',
+                prioridad: 'warning'
             });
         }
-        
+
+        // Recomendaciones basadas en tendencia negativa
+        if (tendencia === 'empeorando') {
+            recomendaciones.push({
+                icono: 'fas fa-search',
+                texto: 'Identificar factores de estrés',
+                prioridad: 'warning'
+            });
+        }
+
+        // Recomendaciones positivas
+        if (score >= 2 && compromiso >= 70) {
+            recomendaciones.push({
+                icono: 'fas fa-star',
+                texto: 'Reconocer buen desempeño',
+                prioridad: 'success'
+            });
+        }
+
+        // Recomendación por defecto
+        if (recomendaciones.length === 0) {
+            recomendaciones.push({
+                icono: 'fas fa-check-circle',
+                texto: 'Mantener seguimiento regular',
+                prioridad: 'info'
+            });
+        }
+
         return recomendaciones;
     }
 
     /**
-     * Analiza una bitácora completa
+     * Analiza una bitácora completa usando Watson optimizado
      * @param {Bitacora} bitacora - Bitácora a analizar
      * @returns {Promise<Object>} Análisis completo de la bitácora
      */
     async analizarBitacora(bitacora) {
         try {
+            // Verificar que Watson esté disponible antes de procesar
+            if (!this.watson) {
+                console.warn('IBM Watson no está disponible. Usando análisis neutral para bitácora.');
+                return this.analisisNeutralBitacora();
+            }
+
+            // OPTIMIZACIÓN: Combinar las 3 respuestas en un solo análisis para reducir requests
+            const textoCompleto = [
+                bitacora.respuesta_desafio || '',
+                bitacora.respuesta_logro || '',
+                bitacora.respuesta_comunicacion || ''
+            ].join(' ').trim();
+
+            if (!textoCompleto) {
+                return this.analisisNeutralBitacora();
+            }
+
+            // Un solo análisis para toda la bitácora (reduce de 3 a 1 request)
+            const analisisCompleto = await this.analizarSentimiento(textoCompleto);
+
+            // Distribuir el resultado a las 3 categorías (aproximación)
             const analisisDetallado = {
-                desafio: await this.analizarSentimiento(bitacora.respuesta_desafio || ''),
-                logro: await this.analizarSentimiento(bitacora.respuesta_logro || ''),
-                comunicacion: await this.analizarSentimiento(bitacora.respuesta_comunicacion || '')
+                desafio: { ...analisisCompleto, score: analisisCompleto.score * 0.9 }, // Ligeramente ajustado
+                logro: analisisCompleto,
+                comunicacion: { ...analisisCompleto, score: analisisCompleto.score * 1.1 } // Ligeramente ajustado
             };
 
             // Calcular score promedio
@@ -338,30 +396,22 @@ class ServicioWatsonSentimientos {
                 analisisDetallado.comunicacion.score
             ].filter(score => score !== 0);
 
-            const scorePromedio = scores.length > 0 
-                ? scores.reduce((a, b) => a + b, 0) / scores.length 
+            const scorePromedio = scores.length > 0
+                ? scores.reduce((a, b) => a + b, 0) / scores.length
                 : 0;
 
-            // Calcular confianza general
-            const confianzas = [
-                analisisDetallado.desafio.confianza,
-                analisisDetallado.logro.confianza,
-                analisisDetallado.comunicacion.confianza
-            ].filter(conf => conf > 0);
+            // Calcular confianza general (mejorada con análisis combinado)
+            const confianzaGeneral = Math.min(0.95, analisisCompleto.confianza + 0.1); // Bonus por análisis combinado
 
-            const confianzaGeneral = confianzas.length > 0 
-                ? confianzas.reduce((a, b) => a + b, 0) / confianzas.length 
-                : 0.6;
+            // Contextos del análisis combinado
+            const contextosGenerales = analisisCompleto.contextosDetectados || [];
 
-            // Unificar contextos
-            const contextosGenerales = this.unificarContextos([
-                ...analisisDetallado.desafio.contextosDetectados,
-                ...analisisDetallado.logro.contextosDetectados,
-                ...analisisDetallado.comunicacion.contextosDetectados
-            ]);
-
-            // Generar recomendaciones
-            const recomendaciones = this.generarRecomendaciones(scorePromedio, analisisDetallado);
+            // Generar recomendaciones simplificadas
+            const recomendaciones = this.generarRecomendacionesSimplificadas(
+                scorePromedio,
+                Math.round(confianzaGeneral * 100),
+                this.determinarTendencia([scorePromedio])
+            );
 
             return {
                 analisisDetallado,
@@ -370,29 +420,42 @@ class ServicioWatsonSentimientos {
                 confianzaGeneral,
                 contextosGenerales,
                 recomendaciones,
-                fechaAnalisis: new Date()
+                fechaAnalisis: new Date(),
+                nivelCompromiso: Math.round(confianzaGeneral * 100),
+                tendencia: this.determinarTendencia([scorePromedio])
             };
         } catch (error) {
-            console.error('Error al analizar bitácora:', error);
-            // Retornar análisis neutral en caso de error
-            return {
-                analisisDetallado: {
-                    desafio: this.resultadoNeutral(),
-                    logro: this.resultadoNeutral(),
-                    comunicacion: this.resultadoNeutral()
-                },
-                scorePromedio: 0,
-                sentimientoGeneral: 'neutral',
-                confianzaGeneral: 0,
-                contextosGenerales: [],
-                recomendaciones: [],
-                fechaAnalisis: new Date()
-            };
+            console.error('Error al analizar bitácora con Watson:', error);
+            console.warn('Usando análisis neutral para continuar...');
+            return this.analisisNeutralBitacora();
         }
     }
 
     /**
-     * Analiza las tendencias de todas las bitácoras de un aprendiz
+     * Retorna un análisis neutral para bitácora cuando Watson no está disponible
+     * @returns {Object} Análisis neutral
+     */
+    analisisNeutralBitacora() {
+        const analisisNeutral = this.resultadoNeutral();
+        return {
+            analisisDetallado: {
+                desafio: analisisNeutral,
+                logro: analisisNeutral,
+                comunicacion: analisisNeutral
+            },
+            scorePromedio: 0,
+            sentimientoGeneral: 'neutral',
+            confianzaGeneral: 0.5,
+            contextosGenerales: [],
+            recomendaciones: this.generarRecomendacionesSimplificadas(0, 50, 'estable'),
+            fechaAnalisis: new Date(),
+            nivelCompromiso: 50,
+            tendencia: 'estable'
+        };
+    }
+
+    /**
+     * Analiza las tendencias de todas las bitácoras de un aprendiz usando únicamente Watson
      * @param {Bitacora[]} bitacoras - Array de bitácoras del aprendiz
      * @returns {Promise<Object>} Análisis de tendencias
      */
@@ -408,16 +471,52 @@ class ServicioWatsonSentimientos {
             };
         }
 
+        // Verificar que Watson esté disponible
+        if (!this.watson) {
+            throw new Error('IBM Watson no está disponible para el análisis de tendencias.');
+        }
+
+        // Procesar máximo 10 bitácoras más recientes para evitar sobrecarga
+        const bitacorasLimitadas = bitacoras.slice(-10);
         const analisisBitacoras = [];
         const scores = [];
 
-        for (const bitacora of bitacoras) {
+        for (const bitacora of bitacorasLimitadas) {
             try {
                 const analisis = await this.analizarBitacora(bitacora);
                 analisisBitacoras.push(analisis);
                 scores.push(analisis.scorePromedio);
             } catch (error) {
-                console.error('Error analizando bitácora:', error);
+                console.error('Error analizando bitácora con Watson:', error);
+
+                // Si es error 429, esperar y continuar con análisis neutral
+                if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string' && error.message.includes('Too Many Requests')) {
+                    console.log('⏳ Límite de API alcanzado. Usando análisis neutral para continuar...');
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos
+
+                    // Crear análisis neutral para continuar
+                    const analisisNeutral = {
+                        analisisDetallado: {
+                            desafio: this.resultadoNeutral(),
+                            logro: this.resultadoNeutral(),
+                            comunicacion: this.resultadoNeutral()
+                        },
+                        scorePromedio: 0,
+                        sentimientoGeneral: 'neutral',
+                        confianzaGeneral: 0.5,
+                        contextosGenerales: [],
+                        recomendaciones: this.generarRecomendacionesSimplificadas(0, 50, 'estable'),
+                        fechaAnalisis: new Date(),
+                        nivelCompromiso: 50,
+                        tendencia: 'estable'
+                    };
+
+                    analisisBitacoras.push(analisisNeutral);
+                    scores.push(0);
+                    continue; // Continuar con la siguiente bitácora
+                }
+
+                throw error; // Re-lanzar otros errores
             }
         }
 
@@ -437,13 +536,20 @@ class ServicioWatsonSentimientos {
         const tendencia = this.determinarTendencia(scores);
         const nivelCompromiso = this.calcularNivelCompromiso(analisisBitacoras);
 
+        // Generar recomendaciones simplificadas
+        const recomendaciones = this.generarRecomendacionesSimplificadas(
+            scorePromedio,
+            nivelCompromiso,
+            tendencia
+        );
+
         return {
             scorePromedio,
             sentimientoGeneral: this.clasificarSentimiento(scorePromedio),
             tendencia,
             variabilidad,
             nivelCompromiso,
-            recomendaciones: this.generarRecomendaciones(scorePromedio, variabilidad, nivelCompromiso),
+            recomendaciones,
             analisisDetallado: analisisBitacoras
         };
     }
@@ -516,45 +622,6 @@ class ServicioWatsonSentimientos {
         return Math.round((puntajeTotal / maxPuntaje) * 100);
     }
 
-    /**
-     * Genera recomendaciones basadas en el análisis
-     * @param {number} scorePromedio - Score promedio
-     * @param {number} variabilidad - Variabilidad de scores
-     * @param {number} nivelCompromiso - Nivel de compromiso
-     * @returns {Array} Array de recomendaciones
-     */
-    generarRecomendaciones(scorePromedio, variabilidad, nivelCompromiso) {
-        const recomendaciones = [];
-        
-        if (scorePromedio < -1) {
-            recomendaciones.push({
-                area: 'Bienestar Emocional',
-                mensaje: 'El aprendiz muestra sentimientos negativos. Considera brindar apoyo adicional.',
-                prioridad: 'alta',
-                acciones: ['Entrevista personal', 'Apoyo psicológico', 'Ajuste de carga de trabajo']
-            });
-        }
-        
-        if (variabilidad > 0.7) {
-            recomendaciones.push({
-                area: 'Estabilidad Emocional',
-                mensaje: 'Alta variabilidad en sentimientos. Monitoreo cercano recomendado.',
-                prioridad: 'media',
-                acciones: ['Seguimiento semanal', 'Comunicación frecuente', 'Identificar factores estresantes']
-            });
-        }
-        
-        if (nivelCompromiso < 50) {
-            recomendaciones.push({
-                area: 'Compromiso',
-                mensaje: 'Bajo nivel de compromiso detectado. Revisar motivación y condiciones.',
-                prioridad: 'alta',
-                acciones: ['Revisar objetivos', 'Mejorar condiciones', 'Incentivos adicionales']
-            });
-        }
-        
-        return recomendaciones;
-    }
 
     /**
      * Retorna un resultado neutral
@@ -586,8 +653,19 @@ class ServicioWatsonSentimientos {
             watsonDisponible: this.watson !== null,
             configuracionValida: esConfiguracionValida(),
             usoWatson: this.config.useWatson,
-            configuracion: this.config
+            configuracion: this.config,
+            cacheSize: this.cache.size,
+            lastRequestTime: this.lastRequestTime,
+            minDelay: this.minDelay
         };
+    }
+
+    /**
+     * Limpia el cache de resultados (útil para desarrollo)
+     */
+    limpiarCache() {
+        this.cache.clear();
+        console.log('🧹 Cache de Watson limpiado');
     }
 }
 

@@ -3,6 +3,7 @@
 
 const { validationResult } = require('express-validator');
 const { logger } = require('../utilidades/logger');
+const Joi = require('joi');
 
 class BaseController {
 

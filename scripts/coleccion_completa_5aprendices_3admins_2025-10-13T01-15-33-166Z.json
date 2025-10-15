@@ -1,0 +1,447 @@
+{
+  "info": {
+    "name": "Sistema Gestión Etapa Productiva - Datos de Prueba",
+    "description": "Colección completa para insertar usuarios de prueba y probar endpoints del sistema",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "👤 Administradores",
+      "item": [
+        {
+          "name": "🔐 Login Administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin1@sena.edu.co\",\n  \"password\": \"AdminSena2025*\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Admin 1 - CARLOS RODRÍGUEZ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"CARLOS RODRÍGUEZ\",\n  \"correoInstitucional\": \"carlos.rodríguez@sena.edu.co\",\n  \"numeroIdentificacion\": \"10446615\",\n  \"telefono\": \"3364239519\",\n  \"departamento\": \"SEGUIMIENTO A EGRESADOS\",\n  \"cargo\": \"COORDINADOR DE PRÁCTICAS\",\n  \"contrasena\": \"AdminSena2025*\",\n  \"confirmarContrasena\": \"AdminSena2025*\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-administrador",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-administrador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Admin 2 - ANA GONZÁLEZ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"ANA GONZÁLEZ\",\n  \"correoInstitucional\": \"ana.gonzález@sena.edu.co\",\n  \"numeroIdentificacion\": \"10605580\",\n  \"telefono\": \"3831834153\",\n  \"departamento\": \"ADMINISTRACIÓN\",\n  \"cargo\": \"COORDINADOR DE SEGUIMIENTO\",\n  \"contrasena\": \"AdminSena2025*\",\n  \"confirmarContrasena\": \"AdminSena2025*\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-administrador",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-administrador"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Admin 3 - LUIS MARTÍNEZ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCompleto\": \"LUIS MARTÍNEZ\",\n  \"correoInstitucional\": \"luis.martínez@sena.edu.co\",\n  \"numeroIdentificacion\": \"10960754\",\n  \"telefono\": \"3757365566\",\n  \"departamento\": \"CALIDAD\",\n  \"cargo\": \"INSTRUCTOR LÍDER\",\n  \"contrasena\": \"AdminSena2025*\",\n  \"confirmarContrasena\": \"AdminSena2025*\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-administrador",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-administrador"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎓 Aprendices",
+      "item": [
+        {
+          "name": "➕ Registrar Aprendiz 1 - FELIPE ROMERO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": \"PEP\",\n  \"numeroDocumento\": \"26050215\",\n  \"estadoFormacion\": \"Retirado\",\n  \"nombres\": \"FELIPE\",\n  \"primerApellido\": \"ROMERO\",\n  \"segundoApellido\": null,\n  \"fechaNacimiento\": \"1992-03-26\",\n  \"eps\": \"COMFAMA\",\n  \"telefonoFijo\": null,\n  \"celular\": \"3466358831\",\n  \"direccion\": \"CRA 36 #7-21\",\n  \"barrio\": \"LA SOLEDAD\",\n  \"departamento\": \"BOLÍVAR\",\n  \"municipio\": \"MAGANGUÉ\",\n  \"correoElectronico\": \"felipe.romero0@gmail.com\",\n  \"fechaInicioLectiva\": \"2023-12-17\",\n  \"fechaFinLectiva\": \"2024-12-16\",\n  \"fechaInicioProductiva\": \"2025-01-15\",\n  \"fechaFinProductiva\": \"2025-07-14\",\n  \"instructorLectiva\": \"FERNANDO DÍAZ\",\n  \"instructorProductiva\": \"JORGE GARCÍA\",\n  \"numeroFicha\": \"5394107\",\n  \"programaFormacion\": \"tecnoEntrenamientoDeportivo\",\n  \"alternativaSeleccionada\": \"monitoria\",\n  \"areaFormacion\": \"no\",\n  \"empresaPatrocinadora\": \"GRUPO TELECOM S.A.\",\n  \"areaPractica\": null,\n  \"jefeInmediato\": \"GLORIA ORTEGA\",\n  \"telefonoEmpresa\": \"7042540\",\n  \"celularEmpresa\": null,\n  \"direccionEmpresa\": \"CRA 17 #91-3\",\n  \"correoEmpresa\": \"empresa0@empresa.com\",\n  \"horario\": \"11:00 - 21:00\",\n  \"estado\": \"inactivo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-aprendiz",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-aprendiz"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Aprendiz 2 - RODRIGO PÉREZ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": \"TI\",\n  \"numeroDocumento\": \"17021359\",\n  \"estadoFormacion\": \"Culminado\",\n  \"nombres\": \"RODRIGO\",\n  \"primerApellido\": \"PÉREZ\",\n  \"segundoApellido\": \"MARTÍNEZ\",\n  \"fechaNacimiento\": \"1998-10-13\",\n  \"eps\": \"EMSSANAR\",\n  \"telefonoFijo\": \"9735899\",\n  \"celular\": \"3721228443\",\n  \"direccion\": \"CRA 93 #76-90\",\n  \"barrio\": \"OESTE\",\n  \"departamento\": \"ATLÁNTICO\",\n  \"municipio\": \"MALAMBO\",\n  \"correoElectronico\": \"rodrigo.pérez1@yahoo.com\",\n  \"fechaInicioLectiva\": \"2023-03-14\",\n  \"fechaFinLectiva\": \"2024-03-13\",\n  \"fechaInicioProductiva\": \"2024-04-12\",\n  \"fechaFinProductiva\": \"2024-10-09\",\n  \"instructorLectiva\": \"CARLOS RODRÍGUEZ\",\n  \"instructorProductiva\": \"GLORIA ORTEGA\",\n  \"numeroFicha\": \"1954434\",\n  \"programaFormacion\": \"tecnoEntrenamientoDeportivo\",\n  \"alternativaSeleccionada\": \"vinculoLaboral\",\n  \"areaFormacion\": \"no\",\n  \"empresaPatrocinadora\": \"BANCO COLOMBIA S.A.\",\n  \"areaPractica\": \"CALIDAD\",\n  \"jefeInmediato\": \"DIANA TORRES\",\n  \"telefonoEmpresa\": \"2855374\",\n  \"celularEmpresa\": \"3573698916\",\n  \"direccionEmpresa\": null,\n  \"correoEmpresa\": \"empresa1@empresa.com\",\n  \"horario\": \"15:00 - 12:00\",\n  \"estado\": \"activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-aprendiz",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-aprendiz"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Aprendiz 3 - ISABELLA HERNÁNDEZ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": \"CE\",\n  \"numeroDocumento\": \"12485950\",\n  \"estadoFormacion\": \"Suspendido\",\n  \"nombres\": \"ISABELLA\",\n  \"primerApellido\": \"HERNÁNDEZ\",\n  \"segundoApellido\": null,\n  \"fechaNacimiento\": \"1997-04-26\",\n  \"eps\": \"COMFENALCO SANTANDER\",\n  \"telefonoFijo\": \"5104553\",\n  \"celular\": \"3162122641\",\n  \"direccion\": \"CRA 34 #51-21\",\n  \"barrio\": \"EL PARAÍSO\",\n  \"departamento\": \"SANTANDER\",\n  \"municipio\": \"PIEDECUESTA\",\n  \"correoElectronico\": \"isabella.hernández2@outlook.com\",\n  \"fechaInicioLectiva\": \"2023-01-22\",\n  \"fechaFinLectiva\": \"2024-01-22\",\n  \"fechaInicioProductiva\": \"2024-02-21\",\n  \"fechaFinProductiva\": \"2024-08-19\",\n  \"instructorLectiva\": \"CLAUDIA MORENO\",\n  \"instructorProductiva\": \"CLAUDIA MORENO\",\n  \"numeroFicha\": \"1310856\",\n  \"programaFormacion\": \"tecnoActividadFisica\",\n  \"alternativaSeleccionada\": \"monitoria\",\n  \"areaFormacion\": \"si\",\n  \"empresaPatrocinadora\": \"BANCO BBVA COLOMBIA S.A.\",\n  \"areaPractica\": null,\n  \"jefeInmediato\": \"MARÍA GONZÁLEZ\",\n  \"telefonoEmpresa\": null,\n  \"celularEmpresa\": \"3797366806\",\n  \"direccionEmpresa\": null,\n  \"correoEmpresa\": \"empresa2@empresa.com\",\n  \"horario\": \"14:00 - 19:00\",\n  \"estado\": \"pendiente\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-aprendiz",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-aprendiz"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Aprendiz 4 - ANDRÉS FLORES",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": \"CC\",\n  \"numeroDocumento\": \"41021397\",\n  \"estadoFormacion\": \"Culminado\",\n  \"nombres\": \"ANDRÉS\",\n  \"primerApellido\": \"FLORES\",\n  \"segundoApellido\": \"ROMERO\",\n  \"fechaNacimiento\": \"1994-04-24\",\n  \"eps\": \"COMFENALCO VALLE\",\n  \"telefonoFijo\": null,\n  \"celular\": \"3453109910\",\n  \"direccion\": \"CRA 68 #99-41\",\n  \"barrio\": \"EL CARMEN\",\n  \"departamento\": \"BOYACÁ\",\n  \"municipio\": \"PAIPA\",\n  \"correoElectronico\": \"andrés.flores3@sena.edu.co\",\n  \"fechaInicioLectiva\": \"2023-01-14\",\n  \"fechaFinLectiva\": \"2024-01-14\",\n  \"fechaInicioProductiva\": \"2024-02-13\",\n  \"fechaFinProductiva\": \"2024-08-11\",\n  \"instructorLectiva\": \"FERNANDO DÍAZ\",\n  \"instructorProductiva\": \"MIGUEL RUIZ\",\n  \"numeroFicha\": \"7770545\",\n  \"programaFormacion\": \"tecnoActividadFisica\",\n  \"alternativaSeleccionada\": \"pasantia\",\n  \"areaFormacion\": \"si\",\n  \"empresaPatrocinadora\": \"BANCO AV VILLAS S.A.\",\n  \"areaPractica\": \"PRODUCCIÓN\",\n  \"jefeInmediato\": \"MARÍA GONZÁLEZ\",\n  \"telefonoEmpresa\": \"9273551\",\n  \"celularEmpresa\": \"3949931674\",\n  \"direccionEmpresa\": \"CRA 86 #81-27\",\n  \"correoEmpresa\": \"empresa3@empresa.com\",\n  \"horario\": \"10:00 - 12:00\",\n  \"estado\": \"activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-aprendiz",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-aprendiz"
+              ]
+            }
+          }
+        },
+        {
+          "name": "➕ Registrar Aprendiz 5 - DAVID CASTILLO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDocumento\": \"TI\",\n  \"numeroDocumento\": \"51408501\",\n  \"estadoFormacion\": \"En formación\",\n  \"nombres\": \"DAVID\",\n  \"primerApellido\": \"CASTILLO\",\n  \"segundoApellido\": \"SÁNCHEZ\",\n  \"fechaNacimiento\": \"1990-09-29\",\n  \"eps\": \"SURA EPS\",\n  \"telefonoFijo\": null,\n  \"celular\": \"3108429884\",\n  \"direccion\": \"CRA 6 #40-24\",\n  \"barrio\": \"BELLAVISTA\",\n  \"departamento\": \"ANTIOQUIA\",\n  \"municipio\": \"SABANETA\",\n  \"correoElectronico\": \"david.castillo4@outlook.com\",\n  \"fechaInicioLectiva\": \"2023-08-14\",\n  \"fechaFinLectiva\": \"2024-08-13\",\n  \"fechaInicioProductiva\": \"2024-09-12\",\n  \"fechaFinProductiva\": \"2025-03-11\",\n  \"instructorLectiva\": \"LUIS LÓPEZ\",\n  \"instructorProductiva\": \"CLAUDIA MORENO\",\n  \"numeroFicha\": \"5626740\",\n  \"programaFormacion\": \"tecnoEntrenamientoDeportivo\",\n  \"alternativaSeleccionada\": \"pasantia\",\n  \"areaFormacion\": \"si\",\n  \"empresaPatrocinadora\": \"GRUPO ARGOS S.A.\",\n  \"areaPractica\": \"ATENCIÓN AL CLIENTE\",\n  \"jefeInmediato\": \"RAFAEL CASTILLO\",\n  \"telefonoEmpresa\": \"5101253\",\n  \"celularEmpresa\": \"3879788442\",\n  \"direccionEmpresa\": \"CRA 40 #39-39\",\n  \"correoEmpresa\": \"empresa4@empresa.com\",\n  \"horario\": \"13:00 - 20:00\",\n  \"estado\": \"bloqueado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/registrar-aprendiz",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrar-aprendiz"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔑 Crear Contraseña Aprendiz 1 - FELIPE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"AprendizSena2025*\",\n  \"confirmPassword\": \"AprendizSena2025*\",\n  \"correoElectronico\": \"felipe.romero0@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/crear-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crear-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔑 Crear Contraseña Aprendiz 2 - RODRIGO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"AprendizSena2025*\",\n  \"confirmPassword\": \"AprendizSena2025*\",\n  \"correoElectronico\": \"rodrigo.pérez1@yahoo.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/crear-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crear-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔑 Crear Contraseña Aprendiz 3 - ISABELLA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"AprendizSena2025*\",\n  \"confirmPassword\": \"AprendizSena2025*\",\n  \"correoElectronico\": \"isabella.hernández2@outlook.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/crear-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "crear-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "🔐 Login Aprendiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"felipe.romero0@gmail.com\",\n  \"password\": \"AprendizSena2025*\",\n  \"role\": \"aprendiz\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔒 Autenticación",
+      "item": [
+        {
+          "name": "🔓 Cerrar Sesión",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "📋 Selección de Rol",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Testing",
+      "item": [
+        {
+          "name": "📊 Panel Administrador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/administrador/panel-principal",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "administrador",
+                "panel-principal"
+              ]
+            }
+          }
+        },
+        {
+          "name": "📊 Dashboard Aprendiz",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/aprendiz/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "aprendiz",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "📝 Listar Aprendices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/administrador/listar-aprendices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "administrador",
+                "listar-aprendices"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

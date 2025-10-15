@@ -3,6 +3,40 @@
 
 const Joi = require('joi');
 
+/**
+ * Función para validar datos usando un esquema Joi
+ * @param {Object} data - Datos a validar
+ * @param {Object} schema - Esquema Joi
+ * @returns {Object} - { valido: boolean, errores: Array, datos: Object }
+ */
+function validarDatos(data, schema) {
+    try {
+        const { error, value } = schema.validate(data, { abortEarly: false });
+        if (error) {
+            return {
+                valido: false,
+                errores: error.details.map(detail => ({
+                    campo: detail.path.join('.'),
+                    mensaje: detail.message
+                })),
+                datos: null
+            };
+        }
+        return {
+            valido: true,
+            errores: [],
+            datos: value
+        };
+    } catch (error) {
+        console.error('Error en validación:', error);
+        return {
+            valido: false,
+            errores: [{ campo: 'general', mensaje: 'Error interno de validación' }],
+            datos: null
+        };
+    }
+}
+
 // Esquemas de validación para aprendices
 const aprendizSchemas = {
     // Validación para registro inicial de aprendiz
@@ -635,5 +669,6 @@ const authSchemas = {
 module.exports = {
     aprendizSchemas,
     administradorSchemas,
-    authSchemas
+    authSchemas,
+    validarDatos
 };
