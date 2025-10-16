@@ -120,11 +120,12 @@ const gestionAprendicesControlador = {
             );
 
             let analisisSentimientos = null;
-            let erroresAnalisis = [];
-            
-            try {
-                // Analizar sentimientos de las bitácoras
-                if (bitacorasResult && bitacorasResult.length > 0) {
+            const erroresAnalisis = [];
+
+            // Si no hay bitácoras, no intentar análisis
+            if (bitacorasResult && bitacorasResult.length > 0) {
+                try {
+                    // Analizar sentimientos de las bitácoras
                     analisisSentimientos = await servicioAnalisisSentimientos.analizarTendenciasAprendiz(bitacorasResult);
 
                     // Actualizar cada bitácora con su análisis
@@ -138,7 +139,7 @@ const gestionAprendicesControlador = {
                             }
                             // Actualizar la bitácora en la base de datos
                             await pool.query(
-                                `UPDATE bitacoras SET 
+                                `UPDATE bitacoras SET
                                     sentimiento_desafio = ?,
                                     sentimiento_logro = ?,
                                     sentimiento_comunicacion = ?,
@@ -162,8 +163,8 @@ const gestionAprendicesControlador = {
                                     analisisBitacora.sentimientoGeneral,
                                     normalizarScore(analisisBitacora.scoreGeneral),
                                     normalizarScore(analisisBitacora.confianzaGeneral),
-                                    analisisBitacora.analisisDetallado.desafio.contieneIronia || 
-                                    analisisBitacora.analisisDetallado.logro.contieneIronia || 
+                                    analisisBitacora.analisisDetallado.desafio.contieneIronia ||
+                                    analisisBitacora.analisisDetallado.logro.contieneIronia ||
                                     analisisBitacora.analisisDetallado.comunicacion.contieneIronia,
                                     JSON.stringify(analisisBitacora.contextosGenerales),
                                     JSON.stringify(analisisBitacora.recomendaciones),
@@ -188,14 +189,16 @@ const gestionAprendicesControlador = {
                     // Actualizar bitacorasResult con los datos actualizados
                     bitacorasResult.length = 0;
                     bitacorasResult.push(...bitacorasActualizadas);
+                } catch (errorAnalisis) {
+                    console.error('Error al analizar sentimientos:', errorAnalisis);
+                    erroresAnalisis.push({
+                        error: 'Error general en el análisis de sentimientos',
+                        detalles: errorAnalisis.message
+                    });
+                    // analisisSentimientos permanece como null cuando hay error
                 }
-            } catch (errorAnalisis) {
-                console.error('Error al analizar sentimientos:', errorAnalisis);
-                erroresAnalisis.push({
-                    error: 'Error general en el análisis de sentimientos',
-                    detalles: errorAnalisis.message
-                });
             }
+            // Si no hay bitácoras, analisisSentimientos permanece como null
             
             // Obtener estado de Watson
             const estadoWatson = servicioAnalisisSentimientos.obtenerEstadoConexion();

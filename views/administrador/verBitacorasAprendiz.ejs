@@ -204,7 +204,7 @@ html.dark-mode .acciones-recomendadas small {
                                     estadoClase = 'warning';
                                     estadoIcono = '😐';
                                     estadoMensaje = 'Requiere Atención';
-                                    estadoAccion = 'Programar check-in';
+                                    estadoAccion = 'Programar reunión';
                                 } else {
                                     estadoClase = 'danger';
                                     estadoIcono = '😟';
@@ -272,7 +272,7 @@ html.dark-mode .acciones-recomendadas small {
                         </div>
 
                         <!-- Gráfico de Evolución de Métricas -->
-                        <% if (analisisSentimientos && analisisSentimientos.analisisDetallado && analisisSentimientos.analisisDetallado.length > 1) { %>
+                        <% if (analisisSentimientos && analisisSentimientos.analisisDetallado && Array.isArray(analisisSentimientos.analisisDetallado) && analisisSentimientos.analisisDetallado.length > 1) { %>
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div class="card">
@@ -368,9 +368,15 @@ html.dark-mode .acciones-recomendadas small {
         </div>
 
     <% } else { %>
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>No hay suficientes datos para realizar un análisis de sentimientos.
-        </div>
+        <% if (!bitacoras || bitacoras.length === 0) { %>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Este aprendiz no tiene bitácoras registradas.
+            </div>
+        <% } else if (bitacoras && bitacoras.length > 0) { %>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>El análisis de sentimientos no está disponible en este momento. Las bitácoras se muestran sin análisis.
+            </div>
+        <% } %>
     <% } %>
 
     <!-- Lista de Bitácoras -->
@@ -440,7 +446,7 @@ html.dark-mode .acciones-recomendadas small {
 
         // Gráfico de evolución de métricas
         if (document.getElementById('metricasChart')) {
-            const analisisData = <%- JSON.stringify(analisisSentimientos.analisisDetallado || []) %>;
+            const analisisData = <%- JSON.stringify(analisisSentimientos ? analisisSentimientos.analisisDetallado || [] : []) %>;
 
             if (analisisData && analisisData.length > 1) {
                 // Preparar datos para el gráfico

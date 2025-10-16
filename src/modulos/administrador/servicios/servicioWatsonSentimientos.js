@@ -473,7 +473,15 @@ class ServicioWatsonSentimientos {
 
         // Verificar que Watson esté disponible
         if (!this.watson) {
-            throw new Error('IBM Watson no está disponible para el análisis de tendencias.');
+            console.warn('IBM Watson no está disponible para el análisis de tendencias. Retornando análisis vacío.');
+            return {
+                scorePromedio: 0,
+                sentimientoGeneral: 'neutral',
+                tendencia: 'sin_datos',
+                variabilidad: 0,
+                nivelCompromiso: 0,
+                recomendaciones: []
+            };
         }
 
         // Procesar máximo 10 bitácoras más recientes para evitar sobrecarga
