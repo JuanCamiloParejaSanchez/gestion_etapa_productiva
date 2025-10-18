@@ -8,14 +8,21 @@
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <%- contentFor('styles') %>
+<style>
+.btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>
 <%- contentFor('body') %>
 <%- contentFor('navigation') %>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
         <div class="d-flex w-100 justify-content-start">
-            <a class="btn btn-primary btn-navbar" href="/administrador/panel">
+            <a class="btn btn-primary btn-navbar" href="/administrador/listar-administradores">
                 <i class="fas fa-arrow-left me-2"></i>
-                Regresar al Panel de Administrador
+                Regresar a la lista de administradores
             </a>
         </div>    
     </div>
@@ -24,7 +31,7 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-header">
-            <h2 class="mb-0">Mi Perfil de Administrador</h2>
+            <h2 class="mb-0"><%= typeof title !== 'undefined' ? title : 'Mi Perfil de Administrador' %></h2>
         </div>
         <div class="card-body">
             <% if (typeof administrador !== 'undefined' && administrador) { %>
@@ -37,9 +44,15 @@
 
 
                 <div class="mt-4 text-center">
-                    <a href="/administrador/editar-perfil" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Editar Perfil
-                    </a>
+                    <% if (typeof esMiPerfil !== 'undefined' && esMiPerfil) { %>
+                        <a href="/administrador/editar-perfil" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar Perfil
+                        </a>
+                    <% } else { %>
+                        <button class="btn btn-secondary disabled" title="Solo puedes editar tu propio perfil" disabled>
+                            <i class="fas fa-edit"></i> Editar Administrador
+                        </button>
+                    <% } %>
                 </div>
 
             <% } else { %>

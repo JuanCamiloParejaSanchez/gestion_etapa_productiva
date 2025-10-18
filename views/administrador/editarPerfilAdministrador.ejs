@@ -127,15 +127,15 @@ html.dark-mode .required {
                 <div class="edit-header">
                     <h2 class="mb-1">
                         <i class="fas fa-user-edit me-2"></i>
-                        Editar Mi Perfil
+                        <%= typeof title !== 'undefined' ? title : 'Editar Mi Perfil' %>
                     </h2>
-                    <p class="mb-0 opacity-75">Actualiza tu información personal y profesional</p>
+                    <p class="mb-0 opacity-75"><%= typeof esMiPerfil !== 'undefined' && esMiPerfil ? 'Actualiza tu información personal y profesional' : 'Actualiza la información del administrador' %></p>
                 </div>
                 
                 <div class="card-body p-4">
                     <div id="messageContainer" class="mb-3"></div>
                     
-                    <form id="editProfileForm" action="/administrador/actualizar-perfil" method="POST">
+                    <form id="editProfileForm" action="<%= typeof esMiPerfil !== 'undefined' && esMiPerfil ? '/administrador/actualizar-perfil' : '/administrador/administrador/actualizar/' + administrador.id %>" method="POST">
                         <!-- Datos Personales -->
                         <div class="form-section">
                             <h3 class="section-title">
@@ -246,7 +246,7 @@ html.dark-mode .required {
                                 <i class="fas fa-save me-2"></i>
                                 Guardar Cambios
                             </button>
-                            <a href="/administrador/perfil" class="btn btn-cancel">
+                            <a href="<%= typeof esMiPerfil !== 'undefined' && esMiPerfil ? '/administrador/perfil' : '/administrador/administrador/' + administrador.id %>" class="btn btn-cancel">
                                 <i class="fas fa-times me-2"></i>
                                 Cancelar
                             </a>
@@ -377,7 +377,7 @@ html.dark-mode .required {
 
                         // Configurar el botón de aceptar para redirigir
                         document.getElementById('confirmButton').addEventListener('click', function() {
-                            window.location.href = '/administrador/perfil';
+                            window.location.href = '<%= typeof esMiPerfil !== "undefined" && esMiPerfil ? "/administrador/perfil" : "/administrador/administrador/" + administrador.id %>';
                         });
                     } else {
                         throw new Error(result.message || 'Ocurrió un error en el servidor.');

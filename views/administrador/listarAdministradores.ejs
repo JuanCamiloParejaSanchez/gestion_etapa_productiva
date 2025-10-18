@@ -21,6 +21,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    position: relative;
+}
+.action-btn.disabled:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+    pointer-events: none;
+}
+.action-btn.disabled:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    margin-bottom: -5px;
+    pointer-events: none;
+}
 </style>
 
 <%- contentFor('body') %>
@@ -518,19 +550,36 @@
                         searchable: false,
                         className: 'text-center',
                         visible: col.visible,
-                        render: (data, type, row) => `
-                            <div class="action-buttons">
-                                <a href="/administrador/administrador/${row.id}" class="action-btn btn-view" title="Ver Perfil Completo">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="/administrador/administrador/editar/${row.id}" class="action-btn btn-edit" title="Editar Administrador">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button class="action-btn btn-delete eliminar-administrador" data-id="${row.id}" title="Eliminar Administrador">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        `
+                        render: (data, type, row) => {
+                            const userId = '<%= userId %>';
+                            const isCurrentUser = row.id == userId;
+
+                            return `
+                                <div class="action-buttons">
+                                    <a href="/administrador/administrador/${row.id}" class="action-btn btn-view" title="Ver Perfil Completo">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    ${isCurrentUser ? `
+                                        <a href="/administrador/administrador/editar/${row.id}" class="action-btn btn-edit" title="Editar Administrador">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    ` : `
+                                        <span class="action-btn btn-edit disabled" data-tooltip="Solo puedes editar tu propio perfil">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    `}
+                                    ${isCurrentUser ? `
+                                        <button class="action-btn btn-delete eliminar-administrador" data-id="${row.id}" title="Eliminar Administrador">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    ` : `
+                                        <span class="action-btn btn-delete disabled" data-tooltip="Solo puedes eliminar tu propio perfil">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                    `}
+                                </div>
+                            `;
+                        }
                     };
                 } else if (col.data.includes('fecha') || col.data.includes('Fecha')) {
                     return {
