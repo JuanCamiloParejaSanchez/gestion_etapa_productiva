@@ -7,21 +7,10 @@
 <link rel="stylesheet" href="/estilos/components/navbar.css">
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/components/forms.css">
+<link rel="stylesheet" href="/estilos/components/tables.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
-<link rel="stylesheet" href="/estilos/autenticacion/estilosLogin.css">
-<style>
-    /* Estilos específicos para registro inicial de aprendiz */
-    .navbar .btn-primary {
-        background-color: #39a900 !important;
-        border-color: #39a900 !important;
-        padding: 0.75rem;
-        font-weight: 500;
-    }
 
-    .navbar .btn-primary:hover {
-        background-color: #2d8500 !important;
-        border-color: #2d8500 !important;
-    }
+<style>
 
     .validating {
         position: relative;
@@ -82,12 +71,12 @@
     }
 </style>
 
-<%- contentFor('body') %>
+<%- contentFor('navigation') %>
 <!-- Barra de navegación -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <div class="navbar-nav w-100 justify-content-between">
-            <a href="/" class="btn btn-primary d-flex align-items-center">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/">
                 <i class="fas fa-arrow-left me-2"></i>
                 Regresar
             </a>
@@ -95,6 +84,7 @@
     </div>
 </nav>
 
+<%- contentFor('body') %>
 <div class="container mt-4">
     <div class="row justify-content-center">
         <!-- Formulario principal -->

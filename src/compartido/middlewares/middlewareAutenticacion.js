@@ -4,7 +4,7 @@
 
 const AuthMiddleware = {
     // Configuración de tiempo de expiración (30 minutos)
-    SESSION_TIMEOUT: 10 * 60 * 1000, // 30 minutos en milisegundos
+    SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutos en milisegundos
 
     /* Función auxiliar para configurar headers de no-cache */
     setNoCacheHeaders: (res) => {
