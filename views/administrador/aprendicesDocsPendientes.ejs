@@ -51,19 +51,19 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
     box-shadow: 0 4px 12px rgba(4, 50, 77, 0.3);
 }
 
 .aprendiz-details h6 {
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
     font-weight: 600;
     color: #04324d;
     margin-bottom: 0.25rem;
 }
 
 .aprendiz-details p {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     color: #6c757d;
     margin: 0;
 }
@@ -86,7 +86,7 @@
     margin-bottom: 1rem;
     border: 1px solid #dee2e6;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
 }
 
 .documentos-subidos .section-header {
@@ -163,18 +163,18 @@
     font-weight: 600;
     color: #495057;
     margin-bottom: 0.25rem;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     line-height: 1.4;
 }
 
 .documento-tipo {
-    font-size: 0.85rem;
+    font-size: var(--font-size-xs);
     color: #6c757d;
     margin-bottom: 0.25rem;
 }
 
 .documento-descripcion {
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
     color: #868e96;
     font-style: italic;
     margin-bottom: 0.25rem;
@@ -183,7 +183,7 @@
 }
 
 .documento-detalles {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: #adb5bd;
 }
 
@@ -198,7 +198,7 @@
 .estado-badge {
     padding: 0.375rem 0.75rem;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -221,7 +221,7 @@
 }
 
 .documento-fecha {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
     color: #6c757d;
     font-weight: 500;
 }
@@ -240,7 +240,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
     background: #f8f9fa;
     color: #6c757d;
     text-decoration: none;
@@ -263,14 +263,14 @@
 }
 
 .documentos-vacio i {
-    font-size: 2.5rem;
+    font-size: var(--font-size-4xl);
     margin-bottom: 1rem;
     opacity: 0.5;
 }
 
 .documentos-vacio p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     font-weight: 500;
 }
 
@@ -282,7 +282,7 @@
 
 .loading-documentos p {
     margin-top: 1rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
 }
 
 /* Modo oscuro para el modal */
@@ -1057,7 +1057,7 @@
                             html, body {
                                 margin: 0;
                                 padding: 0;
-                                font-family: Arial, sans-serif;
+                                font-family: var(--font-family-primary);
                                 line-height: 1.2;
                                 color: #000;
                                 font-size: 12px;
@@ -1415,7 +1415,7 @@
                     const docElement = document.createElement('div');
                     docElement.className = 'documento-item subido';
                     docElement.innerHTML = `
-                        <i class="${iconoArchivo}" style="color: ${colorIcono}; font-size: 1.5rem;"></i>
+                        <i class="${iconoArchivo}" style="color: ${colorIcono}; font-size: var(--font-size-2xl);"></i>
                         <div class="documento-info">
                             <div class="documento-nombre">${nombreOriginal}</div>
                             <div class="documento-tipo">${tipoDocumento}</div>
@@ -1454,7 +1454,7 @@
                     const docElement = document.createElement('div');
                     docElement.className = 'documento-item pendiente';
                     docElement.innerHTML = `
-                        <i class="fas fa-exclamation-circle" style="color: #dc3545; font-size: 1.5rem;"></i>
+                        <i class="fas fa-exclamation-circle" style="color: #dc3545; font-size: var(--font-size-2xl);"></i>
                         <div class="documento-info">
                             <div class="documento-nombre">${doc.nombre}</div>
                             <div class="documento-tipo">${doc.tipo}</div>

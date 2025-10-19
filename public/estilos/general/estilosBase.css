@@ -12,7 +12,7 @@
 
 /* --- Estilos Generales y Tipografía --- */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family-primary);
     background-color: var(--gray-50);
     display: flex;
     flex-direction: column;
@@ -52,14 +52,14 @@ a:hover {
 .card-header.bg-primary {
     background-color: var(--primary-color) !important;
     color: white;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     border-bottom: 0;
 }
 
 .form-text.text-danger, .form-text.text-success {
     display: block;
     margin-top: 0.15rem;
-    font-size: 1.08rem;
+    font-size: var(--font-size-base);
     min-height: 1.2em;
     transition: opacity 0.2s, max-height 0.2s;
     opacity: 1;
@@ -69,7 +69,7 @@ a:hover {
     word-break: break-word;
 }
 .form-text.text-danger span, .form-text.text-success span {
-    font-size: 1.2em;
+    font-size: var(--font-size-lg);
     vertical-align: middle;
     margin-right: 0.2em;
 }
@@ -120,7 +120,7 @@ a:hover {
 .form-header, .form-subheader {
     color: white;
     padding: 8px 15px;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     margin-bottom: 1.5rem; /* Espacio debajo de los subheaders */
 }
 
@@ -144,7 +144,7 @@ a:hover {
 .footer-content {
     position: relative;
     z-index: 2;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
 }
 
 .logo-container {
@@ -190,7 +190,7 @@ html.dark-mode .footer-text {
 }
 
 .info-text {
-    font-size: 0.95rem;
+    font-size: var(--font-size-sm);
     color: var(--dark-text);
     font-weight: 500;
     line-height: 1.5;
@@ -351,7 +351,7 @@ html.dark-mode .footer-text {
 }
 
 .confirm-logout-modal .modal-body .fa-question-circle {
-    font-size: 4rem;
+    font-size: var(--font-size-5xl);
     color: #ffc107;
     margin-bottom: 1rem;
 }
@@ -439,13 +439,13 @@ html.dark-mode .confirm-logout-modal .btn-warning:hover {
 }
 
 .kpi-value {
-    font-size: 2.5rem;
+    font-size: var(--font-size-4xl);
     font-weight: bold;
     margin-bottom: 5px;
 }
 
 .kpi-label {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     opacity: 0.9;
 }
 
@@ -469,7 +469,7 @@ html.dark-mode .confirm-logout-modal .btn-warning:hover {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
 /* --- ESTILOS PARA EDICIÓN DE PERFILES --- */
 
 .edit-profile-card {
@@ -490,7 +490,7 @@ html.dark-mode .confirm-logout-modal .btn-warning:hover {
     padding: 1rem 1.5rem;
     border-radius: 10px 10px 0 0;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
     margin-bottom: 0;
     opacity: 0.95;
 }
@@ -507,7 +507,7 @@ html.dark-mode .confirm-logout-modal .btn-warning:hover {
     color: var(--primary-color);
     font-weight: 600;
     margin-bottom: 1rem;
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
 }
 
 .btn-save-profile {
