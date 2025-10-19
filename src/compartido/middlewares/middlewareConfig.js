@@ -46,13 +46,22 @@ function setupMiddlewares(app) {
                 styleSrc: [
                     "'self'",
                     "'unsafe-inline'",
+                    "https://fonts.googleapis.com",
+                    "https://cdn.jsdelivr.net",
+                    "https://cdn.datatables.net",
+                    "https://cdnjs.cloudflare.com"
+                ],
+                styleSrcElem: [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://fonts.googleapis.com",
                     "https://cdn.jsdelivr.net",
                     "https://cdn.datatables.net",
                     "https://cdnjs.cloudflare.com"
                 ],
                 imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "https://cdn.datatables.net", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
-                fontSrc: ["'self'", "https:", "data:"],
+                connectSrc: ["'self'", "https://cdn.datatables.net", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+                fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:"],
                 objectSrc: ["'none'"],
                 mediaSrc: ["'self'"],
                 frameSrc: ["'none'"]
