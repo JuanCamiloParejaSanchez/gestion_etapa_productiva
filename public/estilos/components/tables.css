@@ -1058,7 +1058,6 @@
     display: inline-block;
 }
 
-.registros-selector-btn,
 .column-selector-btn {
     background: #ffffff;
     border: 2px solid #e9ecef;
@@ -1074,6 +1073,27 @@
     gap: 0.5rem;
     min-width: 80px;
     height: 45px;
+    margin-right: 10px;
+    /* margin-left: 10px; */
+}
+
+.registros-selector-btn {
+    background: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+    height: 45px;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .registros-selector-btn:hover,
@@ -1186,12 +1206,12 @@
 }
 
 /* Etiqueta de registros */
-.registros-label {
+/* .registros-label {
     font-size: 1.08rem;
     font-weight: bold;
     color: #222;
     letter-spacing: 0.01em;
-}
+} */
 
 /* Animación fadeInUp */
 @keyframes fadeInUp {
