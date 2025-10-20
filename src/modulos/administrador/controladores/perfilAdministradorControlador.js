@@ -53,6 +53,7 @@ const perfilAdministradorControlador = {
                 titulo: 'Mi Perfil - Administrador',
                 administrador,
                 success,
+                esMiPerfil: true,
                 layout: 'plantillas/principal'
             });
 
