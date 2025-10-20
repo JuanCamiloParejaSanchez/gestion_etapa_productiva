@@ -56,6 +56,12 @@ a:hover {
     border-bottom: 0;
 }
 
+.bg-blue-custom {
+    background-color: #04324d !important;
+    color: white;
+}
+
+
 .form-text.text-danger, .form-text.text-success {
     display: block;
     margin-top: 0.15rem;

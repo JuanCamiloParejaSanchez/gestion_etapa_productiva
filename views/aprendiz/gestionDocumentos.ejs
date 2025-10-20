@@ -39,6 +39,62 @@
     .dark-mode .bs-tooltip-top .arrow::before {
       border-top-color: #8b949e;
     }
+
+    /* Estilos para la tabla en modo oscuro */
+    .dark-mode .table {
+        background-color: #1a1e23;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .table th {
+        background-color: #2d333b;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .table td {
+        background-color: #1a1e23;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .table tbody th {
+        background-color: #1a1e23;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .table-hover tbody tr:hover {
+        background-color: #2d333b;
+    }
+
+    /* Si hay rayas alternas (striped), ajustar */
+    .dark-mode .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #2d333b;
+    }
+
+    .dark-mode .table-striped tbody tr:nth-of-type(even) {
+        background-color: #1a1e23;
+    }
+
+    /* Para el contenedor de la tabla */
+    .dark-mode .card {
+        background-color: #161b22;
+        border-color: #30363d;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .card-header {
+        background-color: #21262d;
+        border-color: #30363d;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .card-body {
+        background-color: #161b22;
+        color: #f0f6fc;
+    }
 </style>
 <%- contentFor('body') %>
 
@@ -55,8 +111,8 @@
 
 <div class="container mt-4">
     <div class="card">
-        <div class="card-header bg-info text-white">
-            <h2 class="mb-0"><i class="fas fa-folder"></i> Gestión de Documentos</h2>
+        <div class="card-header bg-info">
+            <h2 class="mb-0 text-white"><i class="fas fa-folder text-white"></i> Gestión de Documentos</h2>
         </div>
         <div class="card-body">
             <div id="messageContainer" class="mb-3"></div>
