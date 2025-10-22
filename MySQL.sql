@@ -663,5 +663,3 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 select * from aprendices;
-ALTER TABLE logs_acceso
-MODIFY COLUMN accion ENUM('login','logout','reset_password','cambio_password','bloqueo','desbloqueo','actualizacion') NOT NULL;

@@ -296,7 +296,8 @@ const gestionAprendicesControlador = {
                 layout: 'plantillas/principal',
                 aprendiz: aprendizResult[0],
                 successMessage: successMessage,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                userName: req.session?.userName || 'Administrador'
             });
 
         } catch (error) {

@@ -157,6 +157,7 @@ html.dark-mode body .navbar {
 html.dark-mode body .btn-primary {
     background: #0d6efd;
     border-color: var(--color-primary);
+    color: white;
 }
 
 html.dark-mode body .btn-outline-primary {

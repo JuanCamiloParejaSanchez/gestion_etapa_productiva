@@ -375,13 +375,18 @@
 
         // Función para obtener clase de estado
         function getEstadoClass(estado) {
-            const estadoLower = estado.toLowerCase();
-            if (estadoLower.includes('activo') || estadoLower.includes('en curso')) {
-                return 'estado-activo';
-            } else if (estadoLower.includes('inactivo') || estadoLower.includes('finalizado')) {
-                return 'estado-inactivo';
-            } else {
-                return 'estado-pendiente';
+            // Los valores de la BD están en minúsculas según el enum
+            switch (estado) {
+                case 'activo':
+                    return 'estado-activo';
+                case 'inactivo':
+                    return 'estado-inactivo';
+                case 'aplazado':
+                    return 'estado-aplazado';
+                case 'retirado':
+                    return 'estado-retirado';
+                default:
+                    return 'estado-pendiente';
             }
         }
 

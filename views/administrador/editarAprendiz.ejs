@@ -56,7 +56,11 @@
                 <% if (key !== 'id' && key !== 'created_at' && key !== 'password') { %>
                     <div class="mb-3">
                         <label for="<%= key %>" class="form-label">
-                            <%= key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim() %>
+                            <% if (key === 'updated_at') { %>
+                                Fecha última actualización
+                            <% } else { %>
+                                <%= key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim() %>
+                            <% } %>
                         </label>
 
                         <% if (key.toLowerCase().includes('fecha')) { %>
@@ -101,6 +105,77 @@
                                 <option value="aplazado" <%= aprendiz[key] === 'aplazado' ? 'selected' : '' %>>Aplazado</option>
                                 <option value="retirado" <%= aprendiz[key] === 'retirado' ? 'selected' : '' %>>Retirado</option>
                             </select>
+
+                        <% } else if (key === 'eps') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="">SELECCIONE...</option>
+                                <option value="COOSALUD EPS-S" <%= aprendiz[key] === 'COOSALUD EPS-S' ? 'selected' : '' %>>COOSALUD EPS-S</option>
+                                <option value="NUEVA EPS" <%= aprendiz[key] === 'NUEVA EPS' ? 'selected' : '' %>>NUEVA EPS</option>
+                                <option value="MUTUAL SER" <%= aprendiz[key] === 'MUTUAL SER' ? 'selected' : '' %>>MUTUAL SER</option>
+                                <option value="ALIANSALUD EPS" <%= aprendiz[key] === 'ALIANSALUD EPS' ? 'selected' : '' %>>ALIANSALUD EPS</option>
+                                <option value="SALUD TOTAL EPS S.A." <%= aprendiz[key] === 'SALUD TOTAL EPS S.A.' ? 'selected' : '' %>>SALUD TOTAL EPS S.A.</option>
+                                <option value="EPS SANITAS" <%= aprendiz[key] === 'EPS SANITAS' ? 'selected' : '' %>>EPS SANITAS</option>
+                                <option value="EPS SURA" <%= aprendiz[key] === 'EPS SURA' ? 'selected' : '' %>>EPS SURA</option>
+                                <option value="FAMISANAR" <%= aprendiz[key] === 'FAMISANAR' ? 'selected' : '' %>>FAMISANAR</option>
+                                <option value="SERVICIO OCCIDENTAL DE SALUD EPS SOS" <%= aprendiz[key] === 'SERVICIO OCCIDENTAL DE SALUD EPS SOS' ? 'selected' : '' %>>SERVICIO OCCIDENTAL DE SALUD EPS SOS</option>
+                                <option value="SALUD MIA" <%= aprendiz[key] === 'SALUD MIA' ? 'selected' : '' %>>SALUD MIA</option>
+                                <option value="COMFENALCO VALLE" <%= aprendiz[key] === 'COMFENALCO VALLE' ? 'selected' : '' %>>COMFENALCO VALLE</option>
+                                <option value="COMPENSAR EPS" <%= aprendiz[key] === 'COMPENSAR EPS' ? 'selected' : '' %>>COMPENSAR EPS</option>
+                                <option value="EPM - EMPRESAS PUBLICAS DE MEDELLIN" <%= aprendiz[key] === 'EPM - EMPRESAS PUBLICAS DE MEDELLIN' ? 'selected' : '' %>>EPM - EMPRESAS PUBLICAS DE MEDELLIN</option>
+                                <option value="FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA" <%= aprendiz[key] === 'FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA' ? 'selected' : '' %>>FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA</option>
+                                <option value="CAJACOPI ATLANTICO" <%= aprendiz[key] === 'CAJACOPI ATLANTICO' ? 'selected' : '' %>>CAJACOPI ATLANTICO</option>
+                                <option value="CAPRESOCA" <%= aprendiz[key] === 'CAPRESOCA' ? 'selected' : '' %>>CAPRESOCA</option>
+                                <option value="COMFACHOCO" <%= aprendiz[key] === 'COMFACHOCO' ? 'selected' : '' %>>COMFACHOCO</option>
+                                <option value="COMFAORIENTE" <%= aprendiz[key] === 'COMFAORIENTE' ? 'selected' : '' %>>COMFAORIENTE</option>
+                                <option value="EPS FAMILIAR DE COLOMBIA" <%= aprendiz[key] === 'EPS FAMILIAR DE COLOMBIA' ? 'selected' : '' %>>EPS FAMILIAR DE COLOMBIA</option>
+                                <option value="ASMET SALUD" <%= aprendiz[key] === 'ASMET SALUD' ? 'selected' : '' %>>ASMET SALUD</option>
+                                <option value="EMSSANAR E.S.S." <%= aprendiz[key] === 'EMSSANAR E.S.S.' ? 'selected' : '' %>>EMSSANAR E.S.S.</option>
+                                <option value="CAPITAL SALUD EPS-S" <%= aprendiz[key] === 'CAPITAL SALUD EPS-S' ? 'selected' : '' %>>CAPITAL SALUD EPS-S</option>
+                                <option value="SAVIA SALUD EPS" <%= aprendiz[key] === 'SAVIA SALUD EPS' ? 'selected' : '' %>>SAVIA SALUD EPS</option>
+                                <option value="DUSAKAWI EPSI" <%= aprendiz[key] === 'DUSAKAWI EPSI' ? 'selected' : '' %>>DUSAKAWI EPSI</option>
+                                <option value="ASOCIACION INDIGENA DEL CAUCA EPSI" <%= aprendiz[key] === 'ASOCIACION INDIGENA DEL CAUCA EPSI' ? 'selected' : '' %>>ASOCIACION INDIGENA DEL CAUCA EPSI</option>
+                                <option value="ANAS WAYUU EPSI" <%= aprendiz[key] === 'ANAS WAYUU EPSI' ? 'selected' : '' %>>ANAS WAYUU EPSI</option>
+                                <option value="MALLAMAS EPSI" <%= aprendiz[key] === 'MALLAMAS EPSI' ? 'selected' : '' %>>MALLAMAS EPSI</option>
+                                <option value="PIJAOS SALUD EPSI" <%= aprendiz[key] === 'PIJAOS SALUD EPSI' ? 'selected' : '' %>>PIJAOS SALUD EPSI</option>
+                                <option value="SALUD BÓLIVAR EPS SAS" <%= aprendiz[key] === 'SALUD BÓLIVAR EPS SAS' ? 'selected' : '' %>>SALUD BÓLIVAR EPS SAS</option>
+                                <option value="NO APLICA" <%= aprendiz[key] === 'NO APLICA' ? 'selected' : '' %>>NO APLICA</option>
+                            </select>
+
+                        <% } else if (key === 'departamento') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="">SELECCIONE...</option>
+                            </select>
+
+                        <% } else if (key === 'municipio') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="">SELECCIONE UN MUNICIPIO...</option>
+                            </select>
+
+                        <% } else if (key === 'programaFormacion') { %>
+                            <select class="form-select" id="<%= key %>" name="<%= key %>">
+                                <option value="">SELECCIONE...</option>
+                                <option value="tecnoActividadFisica" <%= aprendiz[key] === 'tecnoActividadFisica' ? 'selected' : '' %>>TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
+                                <option value="tecnoEntrenamientoDeportivo" <%= aprendiz[key] === 'tecnoEntrenamientoDeportivo' ? 'selected' : '' %>>TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
+                                <option value="tecnoAnalisisDesarrollo" <%= aprendiz[key] === 'tecnoAnalisisDesarrollo' ? 'selected' : '' %>>TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
+                                <option value="tecProcesamientoPruebas" <%= aprendiz[key] === 'tecProcesamientoPruebas' ? 'selected' : '' %>>TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
+                                <option value="tecProgramacion" <%= aprendiz[key] === 'tecProgramacion' ? 'selected' : '' %>>TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
+                            </select>
+
+                        <% } else if (key === 'updated_at') { %>
+                            <input type="text"
+                                   class="form-control"
+                                   id="<%= key %>"
+                                   name="<%= key %>"
+                                   value="<%= aprendiz[key] ? new Date(aprendiz[key]).toLocaleString('es-ES', {
+                                       weekday: 'long',
+                                       year: 'numeric',
+                                       month: 'long',
+                                       day: 'numeric',
+                                       hour: '2-digit',
+                                       minute: '2-digit',
+                                       second: '2-digit'
+                                   }) + ' - Usuario: ' + (typeof userName !== 'undefined' ? userName : 'Administrador') : '' %>"
+                                   readonly>
 
                         <% } else { %>
                             <input type="text"
@@ -248,5 +323,90 @@
         }
 
         console.log('Formulario de edición de aprendiz cargado correctamente');
+
+        // Cargar datos de ubicación para edición
+        const cargarDatosUbicacionEdicion = async () => {
+            try {
+                console.log('Iniciando carga de datos de ubicación para edición...');
+                const response = await fetch('/data/colombia.json');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Datos de ubicación cargados:', data);
+
+                const departamentoSelect = document.getElementById('departamento');
+                const municipioSelect = document.getElementById('municipio');
+
+                if (!departamentoSelect || !municipioSelect) {
+                    console.error('Selectores de ubicación no encontrados');
+                    return;
+                }
+
+                // Cargar departamentos
+                departamentoSelect.innerHTML = '<option value="">SELECCIONE...</option>';
+                data.forEach(item => {
+                    if (item && item.departamento) {
+                        const option = document.createElement('option');
+                        option.value = item.departamento;
+                        option.textContent = item.departamento.toUpperCase();
+                        // Preseleccionar si coincide con el valor actual del aprendiz
+                        if (item.departamento === '<%= aprendiz.departamento %>') {
+                            option.selected = true;
+                        }
+                        departamentoSelect.appendChild(option);
+                    }
+                });
+
+                // Evento change para departamentos
+                departamentoSelect.addEventListener('change', function() {
+                    const selectedDep = this.value;
+                    console.log('Departamento seleccionado:', selectedDep);
+
+                    municipioSelect.innerHTML = '<option value="">SELECCIONE UN MUNICIPIO...</option>';
+                    if (!selectedDep) return;
+
+                    const departamento = data.find(d => d.departamento === selectedDep);
+                    if (departamento?.ciudades) {
+                        departamento.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad.toUpperCase();
+                            // Preseleccionar si coincide con el valor actual del aprendiz
+                            if (ciudad === '<%= aprendiz.municipio %>') {
+                                option.selected = true;
+                            }
+                            municipioSelect.appendChild(option);
+                        });
+                    }
+                });
+
+                // Cargar municipios del departamento actual si existe
+                const currentDep = '<%= aprendiz.departamento %>';
+                if (currentDep) {
+                    const departamento = data.find(d => d.departamento === currentDep);
+                    if (departamento?.ciudades) {
+                        municipioSelect.innerHTML = '<option value="">SELECCIONE UN MUNICIPIO...</option>';
+                        departamento.ciudades.forEach(ciudad => {
+                            const option = document.createElement('option');
+                            option.value = ciudad;
+                            option.textContent = ciudad.toUpperCase();
+                            if (ciudad === '<%= aprendiz.municipio %>') {
+                                option.selected = true;
+                            }
+                            municipioSelect.appendChild(option);
+                        });
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error cargando datos de ubicación:', error);
+            }
+        };
+
+        // Inicializar carga de datos de ubicación
+        cargarDatosUbicacionEdicion();
     });
 </script>
