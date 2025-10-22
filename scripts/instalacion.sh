@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script de instalación para el Sistema de Gestión de Etapa Productiva
-# Autor: JuanBogotá
+
 
 echo "🚀 Iniciando instalación del Sistema de Gestión de Etapa Productiva"
 echo "================================================================"

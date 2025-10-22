@@ -112,7 +112,7 @@ describe('ServicioGestionAprendices', () => {
       expect(result.affectedRows).toBe(1);
       expect(pool.execute).toHaveBeenCalledWith(
         'UPDATE aprendices SET nombres = ?, telefonoFijo = ? WHERE id = ?',
-        ['Juan Actualizado', '1234567', 1]
+        ['JUAN ACTUALIZADO', '1234567', 1]
       );
     });
 

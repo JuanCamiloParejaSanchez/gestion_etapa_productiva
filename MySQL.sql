@@ -433,21 +433,6 @@ BEGIN
     ORDER BY cantidad DESC;
 END //
 
--- Procedimiento para actualizar estados de formación
-CREATE PROCEDURE `sp_actualizar_estados_formacion`()
-BEGIN
-    -- Actualizar aprendices con fechas pasadas
-    UPDATE aprendices
-    SET estadoFormacion = 'retirado'
-    WHERE fechaFinProductiva < CURDATE() AND estadoFormacion = 'activo';
-
-    -- Actualizar aprendices próximos a terminar (último mes)
-    UPDATE aprendices
-    SET estadoFormacion = 'aplazado'
-    WHERE fechaFinProductiva BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-    AND estadoFormacion = 'activo';
-END //
-
 -- Procedimiento para desbloquear usuarios
 CREATE PROCEDURE `sp_desbloquear_usuario`(IN p_user_id INT, IN p_user_type ENUM('aprendiz', 'admin'))
 BEGIN
@@ -460,48 +445,6 @@ BEGIN
         SET intentosFallidos = 0, fechaBloqueo = NULL, activo = TRUE
         WHERE id = p_user_id;
     END IF;
-END //
-
--- Procedimiento para obtener cumplimiento de documentos
-CREATE PROCEDURE `sp_cumplimiento_documentos`()
-BEGIN
-    SELECT
-        CASE
-            WHEN docs_subidos >= 13 THEN 'Al día'
-            ELSE 'Pendiente'
-        END as estado_documentos,
-        COUNT(*) as cantidad
-    FROM (
-        SELECT
-            a.id,
-            COUNT(da.id) as docs_subidos
-        FROM aprendices a
-        LEFT JOIN documentos_aprendiz da ON a.id = da.aprendiz_id AND da.activo = 1
-        GROUP BY a.id
-    ) resumen_docs
-    GROUP BY estado_documentos
-    ORDER BY estado_documentos DESC;
-END //
-
--- Procedimiento para obtener cumplimiento de seguimiento
-CREATE PROCEDURE `sp_cumplimiento_seguimiento`()
-BEGIN
-    SELECT
-        CASE
-            WHEN bitacoras_recientes > 0 THEN 'Al día'
-            ELSE 'Pendiente'
-        END as estado_seguimiento,
-        COUNT(*) as cantidad
-    FROM (
-        SELECT
-            a.id,
-            COUNT(CASE WHEN b.fechaCreacion >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as bitacoras_recientes
-        FROM aprendices a
-        LEFT JOIN bitacoras b ON a.id = b.aprendizId
-        GROUP BY a.id
-    ) resumen_bitacoras
-    GROUP BY estado_seguimiento
-    ORDER BY estado_seguimiento DESC;
 END //
 
 DELIMITER ;
@@ -663,3 +606,45 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 select * from aprendices;
+
+SELECT "=== PRUEBA: Cumplimiento de Documentos ===" as prueba;
+CALL sp_cumplimiento_documentos();
+
+SELECT "=== PRUEBA: Cumplimiento de Seguimiento ===" as prueba;
+CALL sp_cumplimiento_seguimiento();
+
+-- Verificar que los procedimientos existen
+SELECT "=== PROCEDIMIENTOS DISPONIBLES ===" as info;
+SHOW PROCEDURE STATUS WHERE Db = 'sena_etapa_productiva' AND Name LIKE 'sp_cumplimiento_%';
+
+-- Verificar estructura de resultados
+SELECT "=== ESTRUCTURA DE RESULTADOS ===" as info;
+DESCRIBE aprendices;
+DESCRIBE documentos_aprendiz;
+DESCRIBE bitacoras;
+
+-- Conteo de registros para validar cálculos
+SELECT "=== VALIDACIÓN DE DATOS ===" as validacion;
+SELECT
+    "Total aprendices" as descripcion,
+    COUNT(*) as cantidad
+FROM aprendices
+UNION ALL
+SELECT
+    "Documentos activos" as descripcion,
+    COUNT(*) as cantidad
+FROM documentos_aprendiz
+WHERE activo = 1
+UNION ALL
+SELECT
+    "Bitácoras totales" as descripcion,
+    COUNT(*) as cantidad
+FROM bitacoras
+UNION ALL
+SELECT
+    "Bitácoras últimas 30 días" as descripcion,
+    COUNT(*) as cantidad
+FROM bitacoras
+WHERE fechaCreacion >= DATE_SUB(NOW(), INTERVAL 30 DAY);
+
+SELECT "✅ PRUEBAS COMPLETADAS" as resultado;
