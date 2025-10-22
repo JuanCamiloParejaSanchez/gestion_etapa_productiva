@@ -155,7 +155,7 @@ html.dark-mode body .navbar {
 }
 
 html.dark-mode body .btn-primary {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #484f58 100%);
+    background: #0d6efd;
     border-color: var(--color-primary);
 }
 

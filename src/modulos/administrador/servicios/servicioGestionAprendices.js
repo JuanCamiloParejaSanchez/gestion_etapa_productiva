@@ -44,8 +44,8 @@ class ServicioGestionAprendices {
      */
     construirQueryDinamica(filtros) {
         let baseQuery = 'FROM aprendices';
-        let whereClauses = [];
-        let params = [];
+        const whereClauses = [];
+        const params = [];
 
         const { nombre, documento, programaFormacion, alternativaSeleccionada } = filtros;
 
@@ -286,7 +286,6 @@ class ServicioGestionAprendices {
                 const [estadisticasGenerales] = await pool.execute(`
                     SELECT
                         COUNT(*) as total_aprendices,
-                        COUNT(CASE WHEN estado = 'activo' THEN 1 END) as activos,
                         COUNT(CASE WHEN estadoFormacion = 'En formación' THEN 1 END) as en_formacion,
                         COUNT(CASE WHEN alternativaSeleccionada IS NOT NULL THEN 1 END) as con_alternativa,
                         AVG(TIMESTAMPDIFF(MONTH, fechaInicioLectiva, COALESCE(fechaFinProductiva, NOW()))) as promedio_meses_formacion
@@ -385,10 +384,27 @@ class ServicioGestionAprendices {
     async actualizarAprendiz(id, datosActualizados) {
         try {
             // Convertir el correo a minúsculas y los demás valores string a mayúsculas
+            // Excepciones: estadoFormacion mantiene su formato específico del enum
             for (const key in datosActualizados) {
                 if (typeof datosActualizados[key] === 'string') {
                     if (key === 'correoElectronico') {
                         datosActualizados[key] = datosActualizados[key].toLowerCase();
+                    } else if (key === 'estadoFormacion') {
+                        
+                        const valorOriginal = datosActualizados[key].trim();
+                        // Mapear variaciones comunes al formato correcto del enum
+                        const mapeoEstados = {
+                            'en formacion': 'activo',
+                            'en formación': 'activo',
+                            'enformacion': 'activo',
+                            'activo': 'activo',
+                            'inactivo': 'inactivo',
+                            'aplazado': 'aplazado',
+                            'retirado': 'retirado',
+                            'culminado': 'retirado',
+                            'suspendido': 'retirado'
+                        };
+                        datosActualizados[key] = mapeoEstados[valorOriginal.toLowerCase()] || valorOriginal;
                     } else {
                         datosActualizados[key] = datosActualizados[key].toUpperCase();
                     }

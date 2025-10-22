@@ -31,13 +31,29 @@
         <div class="card-body">
             <div id="messageContainer"></div>
 
+            <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <%= successMessage %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <%= errorMessage %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+
     <% if (typeof aprendiz !== 'undefined') { %>
                 <form id="editarAprendizForm"
                       data-tipo="admin"
                       method="POST"
                       action="/administrador/aprendiz/actualizar/<%= aprendiz.id %>">
             <% for (let key in aprendiz) { %>
-                <% if (key !== 'id' && key !== 'created_at') { %>
+                <% if (key !== 'id' && key !== 'created_at' && key !== 'password') { %>
                     <div class="mb-3">
                         <label for="<%= key %>" class="form-label">
                             <%= key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim() %>
@@ -99,7 +115,8 @@
 
             <div class="mt-3">
                 <button type="submit" class="btn btn-primary">
-                    <span class="button-text">Guardar Cambios</span>
+                    <i class="fas fa-save me-2"></i>
+                    Guardar Cambios
                 </button>
                 <a href="/administrador/listar-aprendices" class="btn btn-secondary btn-cancel-editar">Cancelar</a>
             </div>
@@ -112,15 +129,124 @@
         </div>
     </div>
 </div>
+<!-- Modal de Éxito -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    ¡Éxito!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: var(--font-size-5xl);"></i>
+                </div>
+                <h4 class="text-success mb-3">Aprendiz Actualizado</h4>
+                <p class="mb-0">La información del aprendiz ha sido actualizada exitosamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-success px-4" id="confirmButton">
+                    <i class="fas fa-check me-2"></i>
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Error -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error de Validación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: var(--font-size-5xl);"></i>
+                </div>
+                <h4 class="text-danger mb-3">Fechas Inválidas</h4>
+                <div id="errorModalBody"></div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <%- contentFor('scripts') %>
-<script type="module">
-    import utilidadesAdmin from '/js/admin/utilidadesAdmin.js';
-
+<script src="/js/utilidades/sessionTimeout.js"></script>
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('editarAprendizForm');
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Animación de entrada
+        document.querySelector('.container').style.opacity = '0';
+        document.querySelector('.container').style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            document.querySelector('.container').style.transition = 'all 0.5s ease-in-out';
+            document.querySelector('.container').style.opacity = '1';
+            document.querySelector('.container').style.transform = 'translateY(0)';
+        }, 100);
+
         if (form) {
-            utilidadesAdmin.configurarEventosFormulario();
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Mostrar modal de éxito
+                        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+
+                        // Configurar el botón de aceptar para recargar la página
+                        document.getElementById('confirmButton').addEventListener('click', function() {
+                            window.location.reload();
+                        });
+                    } else {
+                        throw new Error(result.message || 'Ocurrió un error en el servidor.');
+                    }
+                } catch (error) {
+                    console.error('Error al enviar el formulario:', error);
+                    messageContainer.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-save me-2"></i> Guardar Cambios';
+                }
+            });
+        } else {
+            // PRUEBA DE ERROR: El script no encontró el formulario
+            console.error('ERROR: ¡El script se ejecutó PERO no pudo encontrar el formulario!');
         }
+
+        console.log('Formulario de edición de aprendiz cargado correctamente');
     });
 </script>

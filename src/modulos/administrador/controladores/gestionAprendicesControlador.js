@@ -266,27 +266,39 @@ const gestionAprendicesControlador = {
     async editarAprendiz(req, res) {
         try {
             const { id } = req.params;
-            
+
             // Obtener información del aprendiz
             const [aprendizResult] = await pool.execute(
                 'SELECT * FROM aprendices WHERE id = ?',
                 [id]
             );
-            
+
             if (aprendizResult.length === 0) {
                 return res.status(404).render('compartido/paginaError', {
                     message: 'Aprendiz no encontrado',
                     layout: 'plantillas/principal'
                 });
             }
-            
+
+            // Obtener mensajes de sesión si existen
+            const successMessage = req.session?.successMessage;
+            const errorMessage = req.session?.errorMessage;
+
+            // Limpiar mensajes de sesión
+            if (req.session) {
+                delete req.session.successMessage;
+                delete req.session.errorMessage;
+            }
+
             res.render('administrador/editarAprendiz', {
                 title: 'Editar Aprendiz',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0]
+                aprendiz: aprendizResult[0],
+                successMessage: successMessage,
+                errorMessage: errorMessage
             });
-            
+
         } catch (error) {
             console.error('Error al cargar formulario de edición:', error);
             res.status(500).render('compartido/paginaError', {
@@ -337,12 +349,30 @@ const gestionAprendicesControlador = {
             const result = await servicioGestionAprendices.actualizarAprendiz(id, datosActualizados);
 
             if (result.success) {
-                res.json({
+                // Para solicitudes AJAX, devolver JSON
+                if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                    return res.json({
+                        success: true,
+                        message: 'Aprendiz actualizado correctamente'
+                    });
+                }
+
+                // Para solicitudes normales del formulario, devolver JSON para el modal
+                return res.json({
                     success: true,
                     message: 'Aprendiz actualizado correctamente'
                 });
             } else {
-                res.status(400).json({
+                // Para solicitudes AJAX
+                if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'No hay datos válidos para actualizar'
+                    });
+                }
+
+                // Para solicitudes normales
+                return res.status(400).json({
                     success: false,
                     message: 'No hay datos válidos para actualizar'
                 });
@@ -350,7 +380,18 @@ const gestionAprendicesControlador = {
 
         } catch (error) {
             logger.error('Error al actualizar aprendiz:', error);
-            res.status(500).json({
+
+            // Para solicitudes AJAX
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error al actualizar el aprendiz',
+                    error: error.message
+                });
+            }
+
+            // Para solicitudes normales
+            return res.status(500).json({
                 success: false,
                 message: 'Error al actualizar el aprendiz',
                 error: error.message

@@ -140,16 +140,17 @@ function generarAprendiz(index) {
     const fechaFinProductiva = new Date(fechaInicioProductiva.getTime() + (6 * 30 * 24 * 60 * 60 * 1000)); // 6 meses después
     
     const alternativaSeleccionada = [
-        'contratoAprendizaje', 'pasantia', 'apoyoEntidades', 'vinculoLaboral', 
-        'proyectosProductivos', 'monitoria', 'unidadesProductivas'
+        'contrato de aprendizaje', 'pasantia', 'apoyo a entidades', 'vinculo laboral', 
+        'proyectos productivos', 'monitoria', 'unidades productivas familiares'
     ][Math.floor(Math.random() * 7)];
     
-    const programaFormacion = Math.random() > 0.5 ? 'tecnoActividadFisica' : 'tecnoEntrenamientoDeportivo';
+    const programas = ['tec actividad física', 'tec entrenamiento deportivo', 'tec análisis y dllo software', 'tec proc pruebas software', 'tec programación de software'];
+    const programaFormacion = programas[Math.floor(Math.random() * programas.length)];
     
     const aprendiz = {
         tipoDocumento: ['CC', 'TI', 'CE', 'PEP', 'PPT'][Math.floor(Math.random() * 5)],
         numeroDocumento: generarNumeroDocumento().toString(),
-        estadoFormacion: ['En formación', 'Culminado', 'Retirado', 'Suspendido'][Math.floor(Math.random() * 4)],
+        estadoFormacion: ['Activo', 'Inactivo', 'Aplazado', 'Retirado'][Math.floor(Math.random() * 4)],
         nombres: nombre,
         primerApellido: primerApellido,
         segundoApellido: segundoApellido,

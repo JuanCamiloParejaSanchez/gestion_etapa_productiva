@@ -23,7 +23,7 @@ CREATE TABLE `aprendices` (
   `id` int NOT NULL AUTO_INCREMENT,
   `tipoDocumento` enum('CC','TI','CE','PEP','PPT') NOT NULL COMMENT 'Tipo de documento de identidad',
   `numeroDocumento` varchar(20) NOT NULL COMMENT 'Número de documento único',
-  `estadoFormacion` enum('En formación','Culminado','Retirado','Suspendido') DEFAULT 'En formación' COMMENT 'Estado actual de la formación',
+  `estadoFormacion` enum('activo','inactivo','aplazado','retirado') DEFAULT 'activo' COMMENT 'Estado actual de la formación',
   `nombres` varchar(100) NOT NULL COMMENT 'Nombres del aprendiz',
   `primerApellido` varchar(50) NOT NULL COMMENT 'Primer apellido',
   `segundoApellido` varchar(50) DEFAULT NULL COMMENT 'Segundo apellido (opcional)',
@@ -55,20 +55,14 @@ CREATE TABLE `aprendices` (
   `correoEmpresa` varchar(100) DEFAULT NULL COMMENT 'Correo electrónico de la empresa',
   `horario` varchar(100) DEFAULT NULL COMMENT 'Horario de trabajo',
   `password` varchar(255) DEFAULT NULL COMMENT 'Contraseña hasheada',
-  `estado` enum('pendiente','activo','inactivo','bloqueado') DEFAULT 'pendiente' COMMENT 'Estado de la cuenta',
-  `ultimoAcceso` timestamp NULL DEFAULT NULL COMMENT 'Último acceso al sistema',
-  `intentosFallidos` int DEFAULT 0 COMMENT 'Contador de intentos fallidos de login',
-  `fechaBloqueo` timestamp NULL DEFAULT NULL COMMENT 'Fecha de bloqueo por intentos fallidos',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
-  `fechaUltimoCorreoAlerta` datetime NULL COMMENT 'Fecha del último envío de correo de alertas',
-  
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_numero_documento` (`numeroDocumento`),
   UNIQUE KEY `uk_correo_electronico` (`correoElectronico`),
   KEY `idx_programa_formacion` (`programaFormacion`),
   KEY `idx_alternativa_seleccionada` (`alternativaSeleccionada`),
-  KEY `idx_estado` (`estado`),
   KEY `idx_fecha_creacion` (`created_at`),
   KEY `idx_departamento_municipio` (`departamento`, `municipio`),
   KEY `idx_numero_ficha` (`numeroFicha`),
@@ -86,7 +80,6 @@ CREATE TABLE `aprendices` (
     (`fechaInicioProductiva` IS NULL OR `fechaFinProductiva` IS NULL) OR 
     (`fechaInicioProductiva` <= `fechaFinProductiva`)
   ),
-  CONSTRAINT `chk_intentos_fallidos` CHECK (`intentosFallidos` >= 0 AND `intentosFallidos` <= 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla principal de aprendices del SENA';
 
 -- =====================================================
@@ -235,7 +228,6 @@ CREATE TABLE `bitacoras` (
   KEY `idx_aprendiz_fecha` (`aprendizId`, `fechaCreacion`),
   KEY `idx_sentimiento_general` (`sentimiento_general`),
   KEY `idx_score_promedio` (`score_promedio`),
-  KEY `idx_estado` (`estado`),
   KEY `idx_fecha_creacion` (`fechaCreacion`),
   
   CONSTRAINT `fk_bitacoras_aprendiz` FOREIGN KEY (`aprendizId`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -248,8 +240,6 @@ CREATE TABLE `bitacoras` (
   )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Bitácoras semanales de los aprendices';
 
--- Si la tabla ya existe y solo quieres agregar las columnas nuevas, ejecuta este bloque:
--- Nota: Ejecutar individualmente cada ALTER TABLE para evitar errores si alguna columna ya existe
 
 -- Agregar columnas de emociones
 SET @sql = IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'bitacoras' AND COLUMN_NAME = 'emociones_desafio') = 0,
@@ -318,13 +308,13 @@ EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
 -- =====================================================
--- TABLA: LOGS_ACCESO (Nueva - Para auditoría)
+-- TABLA: LOGS_ACCESO
 -- =====================================================
 CREATE TABLE `logs_acceso` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL COMMENT 'ID del usuario',
   `user_type` enum('aprendiz','admin') NOT NULL COMMENT 'Tipo de usuario',
-  `accion` enum('login','logout','reset_password','cambio_password','bloqueo','desbloqueo') NOT NULL COMMENT 'Acción realizada',
+  `accion` enum('login','logout','reset_password','cambio_password','bloqueo','desbloqueo','actualizacion') NOT NULL COMMENT 'Acción realizada',
   `ip_address` varchar(45) DEFAULT NULL COMMENT 'IP del usuario',
   `user_agent` text DEFAULT NULL COMMENT 'User agent del navegador',
   `exitoso` boolean DEFAULT TRUE COMMENT 'Indica si la acción fue exitosa',
@@ -383,16 +373,14 @@ INSERT INTO `administradores` (`nombreCompleto`, `correoInstitucional`, `numeroI
 -- CREAR VISTAS ÚTILES
 -- =====================================================
 
--- Vista para estadísticas de aprendices
+-- Vista para estadísticas de aprendices (actualizada sin columna estado)
 CREATE OR REPLACE VIEW `v_estadisticas_aprendices` AS
-SELECT 
+SELECT
     COUNT(*) as total_aprendices,
-    COUNT(CASE WHEN estado = 'activo' THEN 1 END) as aprendices_activos,
-    COUNT(CASE WHEN estado = 'pendiente' THEN 1 END) as aprendices_pendientes,
-    COUNT(CASE WHEN estado = 'inactivo' THEN 1 END) as aprendices_inactivos,
-    COUNT(CASE WHEN estadoFormacion = 'En formación' THEN 1 END) as en_formacion,
-    COUNT(CASE WHEN estadoFormacion = 'Culminado' THEN 1 END) as culminados,
-    COUNT(CASE WHEN estadoFormacion = 'Retirado' THEN 1 END) as retirados
+    COUNT(CASE WHEN estadoFormacion = 'activo' THEN 1 END) as activos,
+    COUNT(CASE WHEN estadoFormacion = 'inactivo' THEN 1 END) as inactivos,
+    COUNT(CASE WHEN estadoFormacion = 'aplazado' THEN 1 END) as aplazados,
+    COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados
 FROM aprendices;
 
 -- Vista para resumen de bitácoras
@@ -435,14 +423,29 @@ END //
 -- Procedimiento para obtener estadísticas de sentimientos
 CREATE PROCEDURE `sp_estadisticas_sentimientos`(IN p_fecha_inicio DATE, IN p_fecha_fin DATE)
 BEGIN
-    SELECT 
+    SELECT
         sentimiento_general,
         COUNT(*) as cantidad,
         ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM bitacoras WHERE DATE(fechaCreacion) BETWEEN p_fecha_inicio AND p_fecha_fin), 2) as porcentaje
-    FROM bitacoras 
+    FROM bitacoras
     WHERE DATE(fechaCreacion) BETWEEN p_fecha_inicio AND p_fecha_fin
     GROUP BY sentimiento_general
     ORDER BY cantidad DESC;
+END //
+
+-- Procedimiento para actualizar estados de formación
+CREATE PROCEDURE `sp_actualizar_estados_formacion`()
+BEGIN
+    -- Actualizar aprendices con fechas pasadas
+    UPDATE aprendices
+    SET estadoFormacion = 'retirado'
+    WHERE fechaFinProductiva < CURDATE() AND estadoFormacion = 'activo';
+
+    -- Actualizar aprendices próximos a terminar (último mes)
+    UPDATE aprendices
+    SET estadoFormacion = 'aplazado'
+    WHERE fechaFinProductiva BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+    AND estadoFormacion = 'activo';
 END //
 
 -- Procedimiento para desbloquear usuarios
@@ -530,16 +533,16 @@ CREATE TRIGGER `tr_aprendices_after_update`
 AFTER UPDATE ON `aprendices`
 FOR EACH ROW
 BEGIN
-    IF OLD.estado != NEW.estado THEN
+    IF OLD.estadoFormacion != NEW.estadoFormacion THEN
         INSERT INTO logs_acceso (user_id, user_type, accion, exitoso, detalles)
-        VALUES (NEW.id, 'aprendiz', 
-                CASE 
-                    WHEN NEW.estado = 'bloqueado' THEN 'bloqueo'
-                    WHEN OLD.estado = 'bloqueado' AND NEW.estado != 'bloqueado' THEN 'desbloqueo'
-                    ELSE 'login'
+        VALUES (NEW.id, 'aprendiz',
+                CASE
+                    WHEN NEW.estadoFormacion = 'retirado' THEN 'bloqueo'
+                    WHEN OLD.estadoFormacion = 'retirado' AND NEW.estadoFormacion != 'retirado' THEN 'desbloqueo'
+                    ELSE 'actualizacion'
                 END,
                 TRUE,
-                JSON_OBJECT('estado_anterior', OLD.estado, 'estado_nuevo', NEW.estado));
+                JSON_OBJECT('estado_anterior', OLD.estadoFormacion, 'estado_nuevo', NEW.estadoFormacion));
     END IF;
 END //
 
@@ -654,8 +657,11 @@ SELECT 'La base de datos está funcionando correctamente' as mensaje;
 SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
+-- ===============================================================================================
+
+
+
 
 select * from aprendices;
-delete from aprendices where id='174';
-select * from administradores;
-delete from administradores where id='174';
+ALTER TABLE logs_acceso
+MODIFY COLUMN accion ENUM('login','logout','reset_password','cambio_password','bloqueo','desbloqueo','actualizacion') NOT NULL;
