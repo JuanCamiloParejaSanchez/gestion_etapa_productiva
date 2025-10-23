@@ -24,28 +24,34 @@
 
     <!-- KPIs Generales -->
     <div class="row mb-4">
-        <div class="col-md-3 mb-3">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="kpi-card">
                 <div class="kpi-value"><%= estadisticasGenerales.total_aprendices %></div>
                 <div class="kpi-label">Total Aprendices</div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="kpi-card">
                 <div class="kpi-value"><%= estadisticasGenerales.activos %></div>
                 <div class="kpi-label">Aprendices Activos</div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="kpi-card">
-                <div class="kpi-value"><%= estadisticasGenerales.en_formacion %></div>
-                <div class="kpi-label">En Formación</div>
+                <div class="kpi-value"><%= estadisticasGenerales.inactivos %></div>
+                <div class="kpi-label">Aprendices Inactivos</div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="kpi-card">
-                <div class="kpi-value"><%= estadisticasGenerales.con_alternativa %></div>
-                <div class="kpi-label">Con Alternativa</div>
+                <div class="kpi-value"><%= estadisticasGenerales.aplazados %></div>
+                <div class="kpi-label">Aprendices Aplazados</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-value"><%= estadisticasGenerales.retirados %></div>
+                <div class="kpi-label">Aprendices Retirados</div>
             </div>
         </div>
     </div>
@@ -438,8 +444,9 @@
             const estadisticas = JSON.parse('<%- JSON.stringify(estadisticasGenerales) %>');
             pdf.text(`Total de Aprendices: ${estadisticas.total_aprendices}`, 20, 40);
             pdf.text(`Aprendices Activos: ${estadisticas.activos}`, 20, 50);
-            pdf.text(`En Formación: ${estadisticas.en_formacion}`, 20, 60);
-            pdf.text(`Con Alternativa: ${estadisticas.con_alternativa}`, 20, 70);
+            pdf.text(`Aprendices Inactivos: ${estadisticas.inactivos}`, 20, 60);
+            pdf.text(`Aprendices Aplazados: ${estadisticas.aplazados}`, 20, 70);
+            pdf.text(`Aprendices Retirados: ${estadisticas.retirados}`, 20, 80);
 
             pdf.save(`reporte_completo_${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {

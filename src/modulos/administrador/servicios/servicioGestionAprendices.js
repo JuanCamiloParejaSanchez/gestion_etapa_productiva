@@ -286,9 +286,10 @@ class ServicioGestionAprendices {
                 const [estadisticasGenerales] = await pool.execute(`
                     SELECT
                         COUNT(*) as total_aprendices,
-                        COUNT(CASE WHEN estadoFormacion = 'En formación' THEN 1 END) as en_formacion,
-                        COUNT(CASE WHEN alternativaSeleccionada IS NOT NULL THEN 1 END) as con_alternativa,
-                        AVG(TIMESTAMPDIFF(MONTH, fechaInicioLectiva, COALESCE(fechaFinProductiva, NOW()))) as promedio_meses_formacion
+                        COUNT(CASE WHEN estadoFormacion = 'activo' THEN 1 END) as activos,
+                        COUNT(CASE WHEN estadoFormacion = 'inactivo' THEN 1 END) as inactivos,
+                        COUNT(CASE WHEN estadoFormacion = 'aplazado' THEN 1 END) as aplazados,
+                        COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados
                     FROM aprendices
                 `);
 
