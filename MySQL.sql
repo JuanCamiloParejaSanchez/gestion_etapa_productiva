@@ -438,7 +438,7 @@ CREATE PROCEDURE `sp_desbloquear_usuario`(IN p_user_id INT, IN p_user_type ENUM(
 BEGIN
     IF p_user_type = 'aprendiz' THEN
         UPDATE aprendices
-        SET intentosFallidos = 0, fechaBloqueo = NULL, estado = 'activo'
+        SET intentosFallidos = 0, fechaBloqueo = NULL, estadoFormacion = 'activo'
         WHERE id = p_user_id;
     ELSE
         UPDATE administradores
@@ -446,6 +446,52 @@ BEGIN
         WHERE id = p_user_id;
     END IF;
 END //
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS `sp_cumplimiento_documentos`//
+
+CREATE PROCEDURE `sp_cumplimiento_documentos`()
+BEGIN
+    SELECT
+        CASE
+            WHEN porcentaje_cumplimiento >= 90 THEN 'Excelente (>=90%)'
+            WHEN porcentaje_cumplimiento >= 80 THEN 'Bueno (80-89%)'
+            WHEN porcentaje_cumplimiento >= 60 THEN 'Regular (60-79%)'
+            WHEN porcentaje_cumplimiento > 0 THEN 'Deficiente (<60%)'
+            ELSE 'Sin documentos'
+        END as estado_documentos,
+        COUNT(*) as cantidad,
+        ROUND(AVG(porcentaje_cumplimiento), 1) as promedio_porcentaje
+    FROM (
+        SELECT
+            a.id,
+            COUNT(da.id) as docs_subidos,
+            -- Calcular meses transcurridos desde inicio de etapa productiva
+            LEAST(6, GREATEST(0, TIMESTAMPDIFF(MONTH, a.fechaInicioProductiva, NOW()))) as meses_etapa,
+            -- Documentos esperados hasta ahora: (2 documentos x meses) + 3 documentos base
+            GREATEST(3, (LEAST(6, GREATEST(0, TIMESTAMPDIFF(MONTH, a.fechaInicioProductiva, NOW()))) * 2) + 3) as docs_esperados,
+            -- Porcentaje de cumplimiento basado en lo esperado vs lo subido
+            CASE
+                WHEN TIMESTAMPDIFF(MONTH, a.fechaInicioProductiva, NOW()) < 0 THEN 0
+                ELSE ROUND((COUNT(da.id) / GREATEST(3, (LEAST(6, GREATEST(0, TIMESTAMPDIFF(MONTH, a.fechaInicioProductiva, NOW()))) * 2) + 3)) * 100, 1)
+            END as porcentaje_cumplimiento
+        FROM aprendices a
+        LEFT JOIN documentos_aprendiz da ON a.id = da.aprendiz_id AND da.activo = 1
+        WHERE a.estadoFormacion = 'activo'
+        AND a.fechaInicioProductiva IS NOT NULL
+        GROUP BY a.id, a.fechaInicioProductiva
+    ) cumplimiento
+    GROUP BY estado_documentos
+    ORDER BY
+        CASE estado_documentos
+            WHEN 'Excelente (>=90%)' THEN 1
+            WHEN 'Bueno (80-89%)' THEN 2
+            WHEN 'Regular (60-79%)' THEN 3
+            WHEN 'Deficiente (<60%)' THEN 4
+            ELSE 5
+        END;
+END//
 
 DELIMITER ;
 

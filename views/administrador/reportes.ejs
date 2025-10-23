@@ -191,9 +191,10 @@
                     plugins: { legend: { display: false } } 
                 }
             });
-        } catch (e) { 
-            console.error("Error al renderizar gráfico de programas:", e); 
-            document.getElementById('programasChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+        } catch (e) {
+            console.error("Error al renderizar gráfico de programas:", e);
+            const container = document.getElementById('programasChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
 
         // --- GRÁFICO 2: ESTADOS (Gráfico de Dona) ---
@@ -223,9 +224,10 @@
                     plugins: { legend: { position: 'top' } } 
                 }
             });
-        } catch (e) { 
-            console.error("Error al renderizar gráfico de estados:", e); 
-            document.getElementById('estadosChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+        } catch (e) {
+            console.error("Error al renderizar gráfico de estados:", e);
+            const container = document.getElementById('estadosChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
         
         // --- GRÁFICO 3: ALTERNATIVAS (Gráfico de Torta) ---
@@ -258,10 +260,11 @@
             });
         } catch (e) {
             console.error("Error al renderizar gráfico de alternativas:", e);
-            document.getElementById('alternativasChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+            const container = document.getElementById('alternativasChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
 
-        // --- GRÁFICO 4: DOCUMENTOS (Gráfico de Dona) ---
+        // --- GRÁFICO 4: DOCUMENTOS (Gráfico de Dona Mejorado) ---
         try {
             const datosDocumentos = JSON.parse('<%- datosDocumentos %>');
             const ctxDocumentos = document.getElementById('documentosChart').getContext('2d');
@@ -273,12 +276,18 @@
                         label: 'Aprendices',
                         data: datosDocumentos.data,
                         backgroundColor: [
-                            'rgba(75, 192, 192, 0.7)', // Verde para "Al día"
-                            'rgba(255, 99, 132, 0.7)'  // Rojo para "Pendiente"
+                            'rgba(34, 197, 94, 0.8)',   // Verde brillante para "Excelente"
+                            'rgba(59, 130, 246, 0.8)',   // Azul para "Bueno"
+                            'rgba(251, 191, 36, 0.8)',   // Amarillo para "Regular"
+                            'rgba(239, 68, 68, 0.8)',    // Rojo para "Deficiente"
+                            'rgba(156, 163, 175, 0.8)'   // Gris para "Sin documentos"
                         ],
                         borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)'
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(251, 191, 36, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(156, 163, 175, 1)'
                         ],
                         borderWidth: 2,
                         hoverOffset: 4
@@ -305,7 +314,8 @@
             });
         } catch (e) {
             console.error("Error al renderizar gráfico de documentos:", e);
-            document.getElementById('documentosChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+            const container = document.getElementById('documentosChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
 
         // --- GRÁFICO 5: SEGUIMIENTO (Gráfico de Dona) ---
@@ -352,7 +362,8 @@
             });
         } catch (e) {
             console.error("Error al renderizar gráfico de seguimiento:", e);
-            document.getElementById('seguimientoChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+            const container = document.getElementById('seguimientoChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
 
         // --- GRÁFICO 6: DEPARTAMENTOS (Gráfico de Barras) ---
@@ -380,7 +391,8 @@
             });
         } catch (e) {
             console.error("Error al renderizar gráfico de departamentos:", e);
-            document.getElementById('departamentosChart').innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
+            const container = document.getElementById('departamentosChart').parentElement;
+            container.innerHTML = '<p class="text-center text-muted">Error al cargar el gráfico</p>';
         }
     });
 

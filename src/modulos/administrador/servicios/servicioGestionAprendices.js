@@ -232,25 +232,17 @@ class ServicioGestionAprendices {
                     ORDER BY cantidad DESC
                 `);
 
-                // Consulta cumplimiento de documentos (consulta SQL directa)
-                const [documentosResult] = await pool.execute(`
-                    SELECT
-                        CASE
-                            WHEN docs_subidos >= 13 THEN 'Al día'
-                            ELSE 'Pendiente'
-                        END as estado_documentos,
-                        COUNT(*) as cantidad
-                    FROM (
-                        SELECT
-                            a.id,
-                            COUNT(da.id) as docs_subidos
-                        FROM aprendices a
-                        LEFT JOIN documentos_aprendiz da ON a.id = da.aprendiz_id AND da.activo = 1
-                        GROUP BY a.id
-                    ) resumen_docs
-                    GROUP BY estado_documentos
-                    ORDER BY estado_documentos DESC
-                `);
+                // Consulta cumplimiento de documentos (usando procedimiento almacenado)
+                const [documentosResult] = await pool.execute(`CALL sp_cumplimiento_documentos()`);
+                // Los procedimientos almacenados devuelven un array de result sets
+                // El primer elemento [0] contiene las filas del resultado
+                const documentosRows = Array.isArray(documentosResult) && documentosResult.length > 0 ? documentosResult[0] : [];
+                
+                logger.debug('Datos de documentos obtenidos del procedimiento almacenado', {
+                    documentosResultType: typeof documentosResult,
+                    documentosResultLength: Array.isArray(documentosResult) ? documentosResult.length : 'no es array',
+                    documentosRows: documentosRows
+                });
 
                 // Consulta cumplimiento de seguimiento (consulta SQL directa)
                 const [seguimientoResult] = await pool.execute(`
@@ -297,14 +289,14 @@ class ServicioGestionAprendices {
                     programasResult,
                     estadosResult,
                     alternativasResult,
-                    documentosResult,
+                    documentosRows,
                     seguimientoResult,
                     departamentoResult,
                     estadisticasGenerales: estadisticasGenerales[0]
                 };
             }, cacheTTL);
 
-            const { programasResult, estadosResult, alternativasResult, documentosResult, seguimientoResult, departamentoResult, estadisticasGenerales } = cached;
+            const { programasResult, estadosResult, alternativasResult, documentosRows, seguimientoResult, departamentoResult, estadisticasGenerales } = cached;
 
             const datosProgramas = {
                 labels: programasResult.length > 0 ? programasResult.map(row => NOMBRES_PROGRAMAS[row.programaFormacion] || row.programaFormacion || 'No especificado') : ['No hay datos'],
@@ -322,8 +314,8 @@ class ServicioGestionAprendices {
             };
 
             const datosDocumentos = {
-                labels: documentosResult.length > 0 ? documentosResult.map(row => row.estado_documentos) : ['No hay datos'],
-                data: documentosResult.length > 0 ? documentosResult.map(row => row.cantidad) : [0]
+                labels: documentosRows && documentosRows.length > 0 ? documentosRows.map(row => row.estado_documentos) : ['No hay datos'],
+                data: documentosRows && documentosRows.length > 0 ? documentosRows.map(row => row.cantidad) : [0]
             };
 
             const datosSeguimiento = {
