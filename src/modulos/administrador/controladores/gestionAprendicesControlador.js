@@ -330,7 +330,8 @@ const gestionAprendicesControlador = {
                 title: 'Ver Aprendiz',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0]
+                aprendiz: aprendizResult[0],
+                userName: req.session?.userName || 'Administrador'
             });
             
         } catch (error) {

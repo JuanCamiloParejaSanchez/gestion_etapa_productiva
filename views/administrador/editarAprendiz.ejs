@@ -53,10 +53,12 @@
                       method="POST"
                       action="/administrador/aprendiz/actualizar/<%= aprendiz.id %>">
             <% for (let key in aprendiz) { %>
-                <% if (key !== 'id' && key !== 'created_at' && key !== 'password') { %>
+                <% if (key !== 'id' && key !== 'password') { %>
                     <div class="mb-3">
                         <label for="<%= key %>" class="form-label">
-                            <% if (key === 'updated_at') { %>
+                            <% if (key === 'created_at') { %>
+                                Fecha creación de usuario
+                            <% } else if (key === 'updated_at') { %>
                                 Fecha última actualización
                             <% } else { %>
                                 <%= key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1').trim() %>
@@ -160,6 +162,22 @@
                                 <option value="tecProcesamientoPruebas" <%= aprendiz[key] === 'tecProcesamientoPruebas' ? 'selected' : '' %>>TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
                                 <option value="tecProgramacion" <%= aprendiz[key] === 'tecProgramacion' ? 'selected' : '' %>>TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
                             </select>
+
+                        <% } else if (key === 'created_at') { %>
+                            <input type="text"
+                                   class="form-control"
+                                   id="<%= key %>"
+                                   name="<%= key %>"
+                                   value="<%= aprendiz[key] ? new Date(aprendiz[key]).toLocaleString('es-ES', {
+                                       weekday: 'long',
+                                       year: 'numeric',
+                                       month: 'long',
+                                       day: 'numeric',
+                                       hour: '2-digit',
+                                       minute: '2-digit',
+                                       second: '2-digit'
+                                   }) : '' %>"
+                                   readonly>
 
                         <% } else if (key === 'updated_at') { %>
                             <input type="text"
