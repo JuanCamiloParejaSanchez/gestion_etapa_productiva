@@ -56,7 +56,8 @@
     "redis": "^5.8.2",
     "sentiment": "^5.0.2",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",

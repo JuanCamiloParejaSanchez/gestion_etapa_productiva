@@ -672,12 +672,12 @@ body.dark-mode .theme-toggle-btn .fa-moon {
 }
 
 .btn-custom-excel {
-    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    background: linear-gradient(135deg, #217346 0%, #1e5f3a 100%);
     color: white;
 }
 
 .btn-custom-excel:hover {
-    background: linear-gradient(135deg, #157347 0%, #146c43 100%);
+    background: linear-gradient(135deg, #1e5f3a 0%, #1a5332 100%);
 }
 
 .btn-custom-pdf {

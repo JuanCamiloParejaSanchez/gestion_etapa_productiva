@@ -696,8 +696,4 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 -- ===============================================================================================
 
 
-UPDATE bitacoras 
-SET estado = 'enviada', fechaEnvio = fechaCreacion 
-WHERE estado = 'borrador';
-
 

@@ -16,6 +16,98 @@
 <link rel="stylesheet" href="/estilos/components/navbar.css">
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
+<style>
+    /* Estilos para botones de exportación */
+    .export-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        justify-content: center;
+    }
+
+    .export-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Botones Excel con color secundario SENA */
+    .export-btn.btn-excel {
+        background-color: var(--color-secondary);
+        color: white;
+    }
+
+    .export-btn.btn-excel:hover {
+        background-color: #2d8500;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(57, 169, 0, 0.3);
+    }
+
+    .export-btn.btn-excel:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(57, 169, 0, 0.2);
+    }
+
+    /* Botón PDF con color secundario SENA */
+    .export-btn.btn-pdf {
+        background-color: var(--color-secondary);
+        color: white;
+    }
+
+    .export-btn.btn-pdf:hover {
+        background-color: #2d8500;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(57, 169, 0, 0.3);
+    }
+
+    .export-btn.btn-pdf:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(57, 169, 0, 0.2);
+    }
+
+    /* Modo oscuro */
+    html.dark-mode .export-btn.btn-excel,
+    html.dark-mode .export-btn.btn-pdf {
+        background-color: #39a900;
+        color: #0d1117;
+        box-shadow: 0 2px 4px rgba(57, 169, 0, 0.2);
+    }
+
+    html.dark-mode .export-btn.btn-excel:hover,
+    html.dark-mode .export-btn.btn-pdf:hover {
+        background-color: #4bc200;
+        color: #0d1117;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(57, 169, 0, 0.4);
+    }
+
+    html.dark-mode .export-btn.btn-excel:active,
+    html.dark-mode .export-btn.btn-pdf:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(57, 169, 0, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .export-buttons {
+            flex-direction: column;
+        }
+
+        .export-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 
 <%- contentFor('body') %>
 <div class="container-fluid mt-4">
@@ -23,7 +115,7 @@
     <hr class="my-4">
 
     <!-- KPIs Generales -->
-    <div class="row mb-4">
+    <div class="row mb-4 justify-content-center">
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
             <div class="kpi-card">
                 <div class="kpi-value"><%= estadisticasGenerales.total_aprendices %></div>
@@ -58,11 +150,11 @@
 
     <!-- Botones de Exportación -->
     <div class="export-buttons">
-        <button class="export-btn btn-png" onclick="exportarGrafico('programasChart', 'programas')">📊 Programas</button>
-        <button class="export-btn btn-png" onclick="exportarGrafico('estadosChart', 'estados')">📈 Estados</button>
-        <button class="export-btn btn-png" onclick="exportarGrafico('alternativasChart', 'alternativas')">🥧 Alternativas</button>
-        <button class="export-btn btn-png" onclick="exportarGrafico('documentosChart', 'documentos')">📄 Documentos</button>
-        <button class="export-btn btn-png" onclick="exportarGrafico('seguimientoChart', 'seguimiento')">📝 Seguimiento</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('programas')">📊 Programas</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('estados')">📈 Estados</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('alternativas')">🥧 Alternativas</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('documentos')">📄 Documentos</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('seguimiento')">📝 Seguimiento</button>
         <button class="export-btn btn-pdf" onclick="exportarTodosPDF()">📄 Todo (PDF)</button>
     </div>
 
@@ -184,11 +276,32 @@
                         borderWidth: 1
                     }]
                 },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true } }, 
-                    plugins: { legend: { display: false } } 
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: false  // Ocultar etiquetas del eje X
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;  // Mostrar nombre del programa en tooltip
+                                },
+                                label: function(context) {
+                                    return 'Aprendices: ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         } catch (e) {
@@ -411,6 +524,55 @@
         link.download = `reporte_${nombreArchivo}_${new Date().toISOString().split('T')[0]}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+    }
+
+    // Función para exportar datos como Excel
+    function exportarExcel(tipo) {
+        const rutas = {
+            'programas': '/administrador/aprendices/reportes/exportar/programas',
+            'estados': '/administrador/aprendices/reportes/exportar/estados',
+            'alternativas': '/administrador/aprendices/reportes/exportar/alternativas',
+            'documentos': '/administrador/aprendices/reportes/exportar/documentos',
+            'seguimiento': '/administrador/aprendices/reportes/exportar/seguimiento'
+        };
+
+        const url = rutas[tipo];
+        if (!url) {
+            alert('Tipo de reporte no válido');
+            return;
+        }
+
+        console.log('Exportando Excel:', tipo, 'URL:', url);
+
+        // Usar fetch para hacer la petición y descargar el archivo
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Crear URL del blob y descargar
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        })
+        .catch(error => {
+            console.error('Error al exportar Excel:', error);
+            alert('Error al descargar el archivo Excel: ' + error.message);
+        });
     }
 
     // Función para exportar todos los gráficos como PDF

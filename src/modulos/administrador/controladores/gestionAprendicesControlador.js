@@ -7,6 +7,7 @@ const servicioAlertas = require('../../../compartido/servicios/servicioAlertas')
 const ServicioGestionAprendices = require('../servicios/servicioGestionAprendices');
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const { logger } = require('../../../compartido/utilidades/logger');
+const XLSX = require('xlsx');
 
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
@@ -619,6 +620,288 @@ const gestionAprendicesControlador = {
                 message: 'Error al obtener los documentos del aprendiz',
                 error: error.message
             });
+        }
+    },
+
+    // --- FUNCIONES DE EXPORTACIÓN DE REPORTES ---
+
+    async exportarProgramasExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Calcular total para porcentajes
+            const total = datosReportes.datosProgramas.data.reduce((sum, val) => sum + val, 0);
+
+            // Crear datos para Excel con porcentaje
+            const datos = datosReportes.datosProgramas.labels.map((label, index) => {
+                const cantidad = datosReportes.datosProgramas.data[index];
+                const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                return {
+                    'Programa de Formación': label,
+                    'Cantidad de Aprendices': cantidad,
+                    'Porcentaje (%)': porcentaje
+                };
+            });
+
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            XLSX.utils.book_append_sheet(wb, ws, 'Programas');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_programas_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar programas a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
+        }
+    },
+
+    async exportarEstadosExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Calcular total para porcentajes
+            const total = datosReportes.datosEstados.data.reduce((sum, val) => sum + val, 0);
+
+            // Crear datos para Excel con porcentaje
+            const datos = datosReportes.datosEstados.labels.map((label, index) => {
+                const cantidad = datosReportes.datosEstados.data[index];
+                const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                return {
+                    'Estado de Formación': label,
+                    'Cantidad de Aprendices': cantidad,
+                    'Porcentaje (%)': porcentaje
+                };
+            });
+
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            XLSX.utils.book_append_sheet(wb, ws, 'Estados');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_estados_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar estados a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
+        }
+    },
+
+    async exportarAlternativasExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Calcular total para porcentajes
+            const total = datosReportes.datosAlternativas.data.reduce((sum, val) => sum + val, 0);
+
+            // Crear datos para Excel con porcentaje
+            const datos = datosReportes.datosAlternativas.labels.map((label, index) => {
+                const cantidad = datosReportes.datosAlternativas.data[index];
+                const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                return {
+                    'Alternativa de Etapa Productiva': label,
+                    'Cantidad de Aprendices': cantidad,
+                    'Porcentaje (%)': porcentaje
+                };
+            });
+
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            XLSX.utils.book_append_sheet(wb, ws, 'Alternativas');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_alternativas_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar alternativas a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
+        }
+    },
+
+    async exportarDocumentosExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Calcular total para porcentajes
+            const total = datosReportes.datosDocumentos.data.reduce((sum, val) => sum + val, 0);
+
+            // Crear datos para Excel con porcentaje
+            const datos = datosReportes.datosDocumentos.labels.map((label, index) => {
+                const cantidad = datosReportes.datosDocumentos.data[index];
+                const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                return {
+                    'Estado de Documentos': label,
+                    'Cantidad de Aprendices': cantidad,
+                    'Porcentaje (%)': porcentaje
+                };
+            });
+
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            XLSX.utils.book_append_sheet(wb, ws, 'Documentos');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_documentos_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar documentos a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
+        }
+    },
+
+    async exportarSeguimientoExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Calcular total para porcentajes
+            const total = datosReportes.datosSeguimiento.data.reduce((sum, val) => sum + val, 0);
+
+            // Crear datos para Excel con porcentaje
+            const datos = datosReportes.datosSeguimiento.labels.map((label, index) => {
+                const cantidad = datosReportes.datosSeguimiento.data[index];
+                const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                return {
+                    'Estado de Seguimiento': label,
+                    'Cantidad de Aprendices': cantidad,
+                    'Porcentaje (%)': porcentaje
+                };
+            });
+
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            XLSX.utils.book_append_sheet(wb, ws, 'Seguimiento');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_seguimiento_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar seguimiento a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
+        }
+    },
+
+    async exportarReporteCompletoExcel(req, res) {
+        try {
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+
+            // Crear libro de Excel con múltiples hojas
+            const wb = XLSX.utils.book_new();
+
+            // Hoja 1: Programas
+            const datosProgramas = datosReportes.datosProgramas.labels.map((label, index) => ({
+                'Programa de Formación': label,
+                'Cantidad de Aprendices': datosReportes.datosProgramas.data[index]
+            }));
+            const wsProgramas = XLSX.utils.json_to_sheet(datosProgramas);
+            XLSX.utils.book_append_sheet(wb, wsProgramas, 'Programas');
+
+            // Hoja 2: Estados
+            const datosEstados = datosReportes.datosEstados.labels.map((label, index) => ({
+                'Estado de Formación': label,
+                'Cantidad de Aprendices': datosReportes.datosEstados.data[index]
+            }));
+            const wsEstados = XLSX.utils.json_to_sheet(datosEstados);
+            XLSX.utils.book_append_sheet(wb, wsEstados, 'Estados');
+
+            // Hoja 3: Alternativas
+            const datosAlternativas = datosReportes.datosAlternativas.labels.map((label, index) => ({
+                'Alternativa de Etapa Productiva': label,
+                'Cantidad de Aprendices': datosReportes.datosAlternativas.data[index]
+            }));
+            const wsAlternativas = XLSX.utils.json_to_sheet(datosAlternativas);
+            XLSX.utils.book_append_sheet(wb, wsAlternativas, 'Alternativas');
+
+            // Hoja 4: Documentos
+            const datosDocumentos = datosReportes.datosDocumentos.labels.map((label, index) => ({
+                'Estado de Documentos': label,
+                'Cantidad de Aprendices': datosReportes.datosDocumentos.data[index]
+            }));
+            const wsDocumentos = XLSX.utils.json_to_sheet(datosDocumentos);
+            XLSX.utils.book_append_sheet(wb, wsDocumentos, 'Documentos');
+
+            // Hoja 5: Seguimiento
+            const datosSeguimiento = datosReportes.datosSeguimiento.labels.map((label, index) => ({
+                'Estado de Seguimiento': label,
+                'Cantidad de Aprendices': datosReportes.datosSeguimiento.data[index]
+            }));
+            const wsSeguimiento = XLSX.utils.json_to_sheet(datosSeguimiento);
+            XLSX.utils.book_append_sheet(wb, wsSeguimiento, 'Seguimiento');
+
+            // Hoja 6: Departamentos
+            const datosDepartamentos = datosReportes.datosDepartamentos.labels.map((label, index) => ({
+                'Departamento': label,
+                'Cantidad de Aprendices': datosReportes.datosDepartamentos.data[index]
+            }));
+            const wsDepartamentos = XLSX.utils.json_to_sheet(datosDepartamentos);
+            XLSX.utils.book_append_sheet(wb, wsDepartamentos, 'Departamentos');
+
+            // Hoja 7: KPIs Generales
+            const datosKPIs = [{
+                'Métrica': 'Total de Aprendices',
+                'Valor': datosReportes.estadisticasGenerales.total_aprendices
+            }, {
+                'Métrica': 'Aprendices Activos',
+                'Valor': datosReportes.estadisticasGenerales.activos
+            }, {
+                'Métrica': 'Aprendices Inactivos',
+                'Valor': datosReportes.estadisticasGenerales.inactivos
+            }, {
+                'Métrica': 'Aprendices Aplazados',
+                'Valor': datosReportes.estadisticasGenerales.aplazados
+            }, {
+                'Métrica': 'Aprendices Retirados',
+                'Valor': datosReportes.estadisticasGenerales.retirados
+            }];
+            const wsKPIs = XLSX.utils.json_to_sheet(datosKPIs);
+            XLSX.utils.book_append_sheet(wb, wsKPIs, 'KPIs');
+
+            // Configurar headers para descarga
+            const nombreArchivo = `reporte_completo_${new Date().toISOString().split('T')[0]}.xlsx`;
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+
+            // Enviar archivo
+            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            res.send(buffer);
+
+        } catch (error) {
+            logger.error('Error al exportar reporte completo a Excel:', error);
+            res.status(500).json({ error: 'Error al generar el archivo Excel' });
         }
     }
 };

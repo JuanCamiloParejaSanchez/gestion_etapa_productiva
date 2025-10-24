@@ -14,6 +14,14 @@ router.get('/panel-principal', gestionAprendicesControlador.mostrarPanelPrincipa
 router.get('/panel', gestionAprendicesControlador.mostrarPanelPrincipal); // Alias para panel-principal
 router.get('/reportes', gestionAprendicesControlador.mostrarPaginaReportes);
 
+// --- Rutas de Exportación de Reportes ---
+router.get('/reportes/exportar/programas', gestionAprendicesControlador.exportarProgramasExcel);
+router.get('/reportes/exportar/estados', gestionAprendicesControlador.exportarEstadosExcel);
+router.get('/reportes/exportar/alternativas', gestionAprendicesControlador.exportarAlternativasExcel);
+router.get('/reportes/exportar/documentos', gestionAprendicesControlador.exportarDocumentosExcel);
+router.get('/reportes/exportar/seguimiento', gestionAprendicesControlador.exportarSeguimientoExcel);
+router.get('/reportes/exportar/completo', gestionAprendicesControlador.exportarReporteCompletoExcel);
+
 // --- Rutas CRUD para Gestión de Aprendices ---
 router.get('/listar-aprendices', gestionAprendicesControlador.listarAprendices);
 router.post('/aprendices-data', gestionAprendicesControlador.obtenerDatosAprendices); // Para la tabla dinámica

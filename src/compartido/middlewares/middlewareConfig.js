@@ -43,6 +43,7 @@ function setupMiddlewares(app) {
                     "https://code.jquery.com",
                     "https://cdnjs.cloudflare.com"
                 ],
+                scriptSrcAttr: ["'unsafe-inline'"],
                 styleSrc: [
                     "'self'",
                     "'unsafe-inline'",

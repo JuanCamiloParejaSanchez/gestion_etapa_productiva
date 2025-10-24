@@ -14,6 +14,11 @@ router.get('/panel', (req, res) => {
     });
 });
 
+// --- Ruta de Reportes ---
+router.get('/reportes', (req, res) => {
+    res.redirect('/administrador/aprendices/reportes');
+});
+
 // --- Rutas del Perfil del Administrador ---
 router.get('/perfil', perfilAdministradorControlador.mostrarPerfil);
 router.get('/editar-perfil', perfilAdministradorControlador.editarPerfil);
