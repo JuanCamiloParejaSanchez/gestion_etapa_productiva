@@ -656,8 +656,10 @@ class ControladorDashboardAprendiz extends BaseController {
                     entidades_comunicacion,
                     palabras_clave_desafio,
                     palabras_clave_logro,
-                    palabras_clave_comunicacion
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    palabras_clave_comunicacion,
+                    estado,
+                    fechaEnvio
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
             `;
 
             const values = [
@@ -685,14 +687,15 @@ class ControladorDashboardAprendiz extends BaseController {
                 datosBitacora.entidades_comunicacion,
                 datosBitacora.palabras_clave_desafio,
                 datosBitacora.palabras_clave_logro,
-                datosBitacora.palabras_clave_comunicacion
+                datosBitacora.palabras_clave_comunicacion,
+                'enviada' // Marcar como enviada cuando el aprendiz completa el formulario
             ];
 
             // Validación robusta antes del INSERT
-            if (values.length !== 25) {
+            if (values.length !== 26) {
                 return res.status(500).json({
                     success: false,
-                    message: `Error interno: la cantidad de valores (${values.length}) no coincide con la cantidad de columnas (25) para el registro de bitácora.`
+                    message: `Error interno: la cantidad de valores (${values.length}) no coincide con la cantidad de columnas (26) para el registro de bitácora.`
                 });
             }
 

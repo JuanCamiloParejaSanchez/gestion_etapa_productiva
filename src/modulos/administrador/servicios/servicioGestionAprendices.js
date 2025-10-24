@@ -244,25 +244,17 @@ class ServicioGestionAprendices {
                     documentosRows: documentosRows
                 });
 
-                // Consulta cumplimiento de seguimiento (consulta SQL directa)
-                const [seguimientoResult] = await pool.execute(`
-                    SELECT
-                        CASE
-                            WHEN bitacoras_recientes > 0 THEN 'Al día'
-                            ELSE 'Pendiente'
-                        END as estado_seguimiento,
-                        COUNT(*) as cantidad
-                    FROM (
-                        SELECT
-                            a.id,
-                            COUNT(CASE WHEN b.fechaCreacion >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as bitacoras_recientes
-                        FROM aprendices a
-                        LEFT JOIN bitacoras b ON a.id = b.aprendizId
-                        GROUP BY a.id
-                    ) resumen_bitacoras
-                    GROUP BY estado_seguimiento
-                    ORDER BY estado_seguimiento DESC
-                `);
+                // Consulta cumplimiento de seguimiento (usando procedimiento almacenado)
+                const [seguimientoResult] = await pool.execute(`CALL sp_cumplimiento_seguimiento()`);
+                // Los procedimientos almacenados devuelven un array de result sets
+                // El primer elemento [0] contiene las filas del resultado
+                const seguimientoRows = Array.isArray(seguimientoResult) && seguimientoResult.length > 0 ? seguimientoResult[0] : [];
+                
+                logger.debug('Datos de seguimiento obtenidos del procedimiento almacenado', {
+                    seguimientoResultType: typeof seguimientoResult,
+                    seguimientoResultLength: Array.isArray(seguimientoResult) ? seguimientoResult.length : 'no es array',
+                    seguimientoRows: seguimientoRows
+                });
 
                 // Consulta distribución por departamento
                 const [departamentoResult] = await pool.execute(`
@@ -290,13 +282,13 @@ class ServicioGestionAprendices {
                     estadosResult,
                     alternativasResult,
                     documentosRows,
-                    seguimientoResult,
+                    seguimientoRows,
                     departamentoResult,
                     estadisticasGenerales: estadisticasGenerales[0]
                 };
             }, cacheTTL);
 
-            const { programasResult, estadosResult, alternativasResult, documentosRows, seguimientoResult, departamentoResult, estadisticasGenerales } = cached;
+            const { programasResult, estadosResult, alternativasResult, documentosRows, seguimientoRows, departamentoResult, estadisticasGenerales } = cached;
 
             const datosProgramas = {
                 labels: programasResult.length > 0 ? programasResult.map(row => NOMBRES_PROGRAMAS[row.programaFormacion] || row.programaFormacion || 'No especificado') : ['No hay datos'],
@@ -319,8 +311,8 @@ class ServicioGestionAprendices {
             };
 
             const datosSeguimiento = {
-                labels: seguimientoResult.length > 0 ? seguimientoResult.map(row => row.estado_seguimiento) : ['No hay datos'],
-                data: seguimientoResult.length > 0 ? seguimientoResult.map(row => row.cantidad) : [0]
+                labels: seguimientoRows && seguimientoRows.length > 0 ? seguimientoRows.map(row => row.estado_seguimiento) : ['No hay datos'],
+                data: seguimientoRows && seguimientoRows.length > 0 ? seguimientoRows.map(row => row.cantidad) : [0]
             };
 
             const datosDepartamentos = {

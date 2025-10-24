@@ -218,7 +218,7 @@ CREATE TABLE `bitacoras` (
   `palabras_clave_desafio` json DEFAULT NULL COMMENT 'Palabras clave detectadas por Watson en desafío',
   `palabras_clave_logro` json DEFAULT NULL COMMENT 'Palabras clave detectadas por Watson en logro',
   `palabras_clave_comunicacion` json DEFAULT NULL COMMENT 'Palabras clave detectadas por Watson en comunicación',
-  `estado` enum('borrador','enviada','revisada') DEFAULT 'borrador' COMMENT 'Estado de la bitácora',
+  `estado` enum('borrador','enviada','revisada') DEFAULT 'enviada' COMMENT 'Estado de la bitácora',
   `comentarios_instructor` text COMMENT 'Comentarios del instructor',
   `fechaCreacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
   `fechaEnvio` timestamp NULL DEFAULT NULL COMMENT 'Fecha de envío',
@@ -493,6 +493,53 @@ BEGIN
         END;
 END//
 
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS `sp_cumplimiento_seguimiento`//
+
+CREATE PROCEDURE `sp_cumplimiento_seguimiento`()
+BEGIN
+    SELECT
+        CASE
+            WHEN porcentaje_cumplimiento >= 90 THEN 'Excelente (>=90%)'
+            WHEN porcentaje_cumplimiento >= 80 THEN 'Bueno (80-89%)'
+            WHEN porcentaje_cumplimiento >= 60 THEN 'Regular (60-79%)'
+            WHEN porcentaje_cumplimiento > 0 THEN 'Deficiente (<60%)'
+            ELSE 'Sin seguimientos'
+        END as estado_seguimiento,
+        COUNT(*) as cantidad,
+        ROUND(AVG(porcentaje_cumplimiento), 1) as promedio_porcentaje
+    FROM (
+        SELECT
+            a.id,
+            COUNT(b.id) as bitacoras_enviadas,
+            -- Calcular quincenas transcurridas desde inicio de etapa productiva (máximo 12 quincenas = 6 meses)
+            LEAST(12, GREATEST(0, TIMESTAMPDIFF(DAY, a.fechaInicioProductiva, NOW()) DIV 15)) as quincenas_transcurridas,
+            -- Bitácoras esperadas hasta ahora: 1 por cada quincena transcurrida
+            GREATEST(0, LEAST(12, GREATEST(0, TIMESTAMPDIFF(DAY, a.fechaInicioProductiva, NOW()) DIV 15))) as bitacoras_esperadas,
+            -- Porcentaje de cumplimiento basado en lo esperado vs lo enviado
+            CASE
+                WHEN TIMESTAMPDIFF(DAY, a.fechaInicioProductiva, NOW()) < 0 THEN 0
+                WHEN LEAST(12, GREATEST(0, TIMESTAMPDIFF(DAY, a.fechaInicioProductiva, NOW()) DIV 15)) = 0 THEN 0
+                ELSE ROUND((COUNT(b.id) / GREATEST(1, LEAST(12, GREATEST(0, TIMESTAMPDIFF(DAY, a.fechaInicioProductiva, NOW()) DIV 15)))) * 100, 1)
+            END as porcentaje_cumplimiento
+        FROM aprendices a
+        LEFT JOIN bitacoras b ON a.id = b.aprendizId AND b.estado = 'enviada'
+        WHERE a.estadoFormacion = 'activo'
+        AND a.fechaInicioProductiva IS NOT NULL
+        GROUP BY a.id, a.fechaInicioProductiva
+    ) cumplimiento
+    GROUP BY estado_seguimiento
+    ORDER BY
+        CASE estado_seguimiento
+            WHEN 'Excelente (>=90%)' THEN 1
+            WHEN 'Bueno (80-89%)' THEN 2
+            WHEN 'Regular (60-79%)' THEN 3
+            WHEN 'Deficiente (<60%)' THEN 4
+            ELSE 5
+        END;
+END//
+
 DELIMITER ;
 
 -- =====================================================
@@ -649,6 +696,8 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 -- ===============================================================================================
 
 
-
+UPDATE bitacoras 
+SET estado = 'enviada', fechaEnvio = fechaCreacion 
+WHERE estado = 'borrador';
 
 
