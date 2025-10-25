@@ -458,17 +458,17 @@
         }
 
         const tabla = utilidadesAdmin.inicializarTablaAprendices('#aprendicesTable', {
-            ajax: { 
-                url: '/administrador/aprendices-data', 
-                type: 'POST', 
-                data: d => ({ 
-                    ...d, 
-                    nombre: $('#nombreBusqueda').val(), 
-                    documento: $('#documentoBusqueda').val(), 
-                    programaFormacion: $('#programaBusqueda').val(), 
+            ajax: {
+                url: '/administrador/aprendices-data',
+                type: 'POST',
+                data: d => ({
+                    ...d,
+                    nombre: $('#nombreBusqueda').val(),
+                    documento: $('#documentoBusqueda').val(),
+                    programaFormacion: $('#programaBusqueda').val(),
                     alternativaSeleccionada: $('#alternativaBusqueda').val(),
                     order: getOrderData()
-                }) 
+                })
             },
             language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
             info: false,

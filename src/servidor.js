@@ -106,10 +106,10 @@ app.get('/', (req, res) => {
 app.use('/aprendiz', rutasAprendiz);
 
 // Rutas del módulo de administrador.
-// CORRECCIÓN: Registrar primero las rutas generales del administrador para que /administrador/reportes redirija correctamente
+// CORRECCIÓN: Registrar primero las rutas específicas del administrador (incluye perfil)
 app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasAdministrador);
-// Luego las rutas más específicas de gestión de aprendices
-app.use('/administrador/aprendices', AuthMiddleware.validarSesionAdmin, rutasGestionAprendices);
+// Luego las rutas de gestión de aprendices
+app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasGestionAprendices);
 
 // --- Manejo de errores ---
 // Manejo de errores 404 (debe ir al final de todas las rutas)
