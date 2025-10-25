@@ -9,9 +9,6 @@ const controladorAlertas = require('../../../compartido/controladores/controlado
 // NOTA: No necesitamos el middleware aquí, se aplica globalmente en servidor.js
 
 // --- Rutas del Panel y Reportes ---
-// CORRECCIÓN: Se mueve la lógica del panel principal al controlador para mantener la consistencia.
-router.get('/panel-principal', gestionAprendicesControlador.mostrarPanelPrincipal);
-router.get('/panel', gestionAprendicesControlador.mostrarPanelPrincipal); // Alias para panel-principal
 router.get('/reportes', gestionAprendicesControlador.mostrarPaginaReportes);
 
 // --- Rutas de Exportación de Reportes ---

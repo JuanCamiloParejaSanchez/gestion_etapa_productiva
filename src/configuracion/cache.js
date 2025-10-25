@@ -124,8 +124,12 @@ const Cache = {
 // Función para cerrar conexión de Redis
 const closeRedis = async () => {
     try {
-        await redisClient.quit();
-        console.log('🔌 Redis desconectado correctamente');
+        if (redisClient.connected) {  // Verificar si está conectado
+            await redisClient.quit();
+            console.log('🔌 Redis desconectado correctamente');
+        } else {
+            console.log('🔌 Redis ya estaba desconectado');
+        }
     } catch (error) {
         console.error('Error cerrando Redis:', error);
     }

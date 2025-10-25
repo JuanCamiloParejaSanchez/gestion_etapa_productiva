@@ -150,12 +150,8 @@
 
     <!-- Botones de Exportación -->
     <div class="export-buttons">
-        <button class="export-btn btn-excel" onclick="exportarExcel('programas')">📊 Programas</button>
-        <button class="export-btn btn-excel" onclick="exportarExcel('estados')">📈 Estados</button>
-        <button class="export-btn btn-excel" onclick="exportarExcel('alternativas')">🥧 Alternativas</button>
-        <button class="export-btn btn-excel" onclick="exportarExcel('documentos')">📄 Documentos</button>
-        <button class="export-btn btn-excel" onclick="exportarExcel('seguimiento')">📝 Seguimiento</button>
-        <button class="export-btn btn-pdf" onclick="exportarTodosPDF()">📄 Todo (PDF)</button>
+        <button class="export-btn btn-excel" onclick="exportarExcel('completo')">📊 Exportar Excel</button>
+        <button class="export-btn btn-pdf" onclick="exportarTodosPDF()">📄 Exportar PDF</button>
     </div>
 
     <div class="row">
@@ -529,11 +525,7 @@
     // Función para exportar datos como Excel
     function exportarExcel(tipo) {
         const rutas = {
-            'programas': '/administrador/aprendices/reportes/exportar/programas',
-            'estados': '/administrador/aprendices/reportes/exportar/estados',
-            'alternativas': '/administrador/aprendices/reportes/exportar/alternativas',
-            'documentos': '/administrador/aprendices/reportes/exportar/documentos',
-            'seguimiento': '/administrador/aprendices/reportes/exportar/seguimiento'
+            'completo': '/administrador/aprendices/reportes/exportar/completo'
         };
 
         const url = rutas[tipo];
@@ -563,7 +555,7 @@
             const blobUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = blobUrl;
-            link.download = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            link.download = `reporte_completo_${new Date().toISOString().split('T')[0]}.xlsx`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -578,7 +570,7 @@
     // Función para exportar todos los gráficos como PDF
     async function exportarTodosPDF() {
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdf = new jsPDF('l', 'mm', 'a4');
 
         const chartIds = ['programasChart', 'estadosChart', 'alternativasChart', 'documentosChart', 'seguimientoChart', 'departamentosChart'];
         const titulos = [
@@ -589,6 +581,16 @@
             'Cumplimiento de Seguimiento Etapa Productiva',
             'Distribución Geográfica - Top Departamentos'
         ];
+
+        // Dimensiones específicas para cada gráfico según su layout
+        const dimensionesGraficos = {
+            'programasChart': { width: 200, height: 100 },     // col-lg-7 - ancho completo, altura reducida para formato horizontal
+            'estadosChart': { width: 170, height: 100 },        // col-lg-5 - más pequeño
+            'alternativasChart': { width: 350, height: 100 },  // col-lg-12 - ancho completo, altura reducida para formato horizontal
+            'documentosChart': { width: 170, height: 100 },     // col-lg-6
+            'seguimientoChart': { width: 170, height: 100 },    // col-lg-6
+            'departamentosChart': { width: 250, height: 100 }  // col-lg-12 - ancho completo, altura reducida para formato horizontal
+        };
 
         try {
             for (let i = 0; i < chartIds.length; i++) {
@@ -602,10 +604,17 @@
                     pdf.setFontSize(16);
                     pdf.text(titulos[i], 20, 20);
 
-                    // Agregar imagen del gráfico
-                    const imgWidth = 170;
-                    const imgHeight = 100;
-                    pdf.addImage(imgData, 'PNG', 20, 30, imgWidth, imgHeight);
+                    // Obtener dimensiones específicas para este gráfico
+                    const dimensiones = dimensionesGraficos[chartIds[i]];
+                    const imgWidth = dimensiones.width;
+                    const imgHeight = dimensiones.height;
+
+                    // Calcular posición X para centrar la imagen
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const xPosition = (pageWidth - imgWidth) / 2;
+
+                    // Agregar imagen del gráfico centrada
+                    pdf.addImage(imgData, 'PNG', xPosition, 30, imgWidth, imgHeight);
                 }
             }
 

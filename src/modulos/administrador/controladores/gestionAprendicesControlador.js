@@ -822,51 +822,71 @@ const gestionAprendicesControlador = {
             // Crear libro de Excel con múltiples hojas
             const wb = XLSX.utils.book_new();
 
+            // Función auxiliar para calcular porcentajes
+            const calcularDatosConPorcentaje = (labels, data, nombreCampo) => {
+                const total = data.reduce((sum, val) => sum + val, 0);
+                return labels.map((label, index) => {
+                    const cantidad = data[index];
+                    const porcentaje = total > 0 ? ((cantidad / total) * 100).toFixed(1) : 0;
+                    return {
+                        [nombreCampo]: label,
+                        'Cantidad de Aprendices': cantidad,
+                        'Porcentaje (%)': porcentaje
+                    };
+                });
+            };
+
             // Hoja 1: Programas
-            const datosProgramas = datosReportes.datosProgramas.labels.map((label, index) => ({
-                'Programa de Formación': label,
-                'Cantidad de Aprendices': datosReportes.datosProgramas.data[index]
-            }));
+            const datosProgramas = calcularDatosConPorcentaje(
+                datosReportes.datosProgramas.labels,
+                datosReportes.datosProgramas.data,
+                'Programa de Formación'
+            );
             const wsProgramas = XLSX.utils.json_to_sheet(datosProgramas);
             XLSX.utils.book_append_sheet(wb, wsProgramas, 'Programas');
 
             // Hoja 2: Estados
-            const datosEstados = datosReportes.datosEstados.labels.map((label, index) => ({
-                'Estado de Formación': label,
-                'Cantidad de Aprendices': datosReportes.datosEstados.data[index]
-            }));
+            const datosEstados = calcularDatosConPorcentaje(
+                datosReportes.datosEstados.labels,
+                datosReportes.datosEstados.data,
+                'Estado de Formación'
+            );
             const wsEstados = XLSX.utils.json_to_sheet(datosEstados);
             XLSX.utils.book_append_sheet(wb, wsEstados, 'Estados');
 
             // Hoja 3: Alternativas
-            const datosAlternativas = datosReportes.datosAlternativas.labels.map((label, index) => ({
-                'Alternativa de Etapa Productiva': label,
-                'Cantidad de Aprendices': datosReportes.datosAlternativas.data[index]
-            }));
+            const datosAlternativas = calcularDatosConPorcentaje(
+                datosReportes.datosAlternativas.labels,
+                datosReportes.datosAlternativas.data,
+                'Alternativa de Etapa Productiva'
+            );
             const wsAlternativas = XLSX.utils.json_to_sheet(datosAlternativas);
             XLSX.utils.book_append_sheet(wb, wsAlternativas, 'Alternativas');
 
             // Hoja 4: Documentos
-            const datosDocumentos = datosReportes.datosDocumentos.labels.map((label, index) => ({
-                'Estado de Documentos': label,
-                'Cantidad de Aprendices': datosReportes.datosDocumentos.data[index]
-            }));
+            const datosDocumentos = calcularDatosConPorcentaje(
+                datosReportes.datosDocumentos.labels,
+                datosReportes.datosDocumentos.data,
+                'Estado de Documentos'
+            );
             const wsDocumentos = XLSX.utils.json_to_sheet(datosDocumentos);
             XLSX.utils.book_append_sheet(wb, wsDocumentos, 'Documentos');
 
             // Hoja 5: Seguimiento
-            const datosSeguimiento = datosReportes.datosSeguimiento.labels.map((label, index) => ({
-                'Estado de Seguimiento': label,
-                'Cantidad de Aprendices': datosReportes.datosSeguimiento.data[index]
-            }));
+            const datosSeguimiento = calcularDatosConPorcentaje(
+                datosReportes.datosSeguimiento.labels,
+                datosReportes.datosSeguimiento.data,
+                'Estado de Seguimiento'
+            );
             const wsSeguimiento = XLSX.utils.json_to_sheet(datosSeguimiento);
             XLSX.utils.book_append_sheet(wb, wsSeguimiento, 'Seguimiento');
 
             // Hoja 6: Departamentos
-            const datosDepartamentos = datosReportes.datosDepartamentos.labels.map((label, index) => ({
-                'Departamento': label,
-                'Cantidad de Aprendices': datosReportes.datosDepartamentos.data[index]
-            }));
+            const datosDepartamentos = calcularDatosConPorcentaje(
+                datosReportes.datosDepartamentos.labels,
+                datosReportes.datosDepartamentos.data,
+                'Departamento'
+            );
             const wsDepartamentos = XLSX.utils.json_to_sheet(datosDepartamentos);
             XLSX.utils.book_append_sheet(wb, wsDepartamentos, 'Departamentos');
 

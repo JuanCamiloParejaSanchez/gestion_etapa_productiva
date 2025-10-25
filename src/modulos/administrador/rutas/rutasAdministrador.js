@@ -5,14 +5,11 @@ const express = require('express');
 const router = express.Router();
 const gestionAdministradoresControlador = require('../controladores/gestionAdministradoresControlador');
 const perfilAdministradorControlador = require('../controladores/perfilAdministradorControlador');
+const gestionAprendicesControlador = require('../controladores/gestionAprendicesControlador');
 
 // --- Ruta del Panel Principal ---
-router.get('/panel', (req, res) => {
-    res.render('administrador/panelPrincipal', {
-        titulo: 'Panel de Administrador',
-        layout: 'plantillas/principal'
-    });
-});
+router.get('/panel-principal', gestionAprendicesControlador.mostrarPanelPrincipal);
+router.get('/panel', gestionAprendicesControlador.mostrarPanelPrincipal); // Alias para compatibilidad
 
 // --- Ruta de Reportes ---
 router.get('/reportes', (req, res) => {
