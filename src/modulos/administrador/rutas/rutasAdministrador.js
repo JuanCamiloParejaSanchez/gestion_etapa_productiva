@@ -11,11 +11,6 @@ const gestionAprendicesControlador = require('../controladores/gestionAprendices
 router.get('/panel-principal', gestionAprendicesControlador.mostrarPanelPrincipal);
 router.get('/panel', gestionAprendicesControlador.mostrarPanelPrincipal); // Alias para compatibilidad
 
-// --- Ruta de Reportes ---
-router.get('/reportes', (req, res) => {
-    res.redirect('/administrador/aprendices/reportes');
-});
-
 // --- Rutas del Perfil del Administrador ---
 router.get('/perfil', perfilAdministradorControlador.mostrarPerfil);
 router.get('/editar-perfil', perfilAdministradorControlador.editarPerfil);
