@@ -475,6 +475,67 @@
             dom: 'rtip',
             pageLength: 10,
             ordering: false, // Deshabilitar ordenamiento nativo de DataTables
+            buttons: [
+                {
+                    extend: 'excel',
+                    className: 'btn btn-sm btn-success d-none',
+                    text: '<i class="fas fa-file-excel"></i> Excel'
+                },
+                {
+                    extend: 'pdf',
+                    className: 'btn btn-sm btn-danger d-none',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    title: 'Listado de Aprendices',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 9, 14, 21, 22, 23] // Columnas específicas para PDF
+                    },
+                    customize: function(doc) {
+                        // Personalizar el documento PDF
+                        doc.pageOrientation = 'landscape';
+                        doc.pageSize = 'LEGAL';
+                        
+                        // Ajustar el estilo del título
+                        doc.content[0].text = 'Listado de Aprendices';
+                        doc.content[0].style = 'header';
+                        doc.content[0].alignment = 'center';
+                        doc.content[0].margin = [0, 0, 0, 10];
+                        
+                        // Configurar estilos
+                        doc.styles.header = {
+                            fontSize: 18,
+                            bold: true,
+                            alignment: 'center'
+                        };
+                        
+                        doc.styles.tableHeader = {
+                            bold: true,
+                            fontSize: 8,
+                            color: 'white',
+                            fillColor: '#39A900',
+                            alignment: 'center'
+                        };
+                        
+                        // Ajustar el ancho de las columnas para mejor distribución
+                        doc.content[1].table.widths = ['5%', '7%', '6%', '11%', '9%', '9%', '7%', '16%', '6%', '12%', '12%'];
+                        
+                        // Estilo de las celdas
+                        doc.content[1].table.body.forEach(function(row, index) {
+                            row.forEach(function(cell) {
+                                cell.fontSize = 7;
+                                cell.alignment = 'left';
+                                if (index === 0) {
+                                    cell.alignment = 'center';
+                                }
+                            });
+                        });
+                        
+                        // Configuración de márgenes [izquierda, arriba, derecha, abajo]
+                        doc.pageMargins = [15, 40, 15, 30];
+                    }
+                }
+            ],
             columns: columnasConfig.map(col => {
                 if (col.data === 'estadoFormacion') {
                     return {
