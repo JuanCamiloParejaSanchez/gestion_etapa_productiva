@@ -320,8 +320,17 @@ class AdminUtils {
                     extend: 'pdf',
                     text: '<i class="fas fa-file-pdf"></i> PDF',
                     className: 'btn btn-danger',
-                    title: 'Listado de Administradores'
-                }
+                    title: 'Listado de Administradores',
+                    orientation: 'landscape',
+                    pageSize: 'LETTER',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4]
+                    },
+                    customize: function(doc) {
+                        // Personalizar el documento PDF
+                        doc.content[1].table.widths = ['10%', '30%', '30%', '10%', '20%'];
+                    }
+                }                
             ],
             pageLength: 10,
             responsive: true,
