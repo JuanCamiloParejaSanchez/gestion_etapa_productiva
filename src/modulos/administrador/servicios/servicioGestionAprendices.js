@@ -47,7 +47,7 @@ class ServicioGestionAprendices {
         const whereClauses = [];
         const params = [];
 
-        const { nombre, documento, programaFormacion, alternativaSeleccionada } = filtros;
+        const { nombre, documento, programaFormacion, alternativaSeleccionada, estadoFormacion } = filtros;
 
         if (nombre) {
             whereClauses.push('(nombres LIKE ? OR primerApellido LIKE ? OR segundoApellido LIKE ?)');
@@ -68,6 +68,11 @@ class ServicioGestionAprendices {
         if (alternativaSeleccionada) {
             whereClauses.push('alternativaSeleccionada = ?');
             params.push(alternativaSeleccionada);
+        }
+
+        if (estadoFormacion) {
+            whereClauses.push('estadoFormacion = ?');
+            params.push(estadoFormacion);
         }
 
         if (whereClauses.length > 0) {

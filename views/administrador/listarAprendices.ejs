@@ -77,6 +77,18 @@
                                 <option value="unidadesProductivas">Unidades productivas familiares</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="estadoFormacionBusqueda" class="modern-form-label">
+                                <i class="fas fa-user-check me-1"></i>Estado Formación
+                            </label>
+                            <select class="form-select modern-form-control" id="estadoFormacionBusqueda" name="estadoFormacion">
+                                <option value="">Todos los Estados</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="aplazado">Aplazado</option>
+                                <option value="retirado">Retirado</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="filters-actions">
                         <button type="submit" class="btn-custom btn-custom-primary" style="width: 140px; height: 38px;">
@@ -467,6 +479,7 @@
                     documento: $('#documentoBusqueda').val(),
                     programaFormacion: $('#programaBusqueda').val(),
                     alternativaSeleccionada: $('#alternativaBusqueda').val(),
+                    estadoFormacion: $('#estadoFormacionBusqueda').val(),
                     order: getOrderData()
                 })
             },
