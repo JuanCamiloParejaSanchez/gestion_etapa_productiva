@@ -154,9 +154,15 @@ html.dark-mode body .navbar {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-html.dark-mode body .btn-primary {
+html.dark-mode body .btn-primary-card {
     background: #0d6efd;
-    border-color: var(--color-primary);
+    border-color: #0d6efd;
+    color: white;
+}
+
+html.dark-mode body .btn-primary-card:hover {
+    background: #0a4090ff;
+    border-color: #0a4090ff;
     color: white;
 }
 

@@ -68,6 +68,18 @@
 }
 
 /* Button variants */
+.btn-primary-card {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.btn-primary-card:hover {
+    background: #074f78ff;
+    color: white;
+    border-color: #074f78ff;
+}
+
 .btn-primary {
     background: var(--color-primary);
     color: white;
