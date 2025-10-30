@@ -47,7 +47,12 @@ const AuthMiddleware = {
         }
 
         console.log('❌ Acceso denegado: no hay sesión o el rol no es admin. Redirigiendo a /auth/login');
-        req.session.redirectUrl = req.originalUrl;
+        
+        // Solo guardar redirectUrl si req.session existe
+        if (req.session) {
+            req.session.redirectUrl = req.originalUrl;
+        }
+        
         return res.redirect('/auth/login');
     },
 
