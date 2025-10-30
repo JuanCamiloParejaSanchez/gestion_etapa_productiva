@@ -4,12 +4,21 @@
 /* =============================================== */
 /* ---             DATA TABLES               --- */
 /* =============================================== */
-.dataTables_wrapper {
-    background: #ffffff;
+/* .dataTables_wrapper {
+    background: transparent;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     padding: 1rem;
     margin-top: 1rem;
+} */
+
+.dataTables_wrapper .row {
+    background: transparent !important;
+    transition: background-color 0.3s ease; /* 👈 Sincronizar */
+}
+
+.dataTables_wrapper .row > div {
+    background: transparent !important;
 }
 
 .dataTables_info {
@@ -997,7 +1006,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: all 0.2s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.3s ease, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .modern-table thead th:hover {
@@ -1005,7 +1014,7 @@
 }
 
 .modern-table tbody tr {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     border-bottom: 1px solid #f1f3f4;
 }
 
@@ -1336,10 +1345,18 @@
 }
 
 /* Modo oscuro para elementos de DataTables */
+.dark-mode .modern-table-container .dataTables_wrapper {
+    background: #0d1117;
+    transition: background-color 0.3s ease;
+    color: #f0f6fc;
+    border-color: #30363d;
+}
+
 .dark-mode .dataTables_wrapper {
     background: #0d1117;
     color: #f0f6fc;
     border-color: #30363d;
+    transition: background-color 0.3s ease;
 }
 
 .dark-mode .dataTables_length {
@@ -1396,6 +1413,7 @@
 .dark-mode .dataTables_paginate {
     background: #161b22 !important;
     border-color: #30363d !important;
+    transition: background-color 1s ease;
 }
 
 .dark-mode .dataTables_paginate .paginate_button {

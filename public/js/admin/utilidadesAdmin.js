@@ -250,6 +250,11 @@ class AdminUtils {
                         margin-bottom: 1rem;
                         align-items: center;
                     }
+                    .dataTables_wrapper .row:last-child {
+                        background: transparent !important;
+                        margin-top: 1rem;
+                        align-items: center;
+                    }
                 `;
                 document.head.appendChild(style);
             }
