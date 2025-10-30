@@ -1,18 +1,29 @@
-const ServicioGestionAprendices = require('../src/modulos/administrador/servicios/servicioGestionAprendices');
+const ServicioGestionAprendices = require('../../src/modulos/administrador/servicios/servicioGestionAprendices');
 
 // Mock del pool de base de datos
-jest.mock('../src/configuracion/baseDatos', () => ({
+jest.mock('../../src/configuracion/baseDatos', () => ({
   pool: {
     query: jest.fn(),
     execute: jest.fn()
   }
 }));
 
-const { pool } = require('../src/configuracion/baseDatos');
+// Mock de Cache
+jest.mock('../../src/configuracion/cache', () => ({
+  Cache: {
+    getOrSet: jest.fn()
+  }
+}));
+
+const { pool } = require('../../src/configuracion/baseDatos');
+const { Cache } = require('../../src/configuracion/cache');
 
 describe('ServicioGestionAprendices', () => {
+  let servicio;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    servicio = new ServicioGestionAprendices();
   });
 
   describe('construirQueryDinamica', () => {
@@ -128,12 +139,88 @@ describe('ServicioGestionAprendices', () => {
     test('debe eliminar aprendiz exitosamente', async () => {
       pool.execute.mockResolvedValue([{ affectedRows: 1 }]);
 
-      const servicio = new ServicioGestionAprendices();
       const result = await servicio.eliminarAprendiz(1);
 
       expect(result.success).toBe(true);
       expect(result.affectedRows).toBe(1);
       expect(pool.execute).toHaveBeenCalledWith('DELETE FROM aprendices WHERE id = ?', [1]);
+    });
+  });
+
+  describe('obtenerDatosAprendices', () => {
+    test('debe obtener datos paginados correctamente', async () => {
+      const mockAprendices = [
+        { id: 1, nombres: 'Juan', primerApellido: 'Pérez', programaFormacion: 'tecProgramacion' }
+      ];
+      
+      pool.query
+        .mockResolvedValueOnce([[{ total: 1 }]]) // Total filtrado
+        .mockResolvedValueOnce([[{ total: 10 }]]) // Total general
+        .mockResolvedValueOnce([mockAprendices]); // Datos
+
+      const result = await servicio.obtenerDatosAprendices({
+        draw: 1,
+        start: 0,
+        length: 10,
+        order: null,
+        tableType: 'listarAprendices'
+      });
+
+      expect(result.recordsTotal).toBe(10);
+      expect(result.recordsFiltered).toBe(1);
+      expect(result.data.length).toBe(1);
+    });
+
+    test('debe retornar todos los registros cuando length es -1', async () => {
+      const mockAprendices = [
+        { id: 1, nombres: 'Juan', programaFormacion: 'tecProgramacion' },
+        { id: 2, nombres: 'María', programaFormacion: 'tecProgramacion' }
+      ];
+      
+      pool.query
+        .mockResolvedValueOnce([[{ total: 2 }]])
+        .mockResolvedValueOnce([[{ total: 2 }]])
+        .mockResolvedValueOnce([mockAprendices]);
+
+      const result = await servicio.obtenerDatosAprendices({
+        draw: 1,
+        start: 0,
+        length: -1,
+        order: null,
+        tableType: 'listarAprendices'
+      });
+
+      expect(result.data.length).toBe(2);
+    });
+  });
+
+  describe('obtenerDatosReportes', () => {
+    test('debe retornar datos para reportes desde cache', async () => {
+      const mockDatos = {
+        datosProgramas: { labels: ['Programación'], data: [10] },
+        datosEstados: { labels: ['activo'], data: [8] },
+        datosAlternativas: { labels: ['Contrato'], data: [5] },
+        datosDocumentos: { labels: ['Completo'], data: [6] },
+        datosSeguimiento: { labels: ['Al día'], data: [7] },
+        datosDepartamentos: { labels: ['Cundinamarca'], data: [15] },
+        estadisticasGenerales: { total_aprendices: 10, activos: 8 }
+      };
+
+      Cache.getOrSet.mockResolvedValue({
+        programasResult: [{ programaFormacion: 'tecProgramacion', cantidad: 10 }],
+        estadosResult: [{ estadoFormacion: 'activo', cantidad: 8 }],
+        alternativasResult: [{ alternativaSeleccionada: 'contratoAprendizaje', cantidad: 5 }],
+        documentosRows: [{ estado_documentos: 'Completo', cantidad: 6 }],
+        seguimientoRows: [{ estado_seguimiento: 'Al día', cantidad: 7 }],
+        departamentoResult: [{ departamento: 'Cundinamarca', cantidad: 15 }],
+        estadisticasGenerales: { total_aprendices: 10, activos: 8 }
+      });
+
+      const result = await servicio.obtenerDatosReportes();
+
+      expect(result.datosProgramas.labels).toContain('Téc. Programación de Software');
+      expect(result.estadisticasGenerales.total_aprendices).toBe(10);
+      expect(Cache.getOrSet).toHaveBeenCalled();
     });
   });
 });
