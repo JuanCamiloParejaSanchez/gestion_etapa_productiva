@@ -422,7 +422,7 @@ class ControladorDashboardAprendiz extends BaseController {
 
     async eliminarDocumento(req, res) {
         try {
-            const documentoId = req.params.id;
+            const documentoId = parseInt(req.params.id, 10);
             const aprendizId = req.session.userId;
             if (!aprendizId) {
                 return res.status(401).json({ success: false, message: 'ID de usuario no encontrado.' });
@@ -544,8 +544,14 @@ class ControladorDashboardAprendiz extends BaseController {
             const scores = [analisisDesafio.score, analisisLogro.score, analisisComunicacion.score];
             const scorePromedio = scores.reduce((a, b) => a + b, 0) / 3;
             const scorePromedioNormalizado = normalizarScore(scorePromedio); // Watson va de -5 a 5
-            let confianza = (analisisDesafio.confianza + analisisLogro.confianza + analisisComunicacion.confianza) / 3;
+            
+            // Manejar confianza con valores por defecto
+            const conf1 = Number(analisisDesafio.confianza) || 0;
+            const conf2 = Number(analisisLogro.confianza) || 0;
+            const conf3 = Number(analisisComunicacion.confianza) || 0;
+            let confianza = (conf1 + conf2 + conf3) / 3;
             confianza = Math.max(0, Math.min(1, Number(confianza.toFixed(2))));
+            
             let sentimientoGeneral = 'neutral';
             if (scorePromedio > 1) sentimientoGeneral = 'positivo';
             if (scorePromedio < -1) sentimientoGeneral = 'negativo';
