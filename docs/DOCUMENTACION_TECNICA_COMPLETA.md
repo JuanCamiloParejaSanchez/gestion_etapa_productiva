@@ -1,13 +1,55 @@
-# Documentación Técnica Completa - Gestión Etapa Productiva SENA
+# Documentación Técnica Completa Unificada - Gestión Etapa Productiva SENA
+
+## 📖 Índice
+
+- [ Información General](#-información-general)
+- [🏗️ Arquitectura del Sistema](#️-arquitectura-del-sistema)
+  - [Arquitectura General (C4 - Context)](#arquitectura-general-c4---context)
+  - [Arquitectura de Componentes (C4 - Components)](#arquitectura-de-componentes-c4---components)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🔧 Tecnologías y Dependencias](#-tecnologías-y-dependencias)
+  - [Tecnologías Principales](#tecnologías-principales)
+  - [Dependencias de Producción](#dependencias-de-producción)
+  - [Dependencias de Desarrollo](#dependencias-de-desarrollo)
+- [🗄️ Modelo de Datos](#️-modelo-de-datos)
+  - [Diagrama Entidad-Relación Actualizado](#diagrama-entidad-relación-actualizado)
+  - [Descripción Técnica del Script de Base de Datos](#descripción-técnica-del-script-de-base-de-datos)
+- [🔐 Seguridad](#-seguridad)
+  - [Medidas Implementadas](#medidas-implementadas)
+  - [Configuración de Seguridad](#configuración-de-seguridad)
+- [🚀 API REST](#-api-rest)
+  - [Endpoints Principales](#endpoints-principales)
+  - [Formatos de Respuesta](#formatos-de-respuesta)
+- [📊 Monitoreo y Métricas](#-monitoreo-y-métricas)
+  - [Métricas Recopiladas](#métricas-recopiladas)
+  - [Endpoints de Monitoreo](#endpoints-de-monitoreo)
+  - [Alertas Automáticas](#alertas-automáticas)
+- [🧪 Testing](#-testing)
+  - [Estrategia de Testing](#estrategia-de-testing)
+  - [Ejecución de Tests](#ejecución-de-tests)
+  - [Estructura de Tests](#estructura-de-tests)
+- [🔧 Despliegue y DevOps](#-despliegue-y-devops)
+  - [Variables de Entorno](#variables-de-entorno)
+  - [Docker Compose](#docker-compose)
+  - [CI/CD Pipeline](#cicd-pipeline)
+- [📈 Optimización y Rendimiento](#-optimización-y-rendimiento)
+  - [Optimizaciones Implementadas](#optimizaciones-implementadas)
+  - [Benchmarks de Rendimiento](#benchmarks-de-rendimiento)
+- [🔍 Troubleshooting](#-troubleshooting)
+  - [Problemas Comunes y Soluciones](#problemas-comunes-y-soluciones)
+- [🚀 Roadmap y Mejoras Futuras](#-roadmap-y-mejoras-futuras)
+- [📞 Soporte y Contacto](#-soporte-y-contacto)
+
+---
 
 ## 📋 Información General
 
 **Nombre del Proyecto:** Gestión Etapa Productiva SENA
 **Versión:** 1.0.0
-**Fecha:** Diciembre 2024
+**Fecha:** Octubre 2025 (Unificada)
 **Autor:** Juan Camilo Pareja Sánchez
 **Institución:** Servicio Nacional de Aprendizaje (SENA)
-**Tecnologías:** Node.js, Express.js, MySQL, EJS, IBM Watson
+**Tecnologías:** Node.js, Express.js, MySQL, EJS, IBM Watson, Redis, PM2
 
 ## 🏗️ Arquitectura del Sistema
 
@@ -22,16 +64,18 @@ graph TB
     end
 
     subgraph "Sistema de Gestión Etapa Productiva"
-        D[Frontend Web]
-        E[API REST]
+        D[Frontend Web MVC]
+        E[API REST Express.js]
         F[Base de Datos MySQL]
         G[IBM Watson NLU]
         H[Sistema de Archivos]
+        I[Cache Redis]
     end
 
     subgraph "Servicios Externos"
-        I[Correo SMTP]
-        J[Almacenamiento Archivos]
+        J[Correo SMTP]
+        K[Almacenamiento Archivos]
+        L[Monitoreo PM2]
     end
 
     A --> D
@@ -43,6 +87,8 @@ graph TB
     E --> H
     E --> I
     E --> J
+    E --> K
+    E --> L
 ```
 
 ### Arquitectura de Componentes (C4 - Components)
@@ -50,27 +96,29 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Capa de Presentación"
-        A[Views EJS]
-        B[Estilos CSS]
-        C[JavaScript Frontend]
+        A[Views EJS con Layouts]
+        B[Sistema de Estilos Modular CSS]
+        C[JavaScript Frontend con módulos]
     end
 
     subgraph "Capa de Aplicación"
-        D[Controladores]
+        D[Controladores por Módulo]
         E[Servicios de Negocio]
-        F[Middleware]
+        F[Middleware de Autenticación]
+        G[Middleware de Validación]
     end
 
     subgraph "Capa de Datos"
-        G[Modelos de Datos]
-        H[Repositorios]
-        I[Conexión BD]
+        H[Repositorios con mysql2]
+        I[Pool de Conexiones]
+        J[Modelo de Datos Relacional]
     end
 
     subgraph "Servicios Externos"
-        J[Watson NLU]
-        K[Correo SMTP]
-        L[File System]
+        K[Watson NLU API]
+        L[Servicio de Correo Nodemailer]
+        M[File System con Multer]
+        N[Cache Redis]
     end
 
     A --> D
@@ -81,9 +129,11 @@ graph TB
     F --> G
     G --> H
     H --> I
-    E --> J
+    I --> J
     E --> K
     E --> L
+    E --> M
+    E --> N
 ```
 
 ## 📁 Estructura del Proyecto
@@ -95,45 +145,65 @@ gestion-etapa-productiva/
 │   │   ├── 📂 base/                    # Estilos base (reset, typography, layout)
 │   │   ├── 📂 components/              # Componentes reutilizables
 │   │   ├── 📂 themes/                  # Temas (SENA theme)
-│   │   ├── 📂 utilities/               # Utilidades (animations, accessibility)
-│   │   └── 📄 main.css                 # Archivo principal de estilos
+│   │   └── 📂 utilities/               # Utilidades (animations, accessibility)
 │   ├── 📂 js/                          # JavaScript del frontend
-│   ├── 📂 uploads/                     # Archivos subidos
-│   └── 📂 imagenes/                    # Imágenes y logos
-├── 📂 src/                             # Código fuente
+│   │   ├── 📂 admin/                   # Scripts específicos de admin
+│   │   ├── 📂 autenticacion/           # Scripts de autenticación
+│   │   ├── 📂 modules/                 # Módulos reutilizables
+│   │   └── 📂 utilidades/              # Utilidades frontend
+│   ├── 📂 uploads/                     # Archivos subidos dinámicamente
+│   └── 📂 imagenes/                    # Recursos estáticos
+├── 📂 src/                             # Código fuente backend
 │   ├── 📂 configuracion/               # Configuraciones del sistema
-│   │   ├── 📄 baseDatos.js             # Conexión MySQL
-│   │   ├── 📄 watsonConfig.js          # Configuración Watson
+│   │   ├── 📄 baseDatos.js             # Pool de conexiones MySQL
+│   │   ├── 📄 watsonConfig.js          # Configuración Watson NLU
 │   │   ├── 📄 seguridad.js             # Configuración de seguridad
-│   │   ├── 📄 optimizacionBD.js        # Optimización BD
-│   │   └── 📄 monitoreo.js             # Sistema de monitoreo
-│   ├── 📂 modulos/                     # Módulos de negocio
+│   │   ├── 📄 cache.js                 # Configuración Redis
+│   │   ├── 📄 monitoreo.js             # Sistema de monitoreo
+│   │   └── 📄 optimizacionBD.js        # Optimización BD
+│   ├── 📂 modulos/                     # Arquitectura modular
 │   │   ├── 📂 administrador/           # Módulo administrador
+│   │   │   ├── 📂 controladores/       # Lógica de control
+│   │   │   ├── 📂 rutas/               # Definición de rutas
+│   │   │   └── 📂 servicios/           # Servicios de negocio
 │   │   ├── 📂 aprendiz/                # Módulo aprendiz
+│   │   │   ├── 📂 controladores/       # Lógica de control
+│   │   │   ├── 📂 rutas/               # Definición de rutas
+│   │   │   └── 📂 servicios/           # Servicios de negocio
 │   │   └── 📂 compartido/              # Funcionalidades compartidas
 │   ├── 📂 compartido/                  # Código compartido
 │   │   ├── 📂 middlewares/             # Middlewares personalizados
 │   │   ├── 📂 servicios/               # Servicios compartidos
 │   │   ├── 📂 utilidades/              # Utilidades generales
-│   │   └── 📂 utilidades/logger.js     # Sistema de logging
+│   │   └── 📂 repositorios/            # Patrón Repository
 │   ├── 📂 validaciones/                # Validaciones de entrada
-│   └── 📄 servidor.js                  # Punto de entrada
+│   └── 📄 servidor.js                  # Punto de entrada Express
 ├── 📂 tests/                           # Tests automatizados
+│   ├── 📂 unit/                        # Tests unitarios
+│   ├── 📂 integration/                 # Tests de integración
+│   └── 📂 e2e/                         # Tests end-to-end
 ├── 📂 views/                           # Plantillas EJS
+│   ├── 📂 administrador/               # Vistas de admin
+│   ├── 📂 aprendiz/                    # Vistas de aprendiz
+│   ├── 📂 autenticacion/               # Vistas de login/registro
+│   └── 📂 plantillas/                  # Layouts y componentes
 ├── 📂 data/                            # Datos estáticos
 ├── 📂 scripts/                         # Scripts de utilidad
 ├── 📂 logs/                            # Logs de aplicación
-└── 📂 node_modules/                    # Dependencias
+├── 📂 docs/                            # Documentación
+└── 📂 node_modules/                    # Dependencias (ignorado)
 ```
 
 ## 🔧 Tecnologías y Dependencias
 
 ### Tecnologías Principales
-- **Node.js 18+**: Runtime de JavaScript
-- **Express.js 4.18**: Framework web
-- **MySQL 8.0**: Base de datos relacional
-- **EJS 3.1**: Motor de plantillas
-- **IBM Watson NLU**: Análisis de sentimientos
+- **Node.js 18+**: Runtime de JavaScript del lado servidor
+- **Express.js 4.18**: Framework web minimalista y flexible
+- **MySQL 8.0**: Base de datos relacional para persistencia de datos
+- **EJS 3.1**: Motor de plantillas para renderizado del lado servidor
+- **IBM Watson NLU**: Servicio de IA para análisis de sentimientos en bitácoras
+- **Redis 5.8**: Sistema de cache para optimización de rendimiento
+- **PM2**: Gestor de procesos para producción
 
 ### Dependencias de Producción
 ```json
@@ -149,23 +219,27 @@ gestion-etapa-productiva/
   "nodemailer": "^6.9.7",
   "helmet": "^8.1.0",
   "compression": "^1.8.0",
-  "cors": "^2.8.5"
+  "cors": "^2.8.5",
+  "redis": "^5.8.2",
+  "winston": "^3.17.0",
+  "winston-daily-rotate-file": "^5.0.0"
 }
 ```
 
 ### Dependencias de Desarrollo
 ```json
 {
-  "jest": "^29.7.0",
-  "supertest": "^6.3.3",
+  "jest": "^30.1.3",
+  "supertest": "^7.1.4",
   "nodemon": "^3.0.2",
-  "@types/node": "^24.0.13"
+  "@types/node": "^24.0.13",
+  "eslint": "^9.37.0"
 }
 ```
 
 ## 🗄️ Modelo de Datos
 
-### Diagrama Entidad-Relación
+### Diagrama Entidad-Relación Actualizado
 
 ```mermaid
 erDiagram
@@ -265,27 +339,171 @@ erDiagram
     }
 ```
 
-### Índices Optimizados
+#### Descripción Técnica del Script de Base de Datos
 
-```sql
--- Índices para búsquedas frecuentes
-CREATE INDEX idx_aprendices_correo ON aprendices(correoElectronico);
-CREATE INDEX idx_aprendices_documento ON aprendices(tipoDocumento, numeroDocumento);
-CREATE INDEX idx_aprendices_programa ON aprendices(programaFormacion);
-CREATE INDEX idx_aprendices_alternativa ON aprendices(alternativaSeleccionada);
-CREATE INDEX idx_aprendices_estado ON aprendices(estadoFormacion);
+### Información General del Script
+- **Versión:** 2.0
+- **Base de Datos:** sena_etapa_productiva
+- **Charset:** utf8mb4_unicode_ci (soporte completo para caracteres Unicode)
+- **Motor:** InnoDB (transacciones ACID, integridad referencial)
+- **Características Avanzadas:** Índices optimizados, triggers, procedimientos almacenados, eventos automáticos
 
--- Índices para bitácoras
-CREATE INDEX idx_bitacoras_aprendiz ON bitacoras(aprendizId);
-CREATE INDEX idx_bitacoras_fecha ON bitacoras(fechaRegistro);
-CREATE INDEX idx_bitacoras_estado ON bitacoras(estado);
+### Arquitectura de Tablas
 
--- Índices para documentos
-CREATE INDEX idx_documentos_aprendiz ON documentos_aprendiz(aprendiz_id);
+#### Tablas Principales (Core Business)
 
--- Índices para administradores
-CREATE INDEX idx_administradores_correo ON administradores(correoInstitucional);
-```
+##### 1. aprendices
+**Propósito:** Almacena información completa de los aprendices del SENA
+**Características Técnicas:**
+- **Campos principales:** Información personal, académica y laboral
+- **Validaciones:** Constraints de integridad para fechas de formación
+- **Índices:** Optimizados para búsquedas por documento, correo, programa, estado
+- **Relaciones:** Padre de bitacoras y documentos_aprendiz
+- **Auditoría:** Trigger automático para cambios de estado
+
+##### 2. bitacoras
+**Propósito:** Registra las bitácoras semanales con análisis de sentimientos
+**Características Técnicas:**
+- **Campos principales:** Respuestas abiertas, análisis Watson NLU, metadatos
+- **Campos JSON:** Almacenamiento flexible para emociones, entidades, palabras clave
+- **Validaciones:** Constraints para scores de sentimiento (0-1)
+- **Índices:** Optimizados para consultas por aprendiz, fecha, sentimiento
+- **Integración:** Análisis automático con IBM Watson NLU
+
+##### 3. documentos_aprendiz
+**Propósito:** Gestión de archivos subidos por aprendices
+**Características Técnicas:**
+- **Campos principales:** Metadatos de archivos, rutas de almacenamiento
+- **Validaciones:** Tamaño máximo de archivo (10MB), tipos MIME
+- **Índices:** Búsqueda por aprendiz, tipo de documento, fecha
+- **Seguridad:** Control de acceso por propietario
+
+##### 4. administradores
+**Propósito:** Usuarios administrativos del sistema
+**Características Técnicas:**
+- **Campos principales:** Información de contacto, roles, estado de cuenta
+- **Seguridad:** Sistema de intentos fallidos, bloqueo automático
+- **Roles:** Jerarquía admin/super_admin/instructor
+- **Auditoría:** Triggers para logging de cambios
+
+#### Tablas de Soporte (System)
+
+##### 5. reset_tokens
+**Propósito:** Gestión segura de tokens para reset de contraseñas
+**Características Técnicas:**
+- **Seguridad:** Tokens únicos con expiración automática
+- **Auditoría:** Registro de IP y user agent
+- **Limpieza:** Evento automático diario para tokens expirados
+
+##### 6. sessions
+**Propósito:** Almacenamiento de sesiones de usuario (MySQL store)
+**Características Técnicas:**
+- **Persistencia:** Sesiones sobrevivientes a reinicios de servidor
+- **Limpieza:** Evento automático por hora
+- **Auditoría:** Tracking de IP y user agent
+
+##### 7. logs_acceso
+**Propósito:** Auditoría completa de accesos y acciones del sistema
+**Características Técnicas:**
+- **Campos JSON:** Detalles flexibles de eventos
+- **Índices:** Búsqueda eficiente por usuario, acción, fecha
+- **Retención:** Histórico completo de actividades
+
+##### 8. configuracion_sistema
+**Propósito:** Configuración dinámica del sistema
+**Características Técnicas:**
+- **Flexibilidad:** Valores de diferentes tipos (string, number, boolean, json)
+- **Categorización:** Agrupación lógica de configuraciones
+- **Edición:** Control de qué configuraciones son editables desde UI
+
+### Procedimientos Almacenados
+
+#### sp_limpiar_tokens_expirados()
+**Función:** Mantenimiento automático de tokens expirados
+**Ejecución:** Automática diaria vía evento
+**Beneficio:** Prevención de acumulación de datos obsoletos
+
+#### sp_limpiar_sesiones_expiradas()
+**Función:** Limpieza de sesiones expiradas
+**Ejecución:** Automática cada hora
+**Beneficio:** Optimización de espacio y rendimiento
+
+#### sp_estadisticas_sentimientos(fecha_inicio, fecha_fin)
+**Función:** Análisis estadístico de sentimientos en bitácoras
+**Parámetros:** Rango de fechas para análisis
+**Retorno:** Conteos y porcentajes por tipo de sentimiento
+
+#### sp_cumplimiento_documentos()
+**Función:** Evaluación del cumplimiento en subida de documentos
+**Lógica:** Cálculo dinámico basado en tiempo transcurrido en etapa productiva
+**Categorías:** Excelente (≥90%), Bueno (80-89%), Regular (60-79%), Deficiente (<60%)
+
+#### sp_cumplimiento_seguimiento()
+**Función:** Medición del cumplimiento en registro de bitácoras
+**Lógica:** Frecuencia quincenal esperada durante etapa productiva
+**Beneficio:** Identificación temprana de aprendices con bajo seguimiento
+
+### Vistas Optimizadas
+
+#### v_estadisticas_aprendices
+**Función:** Estadísticas generales de aprendices por estado
+**Campos:** Totales y desgloses por estado de formación
+**Uso:** Dashboards administrativos, reportes generales
+
+#### v_resumen_bitacoras
+**Función:** Resumen consolidado de bitácoras por aprendiz
+**Campos:** Conteos por sentimiento, promedios, última actividad
+**Uso:** Seguimiento individual de aprendices, análisis de tendencias
+
+### Eventos Automáticos
+
+#### ev_limpiar_tokens_expirados
+- **Frecuencia:** Diaria
+- **Acción:** Ejecución de sp_limpiar_tokens_expirados()
+- **Beneficio:** Mantenimiento automático sin intervención manual
+
+#### ev_limpiar_sesiones_expiradas
+- **Frecuencia:** Cada hora
+- **Acción:** Ejecución de sp_limpiar_sesiones_expiradas()
+- **Beneficio:** Prevención de crecimiento innecesario de tabla sessions
+
+### Triggers de Auditoría
+
+#### tr_aprendices_after_update
+**Tabla:** aprendices
+**Evento:** AFTER UPDATE
+**Función:** Logging automático de cambios de estado de formación
+**Beneficio:** Trazabilidad completa de cambios administrativos
+
+#### tr_administradores_after_update
+**Tabla:** administradores
+**Evento:** AFTER UPDATE
+**Función:** Auditoría de cambios en cuentas administrativas
+**Beneficio:** Seguridad y compliance en gestión de usuarios admin
+
+### Configuraciones Iniciales
+
+El script incluye configuraciones por defecto para:
+- **Seguridad:** Máximo intentos login, tiempo bloqueo
+- **Archivos:** Tamaño máximo, tipos permitidos
+- **IA:** Umbral confianza Watson NLU
+- **Sistema:** Notificaciones, modo mantenimiento
+
+### Optimizaciones de Rendimiento
+
+- **Índices Estratégicos:** Cubren patrones de consulta más frecuentes
+- **Constraints Eficientes:** Validaciones a nivel BD reducen lógica aplicación
+- **Motor InnoDB:** Soporte transaccional para integridad de datos
+- **Charset UTF8MB4:** Compatibilidad completa con caracteres especiales
+- **Partitioning Preparado:** Estructura lista para particionamiento futuro si es necesario
+
+### Consideraciones de Escalabilidad
+
+- **Normalización:** Estructura 3FN evita redundancia
+- **Flexibilidad JSON:** Campos extensibles sin cambios de esquema
+- **Eventos Automáticos:** Mantenimiento proactivo
+- **Auditoría Integral:** Logging sin impactar rendimiento principal
+- **Configuración Dinámica:** Adaptabilidad sin redeploys
 
 ## 🔐 Seguridad
 
@@ -450,6 +668,8 @@ GET    /metrics    - Métricas detalladas (requiere auth)
 - **API endpoints**: Validación completa de flujos
 - **Base de datos**: Operaciones CRUD
 - **Autenticación**: Flujos completos de login/logout
+- **Cobertura Actual**: 39 tests de integración implementados
+- **Módulos Probados**: Autenticación, Documentos, Bitácoras
 
 #### E2E Tests (Futuro)
 - **User journeys**: Flujos completos de usuario
@@ -604,22 +824,30 @@ jobs:
 ### Optimizaciones Implementadas
 
 #### Base de Datos
-- **Connection pooling**: mysql2 con pool de conexiones
+- **Connection pooling**: mysql2 con pool de conexiones configurables
 - **Prepared statements**: Prevención de SQL injection
-- **Índices optimizados**: Para consultas frecuentes
-- **Query caching**: Cache inteligente de resultados
+- **Índices optimizados**: Para consultas frecuentes (correo, documento, programa, etc.)
+- **Query caching**: Cache inteligente de resultados con Redis
+- **Transacciones**: Para operaciones críticas y consistencia de datos
 
 #### Aplicación
-- **Compression**: gzip para responses
-- **Caching**: Headers de cache apropiados
+- **Compression**: gzip para responses HTTP
+- **Caching**: Headers de cache apropiados + Redis para datos
 - **Lazy loading**: Para recursos pesados
 - **Minificación**: CSS y JS en producción
+- **Sistema de Monitoreo**: Métricas en tiempo real con alertas automáticas
 
-#### Frontend
-- **Asset optimization**: Compresión y minificación
-- **Critical CSS**: CSS crítico inline
-- **Image optimization**: WebP y lazy loading
-- **Bundle splitting**: Code splitting con webpack
+#### Servicios Externos
+- **Redis Cache**: Aceleración de consultas frecuentes
+- **IBM Watson NLU**: Análisis de sentimientos en bitácoras
+- **Sistema de Logging**: Winston con rotación diaria
+- **Gestión de Procesos**: PM2 para producción
+
+#### Arquitectura
+- **Modular**: Separación clara por responsabilidades
+- **Middleware**: Autenticación, validación, seguridad
+- **Pool de Conexiones**: Optimización de recursos BD
+- **Sistema de Archivos**: Gestión segura de uploads
 
 ### Benchmarks de Rendimiento
 
@@ -686,8 +914,8 @@ grep "lento\|slow" logs/combined.log
 
 ## 🚀 Roadmap y Mejoras Futuras
 
-### Fase 1 (Q1 2025): Optimización
-- [ ] Implementar Redis para caching
+### Fase 1 (Q1 2025): Optimización ✅ IMPLEMENTADO
+- [x] Implementar Redis para caching
 - [ ] Migrar a TypeScript
 - [ ] Agregar tests E2E con Playwright
 - [ ] Implementar API versioning
@@ -729,5 +957,5 @@ grep "lento\|slow" logs/combined.log
 
 ---
 
-**Última actualización**: Diciembre 2024
-**Versión de documentación**: 1.0.0
+**Última actualización**: Octubre 2025
+**Versión de documentación**: 2.0.0
