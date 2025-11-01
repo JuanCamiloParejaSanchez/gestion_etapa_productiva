@@ -523,7 +523,10 @@ const gestionAprendicesControlador = {
                 'Bitácora 12',
                 'Propuesta de intervención',
                 'Diagnóstico',
-                'GFPI-F-023 V5'
+                'GFPI-F-023 V5',
+                'Informe final',
+                'Carta de certificación',
+                'Documento de identidad'
             ];
 
             // Primero obtener información del aprendiz

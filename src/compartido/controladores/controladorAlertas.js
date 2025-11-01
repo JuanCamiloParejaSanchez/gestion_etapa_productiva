@@ -7,7 +7,8 @@ const servicioDocumentosAprendiz = require('../../modulos/aprendiz/servicios/ser
 const DOCUMENTOS_OBLIGATORIOS = [
   'Bitácora 1', 'Bitácora 2', 'Bitácora 3', 'Bitácora 4', 'Bitácora 5', 'Bitácora 6',
   'Bitácora 7', 'Bitácora 8', 'Bitácora 9', 'Bitácora 10', 'Bitácora 11', 'Bitácora 12',
-  'Propuesta de intervención', 'Diagnóstico', 'GFPI-F-023 V5'
+  'Propuesta de intervención', 'Diagnóstico', 'GFPI-F-023 V5',
+  'Informe final', 'Carta de certificación', 'Documento de identidad'
 ];
 
 const NOMBRES_PROGRAMAS = {
