@@ -231,6 +231,12 @@
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
+.theme-sena .estado-formacion.estado-certificado {
+    background: rgba(84, 21, 172, 0.1);
+    color: #5415ac;
+    border: 1px solid rgba(84, 21, 172, 0.2);
+}
+
 /* Footer SENA */
 .theme-sena .sena-footer {
     background: var(--gradient-sena-primary);

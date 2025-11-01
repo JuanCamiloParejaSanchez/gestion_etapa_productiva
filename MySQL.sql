@@ -23,7 +23,7 @@ CREATE TABLE `aprendices` (
   `id` int NOT NULL AUTO_INCREMENT,
   `tipoDocumento` enum('CC','TI','CE','PEP','PPT') NOT NULL COMMENT 'Tipo de documento de identidad',
   `numeroDocumento` varchar(20) NOT NULL COMMENT 'Número de documento único',
-  `estadoFormacion` enum('activo','inactivo','aplazado','retirado') DEFAULT 'activo' COMMENT 'Estado actual de la formación',
+  `estadoFormacion` enum('activo','inactivo','aplazado','retirado','certificado') DEFAULT 'activo' COMMENT 'Estado actual de la formación',
   `nombres` varchar(100) NOT NULL COMMENT 'Nombres del aprendiz',
   `primerApellido` varchar(50) NOT NULL COMMENT 'Primer apellido',
   `segundoApellido` varchar(50) DEFAULT NULL COMMENT 'Segundo apellido (opcional)',
@@ -380,7 +380,8 @@ SELECT
     COUNT(CASE WHEN estadoFormacion = 'activo' THEN 1 END) as activos,
     COUNT(CASE WHEN estadoFormacion = 'inactivo' THEN 1 END) as inactivos,
     COUNT(CASE WHEN estadoFormacion = 'aplazado' THEN 1 END) as aplazados,
-    COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados
+    COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados,
+    COUNT(CASE WHEN estadoFormacion = 'certificado' THEN 1 END) as certificados
 FROM aprendices;
 
 -- Vista para resumen de bitácoras
@@ -694,6 +695,5 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 -- ===============================================================================================
-
 
 

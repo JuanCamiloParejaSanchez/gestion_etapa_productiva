@@ -1569,3 +1569,9 @@
     color: #dc3545;
     border: 1px solid rgba(220, 53, 69, 0.2);
 }
+
+.estado-certificado {
+    background: rgba(84, 21, 172, 0.1);
+    color: #5415ac;
+    border: 1px solid rgba(84, 21, 172, 0.2);
+}

@@ -278,7 +278,8 @@ class ServicioGestionAprendices {
                         COUNT(CASE WHEN estadoFormacion = 'activo' THEN 1 END) as activos,
                         COUNT(CASE WHEN estadoFormacion = 'inactivo' THEN 1 END) as inactivos,
                         COUNT(CASE WHEN estadoFormacion = 'aplazado' THEN 1 END) as aplazados,
-                        COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados
+                        COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados,
+                        COUNT(CASE WHEN estadoFormacion = 'certificado' THEN 1 END) as certificados
                     FROM aprendices
                 `);
 
@@ -391,7 +392,8 @@ class ServicioGestionAprendices {
                             'inactivo': 'inactivo',
                             'aplazado': 'aplazado',
                             'retirado': 'retirado',
-                            'culminado': 'retirado',
+                            'certificado': 'certificado',
+                            'culminado': 'certificado',
                             'suspendido': 'retirado'
                         };
                         datosActualizados[key] = mapeoEstados[valorOriginal.toLowerCase()] || valorOriginal;

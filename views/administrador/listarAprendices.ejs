@@ -87,6 +87,7 @@
                                 <option value="inactivo">Inactivo</option>
                                 <option value="aplazado">Aplazado</option>
                                 <option value="retirado">Retirado</option>
+                                <option value="certificado">Certificado</option>
                             </select>
                         </div>
                     </div>
@@ -397,6 +398,8 @@
                     return 'estado-aplazado';
                 case 'retirado':
                     return 'estado-retirado';
+                case 'certificado':
+                    return 'estado-certificado';
                 default:
                     return 'estado-pendiente';
             }
