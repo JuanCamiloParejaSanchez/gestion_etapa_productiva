@@ -156,8 +156,8 @@ class ControladorDashboardAprendiz extends BaseController {
                 const ultima = new Date(fechaUltimoCorreo);
                 const diferenciaDias = (ahora - ultima) / (1000 * 60 * 60 * 24);
                 console.log('Días desde último correo:', diferenciaDias);
-                // Enviar solo si han pasado al menos 7 días Y es lunes
-                if (diferenciaDias >= 7 && esLunes) {
+                // Enviar solo si han pasado al menos 6 días Y es lunes
+                if (diferenciaDias >= 6 && esLunes) {
                     enviarCorreo = true;
                 }
             }
@@ -167,50 +167,12 @@ class ControladorDashboardAprendiz extends BaseController {
                     await servicioCorreo.enviarResumenAlertas(aprendiz.correoElectronico, alertas);
                     // Actualizar la fecha del último envío (formato compatible con MySQL)
                     const fechaMysql = ahora.toISOString().slice(0, 19).replace('T', ' ');
-                    const [updateResult] = await pool.query('UPDATE aprendices SET fechaUltimoCorreoAlerta = ? WHERE id = ?', [fechaMysql, aprendizId]);
-                    console.log('Resultado UPDATE fechaUltimoCorreoAlerta:', updateResult);
+                    await pool.query('UPDATE aprendices SET fechaUltimoCorreoAlerta = ? WHERE id = ?', [fechaMysql, aprendizId]);
+                    console.log('✅ Correo de alertas enviado y fecha actualizada');
                 } catch (e) {
                     console.error('Error enviando correo de alertas:', e);
                 }
             }
-
-            // Obtener la última bitácora y sus indicadores
-            /*
-            const query = `
-                SELECT 
-                    ROUND(score_promedio * 100) as score_promedio,
-                    confianza as nivel_compromiso,
-                    CASE 
-                        WHEN sentimiento_general = 'positivo' THEN 'positiva'
-                        WHEN sentimiento_general = 'negativo' THEN 'negativa'
-                        ELSE 'estable'
-                    END as tendencia,
-                    fechaCreacion as fecha
-                FROM bitacoras 
-                WHERE aprendizId = ?
-                ORDER BY fechaCreacion DESC 
-                LIMIT 1
-            `;
-            
-            console.log('Ejecutando consulta SQL:', query);
-            console.log('Parámetros de la consulta:', [aprendizId]);
-            
-            const [ultimaBitacora] = await pool.query(query, [aprendizId]);
-            console.log('Resultado crudo de la consulta:', ultimaBitacora);
-            console.log('¿Se encontraron bitácoras?:', ultimaBitacora.length > 0 ? 'Sí' : 'No');
-
-            const indicadores = ultimaBitacora.length > 0 ? ultimaBitacora[0] : null;
-            console.log('Indicadores procesados:', indicadores);
-
-            // Verificar si los indicadores tienen valores válidos
-            if (indicadores) {
-                console.log('Validación de indicadores:');
-                console.log('- score_promedio:', typeof indicadores.score_promedio, indicadores.score_promedio);
-                console.log('- nivel_compromiso:', typeof indicadores.nivel_compromiso, indicadores.nivel_compromiso);
-                console.log('- tendencia:', typeof indicadores.tendencia, indicadores.tendencia);
-                console.log('- fecha:', typeof indicadores.fecha, indicadores.fecha);
-            }
-            */
 
             const nombreCompleto = `${aprendiz.nombres} ${aprendiz.primerApellido}`.trim();
             console.log('Nombre completo del aprendiz:', nombreCompleto);

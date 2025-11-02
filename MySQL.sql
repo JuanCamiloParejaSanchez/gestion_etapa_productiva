@@ -57,6 +57,7 @@ CREATE TABLE `aprendices` (
   `password` varchar(255) DEFAULT NULL COMMENT 'Contraseña hasheada',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  `fechaUltimoCorreoAlerta` datetime DEFAULT NULL COMMENT 'Última fecha de envío de correo de alertas',
 
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_numero_documento` (`numeroDocumento`),
@@ -696,4 +697,6 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 -- ===============================================================================================
 
+
+select * from aprendices;
 

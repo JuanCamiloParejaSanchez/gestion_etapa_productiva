@@ -6,8 +6,8 @@ const { pool } = require('../../../configuracion/baseDatos');
 
 class ServicioRecuperacion {
     /**
-     * Genera un código de verificación de 6os
-     * @returns {string} Código de 6ígitos
+     * Genera un código de verificación de 6 dígitos
+     * @returns {string} Código de 6 dígitos
      */
     generarCodigo() {
         return Math.floor(100000 + Math.random() * 900000).toString();
