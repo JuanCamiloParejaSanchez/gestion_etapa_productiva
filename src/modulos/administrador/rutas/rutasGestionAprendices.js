@@ -30,6 +30,8 @@ router.delete('/aprendiz/:id', gestionAprendicesControlador.eliminarAprendiz);
 // --- Ruta para Documentación ---
 router.get('/aprendiz/verificar-documentacion/:id', gestionAprendicesControlador.verificarDocumentacion);
 router.get('/aprendiz/:id/documentos', gestionAprendicesControlador.obtenerDocumentosAprendiz);
+router.post('/documentos/:id/aprobar', gestionAprendicesControlador.aprobarDocumento);
+router.post('/documentos/:id/rechazar', gestionAprendicesControlador.rechazarDocumento);
 
 // --- Ruta para Bitácoras ---
 router.get('/aprendiz/:id/bitacoras', gestionAprendicesControlador.mostrarBitacorasDeAprendiz);

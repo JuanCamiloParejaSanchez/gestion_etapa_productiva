@@ -92,10 +92,151 @@
     .dark-mode .fas {
         color: #f0f6fc;
     }
+
+    /* Estilos para badges de estado */
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.35em 0.65em;
+    }
+
+    /* Estilos para el modal */
+    .dark-mode .modal-content {
+        background-color: #161b22;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .modal-header {
+        background-color: #21262d;
+        border-color: #30363d;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .modal-body {
+        background-color: #161b22;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .modal-footer {
+        background-color: #21262d;
+        border-color: #30363d;
+    }
+
+    .dark-mode .form-control,
+    .dark-mode .form-control:focus {
+        background-color: #1a1e23;
+        color: #f0f6fc;
+        border-color: #30363d;
+    }
+
+    .dark-mode .form-label {
+        color: #f0f6fc;
+    }
+
+    .dark-mode .btn-close {
+        filter: invert(1);
+    }
+
+    /* Estilos para botones de acción */
+    .btn-group .btn {
+        margin-right: 0.25rem;
+    }
+
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
 </style>
 
 <%- contentFor('scripts') %>
 <script src="/js/utilidades/sessionTimeout.js"></script>
+<script>
+let modalRetroalimentacion;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('modalRetroalimentacion');
+    if (modalEl) {
+        modalRetroalimentacion = new bootstrap.Modal(modalEl);
+    }
+});
+
+function aprobarDocumento(idDocumento) {
+    Swal.fire({
+        title: '¿Aprobar documento?',
+        text: "El aprendiz será notificado de la aprobación",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, aprobar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
+            });
+        }
+    });
+}
+
+function mostrarModalRetroalimentacion(idDocumento, tipoDocumento) {
+    document.getElementById('documentoId').value = idDocumento;
+    document.getElementById('retroalimentacion').value = '';
+    document.getElementById('tipoDocumentoTexto').textContent = tipoDocumento || 'este documento';
+    modalRetroalimentacion.show();
+}
+
+function rechazarDocumento() {
+    const idDocumento = document.getElementById('documentoId').value;
+    const retroalimentacion = document.getElementById('retroalimentacion').value;
+    const enviarEmail = document.getElementById('enviarEmail').checked;
+
+    if (!retroalimentacion.trim()) {
+        Swal.fire('Atención', 'Debes proporcionar una retroalimentación', 'warning');
+        return;
+    }
+
+    fetch(`/administrador/documentos/${idDocumento}/rechazar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            retroalimentacion: retroalimentacion,
+            enviarEmail: enviarEmail
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            modalRetroalimentacion.hide();
+            Swal.fire('¡Rechazado!', 'El aprendiz ha sido notificado', 'success')
+                .then(() => location.reload());
+        } else {
+            Swal.fire('Error', data.message || 'No se pudo rechazar el documento', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Ocurrió un error al rechazar el documento', 'error');
+    });
+}
+</script>
 
 <%- contentFor('body') %>
 
@@ -126,6 +267,7 @@
                                 <th>Descripción</th>
                                 <th>Nombre del Archivo</th>
                                 <th>Fecha de Subida</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -138,6 +280,9 @@
                                     const nombreOriginal = doc.nombreOriginal || doc.nombre_original;
                                     const fechaSubida = doc.fechaSubida || doc.fecha_subida;
                                     const nombreGuardado = doc.nombreGuardado || doc.nombre_guardado;
+                                    const estado = doc.estado || 'pendiente';
+                                    const idDocumento = doc.id;
+                                    const retroalimentacion = doc.retroalimentacion;
                                 %>
                                 <tr>
                                     <td><%= tipoDocumento %></td>
@@ -145,9 +290,44 @@
                                     <td><%= nombreOriginal %></td>
                                     <td><%= new Date(fechaSubida).toLocaleDateString() %></td>
                                     <td>
-                                        <a href="/uploads/documentos/<%= nombreGuardado %>" class="btn btn-primary btn-sm" target="_blank" title="Ver Documento">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                        <% if (estado === 'aprobado') { %>
+                                            <span class="badge bg-success">Aprobado</span>
+                                        <% } else if (estado === 'rechazado') { %>
+                                            <span class="badge bg-danger">Rechazado</span>
+                                        <% } else { %>
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/uploads/documentos/<%= nombreGuardado %>" 
+                                               class="btn btn-info btn-sm" 
+                                               target="_blank" 
+                                               title="Ver Documento">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <% if (estado !== 'aprobado') { %>
+                                                <button class="btn btn-success btn-sm" 
+                                                        onclick="aprobarDocumento(<%= idDocumento %>)" 
+                                                        title="Aprobar">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            <% } %>
+                                            <% if (estado !== 'rechazado') { %>
+                                                <button class="btn btn-danger btn-sm" 
+                                                        onclick="mostrarModalRetroalimentacion(<%= idDocumento %>, '<%= tipoDocumento %>')" 
+                                                        title="Rechazar">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            <% } %>
+                                            <% if (retroalimentacion && estado === 'rechazado') { %>
+                                                <button class="btn btn-warning btn-sm" 
+                                                        onclick="Swal.fire({title: 'Retroalimentación', text: '<%= retroalimentacion.replace(/'/g, "\\'") %>', icon: 'info'})" 
+                                                        title="Ver Retroalimentación">
+                                                    <i class="fas fa-comment"></i>
+                                                </button>
+                                            <% } %>
+                                        </div>
                                     </td>
                                 </tr>
                             <% }); %>
@@ -159,6 +339,48 @@
                     El aprendiz aún no ha subido ningún documento.
                 </div>
             <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Retroalimentación -->
+<div class="modal fade" id="modalRetroalimentacion" tabindex="-1" aria-labelledby="modalRetroalimentacionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalRetroalimentacionLabel">Rechazar Documento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRetroalimentacion">
+                    <input type="hidden" id="documentoId" name="documentoId">
+                    <p>Vas a rechazar el documento: <strong id="tipoDocumentoTexto"></strong></p>
+                    <div class="mb-3">
+                        <label for="retroalimentacion" class="form-label">Motivo del rechazo / Retroalimentación:</label>
+                        <textarea class="form-control" 
+                                  id="retroalimentacion" 
+                                  name="retroalimentacion" 
+                                  rows="4" 
+                                  required 
+                                  placeholder="Explica al aprendiz qué debe corregir en el documento..."></textarea>
+                        <small class="text-muted">Esta retroalimentación será enviada al aprendiz para que pueda corregir el documento.</small>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="enviarEmail" 
+                               name="enviarEmail" 
+                               checked>
+                        <label class="form-check-label" for="enviarEmail">
+                            Enviar notificación por correo electrónico
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="rechazarDocumento()">Rechazar Documento</button>
+            </div>
         </div>
     </div>
 </div>

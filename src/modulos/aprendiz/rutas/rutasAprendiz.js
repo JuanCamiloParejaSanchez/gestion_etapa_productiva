@@ -21,6 +21,12 @@ router.put('/perfil/actualizar', controladorDashboardAprendiz.actualizarPerfil);
 // --- Endpoint AJAX para contador de alertas ---
 router.get('/alertas/contador', controladorDashboardAprendiz.getContadorAlertas);
 
+// --- Rutas de Notificaciones ---
+router.get('/notificaciones/contador', controladorDashboardAprendiz.getContadorNotificaciones);
+router.get('/notificaciones', controladorDashboardAprendiz.obtenerNotificaciones);
+router.post('/notificaciones/:id/marcar-leida', controladorDashboardAprendiz.marcarNotificacionLeida);
+router.post('/notificaciones/marcar-todas-leidas', controladorDashboardAprendiz.marcarTodasNotificacionesLeidas);
+
 // --- Rutas de Gestión de Documentos ---
 router.get('/documentos', controladorDashboardAprendiz.mostrarGestionDocumentos);
 router.post('/documentos/subir', upload.single('documento'), controladorDashboardAprendiz.subirDocumento);

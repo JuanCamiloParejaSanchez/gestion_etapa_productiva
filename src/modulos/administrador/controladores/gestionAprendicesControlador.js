@@ -926,6 +926,95 @@ const gestionAprendicesControlador = {
             logger.error('Error al exportar reporte completo a Excel:', error);
             res.status(500).json({ error: 'Error al generar el archivo Excel' });
         }
+    },
+
+    /**
+     * Aprobar un documento
+     */
+    async aprobarDocumento(req, res) {
+        try {
+            const documentoId = req.params.id;
+            const adminId = req.session.userId;
+
+            // Actualizar el documento
+            const query = `
+                UPDATE documentos_aprendiz
+                SET estado = 'aprobado',
+                    fecha_revision = NOW(),
+                    revisado_por = ?
+                WHERE id = ?
+            `;
+
+            await pool.query(query, [adminId, documentoId]);
+
+            logger.info('Documento aprobado', { documentoId, adminId });
+
+            res.json({ success: true, message: 'Documento aprobado correctamente' });
+        } catch (error) {
+            logger.error('Error al aprobar documento:', error);
+            res.status(500).json({ success: false, message: 'Error al aprobar el documento' });
+        }
+    },
+
+    /**
+     * Rechazar un documento con retroalimentación
+     */
+    async rechazarDocumento(req, res) {
+        try {
+            const documentoId = req.params.id;
+            const adminId = req.session.userId;
+            const { retroalimentacion, enviarEmail } = req.body;
+
+            // Obtener información del documento y del aprendiz
+            const [documentoInfo] = await pool.query(`
+                SELECT 
+                    d.aprendiz_id,
+                    d.tipo_documento,
+                    a.correoElectronico,
+                    a.nombres,
+                    a.primerApellido
+                FROM documentos_aprendiz d
+                INNER JOIN aprendices a ON d.aprendiz_id = a.id
+                WHERE d.id = ?
+            `, [documentoId]);
+
+            if (documentoInfo.length === 0) {
+                return res.status(404).json({ success: false, message: 'Documento no encontrado' });
+            }
+
+            const { aprendiz_id, tipo_documento, correoElectronico, nombres, primerApellido } = documentoInfo[0];
+
+            // Actualizar el documento
+            const query = `
+                UPDATE documentos_aprendiz
+                SET estado = 'rechazado',
+                    retroalimentacion = ?,
+                    fecha_revision = NOW(),
+                    revisado_por = ?
+                WHERE id = ?
+            `;
+
+            await pool.query(query, [retroalimentacion, adminId, documentoId]);
+
+            // El trigger se encargará de crear la notificación automáticamente
+
+            // Si se debe enviar email (implementar según tu servicio de email)
+            if (enviarEmail) {
+                // TODO: Implementar envío de email
+                logger.info('Email de rechazo pendiente de envío', { 
+                    email: correoElectronico,
+                    aprendiz: `${nombres} ${primerApellido}`,
+                    documento: tipo_documento
+                });
+            }
+
+            logger.info('Documento rechazado', { documentoId, adminId, aprendiz_id });
+
+            res.json({ success: true, message: 'Documento rechazado y aprendiz notificado' });
+        } catch (error) {
+            logger.error('Error al rechazar documento:', error);
+            res.status(500).json({ success: false, message: 'Error al rechazar el documento' });
+        }
     }
 };
 

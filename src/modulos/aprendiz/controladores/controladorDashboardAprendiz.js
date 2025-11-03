@@ -17,6 +17,7 @@ const ServicioWatsonSentimientos = require('../../administrador/servicios/servic
 const { decodeOriginalName, normalizarNombreDocumento } = require('../../../compartido/middlewares/multerConfig');
 const servicioAlertas = require('../../../compartido/servicios/servicioAlertas');
 const servicioCorreo = require('../servicios/servicioCorreo');
+const notificacionesService = require('../../../compartido/servicios/notificacionesService');
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -704,6 +705,80 @@ class ControladorDashboardAprendiz extends BaseController {
         } catch (error) {
             console.error('Error al obtener el contador de alertas:', error);
             res.status(500).json({ success: false, contador: 0, message: 'Error interno' });
+        }
+    }
+
+    /**
+     * Obtener contador de notificaciones no leídas
+     */
+    async getContadorNotificaciones(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            if (!aprendizId) {
+                return res.status(401).json({ success: false, count: 0 });
+            }
+
+            const count = await notificacionesService.contarNoLeidas(aprendizId);
+            res.json({ success: true, count });
+        } catch (error) {
+            console.error('Error al obtener contador de notificaciones:', error);
+            res.status(500).json({ success: false, count: 0 });
+        }
+    }
+
+    /**
+     * Obtener lista de notificaciones
+     */
+    async obtenerNotificaciones(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            if (!aprendizId) {
+                return res.status(401).json({ success: false, notificaciones: [] });
+            }
+
+            const notificaciones = await notificacionesService.obtenerNotificaciones(aprendizId);
+            res.json({ success: true, notificaciones });
+        } catch (error) {
+            console.error('Error al obtener notificaciones:', error);
+            res.status(500).json({ success: false, notificaciones: [] });
+        }
+    }
+
+    /**
+     * Marcar una notificación como leída
+     */
+    async marcarNotificacionLeida(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            const notificacionId = req.params.id;
+
+            if (!aprendizId) {
+                return res.status(401).json({ success: false });
+            }
+
+            const resultado = await notificacionesService.marcarComoLeida(notificacionId, aprendizId);
+            res.json(resultado);
+        } catch (error) {
+            console.error('Error al marcar notificación como leída:', error);
+            res.status(500).json({ success: false });
+        }
+    }
+
+    /**
+     * Marcar todas las notificaciones como leídas
+     */
+    async marcarTodasNotificacionesLeidas(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            if (!aprendizId) {
+                return res.status(401).json({ success: false });
+            }
+
+            const resultado = await notificacionesService.marcarTodasComoLeidas(aprendizId);
+            res.json(resultado);
+        } catch (error) {
+            console.error('Error al marcar todas las notificaciones como leídas:', error);
+            res.status(500).json({ success: false });
         }
     }
 

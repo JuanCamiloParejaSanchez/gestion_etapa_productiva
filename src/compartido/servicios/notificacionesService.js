@@ -1,0 +1,189 @@
+/**
+ * Servicio de Notificaciones
+ * Gestiona las notificaciones del sistema para los aprendices
+ */
+
+const { pool } = require('../../configuracion/baseDatos');
+
+/**
+ * Crear una notificación para un aprendiz
+ * @param {Object} params - Parámetros de la notificación
+ * @param {number} params.usuarioId - ID del aprendiz
+ * @param {string} params.tipo - Tipo de notificación
+ * @param {string} params.titulo - Título de la notificación
+ * @param {string} params.mensaje - Mensaje de la notificación
+ * @param {number} params.referenciaId - ID de referencia (opcional)
+ * @param {string} params.referenciaTipo - Tipo de referencia (opcional)
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaId = null, referenciaTipo = null }) {
+    try {
+        const query = `
+            INSERT INTO notificaciones 
+            (usuario_id, tipo, titulo, mensaje, referencia_id, referencia_tipo)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        
+        const [resultado] = await pool.query(query, [
+            usuarioId,
+            tipo,
+            titulo,
+            mensaje,
+            referenciaId,
+            referenciaTipo
+        ]);
+
+        return {
+            success: true,
+            notificacionId: resultado.insertId
+        };
+    } catch (error) {
+        console.error('Error al crear notificación:', error);
+        throw error;
+    }
+}
+
+/**
+ * Obtener notificaciones de un aprendiz
+ * @param {number} usuarioId - ID del aprendiz
+ * @param {boolean} soloNoLeidas - Si es true, solo retorna las no leídas
+ * @returns {Promise<Array>} - Lista de notificaciones
+ */
+async function obtenerNotificaciones(usuarioId, soloNoLeidas = false) {
+    try {
+        let query = `
+            SELECT 
+                n.id,
+                n.tipo,
+                n.titulo,
+                n.mensaje,
+                n.leida,
+                n.fecha_creacion,
+                n.fecha_lectura,
+                n.referencia_id,
+                n.referencia_tipo,
+                d.retroalimentacion,
+                d.tipo_documento
+            FROM notificaciones n
+            LEFT JOIN documentos_aprendiz d ON n.referencia_id = d.id AND n.referencia_tipo = 'documento'
+            WHERE n.usuario_id = ?
+        `;
+        
+        if (soloNoLeidas) {
+            query += ' AND n.leida = FALSE';
+        }
+        
+        query += ' ORDER BY n.fecha_creacion DESC LIMIT 50';
+        
+        const [notificaciones] = await pool.query(query, [usuarioId]);
+        
+        return notificaciones;
+    } catch (error) {
+        console.error('Error al obtener notificaciones:', error);
+        throw error;
+    }
+}
+
+/**
+ * Contar notificaciones no leídas
+ * @param {number} usuarioId - ID del aprendiz
+ * @returns {Promise<number>} - Cantidad de notificaciones no leídas
+ */
+async function contarNoLeidas(usuarioId) {
+    try {
+        const query = `
+            SELECT COUNT(*) as count
+            FROM notificaciones
+            WHERE usuario_id = ? AND leida = FALSE
+        `;
+        
+        const [resultado] = await pool.query(query, [usuarioId]);
+        
+        return resultado[0].count;
+    } catch (error) {
+        console.error('Error al contar notificaciones no leídas:', error);
+        throw error;
+    }
+}
+
+/**
+ * Marcar una notificación como leída
+ * @param {number} notificacionId - ID de la notificación
+ * @param {number} usuarioId - ID del aprendiz (para verificar permisos)
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function marcarComoLeida(notificacionId, usuarioId) {
+    try {
+        const query = `
+            UPDATE notificaciones
+            SET leida = TRUE, fecha_lectura = NOW()
+            WHERE id = ? AND usuario_id = ?
+        `;
+        
+        const [resultado] = await pool.query(query, [notificacionId, usuarioId]);
+        
+        return {
+            success: resultado.affectedRows > 0
+        };
+    } catch (error) {
+        console.error('Error al marcar notificación como leída:', error);
+        throw error;
+    }
+}
+
+/**
+ * Marcar todas las notificaciones como leídas
+ * @param {number} usuarioId - ID del aprendiz
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function marcarTodasComoLeidas(usuarioId) {
+    try {
+        const query = `
+            UPDATE notificaciones
+            SET leida = TRUE, fecha_lectura = NOW()
+            WHERE usuario_id = ? AND leida = FALSE
+        `;
+        
+        const [resultado] = await pool.query(query, [usuarioId]);
+        
+        return {
+            success: true,
+            actualizadas: resultado.affectedRows
+        };
+    } catch (error) {
+        console.error('Error al marcar todas las notificaciones como leídas:', error);
+        throw error;
+    }
+}
+
+/**
+ * Eliminar notificaciones antiguas (más de 30 días)
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function limpiarNotificacionesAntiguas() {
+    try {
+        const query = `
+            DELETE FROM notificaciones
+            WHERE fecha_creacion < DATE_SUB(NOW(), INTERVAL 30 DAY)
+        `;
+        
+        const [resultado] = await pool.query(query);
+        
+        return {
+            success: true,
+            eliminadas: resultado.affectedRows
+        };
+    } catch (error) {
+        console.error('Error al limpiar notificaciones antiguas:', error);
+        throw error;
+    }
+}
+
+module.exports = {
+    crearNotificacion,
+    obtenerNotificaciones,
+    contarNoLeidas,
+    marcarComoLeida,
+    marcarTodasComoLeidas,
+    limpiarNotificacionesAntiguas
+};
