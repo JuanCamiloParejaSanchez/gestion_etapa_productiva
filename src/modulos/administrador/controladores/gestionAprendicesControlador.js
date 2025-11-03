@@ -989,7 +989,7 @@ const gestionAprendicesControlador = {
             
             let mensajeNotificacion;
             if (retroalimentacion && retroalimentacion.trim()) {
-                mensajeNotificacion = `El documento "${tipo_documento}" ha sido aprobado. Tu tutor(a) te dejó un comentario: ${retroalimentacion}`;
+                mensajeNotificacion = `El documento "${tipo_documento}" ha sido aprobado. Tu tutor(a) te dejó un comentario.`;
             } else if (estado_actual === 'aprobado') {
                 mensajeNotificacion = `El documento "${tipo_documento}" fue aprobado nuevamente.`;
             } else {
@@ -1002,7 +1002,8 @@ const gestionAprendicesControlador = {
                 titulo: `Documento aprobado: ${tipo_documento}`,
                 mensaje: mensajeNotificacion,
                 referenciaId: documentoId,
-                referenciaTipo: 'documento'
+                referenciaTipo: 'documento',
+                retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null
             });
 
             // Si se debe enviar email (implementar según tu servicio de email)
@@ -1086,7 +1087,8 @@ const gestionAprendicesControlador = {
                 titulo: `Documento rechazado: ${tipo_documento}`,
                 mensaje: mensajeNotificacion,
                 referenciaId: documentoId,
-                referenciaTipo: 'documento'
+                referenciaTipo: 'documento',
+                retroalimentacion: retroalimentacion
             });
 
             // Si se debe enviar email (implementar según tu servicio de email)

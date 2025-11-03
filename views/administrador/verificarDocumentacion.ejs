@@ -104,6 +104,7 @@
         background-color: #161b22;
         color: #f0f6fc;
         border-color: #30363d;
+        border: 1px solid #30363d;
     }
 
     .dark-mode .modal-header {
@@ -113,8 +114,8 @@
     }
 
     .dark-mode .modal-body {
-        background-color: #161b22;
-        color: #f0f6fc;
+        background-color: #0d1117;
+        color: #e6edf3;
     }
 
     .dark-mode .modal-footer {
@@ -122,29 +123,90 @@
         border-color: #30363d;
     }
 
+    /* Estilos mejorados para formularios en modales oscuros */
     .dark-mode .form-control,
     .dark-mode .form-control:focus {
-        background-color: #1a1e23;
-        color: #f0f6fc;
-        border-color: #30363d;
+        background-color: #0d1117;
+        color: #e6edf3;
+        border-color: #444c56;
+    }
+
+    .dark-mode .form-control::placeholder {
+        color: #7d8590;
+        opacity: 1;
+    }
+
+    .dark-mode .form-control:focus {
+        background-color: #161b22;
+        border-color: #58a6ff;
+        box-shadow: 0 0 0 0.25rem rgba(88, 166, 255, 0.25);
     }
 
     .dark-mode .form-label {
-        color: #f0f6fc;
+        color: #e6edf3;
+        font-weight: 500;
     }
 
+    /* Texto de ayuda en formularios */
+    .dark-mode .text-muted,
+    .dark-mode small.text-muted {
+        color: #8b949e !important;
+    }
+
+    /* Estilos para checkboxes */
+    .dark-mode .form-check-input {
+        background-color: #0d1117;
+        border-color: #444c56;
+    }
+
+    .dark-mode .form-check-input:checked {
+        background-color: #238636;
+        border-color: #238636;
+    }
+
+    .dark-mode .form-check-label {
+        color: #e6edf3;
+    }
+
+    /* Botones de cierre */
     .dark-mode .btn-close {
-        filter: invert(1);
+        filter: invert(1) grayscale(100%) brightness(200%);
     }
 
     .dark-mode .btn-close-white {
-        filter: invert(0);
+        filter: invert(1) grayscale(100%) brightness(200%);
+        opacity: 1;
     }
 
+    /* Alert dentro de modales */
     .dark-mode .alert-info {
-        background-color: #0d3a5f;
-        border-color: #1e5a8e;
-        color: #9ec4e8;
+        background-color: #0c2d6b;
+        border-color: #1f6feb;
+        color: #79c0ff;
+    }
+
+    .dark-mode .alert-info i {
+        color: #79c0ff;
+    }
+
+    /* Estilos específicos para el modal de aprobación con header verde */
+    .dark-mode .modal-header.bg-success {
+        background-color: #238636 !important;
+        border-color: #2ea043;
+    }
+
+    .dark-mode .modal-header.bg-success .modal-title {
+        color: #ffffff;
+    }
+
+    /* Mejorar contraste en párrafos y strong dentro de modales */
+    .dark-mode .modal-body p {
+        color: #e6edf3;
+    }
+
+    .dark-mode .modal-body strong {
+        color: #f0f6fc;
+        font-weight: 600;
     }
 
     /* Estilos para botones de acción */
@@ -173,6 +235,59 @@
 
     .dark-mode .swal2-html-container {
         color: #f0f6fc;
+    }
+
+    /* Estilos para controlar el ancho de columnas */
+    .table-responsive table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .table-responsive table th:nth-child(1) {
+        width: 18%;
+    }
+
+    .table-responsive table th:nth-child(2) {
+        width: 35%;
+        max-width: 250px;
+    }
+
+    .table-responsive table th:nth-child(3) {
+        width: 15%;
+    }
+
+    .table-responsive table th:nth-child(4) {
+        width: 10%;
+    }
+
+    .table-responsive table th:nth-child(5) {
+        width: 10%;
+    }
+
+    .table-responsive table th:nth-child(6) {
+        width: 12%;
+    }
+
+    /* Ajuste de texto para la columna descripción */
+    .table-responsive table td:nth-child(2) {
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+        max-width: 250px;
+    }
+
+    /* Ajuste para el resto de columnas */
+    .table-responsive table td {
+        vertical-align: middle;
+    }
+
+    /* Asegurar que el nombre del archivo también se ajuste si es muy largo */
+    .table-responsive table td:nth-child(3) {
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
     }
 </style>
 
@@ -483,7 +598,7 @@ function rechazarDocumento() {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="modalRetroalimentacionAprobacionLabel">Aprobar Documento con Retroalimentación</h5>
+                <h5 class="modal-title text-white" id="modalRetroalimentacionAprobacionLabel">Aprobar Documento con Retroalimentación</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">

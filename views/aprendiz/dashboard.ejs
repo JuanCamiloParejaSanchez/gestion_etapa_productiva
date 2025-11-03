@@ -6,6 +6,18 @@
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <style>
     /* Estilos específicos del dashboard de aprendiz */
+    .btn-primary-check {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-primary-check:hover {
+        background-color: #0950b9;
+        border-color: #0950b9;
+        color: #fff;
+    }
+
     .indicator-value {
         font-size: 1.5em;
         font-weight: bold;
@@ -92,10 +104,257 @@
     }
 
     .dark-mode .btn-cerrar-modal:hover {
-    background-color: #26292b !important;
-    border-color: #26292b !important;
-    color: white !important;
-}
+        background-color: #26292b !important;
+        border-color: #26292b !important;
+        color: white !important;
+    }
+
+    /* Estilos mejorados para modales en modo oscuro */
+    .dark-mode .modal-content {
+        background-color: #161b22;
+        color: #f0f6fc;
+        border-color: #30363d;
+        border: 1px solid #30363d;
+    }
+
+    .dark-mode .modal-header {
+        background-color: #21262d;
+        border-color: #30363d;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .modal-body {
+        background-color: #0d1117;
+        color: #e6edf3;
+    }
+
+    .dark-mode .modal-footer {
+        background-color: #21262d;
+        border-color: #30363d;
+    }
+
+    /* Modal de notificaciones con header azul */
+    .dark-mode .modal-header.bg-primary {
+        background-color: #0969da !important;
+        border-color: #1f6feb;
+    }
+
+    .dark-mode .modal-header.bg-primary .modal-title {
+        color: #ffffff;
+    }
+
+    /* Estilos para cards de notificaciones */
+    .dark-mode .card {
+        background-color: #161b22;
+        border-color: #30363d;
+        color: #e6edf3;
+    }
+
+    .dark-mode .card-body {
+        background-color: #161b22;
+        color: #e6edf3;
+    }
+
+    .dark-mode .card-title {
+        color: #f0f6fc;
+    }
+
+    .dark-mode .card-text {
+        color: #e6edf3;
+    }
+
+    .dark-mode .card.border-primary {
+        border-color: #1f6feb !important;
+    }
+
+    .dark-mode .card.border-secondary {
+        border-color: #444c56 !important;
+    }
+
+    /* Alert dentro de cards */
+    .dark-mode .alert-warning {
+        background-color: #4d3800;
+        border-color: #9e6a03;
+        color: #f0ad4e;
+    }
+
+    .dark-mode .alert-warning strong {
+        color: #ffc107;
+    }
+
+    /* Estilos para retroalimentación del tutor - ajuste de texto largo */
+    .alert-warning {
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        max-width: 100%;
+        text-align: left !important;
+        padding: 0.5rem 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        margin-top: 0.5rem !important;
+        line-height: 1.4;
+    }
+
+    .card-body .alert {
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        max-width: 100%;
+        text-align: left !important;
+        padding: 0.5rem 0.75rem !important;
+        line-height: 1.4;
+        margin-bottom: 0.5rem !important;
+        margin-top: 0.5rem !important;
+    }
+
+    .card-body .alert strong {
+        display: inline;
+        margin-bottom: 0;
+        margin-top: 0;
+        margin-right: 0.25rem;
+        text-align: left !important;
+    }
+    
+    .card-body .alert-warning strong {
+        text-align: left !important;
+    }
+    
+    /* Asegurar que el contenido de retroalimentación esté alineado a la izquierda */
+    .alert-warning br {
+        display: none;
+    }
+    
+    .alert-warning * {
+        text-align: left !important;
+    }
+    
+    /* Reducir espaciado en el modal de notificaciones */
+    #modalNotificaciones .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    #modalNotificaciones .card-text {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    #modalNotificaciones .card-title {
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Modal de notificaciones - hacer más ancho para mejor legibilidad */
+    #modalNotificaciones .modal-dialog {
+        max-width: 700px;
+    }
+
+    @media (max-width: 768px) {
+        #modalNotificaciones .modal-dialog {
+            max-width: 95%;
+            margin: 1rem auto;
+        }
+    }
+
+    /* Asegurar que el contenido dentro del modal no se desborde */
+    #modalNotificaciones .modal-body {
+        overflow-x: hidden;
+        word-wrap: break-word;
+    }
+
+    #modalNotificaciones .card {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    #modalNotificaciones .card-body {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    #modalNotificaciones .alert {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+
+    .dark-mode .alert-danger {
+        background-color: #5a0a0a;
+        border-color: #8b0000;
+        color: #ff6b6b;
+    }
+
+    /* Textos secundarios */
+    .dark-mode .text-muted,
+    .dark-mode small.text-muted {
+        color: #8b949e !important;
+    }
+
+    /* Badges */
+    .dark-mode .badge.bg-primary {
+        background-color: #1f6feb !important;
+    }
+
+    .dark-mode .badge.bg-secondary {
+        background-color: #444c56 !important;
+    }
+
+    /* Botones de cierre */
+    .dark-mode .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .dark-mode .btn-close-white {
+        filter: invert(1) grayscale(100%) brightness(200%);
+        opacity: 1;
+    }
+
+    /* Botones en modales */
+    .dark-mode .btn-outline-primary {
+        color: #58a6ff;
+        border-color: #58a6ff;
+    }
+
+    .dark-mode .btn-outline-primary:hover {
+        background-color: #1f6feb;
+        border-color: #1f6feb;
+        color: #ffffff;
+    }
+
+    .dark-mode .btn-primary-check {
+        background-color: #1f6feb;
+        border-color: #1f6feb;
+        color: #ffffff;
+    }
+
+    .dark-mode .btn-primary-check:hover {
+        background-color: #1750a6;
+        border-color: #1750a6;
+        color: #ffffff;
+    }
+
+    /* Spinner */
+    .dark-mode .spinner-border {
+        color: #58a6ff;
+    }
+
+    /* Iconos grandes en mensajes vacíos */
+    .dark-mode .text-center.text-muted i {
+        color: #6e7681;
+    }
+
+    /* Modal de confirmación de logout */
+    .dark-mode .confirm-logout-modal .modal-body p {
+        color: #e6edf3;
+    }
+
+    .dark-mode .confirm-logout-modal .modal-body h4 {
+        color: #f0f6fc;
+    }
+
+    .dark-mode .text-warning {
+        color: #d29922 !important;
+    }
 
 </style>
 
@@ -106,11 +365,12 @@
         <div class="d-flex w-100 justify-content-end align-items-center">
             <!-- Notificaciones -->
             <div class="position-relative me-3">
-                <button class="btn btn-outline-light position-relative" 
+                <button class="btn btn-primary btn-navbar position-relative" 
                         data-bs-toggle="modal" 
                         data-bs-target="#modalNotificaciones"
                         id="btnNotificaciones">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-bell me-2"></i>
+                    Notificaciones
                     <span id="badgeNotificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
                         0
                     </span>
@@ -200,7 +460,7 @@
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="modalNotificacionesLabel">
+        <h5 class="modal-title text-white" id="modalNotificacionesLabel">
           <i class="fas fa-bell me-2"></i>Notificaciones
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -217,7 +477,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary" onclick="marcarTodasComoLeidas()">
+        <button type="button" class="btn btn-primary-check" onclick="marcarTodasComoLeidas()">
           <i class="fas fa-check-double me-2"></i>Marcar todas como leídas
         </button>
       </div>
@@ -336,9 +596,8 @@ function cargarNotificaciones() {
                                     </h6>
                                     <p class="card-text text-muted mb-2">${notif.mensaje}</p>
                                     ${notif.retroalimentacion ? `
-                                        <div class="alert alert-warning mb-2">
-                                            <strong>Retroalimentación del tutor:</strong><br>
-                                            ${notif.retroalimentacion}
+                                        <div class="alert alert-warning mb-0">
+                                            <strong>Retroalimentación del tutor:</strong> ${notif.retroalimentacion}
                                         </div>
                                     ` : ''}
                                     <small class="text-muted">

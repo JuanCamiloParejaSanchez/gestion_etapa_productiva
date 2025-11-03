@@ -14,14 +14,15 @@ const { pool } = require('../../configuracion/baseDatos');
  * @param {string} params.mensaje - Mensaje de la notificación
  * @param {number} params.referenciaId - ID de referencia (opcional)
  * @param {string} params.referenciaTipo - Tipo de referencia (opcional)
+ * @param {string} params.retroalimentacion - Retroalimentación asociada (opcional)
  * @returns {Promise<Object>} - Resultado de la operación
  */
-async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaId = null, referenciaTipo = null }) {
+async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaId = null, referenciaTipo = null, retroalimentacion = null }) {
     try {
         const query = `
             INSERT INTO notificaciones 
-            (usuario_id, tipo, titulo, mensaje, referencia_id, referencia_tipo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (usuario_id, tipo, titulo, mensaje, referencia_id, referencia_tipo, retroalimentacion)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         
         const [resultado] = await pool.query(query, [
@@ -30,7 +31,8 @@ async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaI
             titulo,
             mensaje,
             referenciaId,
-            referenciaTipo
+            referenciaTipo,
+            retroalimentacion
         ]);
 
         return {
@@ -62,7 +64,7 @@ async function obtenerNotificaciones(usuarioId, soloNoLeidas = false) {
                 n.fecha_lectura,
                 n.referencia_id,
                 n.referencia_tipo,
-                d.retroalimentacion,
+                n.retroalimentacion,
                 d.tipo_documento
             FROM notificaciones n
             LEFT JOIN documentos_aprendiz d ON n.referencia_id = d.id AND n.referencia_tipo = 'documento'
