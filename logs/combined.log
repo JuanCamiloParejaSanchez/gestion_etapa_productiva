@@ -583,3 +583,4 @@
 {"adminId":87,"aprendiz_id":175,"conRetroalimentacion":true,"documentoId":"13","esReaprobacion":false,"level":"info","message":"Documento aprobado","timestamp":"2025-11-03T04:46:25.005Z"}
 {"aprendiz":"JUAN CAMILO PAREJA","conRetroalimentacion":true,"documento":"Bitácora 12","email":"camilo_pareja@hotmail.com","esReaprobacion":false,"level":"info","message":"Email de aprobación pendiente de envío","timestamp":"2025-11-03T05:12:45.752Z"}
 {"adminId":87,"aprendiz_id":175,"conRetroalimentacion":true,"documentoId":"17","esReaprobacion":false,"level":"info","message":"Documento aprobado","timestamp":"2025-11-03T05:12:45.753Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T22:41:27.703Z"}
