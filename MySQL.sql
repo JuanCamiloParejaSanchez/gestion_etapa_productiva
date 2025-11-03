@@ -674,32 +674,50 @@ END //
 
 DELIMITER //
 
-DROP TRIGGER IF EXISTS `tr_documento_rechazado_notificacion`//
-
+-- NOTA: Este trigger es redundante ya que las notificaciones se crean desde el controlador
+-- Se mantiene como backup por si falla el controlador
 CREATE TRIGGER `tr_documento_rechazado_notificacion`
 AFTER UPDATE ON `documentos_aprendiz`
 FOR EACH ROW
 BEGIN
-    -- Si el documento cambia a estado 'rechazado', crear notificación
-    IF NEW.estado = 'rechazado' AND OLD.estado != 'rechazado' THEN
-        INSERT INTO notificaciones (
-            usuario_id, 
-            tipo, 
-            titulo,
-            mensaje, 
-            referencia_id, 
-            referencia_tipo
-        ) VALUES (
-            NEW.aprendiz_id,
-            'documento_rechazado',
-            CONCAT('Documento rechazado: ', NEW.tipo_documento),
-            CONCAT('El documento "', NEW.tipo_documento, '" no fue aprobado. Revisa la retroalimentación hecha por el tutor(a) para que lo corrijas y lo envíes nuevamente.'),
-            NEW.id,
-            'documento'
-        );
+    -- Si el documento es rechazado (primera vez o re-rechazo)
+    -- Y tiene nueva retroalimentación diferente
+    IF NEW.estado = 'rechazado' AND 
+       (OLD.estado != 'rechazado' OR 
+        (OLD.estado = 'rechazado' AND NEW.retroalimentacion != OLD.retroalimentacion)) THEN
+        
+        -- Solo crear notificación si la retroalimentación cambió
+        -- (El controlador ya crea notificaciones, esto es backup)
+        IF NEW.retroalimentacion != OLD.retroalimentacion OR OLD.retroalimentacion IS NULL THEN
+            INSERT INTO notificaciones (
+                usuario_id, 
+                tipo, 
+                titulo,
+                mensaje, 
+                referencia_id, 
+                referencia_tipo
+            ) VALUES (
+                NEW.aprendiz_id,
+                'documento_rechazado',
+                CONCAT('Documento rechazado: ', NEW.tipo_documento),
+                IF(OLD.estado = 'rechazado',
+                    CONCAT('El documento "', NEW.tipo_documento, '" fue rechazado nuevamente. Revisa la nueva retroalimentación hecha por el tutor(a) para que lo corrijas y lo envíes nuevamente.'),
+                    CONCAT('El documento "', NEW.tipo_documento, '" no fue aprobado. Revisa la retroalimentación hecha por el tutor(a) para que lo corrijas y lo envíes nuevamente.')
+                ),
+                NEW.id,
+                'documento'
+            );
+        END IF;
     END IF;
-    
-    -- Si el documento cambia a estado 'aprobado', crear notificación
+END //
+
+
+-- NOTA: Similar al de rechazo, es backup del controlador
+CREATE TRIGGER `tr_documento_aprobado_notificacion`
+AFTER UPDATE ON `documentos_aprendiz`
+FOR EACH ROW
+BEGIN
+    -- Si el documento es aprobado (primera vez o re-aprobación)
     IF NEW.estado = 'aprobado' AND OLD.estado != 'aprobado' THEN
         INSERT INTO notificaciones (
             usuario_id, 
@@ -712,7 +730,10 @@ BEGIN
             NEW.aprendiz_id,
             'documento_aprobado',
             CONCAT('Documento aprobado: ', NEW.tipo_documento),
-            CONCAT('El documento "', NEW.tipo_documento, '" ha sido aprobado correctamente.'),
+            IF(NEW.retroalimentacion IS NOT NULL AND NEW.retroalimentacion != '',
+                CONCAT('El documento "', NEW.tipo_documento, '" ha sido aprobado. Tu tutor(a) te dejó un comentario.'),
+                CONCAT('El documento "', NEW.tipo_documento, '" ha sido aprobado correctamente.')
+            ),
             NEW.id,
             'documento'
         );

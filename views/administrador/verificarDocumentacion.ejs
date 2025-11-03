@@ -137,6 +137,16 @@
         filter: invert(1);
     }
 
+    .dark-mode .btn-close-white {
+        filter: invert(0);
+    }
+
+    .dark-mode .alert-info {
+        background-color: #0d3a5f;
+        border-color: #1e5a8e;
+        color: #9ec4e8;
+    }
+
     /* Estilos para botones de acción */
     .btn-group .btn {
         margin-right: 0.25rem;
@@ -145,52 +155,115 @@
     .btn-group .btn:last-child {
         margin-right: 0;
     }
+
+    /* Mejorar visibilidad de iconos de comentarios */
+    .btn .fa-comment {
+        font-size: 0.9rem;
+    }
+
+    /* Estilos para SweetAlert en modo oscuro */
+    .dark-mode .swal2-popup {
+        background-color: #161b22;
+        color: #f0f6fc;
+    }
+
+    .dark-mode .swal2-title {
+        color: #f0f6fc;
+    }
+
+    .dark-mode .swal2-html-container {
+        color: #f0f6fc;
+    }
 </style>
 
 <%- contentFor('scripts') %>
 <script src="/js/utilidades/sessionTimeout.js"></script>
 <script>
 let modalRetroalimentacion;
+let modalRetroalimentacionAprobacion;
 
 document.addEventListener('DOMContentLoaded', function() {
     const modalEl = document.getElementById('modalRetroalimentacion');
     if (modalEl) {
         modalRetroalimentacion = new bootstrap.Modal(modalEl);
     }
+    
+    const modalAprobacionEl = document.getElementById('modalRetroalimentacionAprobacion');
+    if (modalAprobacionEl) {
+        modalRetroalimentacionAprobacion = new bootstrap.Modal(modalAprobacionEl);
+    }
 });
 
 function aprobarDocumento(idDocumento) {
     Swal.fire({
         title: '¿Aprobar documento?',
-        text: "El aprendiz será notificado de la aprobación",
+        text: "Puedes aprobar directamente o agregar una retroalimentación",
         icon: 'question',
         showCancelButton: true,
+        showDenyButton: true,
         confirmButtonColor: '#28a745',
+        denyButtonColor: '#17a2b8',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, aprobar',
+        confirmButtonText: 'Aprobar sin comentario',
+        denyButtonText: 'Aprobar con comentario',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
-                        .then(() => location.reload());
-                } else {
-                    Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
-            });
+            // Aprobar sin retroalimentación
+            enviarAprobacion(idDocumento, null, false);
+        } else if (result.isDenied) {
+            // Mostrar modal para agregar retroalimentación
+            mostrarModalAprobacion(idDocumento);
         }
+    });
+}
+
+function mostrarModalAprobacion(idDocumento) {
+    document.getElementById('documentoIdAprobacion').value = idDocumento;
+    document.getElementById('retroalimentacionAprobacion').value = '';
+    modalRetroalimentacionAprobacion.show();
+}
+
+function aprobarConRetroalimentacion() {
+    const idDocumento = document.getElementById('documentoIdAprobacion').value;
+    const retroalimentacion = document.getElementById('retroalimentacionAprobacion').value;
+    const enviarEmail = document.getElementById('enviarEmailAprobacion').checked;
+
+    if (!retroalimentacion.trim()) {
+        Swal.fire('Atención', 'Debes proporcionar una retroalimentación o aprobar sin comentario', 'warning');
+        return;
+    }
+
+    modalRetroalimentacionAprobacion.hide();
+    enviarAprobacion(idDocumento, retroalimentacion, enviarEmail);
+}
+
+function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
+    const body = {};
+    if (retroalimentacion) {
+        body.retroalimentacion = retroalimentacion;
+        body.enviarEmail = enviarEmail;
+    }
+
+    fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
+                .then(() => location.reload());
+        } else {
+            Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
     });
 }
 
@@ -306,24 +379,44 @@ function rechazarDocumento() {
                                                title="Ver Documento">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <% if (estado !== 'aprobado') { %>
-                                                <button class="btn btn-success btn-sm" 
-                                                        onclick="aprobarDocumento(<%= idDocumento %>)" 
-                                                        title="Aprobar">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            <% } %>
-                                            <% if (estado !== 'rechazado') { %>
-                                                <button class="btn btn-danger btn-sm" 
-                                                        onclick="mostrarModalRetroalimentacion(<%= idDocumento %>, '<%= tipoDocumento %>')" 
-                                                        title="Rechazar">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            <% } %>
-                                            <% if (retroalimentacion && estado === 'rechazado') { %>
+                                            <!-- Botón aprobar siempre visible -->
+                                            <button class="btn btn-success btn-sm" 
+                                                    onclick="aprobarDocumento(<%= idDocumento %>)" 
+                                                    title="Aprobar">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <!-- Botón rechazar siempre visible -->
+                                            <button class="btn btn-danger btn-sm" 
+                                                    onclick="mostrarModalRetroalimentacion(<%= idDocumento %>, '<%= tipoDocumento %>')" 
+                                                    title="Rechazar">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <% if (retroalimentacion) { %>
+                                                <%
+                                                    // Determinar título según el estado
+                                                    let tituloBoton = 'Ver Retroalimentación';
+                                                    let iconoSwal = 'info';
+                                                    let tituloSwal = 'Retroalimentación';
+                                                    
+                                                    if (estado === 'aprobado') {
+                                                        tituloBoton = 'Ver Comentario de Aprobación';
+                                                        iconoSwal = 'success';
+                                                        tituloSwal = 'Comentario del Tutor';
+                                                    } else if (estado === 'rechazado') {
+                                                        tituloBoton = 'Ver Motivo de Rechazo';
+                                                        iconoSwal = 'warning';
+                                                        tituloSwal = 'Motivo del Rechazo';
+                                                    }
+                                                %>
                                                 <button class="btn btn-warning btn-sm" 
-                                                        onclick="Swal.fire({title: 'Retroalimentación', text: '<%= retroalimentacion.replace(/'/g, "\\'") %>', icon: 'info'})" 
-                                                        title="Ver Retroalimentación">
+                                                        onclick="Swal.fire({
+                                                            title: '<%= tituloSwal %>', 
+                                                            html: '<div style=&quot;text-align: left; white-space: pre-wrap;&quot;><%= retroalimentacion.replace(/'/g, "\\'").replace(/\n/g, "<br>") %></div>', 
+                                                            icon: '<%= iconoSwal %>',
+                                                            confirmButtonText: 'Cerrar',
+                                                            width: '600px'
+                                                        })" 
+                                                        title="<%= tituloBoton %>">
                                                     <i class="fas fa-comment"></i>
                                                 </button>
                                             <% } %>
@@ -343,7 +436,7 @@ function rechazarDocumento() {
     </div>
 </div>
 
-<!-- Modal de Retroalimentación -->
+<!-- Modal de Retroalimentación para Rechazo -->
 <div class="modal fade" id="modalRetroalimentacion" tabindex="-1" aria-labelledby="modalRetroalimentacionLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -380,6 +473,49 @@ function rechazarDocumento() {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-danger" onclick="rechazarDocumento()">Rechazar Documento</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Retroalimentación para Aprobación -->
+<div class="modal fade" id="modalRetroalimentacionAprobacion" tabindex="-1" aria-labelledby="modalRetroalimentacionAprobacionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalRetroalimentacionAprobacionLabel">Aprobar Documento con Retroalimentación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRetroalimentacionAprobacion">
+                    <input type="hidden" id="documentoIdAprobacion" name="documentoIdAprobacion">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Puedes agregar comentarios positivos, sugerencias o felicitaciones al aprendiz.
+                    </div>
+                    <div class="mb-3">
+                        <label for="retroalimentacionAprobacion" class="form-label">Comentarios / Retroalimentación (opcional):</label>
+                        <textarea class="form-control" 
+                                  id="retroalimentacionAprobacion" 
+                                  name="retroalimentacionAprobacion" 
+                                  rows="4" 
+                                  placeholder="Ejemplo: Excelente trabajo, el documento está muy bien estructurado. Sigue así..."></textarea>
+                        <small class="text-muted">Esta retroalimentación será enviada al aprendiz junto con la notificación de aprobación.</small>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="enviarEmailAprobacion" 
+                               name="enviarEmailAprobacion" 
+                               checked>
+                        <label class="form-check-label" for="enviarEmailAprobacion">
+                            Enviar notificación por correo electrónico
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="aprobarConRetroalimentacion()">Aprobar con Comentario</button>
             </div>
         </div>
     </div>

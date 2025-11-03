@@ -935,19 +935,94 @@ const gestionAprendicesControlador = {
         try {
             const documentoId = req.params.id;
             const adminId = req.session.userId;
+            const { retroalimentacion, enviarEmail } = req.body || {};
 
-            // Actualizar el documento
-            const query = `
-                UPDATE documentos_aprendiz
-                SET estado = 'aprobado',
-                    fecha_revision = NOW(),
-                    revisado_por = ?
-                WHERE id = ?
-            `;
+            // Obtener información del documento y del aprendiz
+            const [documentoInfo] = await pool.query(`
+                SELECT 
+                    d.aprendiz_id,
+                    d.tipo_documento,
+                    d.estado as estado_actual,
+                    a.correoElectronico,
+                    a.nombres,
+                    a.primerApellido
+                FROM documentos_aprendiz d
+                INNER JOIN aprendices a ON d.aprendiz_id = a.id
+                WHERE d.id = ?
+            `, [documentoId]);
 
-            await pool.query(query, [adminId, documentoId]);
+            if (documentoInfo.length === 0) {
+                return res.status(404).json({ success: false, message: 'Documento no encontrado' });
+            }
 
-            logger.info('Documento aprobado', { documentoId, adminId });
+            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido } = documentoInfo[0];
+
+            // Actualizar el documento con o sin retroalimentación
+            let query;
+            let params;
+
+            if (retroalimentacion && retroalimentacion.trim()) {
+                query = `
+                    UPDATE documentos_aprendiz
+                    SET estado = 'aprobado',
+                        retroalimentacion = ?,
+                        fecha_revision = NOW(),
+                        revisado_por = ?
+                    WHERE id = ?
+                `;
+                params = [retroalimentacion, adminId, documentoId];
+            } else {
+                query = `
+                    UPDATE documentos_aprendiz
+                    SET estado = 'aprobado',
+                        fecha_revision = NOW(),
+                        revisado_por = ?
+                    WHERE id = ?
+                `;
+                params = [adminId, documentoId];
+            }
+
+            await pool.query(query, params);
+
+            // Crear notificación SIEMPRE al aprobar
+            const notificacionesService = require('../../../compartido/servicios/notificacionesService');
+            
+            let mensajeNotificacion;
+            if (retroalimentacion && retroalimentacion.trim()) {
+                mensajeNotificacion = `El documento "${tipo_documento}" ha sido aprobado. Tu tutor(a) te dejó un comentario: ${retroalimentacion}`;
+            } else if (estado_actual === 'aprobado') {
+                mensajeNotificacion = `El documento "${tipo_documento}" fue aprobado nuevamente.`;
+            } else {
+                mensajeNotificacion = `El documento "${tipo_documento}" ha sido aprobado correctamente.`;
+            }
+
+            await notificacionesService.crearNotificacion({
+                usuarioId: aprendiz_id,
+                tipo: 'documento_aprobado',
+                titulo: `Documento aprobado: ${tipo_documento}`,
+                mensaje: mensajeNotificacion,
+                referenciaId: documentoId,
+                referenciaTipo: 'documento'
+            });
+
+            // Si se debe enviar email (implementar según tu servicio de email)
+            if (enviarEmail) {
+                logger.info('Email de aprobación pendiente de envío', { 
+                    email: correoElectronico,
+                    aprendiz: `${nombres} ${primerApellido}`,
+                    documento: tipo_documento,
+                    conRetroalimentacion: !!retroalimentacion,
+                    esReaprobacion: estado_actual === 'aprobado'
+                });
+            }
+
+            logger.info('Documento aprobado', { 
+                documentoId, 
+                adminId, 
+                aprendiz_id,
+                conRetroalimentacion: !!retroalimentacion,
+                esReaprobacion: estado_actual === 'aprobado'
+            });
 
             res.json({ success: true, message: 'Documento aprobado correctamente' });
         } catch (error) {
@@ -970,6 +1045,7 @@ const gestionAprendicesControlador = {
                 SELECT 
                     d.aprendiz_id,
                     d.tipo_documento,
+                    d.estado as estado_actual,
                     a.correoElectronico,
                     a.nombres,
                     a.primerApellido
@@ -982,7 +1058,7 @@ const gestionAprendicesControlador = {
                 return res.status(404).json({ success: false, message: 'Documento no encontrado' });
             }
 
-            const { aprendiz_id, tipo_documento, correoElectronico, nombres, primerApellido } = documentoInfo[0];
+            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido } = documentoInfo[0];
 
             // Actualizar el documento
             const query = `
@@ -996,7 +1072,22 @@ const gestionAprendicesControlador = {
 
             await pool.query(query, [retroalimentacion, adminId, documentoId]);
 
-            // El trigger se encargará de crear la notificación automáticamente
+            // Crear notificación SIEMPRE que se rechace un documento
+            // Esto asegura que el aprendiz reciba notificación incluso si es un re-rechazo
+            const notificacionesService = require('../../../compartido/servicios/notificacionesService');
+            
+            const mensajeNotificacion = estado_actual === 'rechazado' 
+                ? `El documento "${tipo_documento}" fue rechazado nuevamente. Revisa la nueva retroalimentación hecha por el tutor(a) para que lo corrijas y lo envíes nuevamente.`
+                : `El documento "${tipo_documento}" no fue aprobado. Revisa la retroalimentación hecha por el tutor(a) para que lo corrijas y lo envíes nuevamente.`;
+
+            await notificacionesService.crearNotificacion({
+                usuarioId: aprendiz_id,
+                tipo: 'documento_rechazado',
+                titulo: `Documento rechazado: ${tipo_documento}`,
+                mensaje: mensajeNotificacion,
+                referenciaId: documentoId,
+                referenciaTipo: 'documento'
+            });
 
             // Si se debe enviar email (implementar según tu servicio de email)
             if (enviarEmail) {
@@ -1004,11 +1095,17 @@ const gestionAprendicesControlador = {
                 logger.info('Email de rechazo pendiente de envío', { 
                     email: correoElectronico,
                     aprendiz: `${nombres} ${primerApellido}`,
-                    documento: tipo_documento
+                    documento: tipo_documento,
+                    esRerechazo: estado_actual === 'rechazado'
                 });
             }
 
-            logger.info('Documento rechazado', { documentoId, adminId, aprendiz_id });
+            logger.info('Documento rechazado', { 
+                documentoId, 
+                adminId, 
+                aprendiz_id,
+                esRerechazo: estado_actual === 'rechazado'
+            });
 
             res.json({ success: true, message: 'Documento rechazado y aprendiz notificado' });
         } catch (error) {
