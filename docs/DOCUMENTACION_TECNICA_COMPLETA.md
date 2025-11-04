@@ -2,7 +2,7 @@
 
 ## 📖 Índice
 
-- [ Información General](#-información-general)
+- [📋 Información General](#-información-general)
 - [🏗️ Arquitectura del Sistema](#️-arquitectura-del-sistema)
   - [Arquitectura General (C4 - Context)](#arquitectura-general-c4---context)
   - [Arquitectura de Componentes (C4 - Components)](#arquitectura-de-componentes-c4---components)
@@ -14,6 +14,14 @@
 - [🗄️ Modelo de Datos](#️-modelo-de-datos)
   - [Diagrama Entidad-Relación Actualizado](#diagrama-entidad-relación-actualizado)
   - [Descripción Técnica del Script de Base de Datos](#descripción-técnica-del-script-de-base-de-datos)
+- [🔔 Sistema de Notificaciones](#-sistema-de-notificaciones)
+  - [Arquitectura de Notificaciones](#arquitectura-de-notificaciones)
+  - [Funcionalidades Implementadas](#funcionalidades-implementadas)
+  - [API de Notificaciones](#api-de-notificaciones)
+- [📄 Sistema de Revisión de Documentos](#-sistema-de-revisión-de-documentos)
+  - [Flujo de Aprobación](#flujo-de-aprobación)
+  - [Flujo de Rechazo](#flujo-de-rechazo)
+  - [Notificaciones por Correo](#notificaciones-por-correo)
 - [🔐 Seguridad](#-seguridad)
   - [Medidas Implementadas](#medidas-implementadas)
   - [Configuración de Seguridad](#configuración-de-seguridad)
@@ -45,8 +53,9 @@
 ## 📋 Información General
 
 **Nombre del Proyecto:** Gestión Etapa Productiva SENA
-**Versión:** 1.0.0
-**Fecha:** Octubre 2025 (Unificada)
+**Versión:** 1.1.0
+**Fecha:** Noviembre 2025
+**Última Actualización:** 3 de noviembre de 2025
 **Autor:** Juan Camilo Pareja Sánchez
 **Institución:** Servicio Nacional de Aprendizaje (SENA)
 **Tecnologías:** Node.js, Express.js, MySQL, EJS, IBM Watson, Redis, PM2
@@ -70,6 +79,7 @@ graph TB
         G[IBM Watson NLU]
         H[Sistema de Archivos]
         I[Cache Redis]
+        N[Sistema de Notificaciones]
     end
 
     subgraph "Servicios Externos"
@@ -86,9 +96,12 @@ graph TB
     E --> G
     E --> H
     E --> I
+    E --> N
     E --> J
     E --> K
     E --> L
+    N --> F
+    N --> J
 ```
 
 ### Arquitectura de Componentes (C4 - Components)
@@ -106,6 +119,7 @@ graph TB
         E[Servicios de Negocio]
         F[Middleware de Autenticación]
         G[Middleware de Validación]
+        O[Servicio de Notificaciones]
     end
 
     subgraph "Capa de Datos"
@@ -125,6 +139,7 @@ graph TB
     B --> A
     C --> A
     D --> E
+    D --> O
     E --> F
     F --> G
     G --> H
@@ -134,6 +149,8 @@ graph TB
     E --> L
     E --> M
     E --> N
+    O --> J
+    O --> L
 ```
 
 ## 📁 Estructura del Proyecto
@@ -174,6 +191,9 @@ gestion-etapa-productiva/
 │   ├── 📂 compartido/                  # Código compartido
 │   │   ├── 📂 middlewares/             # Middlewares personalizados
 │   │   ├── 📂 servicios/               # Servicios compartidos
+│   │   │   ├── 📄 notificacionesService.js  # Sistema de notificaciones (NUEVO)
+│   │   │   ├── 📄 servicioCorreo.js    # Servicio de correo mejorado
+│   │   │   └── 📄 servicioAlertas.js   # Alertas automáticas
 │   │   ├── 📂 utilidades/              # Utilidades generales
 │   │   └── 📂 repositorios/            # Patrón Repository
 │   ├── 📂 validaciones/                # Validaciones de entrada
@@ -222,7 +242,14 @@ gestion-etapa-productiva/
   "cors": "^2.8.5",
   "redis": "^5.8.2",
   "winston": "^3.17.0",
-  "winston-daily-rotate-file": "^5.0.0"
+  "winston-daily-rotate-file": "^5.0.0",
+  "archiver": "^6.0.1",
+  "axios": "^1.10.0",
+  "compromise": "^14.14.4",
+  "joi": "^18.0.1",
+  "natural": "^6.12.0",
+  "sentiment": "^5.0.2",
+  "xlsx": "^0.18.5"
 }
 ```
 
@@ -245,12 +272,13 @@ gestion-etapa-productiva/
 erDiagram
     aprendices ||--o{ bitacoras : registra
     aprendices ||--o{ documentos_aprendiz : sube
+    aprendices ||--o{ notificaciones : recibe
     administradores ||--o{ aprendices : gestiona
     aprendices {
         int id PK
         varchar tipoDocumento
         varchar numeroDocumento UK
-        varchar estadoFormacion
+        enum estadoFormacion "activo|inactivo|aplazado|retirado|certificado"
         varchar nombres
         varchar primerApellido
         varchar segundoApellido
@@ -321,8 +349,23 @@ erDiagram
         datetime fecha_subida
         bigint tamano_bytes
         varchar tipo_mime
+        varchar estado "pendiente|aprobado|rechazado"
+        text retroalimentacion
         tinyint activo
         datetime created_at
+    }
+    notificaciones {
+        int id PK
+        int usuario_id FK
+        varchar tipo
+        varchar titulo
+        text mensaje
+        int referencia_id
+        varchar referencia_tipo
+        text retroalimentacion
+        boolean leida
+        datetime fecha_creacion
+        datetime fecha_lectura
     }
     administradores {
         int id PK
@@ -386,30 +429,41 @@ erDiagram
 - **Roles:** Jerarquía admin/super_admin/instructor
 - **Auditoría:** Triggers para logging de cambios
 
+##### 5. notificaciones (NUEVO - Nov 2025)
+**Propósito:** Sistema de notificaciones en tiempo real para aprendices
+**Características Técnicas:**
+- **Campos principales:** tipo, título, mensaje, referencia, retroalimentación, estado de lectura
+- **Campos de auditoría:** fecha_creacion, fecha_lectura
+- **Índices:** Optimizados para consultas por usuario, estado leído, tipo, fecha
+- **Relaciones:** Foreign key con aprendices (CASCADE)
+- **Tipos soportados:** documento_aprobado, documento_rechazado, alerta_documento, alerta_bitacora
+- **Campos opcionales:** referencia_id, referencia_tipo (para documentos o bitácoras relacionados)
+- **Retroalimentación:** Campo text para almacenar comentarios del administrador
+
 #### Tablas de Soporte (System)
 
-##### 5. reset_tokens
+##### 6. reset_tokens
 **Propósito:** Gestión segura de tokens para reset de contraseñas
 **Características Técnicas:**
 - **Seguridad:** Tokens únicos con expiración automática
 - **Auditoría:** Registro de IP y user agent
 - **Limpieza:** Evento automático diario para tokens expirados
 
-##### 6. sessions
+##### 7. sessions
 **Propósito:** Almacenamiento de sesiones de usuario (MySQL store)
 **Características Técnicas:**
 - **Persistencia:** Sesiones sobrevivientes a reinicios de servidor
 - **Limpieza:** Evento automático por hora
 - **Auditoría:** Tracking de IP y user agent
 
-##### 7. logs_acceso
+##### 8. logs_acceso
 **Propósito:** Auditoría completa de accesos y acciones del sistema
 **Características Técnicas:**
 - **Campos JSON:** Detalles flexibles de eventos
 - **Índices:** Búsqueda eficiente por usuario, acción, fecha
 - **Retención:** Histórico completo de actividades
 
-##### 8. configuracion_sistema
+##### 9. configuracion_sistema
 **Propósito:** Configuración dinámica del sistema
 **Características Técnicas:**
 - **Flexibilidad:** Valores de diferentes tipos (string, number, boolean, json)
@@ -447,13 +501,21 @@ erDiagram
 
 #### v_estadisticas_aprendices
 **Función:** Estadísticas generales de aprendices por estado
-**Campos:** Totales y desgloses por estado de formación
+**Campos:** Totales y desgloses por estado de formación (activo, inactivo, aplazado, retirado, certificado)
 **Uso:** Dashboards administrativos, reportes generales
+**Actualización:** Incluye nuevo estado 'certificado' (Nov 2025)
 
 #### v_resumen_bitacoras
 **Función:** Resumen consolidado de bitácoras por aprendiz
 **Campos:** Conteos por sentimiento, promedios, última actividad
 **Uso:** Seguimiento individual de aprendices, análisis de tendencias
+
+#### v_documentos_pendientes_revision (NUEVO - Nov 2025)
+**Función:** Listado de documentos que requieren revisión por administradores
+**Campos:** ID documento, información del aprendiz, tipo de documento, fecha de subida, estado
+**Filtros:** Estado pendiente, documentos activos
+**Uso:** Dashboard administrativo, módulo de revisión de documentos, reportes de documentos pendientes
+**Beneficio:** Optimización de consultas para el flujo de revisión de documentos
 
 ### Eventos Automáticos
 
@@ -504,6 +566,363 @@ El script incluye configuraciones por defecto para:
 - **Eventos Automáticos:** Mantenimiento proactivo
 - **Auditoría Integral:** Logging sin impactar rendimiento principal
 - **Configuración Dinámica:** Adaptabilidad sin redeploys
+
+## 🔔 Sistema de Notificaciones
+
+### Arquitectura de Notificaciones
+
+El sistema de notificaciones implementado en noviembre 2025 proporciona comunicación en tiempo real entre el sistema y los aprendices, mejorando significativamente la experiencia de usuario y el engagement.
+
+```mermaid
+graph TB
+    subgraph "Generadores de Notificaciones"
+        A[Revisión de Documentos]
+        B[Sistema de Alertas]
+        C[Eventos del Sistema]
+    end
+    
+    subgraph "Servicio de Notificaciones"
+        D[notificacionesService.js]
+        E[Base de Datos MySQL]
+        F[Servicio de Correo]
+    end
+    
+    subgraph "Canal de Entrega"
+        G[Notificaciones In-App]
+        H[Correo Electrónico]
+    end
+    
+    subgraph "Usuario Final"
+        I[Dashboard Aprendiz]
+        J[Cliente de Correo]
+    end
+    
+    A --> D
+    B --> D
+    C --> D
+    D --> E
+    D --> F
+    E --> G
+    F --> H
+    G --> I
+    H --> J
+```
+
+### Funcionalidades Implementadas
+
+#### 1. Creación de Notificaciones
+```javascript
+// Parámetros de notificación
+{
+  usuarioId: number,        // ID del aprendiz
+  tipo: string,             // Tipo de notificación
+  titulo: string,           // Título breve
+  mensaje: string,          // Mensaje detallado
+  referenciaId: number,     // ID relacionado (opcional)
+  referenciaTipo: string,   // Tipo de referencia (opcional)
+  retroalimentacion: text   // Feedback del admin (opcional)
+}
+```
+
+**Tipos de notificaciones soportados:**
+- `documento_aprobado`: Documento aprobado por administrador
+- `documento_rechazado`: Documento rechazado con retroalimentación
+- `alerta_documento`: Recordatorio de documento pendiente
+- `alerta_bitacora`: Recordatorio de bitácora quincenal
+
+#### 2. Gestión de Notificaciones
+
+**Operaciones disponibles:**
+- ✅ Crear notificación
+- ✅ Obtener notificaciones (todas o solo no leídas)
+- ✅ Contar notificaciones no leídas
+- ✅ Marcar como leída (individual)
+- ✅ Marcar todas como leídas
+- ✅ Eliminar notificación individual
+- ✅ Eliminar todas las notificaciones leídas
+
+#### 3. Interfaz de Usuario
+
+**Badge Visual Animado:**
+- Contador de notificaciones no leídas
+- Animación "rebote" al recibir nuevas notificaciones
+- Actualización en tiempo real
+
+**Modal de Notificaciones:**
+- Diseño responsivo (móvil y escritorio)
+- Cards diferenciadas por tipo de notificación
+- Iconos contextuales (✅ aprobado, ❌ rechazado, ⚠️ alerta)
+- Soporte para modo oscuro
+- Acciones rápidas (marcar leída, eliminar)
+
+**Características de Accesibilidad:**
+- ARIA labels para lectores de pantalla
+- Contraste de colores optimizado
+- Navegación por teclado completa
+
+### API de Notificaciones
+
+#### Endpoints Implementados
+
+```javascript
+// Contador de notificaciones no leídas
+GET /aprendiz/notificaciones/contador
+Response: { count: number }
+
+// Listar notificaciones del aprendiz
+GET /aprendiz/notificaciones?soloNoLeidas=true|false
+Response: {
+  success: true,
+  notificaciones: [
+    {
+      id: number,
+      tipo: string,
+      titulo: string,
+      mensaje: string,
+      leida: boolean,
+      fecha_creacion: datetime,
+      referencia_id: number,
+      referencia_tipo: string,
+      retroalimentacion: text
+    }
+  ]
+}
+
+// Marcar todas las notificaciones como leídas
+POST /aprendiz/notificaciones/marcar-todas-leidas
+Response: { success: true, updated: number }
+
+// Eliminar todas las notificaciones leídas
+DELETE /aprendiz/notificaciones/eliminar-leidas
+Response: { success: true, deleted: number }
+
+// Marcar notificación individual como leída
+POST /aprendiz/notificaciones/:id/marcar-leida
+Response: { success: true }
+
+// Eliminar notificación individual
+DELETE /aprendiz/notificaciones/:id
+Response: { success: true }
+```
+
+### Integración con Otros Sistemas
+
+#### Con Sistema de Revisión de Documentos
+Cuando un administrador aprueba o rechaza un documento:
+1. Se actualiza el estado del documento
+2. Se crea automáticamente una notificación in-app
+3. Opcionalmente se envía correo electrónico
+4. El badge se actualiza en tiempo real
+
+#### Con Sistema de Alertas
+Las alertas automáticas (documentos pendientes, bitácoras) ahora:
+1. Se generan como notificaciones persistentes
+2. Quedan registradas en base de datos
+3. Son rastreables y auditables
+4. Pueden ser marcadas como leídas/eliminadas por el usuario
+
+### Beneficios del Sistema
+
+- ✅ **Mejor comunicación:** Feedback instantáneo sobre documentos
+- ✅ **Mayor engagement:** Recordatorios persistentes y visibles
+- ✅ **Trazabilidad:** Historial completo de notificaciones
+- ✅ **Reducción de emails:** Menos dependencia del correo electrónico
+- ✅ **UX mejorada:** Interfaz intuitiva y moderna
+- ✅ **Accesibilidad:** Cumplimiento de estándares WCAG
+
+## 📄 Sistema de Revisión de Documentos
+
+### Flujo de Aprobación
+
+El sistema de revisión de documentos implementado permite a los administradores aprobar documentos con retroalimentación opcional y notificación automática al aprendiz.
+
+```mermaid
+sequenceDiagram
+    participant A as Aprendiz
+    participant S as Sistema
+    participant D as Base de Datos
+    participant Ad as Administrador
+    participant N as Servicio Notificaciones
+    participant C as Servicio Correo
+    
+    A->>S: Sube documento
+    S->>D: Almacena documento (estado: pendiente)
+    Ad->>S: Revisa documento
+    Ad->>S: Aprobar documento (+ retroalimentación)
+    S->>D: Actualiza estado a "aprobado"
+    S->>N: Crea notificación in-app
+    N->>D: Guarda notificación
+    S->>C: Envía correo de aprobación
+    C->>A: Email de notificación
+    A->>S: Ve notificación en dashboard
+```
+
+#### Endpoint de Aprobación
+
+```javascript
+POST /administrador/documentos/:id/aprobar
+
+Body: {
+  retroalimentacion: string (opcional),
+  enviarEmail: boolean (opcional, default: true)
+}
+
+Response: {
+  success: true,
+  message: "Documento aprobado exitosamente",
+  notificacionCreada: true,
+  correoEnviado: true
+}
+```
+
+**Proceso interno:**
+1. Verificar existencia del documento
+2. Obtener información del aprendiz
+3. Actualizar estado del documento a "aprobado"
+4. Registrar retroalimentación (si existe)
+5. Crear notificación in-app
+6. Enviar correo electrónico (si está habilitado)
+7. Detectar si es re-aprobación (documento previamente rechazado)
+
+### Flujo de Rechazo
+
+```mermaid
+sequenceDiagram
+    participant Ad as Administrador
+    participant S as Sistema
+    participant D as Base de Datos
+    participant N as Servicio Notificaciones
+    participant C as Servicio Correo
+    participant A as Aprendiz
+    
+    Ad->>S: Rechazar documento (+ retroalimentación)
+    S->>D: Actualiza estado a "rechazado"
+    S->>D: Guarda retroalimentación
+    S->>N: Crea notificación de rechazo
+    N->>D: Guarda notificación con retroalimentación
+    S->>C: Envía correo de rechazo
+    C->>A: Email con motivos del rechazo
+    A->>S: Lee notificación
+    A->>S: Corrige y vuelve a subir documento
+```
+
+#### Endpoint de Rechazo
+
+```javascript
+POST /administrador/documentos/:id/rechazar
+
+Body: {
+  retroalimentacion: string (OBLIGATORIO),
+  enviarEmail: boolean (opcional, default: true)
+}
+
+Response: {
+  success: true,
+  message: "Documento rechazado",
+  notificacionCreada: true,
+  correoEnviado: true
+}
+```
+
+**Proceso interno:**
+1. Validar retroalimentación obligatoria
+2. Verificar existencia del documento
+3. Obtener información del aprendiz
+4. Actualizar estado del documento a "rechazado"
+5. Registrar retroalimentación
+6. Crear notificación in-app con retroalimentación
+7. Enviar correo electrónico con motivos del rechazo
+8. Detectar si es re-rechazo
+
+### Notificaciones por Correo
+
+#### Template de Aprobación
+
+**Características:**
+- ✅ Diseño HTML responsive
+- ✅ Logo institucional del SENA
+- ✅ Colores corporativos
+- ✅ Información clara del documento aprobado
+- ✅ Retroalimentación del administrador (si existe)
+- ✅ Detección de re-aprobación
+- ✅ Versión plain text alternativa
+
+**Estructura del correo:**
+```
+Asunto: ✅ Documento aprobado: [Tipo de Documento]
+
+Contenido:
+- Saludo personalizado
+- Mensaje de aprobación
+- Tipo de documento aprobado
+- Retroalimentación del tutor (opcional)
+- Mensaje motivacional
+- Firma institucional
+```
+
+#### Template de Rechazo
+
+**Características:**
+- ⚠️ Diseño HTML responsive
+- ⚠️ Iconografía de advertencia
+- ⚠️ Retroalimentación destacada
+- ⚠️ Instrucciones claras para corrección
+- ⚠️ Detección de re-rechazo
+- ⚠️ Tono constructivo y educativo
+
+**Estructura del correo:**
+```
+Asunto: ❌ Documento rechazado: [Tipo de Documento]
+
+Contenido:
+- Saludo personalizado
+- Mensaje de rechazo constructivo
+- Tipo de documento rechazado
+- Retroalimentación DETALLADA del tutor
+- Instrucciones para corrección
+- Mensaje de apoyo
+- Firma institucional
+```
+
+### Estados de Documentos
+
+El sistema maneja tres estados principales:
+
+1. **pendiente**: Documento subido, esperando revisión
+2. **aprobado**: Documento aprobado por administrador
+3. **rechazado**: Documento rechazado, requiere corrección
+
+**Transiciones permitidas:**
+- pendiente → aprobado
+- pendiente → rechazado
+- rechazado → aprobado (re-aprobación)
+- aprobado → rechazado (re-rechazo, caso excepcional)
+
+### Tipos de Documentos Obligatorios
+
+**Lista actualizada (18 tipos - Nov 2025):**
+
+1. Bitácora 1 a 12 (12 documentos)
+2. Propuesta de intervención
+3. Diagnóstico
+4. GFPI-F-023 V5
+5. Informe final
+6. **Carta de certificación** (NUEVO)
+7. **Documento de identidad** (NUEVO)
+
+### Vista de Verificación de Documentación
+
+**Archivo:** `views/administrador/verificarDocumentacion.ejs`
+
+**Mejoras implementadas:**
+- Interfaz moderna y responsive
+- Filtros por tipo de documento y estado
+- Búsqueda rápida por aprendiz
+- Vista previa de documentos
+- Formularios modales para aprobar/rechazar
+- Historial de revisiones
+- Estadísticas de cumplimiento
+- Exportación de reportes
 
 ## 🔐 Seguridad
 
@@ -578,6 +997,18 @@ PUT    /administrador/aprendices/:id - Actualizar aprendiz
 DELETE /administrador/aprendices/:id - Eliminar aprendiz
 GET    /administrador/bitacoras/:id - Ver bitácoras de aprendiz
 GET    /administrador/reportes   - Reportes y estadísticas
+
+# Revisión de Documentos (NUEVO - Nov 2025)
+POST   /administrador/documentos/:id/aprobar - Aprobar documento
+POST   /administrador/documentos/:id/rechazar - Rechazar documento
+
+# Exportación de Reportes (NUEVO - Nov 2025)
+GET    /administrador/reportes/exportar/programas - Exportar programas a Excel
+GET    /administrador/reportes/exportar/estados - Exportar estados a Excel
+GET    /administrador/reportes/exportar/alternativas - Exportar alternativas a Excel
+GET    /administrador/reportes/exportar/documentos - Exportar cumplimiento documentos a Excel
+GET    /administrador/reportes/exportar/seguimiento - Exportar seguimiento a Excel
+GET    /administrador/reportes/exportar/completo - Exportar reporte completo a Excel
 ```
 
 #### Aprendiz
@@ -586,6 +1017,14 @@ GET    /aprendiz/dashboard      - Dashboard del aprendiz
 POST   /aprendiz/bitacora       - Registrar bitácora
 GET    /aprendiz/documentos     - Gestionar documentos
 POST   /aprendiz/documentos     - Subir documento
+
+# Notificaciones (NUEVO - Nov 2025)
+GET    /aprendiz/notificaciones/contador - Contador de no leídas
+GET    /aprendiz/notificaciones - Listar notificaciones
+POST   /aprendiz/notificaciones/marcar-todas-leidas - Marcar todas como leídas
+DELETE /aprendiz/notificaciones/eliminar-leidas - Eliminar notificaciones leídas
+POST   /aprendiz/notificaciones/:id/marcar-leida - Marcar individual como leída
+DELETE /aprendiz/notificaciones/:id - Eliminar notificación
 ```
 
 ### Formatos de Respuesta
@@ -649,11 +1088,26 @@ GET    /metrics    - Métricas detalladas (requiere auth)
 
 ### Alertas Automáticas
 
+#### Alertas de Sistema
 - **Memoria alta**: > 500MB heap usage
 - **CPU alta**: Load average > 2.0
 - **Tasa de error**: > 5% de requests
 - **Conexiones BD**: > 20 conexiones activas
 - **Memoria sistema**: < 100MB libre
+
+#### Alertas de Aprendices (Nov 2025)
+- **Frecuencia de envío**: Cada 6 días (optimizado desde 7 días)
+- **Bitácoras pendientes**: Recordatorio quincenal (cada 15 días)
+- **Documentos obligatorios**: 18 tipos de documentos monitoreados
+  - Bitácora 1 a 12
+  - Propuesta de intervención
+  - Diagnóstico
+  - GFPI-F-023 V5
+  - Informe final
+  - Carta de certificación (NUEVO)
+  - Documento de identidad (NUEVO)
+- **Canal de entrega**: Notificaciones in-app + correo electrónico opcional
+- **Persistencia**: Almacenadas en tabla `notificaciones` para trazabilidad
 
 ## 🧪 Testing
 
@@ -914,29 +1368,38 @@ grep "lento\|slow" logs/combined.log
 
 ## 🚀 Roadmap y Mejoras Futuras
 
-### Fase 1 (Q1 2025): Optimización ✅ IMPLEMENTADO
+### Fase 1 (Q4 2025): Optimización ✅ COMPLETADO
 - [x] Implementar Redis para caching
+- [x] Sistema de notificaciones en tiempo real
+- [x] Sistema de revisión de documentos con retroalimentación
+- [x] Exportación de reportes a Excel con biblioteca XLSX
+- [x] Modo oscuro completo en UI
+- [x] Estado 'certificado' para aprendices
+- [x] Alertas optimizadas (frecuencia 6 días)
 - [ ] Migrar a TypeScript
 - [ ] Agregar tests E2E con Playwright
 - [ ] Implementar API versioning
 
-### Fase 2 (Q2 2025): Escalabilidad
+### Fase 2 (Q1 2026): Escalabilidad
 - [ ] Arquitectura de microservicios
 - [ ] Container orchestration con Kubernetes
 - [ ] CDN para assets estáticos
 - [ ] Database sharding
+- [ ] WebSockets para notificaciones en tiempo real
 
-### Fase 3 (Q3 2025): IA y Analytics
+### Fase 3 (Q2 2026): IA y Analytics
 - [ ] Dashboard avanzado con Power BI
 - [ ] Recomendaciones automáticas con ML
 - [ ] Análisis predictivo de deserción
 - [ ] Chatbot de soporte
+- [ ] Análisis de sentimientos mejorado con modelos propios
 
-### Fase 4 (Q4 2025): Modernización
+### Fase 4 (Q3 2026): Modernización
 - [ ] Migración a React/Vue.js
 - [ ] API GraphQL
 - [ ] Serverless functions
 - [ ] PWA (Progressive Web App)
+- [ ] Aplicación móvil nativa
 
 ## 📞 Soporte y Contacto
 
@@ -957,5 +1420,32 @@ grep "lento\|slow" logs/combined.log
 
 ---
 
-**Última actualización**: Octubre 2025
-**Versión de documentación**: 2.0.0
+**Última actualización**: 3 de noviembre de 2025
+**Versión de documentación**: 2.1.0
+
+### Registro de Cambios (Changelog)
+
+#### v2.1.0 (3 de noviembre de 2025)
+- ✅ Sistema completo de notificaciones en tiempo real
+- ✅ Sistema de revisión de documentos con aprobación/rechazo
+- ✅ Servicio de correo mejorado con templates HTML profesionales
+- ✅ Estado 'certificado' agregado a aprendices
+- ✅ Nuevos tipos de documentos obligatorios (18 tipos)
+- ✅ Alertas optimizadas a frecuencia de 6 días
+- ✅ Exportación de reportes a Excel (biblioteca XLSX)
+- ✅ Vista optimizada para documentos pendientes de revisión
+- ✅ Mejoras en UI/UX del dashboard de aprendiz
+- ✅ Campo de retroalimentación en notificaciones
+
+#### v2.0.0 (30 de octubre de 2025)
+- Sistema base implementado
+- Integración con Watson NLU
+- Sistema de bitácoras quincenales
+- Gestión de documentos
+- Dashboard administrativo
+
+---
+
+**Documentación mantenida por:** Juan Camilo Pareja Sánchez
+**Contacto:** juan.pareja@sena.edu.co
+**Repositorio:** https://github.com/JuanCamiloParejaSanchez/gestion_etapa_productiva
