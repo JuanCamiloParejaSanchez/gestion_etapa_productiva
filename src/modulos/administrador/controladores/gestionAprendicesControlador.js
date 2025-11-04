@@ -8,6 +8,7 @@ const ServicioGestionAprendices = require('../servicios/servicioGestionAprendice
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const { logger } = require('../../../compartido/utilidades/logger');
 const XLSX = require('xlsx');
+const servicioCorreo = require('../../../compartido/servicios/servicioCorreo');
 
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
@@ -945,7 +946,8 @@ const gestionAprendicesControlador = {
                     d.estado as estado_actual,
                     a.correoElectronico,
                     a.nombres,
-                    a.primerApellido
+                    a.primerApellido,
+                    a.segundoApellido
                 FROM documentos_aprendiz d
                 INNER JOIN aprendices a ON d.aprendiz_id = a.id
                 WHERE d.id = ?
@@ -955,7 +957,7 @@ const gestionAprendicesControlador = {
                 return res.status(404).json({ success: false, message: 'Documento no encontrado' });
             }
 
-            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido } = documentoInfo[0];
+            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
             // Actualizar el documento con o sin retroalimentación
             let query;
@@ -1006,15 +1008,35 @@ const gestionAprendicesControlador = {
                 retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null
             });
 
-            // Si se debe enviar email (implementar según tu servicio de email)
+            // Enviar email si está habilitado
             if (enviarEmail) {
-                logger.info('Email de aprobación pendiente de envío', { 
-                    email: correoElectronico,
-                    aprendiz: `${nombres} ${primerApellido}`,
-                    documento: tipo_documento,
-                    conRetroalimentacion: !!retroalimentacion,
-                    esReaprobacion: estado_actual === 'aprobado'
-                });
+                try {
+                    const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
+                    const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoAprobado({
+                        correoAprendiz: correoElectronico,
+                        nombreAprendiz: nombreCompleto,
+                        tipoDocumento: tipo_documento,
+                        retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null,
+                        esReaprobacion: estado_actual === 'aprobado'
+                    });
+
+                    if (resultadoEmail.success) {
+                        logger.info('Email de aprobación enviado exitosamente', { 
+                            email: correoElectronico,
+                            aprendiz: nombreCompleto,
+                            documento: tipo_documento,
+                            messageId: resultadoEmail.messageId
+                        });
+                    } else {
+                        logger.warn('No se pudo enviar email de aprobación', {
+                            email: correoElectronico,
+                            error: resultadoEmail.error
+                        });
+                    }
+                } catch (errorEmail) {
+                    logger.error('Error al enviar email de aprobación:', errorEmail);
+                    // No fallar la operación si el email falla
+                }
             }
 
             logger.info('Documento aprobado', { 
@@ -1022,7 +1044,8 @@ const gestionAprendicesControlador = {
                 adminId, 
                 aprendiz_id,
                 conRetroalimentacion: !!retroalimentacion,
-                esReaprobacion: estado_actual === 'aprobado'
+                esReaprobacion: estado_actual === 'aprobado',
+                emailEnviado: !!enviarEmail
             });
 
             res.json({ success: true, message: 'Documento aprobado correctamente' });
@@ -1049,7 +1072,8 @@ const gestionAprendicesControlador = {
                     d.estado as estado_actual,
                     a.correoElectronico,
                     a.nombres,
-                    a.primerApellido
+                    a.primerApellido,
+                    a.segundoApellido
                 FROM documentos_aprendiz d
                 INNER JOIN aprendices a ON d.aprendiz_id = a.id
                 WHERE d.id = ?
@@ -1059,7 +1083,7 @@ const gestionAprendicesControlador = {
                 return res.status(404).json({ success: false, message: 'Documento no encontrado' });
             }
 
-            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido } = documentoInfo[0];
+            const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
             // Actualizar el documento
             const query = `
@@ -1091,22 +1115,43 @@ const gestionAprendicesControlador = {
                 retroalimentacion: retroalimentacion
             });
 
-            // Si se debe enviar email (implementar según tu servicio de email)
+            // Enviar email si está habilitado
             if (enviarEmail) {
-                // TODO: Implementar envío de email
-                logger.info('Email de rechazo pendiente de envío', { 
-                    email: correoElectronico,
-                    aprendiz: `${nombres} ${primerApellido}`,
-                    documento: tipo_documento,
-                    esRerechazo: estado_actual === 'rechazado'
-                });
+                try {
+                    const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
+                    const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoRechazado({
+                        correoAprendiz: correoElectronico,
+                        nombreAprendiz: nombreCompleto,
+                        tipoDocumento: tipo_documento,
+                        retroalimentacion: retroalimentacion,
+                        esRerechazo: estado_actual === 'rechazado'
+                    });
+
+                    if (resultadoEmail.success) {
+                        logger.info('Email de rechazo enviado exitosamente', { 
+                            email: correoElectronico,
+                            aprendiz: nombreCompleto,
+                            documento: tipo_documento,
+                            messageId: resultadoEmail.messageId
+                        });
+                    } else {
+                        logger.warn('No se pudo enviar email de rechazo', {
+                            email: correoElectronico,
+                            error: resultadoEmail.error
+                        });
+                    }
+                } catch (errorEmail) {
+                    logger.error('Error al enviar email de rechazo:', errorEmail);
+                    // No fallar la operación si el email falla
+                }
             }
 
             logger.info('Documento rechazado', { 
                 documentoId, 
                 adminId, 
                 aprendiz_id,
-                esRerechazo: estado_actual === 'rechazado'
+                esRerechazo: estado_actual === 'rechazado',
+                emailEnviado: !!enviarEmail
             });
 
             res.json({ success: true, message: 'Documento rechazado y aprendiz notificado' });
