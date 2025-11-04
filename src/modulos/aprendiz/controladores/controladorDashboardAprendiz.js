@@ -782,6 +782,44 @@ class ControladorDashboardAprendiz extends BaseController {
         }
     }
 
+    /**
+     * Eliminar una notificación específica
+     */
+    async eliminarNotificacion(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            const notificacionId = req.params.id;
+
+            if (!aprendizId) {
+                return res.status(401).json({ success: false, message: 'No autorizado' });
+            }
+
+            const resultado = await notificacionesService.eliminarNotificacion(notificacionId, aprendizId);
+            res.json(resultado);
+        } catch (error) {
+            console.error('Error al eliminar notificación:', error);
+            res.status(500).json({ success: false, message: 'Error al eliminar la notificación' });
+        }
+    }
+
+    /**
+     * Eliminar todas las notificaciones leídas
+     */
+    async eliminarTodasNotificacionesLeidas(req, res) {
+        try {
+            const aprendizId = req.session.userId;
+            if (!aprendizId) {
+                return res.status(401).json({ success: false, message: 'No autorizado' });
+            }
+
+            const resultado = await notificacionesService.eliminarTodasLeidas(aprendizId);
+            res.json(resultado);
+        } catch (error) {
+            console.error('Error al eliminar notificaciones leídas:', error);
+            res.status(500).json({ success: false, message: 'Error al eliminar las notificaciones' });
+        }
+    }
+
     // --- Métodos de Ayuda ---
     async obtenerProgresoEtapa(aprendizId) {
         // Este método no está implementado en el archivo actual,

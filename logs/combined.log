@@ -584,3 +584,13 @@
 {"aprendiz":"JUAN CAMILO PAREJA","conRetroalimentacion":true,"documento":"Bitácora 12","email":"camilo_pareja@hotmail.com","esReaprobacion":false,"level":"info","message":"Email de aprobación pendiente de envío","timestamp":"2025-11-03T05:12:45.752Z"}
 {"adminId":87,"aprendiz_id":175,"conRetroalimentacion":true,"documentoId":"17","esReaprobacion":false,"level":"info","message":"Documento aprobado","timestamp":"2025-11-03T05:12:45.753Z"}
 {"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T22:41:27.703Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:18:53.115Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:41:12.096Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:41:28.216Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:41:40.199Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:46:17.455Z"}
+{"level":"info","message":"Servidor corriendo en puerto 3000","timestamp":"2025-11-03T23:47:46.947Z"}
+{"aprendiz":"JUAN CAMILO PAREJA","documento":"Bitácora 1","email":"camilo_pareja@hotmail.com","esRerechazo":false,"level":"info","message":"Email de rechazo pendiente de envío","timestamp":"2025-11-03T23:58:42.109Z"}
+{"adminId":87,"aprendiz_id":175,"documentoId":"18","esRerechazo":false,"level":"info","message":"Documento rechazado","timestamp":"2025-11-03T23:58:42.112Z"}
+{"aprendiz":"JUAN CAMILO PAREJA","conRetroalimentacion":true,"documento":"Bitácora 1","email":"camilo_pareja@hotmail.com","esReaprobacion":false,"level":"info","message":"Email de aprobación pendiente de envío","timestamp":"2025-11-03T23:59:34.497Z"}
+{"adminId":87,"aprendiz_id":175,"conRetroalimentacion":true,"documentoId":"18","esReaprobacion":false,"level":"info","message":"Documento aprobado","timestamp":"2025-11-03T23:59:34.499Z"}

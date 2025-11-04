@@ -159,6 +159,58 @@ async function marcarTodasComoLeidas(usuarioId) {
 }
 
 /**
+ * Eliminar una notificación específica
+ * @param {number} notificacionId - ID de la notificación
+ * @param {number} usuarioId - ID del aprendiz (para verificar permisos)
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function eliminarNotificacion(notificacionId, usuarioId) {
+    try {
+        const query = `
+            DELETE FROM notificaciones
+            WHERE id = ? AND usuario_id = ?
+        `;
+        
+        const [resultado] = await pool.query(query, [notificacionId, usuarioId]);
+        
+        return {
+            success: resultado.affectedRows > 0,
+            message: resultado.affectedRows > 0 
+                ? 'Notificación eliminada correctamente' 
+                : 'Notificación no encontrada o sin permisos'
+        };
+    } catch (error) {
+        console.error('Error al eliminar notificación:', error);
+        throw error;
+    }
+}
+
+/**
+ * Eliminar todas las notificaciones leídas de un usuario
+ * @param {number} usuarioId - ID del aprendiz
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+async function eliminarTodasLeidas(usuarioId) {
+    try {
+        const query = `
+            DELETE FROM notificaciones
+            WHERE usuario_id = ? AND leida = TRUE
+        `;
+        
+        const [resultado] = await pool.query(query, [usuarioId]);
+        
+        return {
+            success: true,
+            eliminadas: resultado.affectedRows,
+            message: `Se eliminaron ${resultado.affectedRows} notificación(es) leída(s)`
+        };
+    } catch (error) {
+        console.error('Error al eliminar notificaciones leídas:', error);
+        throw error;
+    }
+}
+
+/**
  * Eliminar notificaciones antiguas (más de 30 días)
  * @returns {Promise<Object>} - Resultado de la operación
  */
@@ -187,5 +239,7 @@ module.exports = {
     contarNoLeidas,
     marcarComoLeida,
     marcarTodasComoLeidas,
+    eliminarNotificacion,
+    eliminarTodasLeidas,
     limpiarNotificacionesAntiguas
 };

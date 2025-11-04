@@ -22,10 +22,13 @@ router.put('/perfil/actualizar', controladorDashboardAprendiz.actualizarPerfil);
 router.get('/alertas/contador', controladorDashboardAprendiz.getContadorAlertas);
 
 // --- Rutas de Notificaciones ---
+// IMPORTANTE: Las rutas específicas deben ir ANTES de las rutas con parámetros dinámicos (:id)
 router.get('/notificaciones/contador', controladorDashboardAprendiz.getContadorNotificaciones);
 router.get('/notificaciones', controladorDashboardAprendiz.obtenerNotificaciones);
-router.post('/notificaciones/:id/marcar-leida', controladorDashboardAprendiz.marcarNotificacionLeida);
 router.post('/notificaciones/marcar-todas-leidas', controladorDashboardAprendiz.marcarTodasNotificacionesLeidas);
+router.delete('/notificaciones/eliminar-leidas', controladorDashboardAprendiz.eliminarTodasNotificacionesLeidas);
+router.post('/notificaciones/:id/marcar-leida', controladorDashboardAprendiz.marcarNotificacionLeida);
+router.delete('/notificaciones/:id', controladorDashboardAprendiz.eliminarNotificacion);
 
 // --- Rutas de Gestión de Documentos ---
 router.get('/documentos', controladorDashboardAprendiz.mostrarGestionDocumentos);

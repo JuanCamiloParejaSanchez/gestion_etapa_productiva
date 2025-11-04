@@ -18,6 +18,18 @@
         color: #fff;
     }
 
+    .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #fff;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #b02a37;
+        border-color: #b02a37;
+        color: #fff;
+    }
+
     .indicator-value {
         font-size: 1.5em;
         font-weight: bold;
@@ -359,6 +371,294 @@
         color: #d29922 !important;
     }
 
+    /* Botones de acción en notificaciones */
+    .dark-mode .btn-outline-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #ffffff;
+    }
+
+    .dark-mode .btn-outline-danger:hover {
+        background-color: #8b0000;
+        border-color: #8b0000;
+        color: #ffffff;
+    }
+
+    /* Mejora visual de botones en cards */
+    .card-body .d-flex.gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    /* Transición suave para eliminación */
+    .card {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* Estilos para popup de confirmación elegante */
+    .confirm-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        animation: fadeIn 0.2s forwards;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+        to { opacity: 0; }
+    }
+
+    .confirm-popup {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    .dark-mode .confirm-popup {
+        background: #161b22;
+        border: 1px solid #30363d;
+    }
+
+    @keyframes popIn {
+        to { transform: scale(1); }
+    }
+
+    @keyframes popOut {
+        to { transform: scale(0.9); }
+    }
+
+    .confirm-popup-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    .confirm-popup-icon.warning {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffc107 100%);
+        color: #856404;
+    }
+
+    .confirm-popup-icon.success {
+        background: linear-gradient(135deg, #d4edda 0%, #28a745 100%);
+        color: #155724;
+    }
+
+    .confirm-popup-icon.danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #dc3545 100%);
+        color: #721c24;
+    }
+
+    .dark-mode .confirm-popup-icon.warning {
+        background: linear-gradient(135deg, #4d3800 0%, #9e6a03 100%);
+        color: #f0ad4e;
+    }
+
+    .dark-mode .confirm-popup-icon.success {
+        background: linear-gradient(135deg, #0f3d1a 0%, #28a745 100%);
+        color: #4caf50;
+    }
+
+    .dark-mode .confirm-popup-icon.danger {
+        background: linear-gradient(135deg, #5a0a0a 0%, #8b0000 100%);
+        color: #ff6b6b;
+    }
+
+    .confirm-popup-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #333;
+    }
+
+    .dark-mode .confirm-popup-title {
+        color: #f0f6fc;
+    }
+
+    .confirm-popup-message {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .dark-mode .confirm-popup-message {
+        color: #8b949e;
+    }
+
+    .confirm-popup-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .confirm-popup-btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 120px;
+    }
+
+    .confirm-popup-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .confirm-popup-btn:active {
+        transform: translateY(0);
+    }
+
+    .confirm-popup-btn-cancel {
+        background: #6c757d;
+        color: white;
+    }
+
+    .confirm-popup-btn-cancel:hover {
+        background: #5a6268;
+    }
+
+    .dark-mode .confirm-popup-btn-cancel {
+        background: #444c56;
+        color: #e6edf3;
+    }
+
+    .dark-mode .confirm-popup-btn-cancel:hover {
+        background: #586069;
+    }
+
+    .confirm-popup-btn-confirm {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .confirm-popup-btn-confirm:hover {
+        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    }
+
+    .dark-mode .confirm-popup-btn-confirm {
+        background: linear-gradient(135deg, #8b0000 0%, #dc3545 100%);
+    }
+
+    .dark-mode .confirm-popup-btn-confirm:hover {
+        background: linear-gradient(135deg, #a00000 0%, #ff4757 100%);
+    }
+
+    /* Variante de éxito para notificaciones */
+    .success-popup-overlay {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        animation: slideInRight 0.3s ease-out forwards;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .success-popup {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        border-left: 4px solid #28a745;
+    }
+
+    .dark-mode .success-popup {
+        background: #161b22;
+        border-left-color: #4caf50;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .success-popup-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d4edda 0%, #28a745 100%);
+        color: #155724;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .dark-mode .success-popup-icon {
+        background: linear-gradient(135deg, #0f3d1a 0%, #28a745 100%);
+        color: #4caf50;
+    }
+
+    .success-popup-content {
+        flex: 1;
+    }
+
+    .success-popup-title {
+        font-weight: 600;
+        color: #155724;
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+    }
+
+    .dark-mode .success-popup-title {
+        color: #4caf50;
+    }
+
+    .success-popup-message {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .dark-mode .success-popup-message {
+        color: #8b949e;
+    }
+
 </style>
 
 <%- contentFor('navigation') %>
@@ -367,14 +667,15 @@
     <div class="container-fluid">
         <div class="d-flex w-100 justify-content-end align-items-center">
             <!-- Notificaciones -->
-            <div class="position-relative me-3">
+            <div class="position-relative me-3" style="overflow: visible;">
                 <button class="btn btn-primary btn-navbar position-relative" 
                         data-bs-toggle="modal" 
                         data-bs-target="#modalNotificaciones"
-                        id="btnNotificaciones">
+                        id="btnNotificaciones"
+                        style="overflow: visible;">
                     <i class="fas fa-bell me-2"></i>
                     Notificaciones
-                    <span id="badgeNotificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                    <span id="badgeNotificaciones" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; z-index: 10;">
                         0
                     </span>
                 </button>
@@ -479,6 +780,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" onclick="eliminarTodasLeidas()">
+          <i class="fas fa-trash me-2"></i>Eliminar leídas
+        </button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
         <button type="button" class="btn btn-primary-check" onclick="marcarTodasComoLeidas()">
           <i class="fas fa-check-double me-2"></i>Marcar todas como leídas
@@ -589,7 +893,7 @@ function cargarNotificaciones() {
         .then(data => {
             if (data.success && data.notificaciones.length > 0) {
                 contenedor.innerHTML = data.notificaciones.map(notif => `
-                    <div class="card mb-3 ${notif.leida ? 'border-secondary' : 'border-primary'}">
+                    <div class="card mb-3 ${notif.leida ? 'border-secondary' : 'border-primary'}" id="notificacion-${notif.id}">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="flex-grow-1">
@@ -609,11 +913,16 @@ function cargarNotificaciones() {
                                         ${new Date(notif.fecha_creacion).toLocaleString('es-CO')}
                                     </small>
                                 </div>
-                                ${!notif.leida ? `
-                                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="marcarComoLeida(${notif.id})">
-                                        <i class="fas fa-check"></i>
+                                <div class="d-flex flex-column gap-2 ms-2">
+                                    ${!notif.leida ? `
+                                        <button class="btn btn-sm btn-outline-primary" onclick="marcarComoLeida(${notif.id})" title="Marcar como leída">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarNotificacion(${notif.id})" title="Eliminar notificación">
+                                        <i class="fas fa-trash"></i>
                                     </button>
-                                ` : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -664,6 +973,213 @@ function marcarTodasComoLeidas() {
         }
     })
     .catch(error => console.error('Error:', error));
+}
+
+/**
+ * Eliminar una notificación específica
+ */
+function eliminarNotificacion(notificacionId) {
+    mostrarConfirmacion({
+        titulo: '¿Eliminar notificación?',
+        mensaje: '¿Estás seguro de que deseas eliminar esta notificación? Esta acción no se puede deshacer.',
+        tipo: 'danger',
+        textoConfirmar: 'Eliminar',
+        textoCancelar: 'Cancelar',
+        onConfirm: () => {
+            fetch(`/aprendiz/notificaciones/${notificacionId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animación de salida opcional
+                    const elemento = document.getElementById(`notificacion-${notificacionId}`);
+                    if (elemento) {
+                        elemento.style.transition = 'opacity 0.3s, transform 0.3s';
+                        elemento.style.opacity = '0';
+                        elemento.style.transform = 'translateX(100px)';
+                        setTimeout(() => {
+                            cargarNotificaciones();
+                            cargarContadorNotificaciones();
+                            mostrarNotificacionExito('Notificación eliminada correctamente');
+                        }, 300);
+                    } else {
+                        cargarNotificaciones();
+                        cargarContadorNotificaciones();
+                        mostrarNotificacionExito('Notificación eliminada correctamente');
+                    }
+                } else {
+                    mostrarNotificacionExito(data.message || 'Error al eliminar la notificación', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarNotificacionExito('Error al eliminar la notificación', 'danger');
+            });
+        }
+    });
+}
+
+/**
+ * Eliminar todas las notificaciones leídas
+ */
+function eliminarTodasLeidas() {
+    mostrarConfirmacion({
+        titulo: '¿Eliminar todas las notificaciones leídas?',
+        mensaje: 'Se eliminarán todas las notificaciones que ya has marcado como leídas. Esta acción no se puede deshacer.',
+        tipo: 'warning',
+        textoConfirmar: 'Sí, eliminar',
+        textoCancelar: 'Cancelar',
+        onConfirm: () => {
+            fetch('/aprendiz/notificaciones/eliminar-leidas', {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarNotificacionExito(data.message || 'Notificaciones eliminadas correctamente');
+                    cargarNotificaciones();
+                    cargarContadorNotificaciones();
+                } else {
+                    mostrarNotificacionExito(data.message || 'Error al eliminar las notificaciones', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarNotificacionExito('Error al eliminar las notificaciones', 'danger');
+            });
+        }
+    });
+}
+
+/**
+ * Mostrar popup de confirmación elegante
+ */
+function mostrarConfirmacion({ titulo, mensaje, tipo = 'warning', textoConfirmar = 'Confirmar', textoCancelar = 'Cancelar', onConfirm, onCancel }) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-popup-overlay';
+    
+    // Crear popup
+    const popup = document.createElement('div');
+    popup.className = 'confirm-popup';
+    
+    // Determinar icono según tipo
+    let icono = 'fas fa-exclamation-triangle';
+    if (tipo === 'success') icono = 'fas fa-check-circle';
+    if (tipo === 'danger') icono = 'fas fa-exclamation-circle';
+    
+    popup.innerHTML = `
+        <div class="confirm-popup-icon ${tipo}">
+            <i class="${icono}"></i>
+        </div>
+        <h3 class="confirm-popup-title text-center">${titulo}</h3>
+        <p class="confirm-popup-message text-center">${mensaje}</p>
+        <div class="confirm-popup-buttons">
+            <button class="confirm-popup-btn confirm-popup-btn-cancel" id="popup-cancel">
+                <i class="fas fa-times me-2"></i>${textoCancelar}
+            </button>
+            <button class="confirm-popup-btn confirm-popup-btn-confirm" id="popup-confirm">
+                <i class="fas fa-check me-2"></i>${textoConfirmar}
+            </button>
+        </div>
+    `;
+    
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+    
+    // Función para cerrar el popup
+    const cerrarPopup = () => {
+        overlay.style.animation = 'fadeOut 0.2s forwards';
+        popup.style.animation = 'popOut 0.2s forwards';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 200);
+    };
+    
+    // Event listeners
+    document.getElementById('popup-cancel').addEventListener('click', () => {
+        cerrarPopup();
+        if (onCancel) onCancel();
+    });
+    
+    document.getElementById('popup-confirm').addEventListener('click', () => {
+        cerrarPopup();
+        if (onConfirm) onConfirm();
+    });
+    
+    // Cerrar al hacer clic fuera del popup
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            cerrarPopup();
+            if (onCancel) onCancel();
+        }
+    });
+    
+    // Cerrar con tecla Escape
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            cerrarPopup();
+            if (onCancel) onCancel();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+/**
+ * Mostrar notificación de éxito/error tipo toast
+ */
+function mostrarNotificacionExito(mensaje, tipo = 'success') {
+    const overlay = document.createElement('div');
+    overlay.className = 'success-popup-overlay';
+    
+    let icono = 'fas fa-check-circle';
+    let titulo = 'Éxito';
+    let borderColor = '#28a745';
+    
+    if (tipo === 'danger') {
+        icono = 'fas fa-exclamation-circle';
+        titulo = 'Error';
+        borderColor = '#dc3545';
+    } else if (tipo === 'warning') {
+        icono = 'fas fa-exclamation-triangle';
+        titulo = 'Advertencia';
+        borderColor = '#ffc107';
+    }
+    
+    const popup = document.createElement('div');
+    popup.className = 'success-popup';
+    popup.style.borderLeftColor = borderColor;
+    
+    popup.innerHTML = `
+        <div class="success-popup-icon">
+            <i class="${icono}"></i>
+        </div>
+        <div class="success-popup-content">
+            <div class="success-popup-title">${titulo}</div>
+            <p class="success-popup-message">${mensaje}</p>
+        </div>
+    `;
+    
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+    
+    // Auto-cerrar después de 4 segundos
+    setTimeout(() => {
+        overlay.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    }, 4000);
+    
+    // Cerrar al hacer clic
+    overlay.addEventListener('click', () => {
+        overlay.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    });
 }
 </script>
 <script src="/js/alertasDashboard.js"></script>
