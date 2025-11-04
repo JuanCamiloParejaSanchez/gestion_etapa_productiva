@@ -187,13 +187,6 @@ async function enviarCorreoDocumentoAprobado({ correoAprendiz, nombreAprendiz, t
                         }
                     </p>
 
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${baseUrl}/aprendiz/mis-documentos" 
-                           style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; font-weight: bold;">
-                            Ver mis documentos
-                        </a>
-                    </div>
-
                     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
 
                     <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
@@ -202,7 +195,7 @@ async function enviarCorreoDocumentoAprobado({ correoAprendiz, nombreAprendiz, t
                     <p style="font-size: 14px; color: #666; margin-top: 0;">
                         Por favor, no respondas a este correo.
                     </p>
-                </div>
+                </hr>
 
                 <!-- Footer -->
                 <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
@@ -227,8 +220,6 @@ Documento: ${tipoDocumento}
 Estado: Aprobado
 
 ${retroalimentacion ? `Comentarios del Tutor:\n${retroalimentacion}\n` : ''}
-
-Puedes ver más detalles en: ${baseUrl}/aprendiz/mis-documentos
 
 ---
 Este es un correo automático del Sistema de Gestión de Etapa Productiva del SENA.
@@ -314,13 +305,6 @@ async function enviarCorreoDocumentoRechazado({ correoAprendiz, nombreAprendiz, 
                         </p>
                     </div>
 
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="${baseUrl}/aprendiz/mis-documentos" 
-                           style="display: inline-block; background-color: #dc3545; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; font-weight: bold;">
-                            Ver y corregir documento
-                        </a>
-                    </div>
-
                     <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
 
                     <p style="font-size: 14px; color: #666; margin-bottom: 10px;">
@@ -357,8 +341,6 @@ Retroalimentación del Tutor:
 ${retroalimentacion}
 
 Por favor, revisa la retroalimentación, realiza las correcciones necesarias y vuelve a subir el documento.
-
-Puedes ver más detalles en: ${baseUrl}/aprendiz/mis-documentos
 
 ---
 Este es un correo automático del Sistema de Gestión de Etapa Productiva del SENA.
