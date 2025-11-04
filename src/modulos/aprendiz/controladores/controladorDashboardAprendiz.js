@@ -175,7 +175,7 @@ class ControladorDashboardAprendiz extends BaseController {
                 }
             }
 
-            const nombreCompleto = `${aprendiz.nombres} ${aprendiz.primerApellido}`.trim();
+            const nombreCompleto = `${aprendiz.nombres} ${aprendiz.primerApellido} ${aprendiz.segundoApellido || ''}`.trim();
             console.log('Nombre completo del aprendiz:', nombreCompleto);
 
             console.log('=== FIN DIAGNÓSTICO DASHBOARD ===');

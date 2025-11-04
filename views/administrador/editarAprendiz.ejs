@@ -53,7 +53,7 @@
                       method="POST"
                       action="/administrador/aprendiz/actualizar/<%= aprendiz.id %>">
             <% for (let key in aprendiz) { %>
-                <% if (key !== 'id' && key !== 'password') { %>
+                <% if (key !== 'id' && key !== 'password' && key !== 'fechaUltimoCorreoAlerta') { %>
                     <div class="mb-3">
                         <label for="<%= key %>" class="form-label">
                             <% if (key === 'created_at') { %>

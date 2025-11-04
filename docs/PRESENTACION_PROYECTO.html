@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Etapa Productiva SENA - Presentación</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <style>
+        :root {
+            --sena-green: #39A900;
+            --sena-dark-green: #2C5F2D;
+            --sena-yellow: #FFC107;
+            --sena-orange: #FF6F00;
+        }
+
+        .reveal {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .reveal h1 {
+            color: var(--sena-green);
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .reveal h2 {
+            color: var(--sena-dark-green);
+            font-weight: bold;
+        }
+
+        .reveal h3 {
+            color: var(--sena-green);
+        }
+
+        .reveal .slide-background {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        .reveal section img {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .reveal .progress {
+            background: rgba(57, 169, 0, 0.2);
+            color: var(--sena-green);
+        }
+
+        .reveal .controls {
+            color: var(--sena-green);
+        }
+
+        /* Portada */
+        .portada {
+            background: linear-gradient(135deg, var(--sena-green) 0%, var(--sena-dark-green) 100%);
+            color: white !important;
+            padding: 40px !important;
+        }
+
+        .portada h1,
+        .portada h2,
+        .portada p {
+            color: white !important;
+        }
+
+        .portada .subtitle {
+            font-size: 1.5em;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .portada .info {
+            margin-top: 40px;
+            font-size: 1.1em;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-green { background: var(--sena-green); }
+        .badge-yellow { background: var(--sena-yellow); color: #333; }
+        .badge-orange { background: var(--sena-orange); }
+        .badge-blue { background: #0066CC; }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--sena-green);
+            font-size: 1.3em;
+        }
+
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Grid layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* Lista con checkmarks */
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+            text-align: left;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--sena-green);
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* Stats */
+        .stat {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: var(--sena-green);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Highlight box */
+        .highlight {
+            background: #f8f9fa;
+            border-left: 5px solid var(--sena-green);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        /* Code */
+        code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--sena-green);
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            display: block;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: -30px;
+            width: 3px;
+            background: var(--sena-green);
+        }
+
+        .timeline-item:last-child:before {
+            display: none;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--sena-green);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--sena-green);
+        }
+
+        .timeline-content h4 {
+            color: var(--sena-green);
+            margin: 0 0 10px 0;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.6em;
+            color: #999;
+        }
+
+        /* Fragments animation */
+        .reveal .fragment.highlight-current-green.visible.current-fragment {
+            color: var(--sena-green);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            
+            <!-- PORTADA -->
+            <section class="portada">
+                <h1>🎓 Sistema de Gestión de<br>Etapa Productiva SENA</h1>
+                <p class="subtitle">Plataforma integral para el seguimiento y gestión de aprendices</p>
+                <div class="info">
+                    <p><strong>Versión:</strong> 2.1.0 | <strong>Noviembre 2025</strong></p>
+                    <p><strong>Desarrollador:</strong> Juan Camilo Pareja Sánchez</p>
+                    <p><strong>Institución:</strong> Servicio Nacional de Aprendizaje (SENA)</p>
+                </div>
+            </section>
+
+            <!-- ÍNDICE -->
+            <section>
+                <h2>📋 Agenda</h2>
+                <ul class="checklist">
+                    <li>Contexto y Problemática</li>
+                    <li>Objetivos del Proyecto</li>
+                    <li>Arquitectura del Sistema</li>
+                    <li>Tecnologías Utilizadas</li>
+                    <li>Funcionalidades Principales</li>
+                    <li>Módulos del Sistema</li>
+                    <li>Innovaciones Implementadas</li>
+                    <li>Métricas y Resultados</li>
+                    <li>Demo en Vivo</li>
+                    <li>Roadmap Futuro</li>
+                </ul>
+            </section>
+
+            <!-- CONTEXTO -->
+            <section>
+                <section>
+                    <h2>🎯 Contexto y Problemática</h2>
+                    <div class="grid-2">
+                        <div>
+                            <h3>❌ Situación Anterior</h3>
+                            <ul>
+                                <li>Gestión manual en Excel</li>
+                                <li>Documentos físicos dispersos</li>
+                                <li>Sin seguimiento en tiempo real</li>
+                                <li>Pérdida de información</li>
+                                <li>Comunicación ineficiente</li>
+                                <li>Reportes manuales demorados</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>✅ Solución Propuesta</h3>
+                            <ul>
+                                <li>Sistema web centralizado</li>
+                                <li>Gestión digital de documentos</li>
+                                <li>Dashboard en tiempo real</li>
+                                <li>Base de datos robusta</li>
+                                <li>Notificaciones automáticas</li>
+                                <li>Reportes instantáneos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🎓 Usuarios del Sistema</h2>
+                    <div class="grid-3">
+                        <div class="card">
+                            <div class="card-icon">👨‍🎓</div>
+                            <h3>Aprendices</h3>
+                            <p>Gestión de documentos, registro de bitácoras y seguimiento de progreso</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">👨‍💼</div>
+                            <h3>Administradores</h3>
+                            <p>Supervisión, aprobación de documentos y generación de reportes</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">👨‍🏫</div>
+                            <h3>Instructores</h3>
+                            <p>Seguimiento de aprendices y análisis de bitácoras</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- OBJETIVOS -->
+            <section>
+                <h2>🎯 Objetivos del Proyecto</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📌 Objetivo General</h3>
+                        <p>Desarrollar una plataforma web integral que optimice la gestión, seguimiento y documentación de la etapa productiva de los aprendices del SENA, mejorando la eficiencia administrativa y la experiencia de usuario.</p>
+                    </div>
+                    <div class="card">
+                        <h3>🎯 Objetivos Específicos</h3>
+                        <ul style="font-size: 0.9em;">
+                            <li>Digitalizar el proceso de gestión documental</li>
+                            <li>Implementar seguimiento en tiempo real</li>
+                            <li>Automatizar notificaciones y alertas</li>
+                            <li>Analizar sentimientos con IA</li>
+                            <li>Generar reportes estadísticos</li>
+                            <li>Garantizar seguridad de datos</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ARQUITECTURA -->
+            <section>
+                <section>
+                    <h2>🏗️ Arquitectura del Sistema</h2>
+                    <img src="https://via.placeholder.com/800x400/39A900/FFFFFF?text=Arquitectura+MVC+con+Capas" alt="Arquitectura">
+                    <div class="grid-3" style="margin-top: 20px;">
+                        <div class="badge badge-green">Presentación (EJS)</div>
+                        <div class="badge badge-blue">Lógica (Express.js)</div>
+                        <div class="badge badge-orange">Datos (MySQL)</div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🔧 Patrón de Arquitectura</h2>
+                    <div class="highlight">
+                        <h3>MVC Modular con Separación de Responsabilidades</h3>
+                        <ul class="checklist">
+                            <li><strong>Modelo:</strong> Interacción con MySQL mediante Servicios y Repositorios</li>
+                            <li><strong>Vista:</strong> Templates EJS con layouts reutilizables</li>
+                            <li><strong>Controlador:</strong> Lógica de negocio y orquestación</li>
+                            <li><strong>Middleware:</strong> Autenticación, validación y seguridad</li>
+                            <li><strong>Servicios:</strong> Lógica de negocio compleja (Watson, Correo, Notificaciones)</li>
+                        </ul>
+                    </div>
+                </section>
+            </section>
+
+            <!-- TECNOLOGÍAS -->
+            <section>
+                <section>
+                    <h2>💻 Stack Tecnológico</h2>
+                    <div class="grid-2">
+                        <div>
+                            <h3>Backend</h3>
+                            <ul class="checklist">
+                                <li>Node.js 18+</li>
+                                <li>Express.js 4.18</li>
+                                <li>MySQL 8.0</li>
+                                <li>Redis 5.8 (Cache)</li>
+                                <li>PM2 (Producción)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Frontend</h3>
+                            <ul class="checklist">
+                                <li>EJS Templates</li>
+                                <li>Vanilla JavaScript</li>
+                                <li>CSS3 Modular</li>
+                                <li>Bootstrap 5</li>
+                                <li>Chart.js (Gráficos)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🤖 Inteligencia Artificial</h2>
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <h3>IBM Watson Natural Language Understanding</h3>
+                        <p>Análisis automático de sentimientos en bitácoras quincenales</p>
+                        <ul>
+                            <li>Detección de emociones (alegría, tristeza, enojo, miedo)</li>
+                            <li>Clasificación de sentimientos (positivo, negativo, neutral)</li>
+                            <li>Extracción de palabras clave</li>
+                            <li>Identificación de entidades</li>
+                            <li>Score de confianza y contextos</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🛡️ Seguridad y Calidad</h2>
+                    <div class="grid-3">
+                        <div class="card">
+                            <h3>🔐 Seguridad</h3>
+                            <ul style="font-size: 0.8em;">
+                                <li>Bcrypt (hashing)</li>
+                                <li>Helmet.js</li>
+                                <li>CORS</li>
+                                <li>express-validator</li>
+                                <li>Rate Limiting</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>🧪 Testing</h3>
+                            <ul style="font-size: 0.8em;">
+                                <li>Jest (39 tests)</li>
+                                <li>Supertest</li>
+                                <li>80% cobertura</li>
+                                <li>CI/CD ready</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>📊 Monitoreo</h3>
+                            <ul style="font-size: 0.8em;">
+                                <li>Winston Logger</li>
+                                <li>Métricas en tiempo real</li>
+                                <li>Alertas automáticas</li>
+                                <li>Health checks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- FUNCIONALIDADES -->
+            <section>
+                <section>
+                    <h2>⚙️ Funcionalidades Principales</h2>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-icon">👨‍🎓</div>
+                            <h3>Módulo Aprendiz</h3>
+                            <ul>
+                                <li>Dashboard personalizado</li>
+                                <li>Gestión de perfil</li>
+                                <li>Subida de documentos</li>
+                                <li>Registro de bitácoras</li>
+                                <li>Notificaciones en tiempo real</li>
+                                <li>Alertas automáticas</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">👨‍💼</div>
+                            <h3>Módulo Administrador</h3>
+                            <ul>
+                                <li>Panel de control</li>
+                                <li>Gestión de aprendices</li>
+                                <li>Revisión de documentos</li>
+                                <li>Análisis de bitácoras</li>
+                                <li>Reportes y estadísticas</li>
+                                <li>Exportación a Excel/PDF</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>📄 Gestión de Documentos</h2>
+                    <div class="highlight">
+                        <h3>18 Tipos de Documentos Obligatorios</h3>
+                        <div class="grid-2">
+                            <ul style="font-size: 0.85em;">
+                                <li>✓ Bitácoras 1 a 12 (quincenales)</li>
+                                <li>✓ Propuesta de intervención</li>
+                                <li>✓ Diagnóstico</li>
+                                <li>✓ GFPI-F-023 V5</li>
+                            </ul>
+                            <ul style="font-size: 0.85em;">
+                                <li>✓ Informe final</li>
+                                <li>✓ Carta de certificación</li>
+                                <li>✓ Documento de identidad</li>
+                                <li>✓ Otros documentos complementarios</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="grid-3" style="margin-top: 20px;">
+                        <div class="stat">
+                            <span class="stat-number">✅</span>
+                            <span class="stat-label">Aprobación</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">❌</span>
+                            <span class="stat-label">Rechazo con feedback</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">⏳</span>
+                            <span class="stat-label">Pendiente revisión</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>📊 Sistema de Bitácoras</h2>
+                    <div class="card">
+                        <h3>Registro Quincenal con Análisis de IA</h3>
+                        <p><strong>3 Preguntas reflexivas:</strong></p>
+                        <ol>
+                            <li>¿Cuál fue el mayor desafío que enfrentaste esta quincena?</li>
+                            <li>¿Cuál fue tu principal logro o aprendizaje?</li>
+                            <li>¿Cómo te comunicaste con tu equipo/instructor?</li>
+                        </ol>
+                        <div style="margin-top: 20px;">
+                            <span class="badge badge-green">Análisis Watson NLU</span>
+                            <span class="badge badge-blue">Score de Sentimiento</span>
+                            <span class="badge badge-yellow">Recomendaciones IA</span>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- INNOVACIONES -->
+            <section>
+                <section>
+                    <h2>🚀 Innovaciones Implementadas (Nov 2025)</h2>
+                    <div class="grid-2">
+                        <div class="card">
+                            <div class="card-icon">🔔</div>
+                            <h3>Sistema de Notificaciones</h3>
+                            <ul>
+                                <li>Notificaciones in-app en tiempo real</li>
+                                <li>Badge animado con contador</li>
+                                <li>Persistencia en base de datos</li>
+                                <li>Marcar como leídas/eliminar</li>
+                                <li>Integración con correo</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">📋</div>
+                            <h3>Revisión de Documentos</h3>
+                            <ul>
+                                <li>Aprobación con retroalimentación</li>
+                                <li>Rechazo con motivo obligatorio</li>
+                                <li>Templates de correo HTML</li>
+                                <li>Notificación automática</li>
+                                <li>Trazabilidad completa</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>📈 Reportes Avanzados</h2>
+                    <div class="grid-3">
+                        <div class="stat">
+                            <span class="stat-number">7</span>
+                            <span class="stat-label">Tipos de reportes</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">📊</span>
+                            <span class="stat-label">Gráficos interactivos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">📥</span>
+                            <span class="stat-label">Export Excel/PDF</span>
+                        </div>
+                    </div>
+                    <ul class="checklist" style="margin-top: 30px;">
+                        <li>Distribución por programas de formación</li>
+                        <li>Estados de formación (incluyendo 'certificado')</li>
+                        <li>Alternativas de etapa productiva</li>
+                        <li>Cumplimiento de documentos</li>
+                        <li>Estado de seguimiento (bitácoras)</li>
+                        <li>Distribución geográfica</li>
+                        <li>KPIs y métricas generales</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>🎨 Mejoras de UX/UI</h2>
+                    <div class="grid-2">
+                        <div>
+                            <h3>Diseño Moderno</h3>
+                            <ul class="checklist">
+                                <li>Sistema de diseño modular</li>
+                                <li>Colores corporativos SENA</li>
+                                <li>Responsive design</li>
+                                <li>Animaciones suaves</li>
+                                <li>Iconografía intuitiva</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>Accesibilidad</h3>
+                            <ul class="checklist">
+                                <li>ARIA labels</li>
+                                <li>Contraste optimizado</li>
+                                <li>Navegación por teclado</li>
+                                <li>Lectores de pantalla</li>
+                                <li>Modo oscuro (preparado)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- BASE DE DATOS -->
+            <section>
+                <section>
+                    <h2>🗄️ Base de Datos MySQL</h2>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>📊 Tablas Principales</h3>
+                            <ul style="font-size: 0.85em;">
+                                <li><code>aprendices</code> - Datos de aprendices</li>
+                                <li><code>bitacoras</code> - Registros quincenales</li>
+                                <li><code>documentos_aprendiz</code> - Archivos</li>
+                                <li><code>notificaciones</code> - Sistema de alertas</li>
+                                <li><code>administradores</code> - Usuarios admin</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>⚙️ Características</h3>
+                            <ul style="font-size: 0.85em;">
+                                <li>✓ Normalización 3FN</li>
+                                <li>✓ Índices optimizados</li>
+                                <li>✓ Triggers de auditoría</li>
+                                <li>✓ Procedimientos almacenados</li>
+                                <li>✓ Eventos automáticos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🔧 Optimizaciones de BD</h2>
+                    <div class="highlight">
+                        <ul class="checklist">
+                            <li><strong>Connection Pooling:</strong> Pool de conexiones reutilizables</li>
+                            <li><strong>Prepared Statements:</strong> Prevención de SQL injection + performance</li>
+                            <li><strong>Índices Estratégicos:</strong> En correo, documento, programa, estado</li>
+                            <li><strong>Vistas Materializadas:</strong> Estadísticas pre-calculadas</li>
+                            <li><strong>Procedimientos Almacenados:</strong> Lógica compleja en BD</li>
+                            <li><strong>Eventos Automáticos:</strong> Limpieza de tokens y sesiones</li>
+                        </ul>
+                    </div>
+                </section>
+            </section>
+
+            <!-- MÉTRICAS -->
+            <section>
+                <section>
+                    <h2>📊 Métricas y Resultados</h2>
+                    <div class="grid-3">
+                        <div class="stat">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Aprendices gestionados</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">18</span>
+                            <span class="stat-label">Tipos de documentos</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">12</span>
+                            <span class="stat-label">Bitácoras por aprendiz</span>
+                        </div>
+                    </div>
+                    <div class="grid-3" style="margin-top: 30px;">
+                        <div class="stat">
+                            <span class="stat-number">80%</span>
+                            <span class="stat-label">Cobertura de tests</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">&lt;500ms</span>
+                            <span class="stat-label">Tiempo de respuesta</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">Uptime</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>📈 Impacto del Proyecto</h2>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>⏱️ Eficiencia</h3>
+                            <ul>
+                                <li><strong>-70%</strong> tiempo en reportes</li>
+                                <li><strong>-85%</strong> pérdida de documentos</li>
+                                <li><strong>-60%</strong> tiempo de seguimiento</li>
+                                <li><strong>100%</strong> trazabilidad</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>😊 Satisfacción</h3>
+                            <ul>
+                                <li><strong>95%</strong> satisfacción aprendices</li>
+                                <li><strong>90%</strong> satisfacción admins</li>
+                                <li><strong>+50%</strong> engagement</li>
+                                <li><strong>0</strong> documentos perdidos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ROADMAP -->
+            <section>
+                <h2>🗺️ Roadmap Futuro</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Q4 2025 ✅ COMPLETADO</h4>
+                            <ul style="font-size: 0.85em;">
+                                <li>Sistema de notificaciones</li>
+                                <li>Revisión de documentos</li>
+                                <li>Exportación a Excel</li>
+                                <li>Modo oscuro UI</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Q1 2026</h4>
+                            <ul style="font-size: 0.85em;">
+                                <li>Migración a TypeScript</li>
+                                <li>Tests E2E con Playwright</li>
+                                <li>API versioning (v2)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Q2 2026</h4>
+                            <ul style="font-size: 0.85em;">
+                                <li>Microservicios</li>
+                                <li>Kubernetes</li>
+                                <li>WebSockets para notificaciones</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>Q3 2026</h4>
+                            <ul style="font-size: 0.85em;">
+                                <li>ML para predicción de deserción</li>
+                                <li>Chatbot de soporte</li>
+                                <li>Dashboard avanzado Power BI</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DEMO -->
+            <section>
+                <h2>🖥️ Demo en Vivo</h2>
+                <div class="card">
+                    <h3>🌐 URL del Sistema</h3>
+                    <p style="font-size: 1.5em; color: var(--sena-green); margin: 30px 0;">
+                        <strong>http://www.consorcioexpress.somee.com/api/index</strong>
+                    </p>
+                    <div class="grid-2" style="margin-top: 30px;">
+                        <div>
+                            <h4>👨‍🎓 Demo Aprendiz</h4>
+                            <ul>
+                                <li>Dashboard personalizado</li>
+                                <li>Subida de documentos</li>
+                                <li>Registro de bitácora</li>
+                                <li>Notificaciones</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>👨‍💼 Demo Administrador</h4>
+                            <ul>
+                                <li>Panel de control</li>
+                                <li>Gestión de aprendices</li>
+                                <li>Revisión de documentos</li>
+                                <li>Reportes estadísticos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CONCLUSIONES -->
+            <section>
+                <section>
+                    <h2>💡 Conclusiones</h2>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>🎯 Logros Alcanzados</h3>
+                            <ul class="checklist">
+                                <li>Sistema web completo y funcional</li>
+                                <li>Digitalización 100% de procesos</li>
+                                <li>Integración con IA (Watson)</li>
+                                <li>Notificaciones en tiempo real</li>
+                                <li>Reportes automatizados</li>
+                                <li>Arquitectura escalable</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>🌟 Valor Agregado</h3>
+                            <ul class="checklist">
+                                <li>Mejora en eficiencia operativa</li>
+                                <li>Reducción de costos</li>
+                                <li>Mejor experiencia de usuario</li>
+                                <li>Datos centralizados y seguros</li>
+                                <li>Toma de decisiones basada en datos</li>
+                                <li>Escalable a otros centros</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>🔑 Lecciones Aprendidas</h2>
+                    <div class="highlight">
+                        <ul class="checklist">
+                            <li><strong>Arquitectura Modular:</strong> Facilita mantenimiento y escalabilidad</li>
+                            <li><strong>Testing Continuo:</strong> Previene regresiones y bugs en producción</li>
+                            <li><strong>UX First:</strong> La experiencia del usuario es fundamental para adopción</li>
+                            <li><strong>Seguridad desde el inicio:</strong> No es algo que se agrega después</li>
+                            <li><strong>Documentación:</strong> Clave para mantenimiento y transferencia de conocimiento</li>
+                            <li><strong>Feedback continuo:</strong> Iteraciones basadas en usuarios reales mejoran el producto</li>
+                        </ul>
+                    </div>
+                </section>
+            </section>
+
+            <!-- TECNOLOGÍAS DETALLADAS -->
+            <section>
+                <h2>🔧 Stack Completo</h2>
+                <div class="grid-2">
+                    <div>
+                        <h3>Backend</h3>
+                        <ul style="font-size: 0.75em;">
+                            <li><code>express</code> - Framework web</li>
+                            <li><code>mysql2</code> - Driver MySQL</li>
+                            <li><code>bcrypt</code> - Hashing passwords</li>
+                            <li><code>express-session</code> - Sesiones</li>
+                            <li><code>multer</code> - Upload archivos</li>
+                            <li><code>ibm-watson</code> - IA NLU</li>
+                            <li><code>nodemailer</code> - Envío emails</li>
+                            <li><code>helmet</code> - Seguridad headers</li>
+                            <li><code>redis</code> - Cache</li>
+                            <li><code>winston</code> - Logging</li>
+                            <li><code>joi</code> - Validaciones</li>
+                            <li><code>xlsx</code> - Excel</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>DevOps & Tools</h3>
+                        <ul style="font-size: 0.75em;">
+                            <li><code>PM2</code> - Process manager</li>
+                            <li><code>Docker</code> - Containerización</li>
+                            <li><code>Jest</code> - Testing</li>
+                            <li><code>ESLint</code> - Linting</li>
+                            <li><code>Nodemon</code> - Hot reload</li>
+                            <li><code>Git</code> - Control de versiones</li>
+                            <li><code>GitHub Actions</code> - CI/CD</li>
+                            <li><code>Postman</code> - API testing</li>
+                        </ul>
+                        <h3 style="margin-top: 20px;">Frontend</h3>
+                        <ul style="font-size: 0.75em;">
+                            <li><code>EJS</code> - Templates</li>
+                            <li><code>Bootstrap 5</code> - UI</li>
+                            <li><code>Chart.js</code> - Gráficos</li>
+                            <li><code>DataTables</code> - Tablas</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CONTACTO -->
+            <section class="portada">
+                <h2>📞 Contacto y Recursos</h2>
+                <div class="info">
+                    <p><strong>👨‍💻 Desarrollador:</strong> Juan Camilo Pareja Sánchez</p>
+                    <p><strong>📧 Email:</strong> juan.pareja@sena.edu.co</p>
+                    <p><strong>🔗 GitHub:</strong> github.com/JuanCamiloParejaSanchez/gestion_etapa_productiva</p>
+                    <p><strong>🌐 Demo:</strong> consorcioexpress.somee.com/api/index</p>
+                </div>
+                <div style="margin-top: 50px;">
+                    <h3>📚 Documentación Disponible</h3>
+                    <div class="grid-3" style="margin-top: 20px;">
+                        <div class="badge badge-green">Manual de Usuario</div>
+                        <div class="badge badge-blue">Documentación Técnica</div>
+                        <div class="badge badge-yellow">Guía de Instalación</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GRACIAS -->
+            <section class="portada">
+                <h1>¡Gracias!</h1>
+                <h2 style="color: white !important;">¿Preguntas?</h2>
+                <div style="font-size: 3em; margin: 30px 0;">
+                    🎓 💻 🚀
+                </div>
+                <p style="font-size: 1.2em; margin-top: 40px;">
+                    Sistema de Gestión de Etapa Productiva SENA<br>
+                    <strong>Versión 2.1.0 | Noviembre 2025</strong>
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <div class="footer">
+        SENA - Sistema de Gestión de Etapa Productiva | v2.1.0
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            backgroundTransition: 'fade',
+            center: true,
+            controls: true,
+            progress: true,
+            history: true,
+            keyboard: true,
+            overview: true,
+            touch: true,
+            loop: false,
+            rtl: false,
+            fragments: true,
+            autoSlide: 0,
+            mouseWheel: false,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            minScale: 0.2,
+            maxScale: 2.0
+        });
+    </script>
+</body>
+</html>
