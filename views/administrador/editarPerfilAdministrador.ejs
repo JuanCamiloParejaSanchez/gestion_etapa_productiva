@@ -196,7 +196,11 @@ html.dark-mode .required {
                                            name="telefono" 
                                            value="<%= administrador.telefono || '' %>"
                                            required 
-                                           placeholder="Ej: 3001234567">
+                                           placeholder="Ej: 3001234567"
+                                           minlength="10"
+                                           maxlength="10"
+                                           pattern="\d{10}"
+                                           title="Debe contener exactamente 10 dígitos">
                                     <small id="telefonoHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                             </div>

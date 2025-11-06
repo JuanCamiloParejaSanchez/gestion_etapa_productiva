@@ -196,6 +196,17 @@
                                    }) + ' - Usuario: ' + (typeof userName !== 'undefined' ? userName : 'Administrador') : '' %>"
                                    readonly>
 
+                        <% } else if (key === 'telefonoFijo' || key === 'celular' || key === 'telefonoEmpresa' || key === 'celularEmpresa') { %>
+                            <input type="tel"
+                                   class="form-control"
+                                   id="<%= key %>"
+                                   name="<%= key %>"
+                                   value="<%= aprendiz[key] || '' %>"
+                                   minlength="10"
+                                   maxlength="10"
+                                   pattern="\d{10}"
+                                   title="Debe contener exactamente 10 dígitos">
+
                         <% } else { %>
                             <input type="text"
                                    class="form-control"
@@ -427,5 +438,16 @@
 
         // Inicializar carga de datos de ubicación
         cargarDatosUbicacionEdicion();
+
+        // Restringir entrada en campos de teléfono (solo dígitos)
+        const telefonoInputs = document.querySelectorAll('#telefonoFijo, #celular, #telefonoEmpresa, #celularEmpresa');
+        telefonoInputs.forEach(input => {
+            if (input) {
+                // Convertir a mayúsculas y restringir a solo números
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/\D/g, '');
+                });
+            }
+        });
     });
 </script>

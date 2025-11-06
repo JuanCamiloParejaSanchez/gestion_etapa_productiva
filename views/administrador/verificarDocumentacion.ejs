@@ -89,7 +89,8 @@
         border-color: #30363d;
     }
 
-    .dark-mode .fas {
+    .dark-mode .table .fas,
+    .dark-mode .btn-group .fas {
         color: #f0f6fc;
     }
 
@@ -107,7 +108,8 @@
         border: 1px solid #30363d;
     }
 
-    .dark-mode .modal-header {
+    /* Estilos genéricos para modal-header solo si NO tiene clases especiales bg-danger o bg-success */
+    .dark-mode .modal-header:not(.bg-danger):not(.bg-success) {
         background-color: #21262d;
         border-color: #30363d;
         color: #f0f6fc;
@@ -189,14 +191,83 @@
         color: #79c0ff;
     }
 
-    /* Estilos específicos para el modal de aprobación con header verde */
-    .dark-mode .modal-header.bg-success {
-        background-color: #238636 !important;
-        border-color: #2ea043;
+    /* Estilos para modo CLARO - asegurar que los colores se mantengan */
+    .modal-header.bg-danger {
+        background-color: #dc3545 !important;
+        background-image: none !important;
+        border-color: #dc3545 !important;
+        color: #ffffff !important;
+    }
+    
+    .modal-header.bg-danger .modal-title {
+        color: #ffffff !important;
+    }
+    
+    .modal-header.bg-danger .btn-close-white {
+        filter: brightness(0) invert(1);
+        opacity: 1 !important;
+    }
+    
+    .modal-header.bg-success {
+        background-color: #28a745 !important;
+        background-image: none !important;
+        border-color: #28a745 !important;
+        color: #ffffff !important;
+    }
+    
+    .modal-header.bg-success .modal-title {
+        color: #ffffff !important;
+    }
+    
+    .modal-header.bg-success .btn-close-white {
+        filter: brightness(0) invert(1);
+        opacity: 1 !important;
     }
 
-    .dark-mode .modal-header.bg-success .modal-title {
-        color: #ffffff;
+    /* Estilos específicos para el modal de aprobación con header verde - MODO OSCURO */
+    html.dark-mode .modal-header.bg-success,
+    .dark-mode .modal-header.bg-success,
+    body.dark-mode .modal-header.bg-success {
+        background-color: #238636 !important;
+        background-image: none !important;
+        border-color: #2ea043 !important;
+        color: #ffffff !important;
+    }
+
+    html.dark-mode .modal-header.bg-success .modal-title,
+    .dark-mode .modal-header.bg-success .modal-title,
+    body.dark-mode .modal-header.bg-success .modal-title {
+        color: #ffffff !important;
+    }
+
+    html.dark-mode .modal-header.bg-success .btn-close-white,
+    .dark-mode .modal-header.bg-success .btn-close-white,
+    body.dark-mode .modal-header.bg-success .btn-close-white {
+        filter: brightness(0) invert(1) !important;
+        opacity: 1 !important;
+    }
+
+    /* Estilos específicos para el modal de rechazo con header rojo - MODO OSCURO */
+    html.dark-mode .modal-header.bg-danger,
+    .dark-mode .modal-header.bg-danger,
+    body.dark-mode .modal-header.bg-danger {
+        background-color: #da3633 !important;
+        background-image: none !important;
+        border-color: #f85149 !important;
+        color: #ffffff !important;
+    }
+
+    html.dark-mode .modal-header.bg-danger .modal-title,
+    .dark-mode .modal-header.bg-danger .modal-title,
+    body.dark-mode .modal-header.bg-danger .modal-title {
+        color: #ffffff !important;
+    }
+
+    html.dark-mode .modal-header.bg-danger .btn-close-white,
+    .dark-mode .modal-header.bg-danger .btn-close-white,
+    body.dark-mode .modal-header.bg-danger .btn-close-white {
+        filter: brightness(0) invert(1) !important;
+        opacity: 1 !important;
     }
 
     /* Mejorar contraste en párrafos y strong dentro de modales */
@@ -555,9 +626,9 @@ function rechazarDocumento() {
 <div class="modal fade" id="modalRetroalimentacion" tabindex="-1" aria-labelledby="modalRetroalimentacionLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalRetroalimentacionLabel">Rechazar Documento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <div class="modal-header bg-danger" style="background-color: #dc3545 !important; background-image: none !important; border-color: #dc3545 !important;">
+                <h5 class="modal-title text-white" id="modalRetroalimentacionLabel" style="color: #ffffff !important;">Rechazar Documento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form id="formRetroalimentacion">
@@ -597,8 +668,8 @@ function rechazarDocumento() {
 <div class="modal fade" id="modalRetroalimentacionAprobacion" tabindex="-1" aria-labelledby="modalRetroalimentacionAprobacionLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title text-white" id="modalRetroalimentacionAprobacionLabel">Aprobar Documento con Retroalimentación</h5>
+            <div class="modal-header bg-success text-white" style="background-color: #28a745 !important; background-image: none !important; border-color: #28a745 !important;">
+                <h5 class="modal-title text-white" id="modalRetroalimentacionAprobacionLabel" style="color: #ffffff !important;">Aprobar Documento con Retroalimentación</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">

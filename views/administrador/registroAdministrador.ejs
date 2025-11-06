@@ -80,7 +80,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="telefono" class="form-label">Teléfono de contacto <span class="required">*</span></label>
-                                <input type="tel" class="form-control" id="telefono" name="telefono" required placeholder="Ej: 3001234567">
+                                <input type="tel" class="form-control" id="telefono" name="telefono" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                 <small id="telefonoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">

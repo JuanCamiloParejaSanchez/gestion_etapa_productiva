@@ -910,6 +910,9 @@ const gestionAprendicesControlador = {
             }, {
                 'Métrica': 'Aprendices Retirados',
                 'Valor': datosReportes.estadisticasGenerales.retirados
+            }, {
+                'Métrica': 'Aprendices Certificados',
+                'Valor': datosReportes.estadisticasGenerales.certificados || 0
             }];
             const wsKPIs = XLSX.utils.json_to_sheet(datosKPIs);
             XLSX.utils.book_append_sheet(wb, wsKPIs, 'KPIs');

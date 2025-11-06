@@ -209,12 +209,12 @@
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label for="telefonoFijo" class="form-label">Teléfono fijo</label>
-                                    <input type="tel" class="form-control" id="telefonoFijo" name="telefonoFijo" value="<%= aprendiz.telefonoFijo || '' %>" placeholder="Ej: 1234567">
+                                    <input type="tel" class="form-control" id="telefonoFijo" name="telefonoFijo" value="<%= aprendiz.telefonoFijo || '' %>" placeholder="Ej: 6012345678" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                     <small id="telefonoFijoHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-3">
                                     <label for="celular" class="form-label">Celular <span class="required">*</span></label>
-                                    <input type="tel" class="form-control" id="celular" name="celular" value="<%= aprendiz.celular || '' %>" required placeholder="Ej: 3001234567">
+                                    <input type="tel" class="form-control" id="celular" name="celular" value="<%= aprendiz.celular || '' %>" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                     <small id="celularHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-6">
@@ -349,12 +349,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="telefonoEmpresa" class="form-label">Teléfono fijo</label>
-                                    <input type="tel" class="form-control" id="telefonoEmpresa" name="telefonoEmpresa" value="<%= aprendiz.telefonoEmpresa || '' %>" placeholder="Ej: 1234567">
+                                    <input type="tel" class="form-control" id="telefonoEmpresa" name="telefonoEmpresa" value="<%= aprendiz.telefonoEmpresa || '' %>" placeholder="Ej: 6012345678" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                     <small id="telefonoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="celularEmpresa" class="form-label">Celular <span class="required">*</span></label>
-                                    <input type="tel" class="form-control" id="celularEmpresa" name="celularEmpresa" value="<%= aprendiz.celularEmpresa || '' %>" required placeholder="Ej: 3001234567">
+                                    <input type="tel" class="form-control" id="celularEmpresa" name="celularEmpresa" value="<%= aprendiz.celularEmpresa || '' %>" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                     <small id="celularEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-4">

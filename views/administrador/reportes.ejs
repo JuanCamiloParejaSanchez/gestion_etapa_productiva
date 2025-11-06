@@ -146,6 +146,12 @@
                 <div class="kpi-label">Aprendices Retirados</div>
             </div>
         </div>
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-value"><%= estadisticasGenerales.certificados || 0 %></div>
+                <div class="kpi-label">Aprendices Certificados</div>
+            </div>
+        </div>
     </div>
 
     <!-- Botones de Exportación -->
@@ -630,6 +636,7 @@
             pdf.text(`Aprendices Inactivos: ${estadisticas.inactivos}`, 20, 60);
             pdf.text(`Aprendices Aplazados: ${estadisticas.aplazados}`, 20, 70);
             pdf.text(`Aprendices Retirados: ${estadisticas.retirados}`, 20, 80);
+            pdf.text(`Aprendices Certificados: ${estadisticas.certificados || 0}`, 20, 90);
 
             pdf.save(`reporte_completo_${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {
