@@ -21,6 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
+/* Tooltips para botones deshabilitados */
 .action-btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -52,6 +53,216 @@
     border-top-color: #333;
     margin-bottom: -5px;
     pointer-events: none;
+}
+
+/* Alerta de confirmación elegante */
+.custom-alert-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.custom-alert-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.custom-alert-box {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 90%;
+    overflow: hidden;
+    transform: scale(0.7);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.custom-alert-overlay.active .custom-alert-box {
+    transform: scale(1);
+}
+
+.custom-alert-header {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    padding: 30px;
+    text-align: center;
+    position: relative;
+}
+
+.custom-alert-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    animation: pulse 2s infinite;
+}
+
+.custom-alert-icon i {
+    font-size: 40px;
+    color: #ffffff;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+}
+
+.custom-alert-header h3 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.custom-alert-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.custom-alert-body p {
+    color: #555555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.custom-alert-footer {
+    padding: 20px 30px 30px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.custom-alert-btn {
+    flex: 1;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.custom-alert-btn-cancel {
+    background: #f0f0f0;
+    color: #666666;
+}
+
+.custom-alert-btn-cancel:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.custom-alert-btn-confirm {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.custom-alert-btn-confirm::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.custom-alert-btn-confirm:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.custom-alert-btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 68, 68, 0.4);
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+    .custom-alert-box {
+        background: #2d2d2d;
+    }
+
+    .custom-alert-body p {
+        color: #e0e0e0;
+    }
+
+    .custom-alert-btn-cancel {
+        background: #3d3d3d;
+        color: #e0e0e0;
+    }
+
+    .custom-alert-btn-cancel:hover {
+        background: #4d4d4d;
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .custom-alert-box {
+        max-width: 95%;
+    }
+
+    .custom-alert-header {
+        padding: 20px;
+    }
+
+    .custom-alert-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .custom-alert-icon i {
+        font-size: 30px;
+    }
+
+    .custom-alert-header h3 {
+        font-size: 20px;
+    }
+
+    .custom-alert-body {
+        padding: 20px;
+    }
+
+    .custom-alert-footer {
+        flex-direction: column;
+        padding: 15px 20px 20px;
+    }
+
+    .custom-alert-btn {
+        width: 100%;
+    }
 }
 </style>
 
@@ -169,21 +380,25 @@
     </div>
 </div>
 
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Alerta de confirmación elegante -->
+<div class="custom-alert-overlay" id="customAlertOverlay">
+    <div class="custom-alert-box">
+        <div class="custom-alert-header">
+            <div class="custom-alert-icon">
+                <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <div class="modal-body">
-                ¿Está seguro de que desea eliminar a este administrador? Esta acción no se puede deshacer.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
-            </div>
+            <h3>¡Atención!</h3>
+        </div>
+        <div class="custom-alert-body">
+            <p>¿Está seguro de que desea eliminar a este administrador?<br>Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="custom-alert-footer">
+            <button type="button" class="custom-alert-btn custom-alert-btn-cancel" id="btnCancelDelete">
+                <i class="fas fa-times me-2"></i>Cancelar
+            </button>
+            <button type="button" class="custom-alert-btn custom-alert-btn-confirm" id="btnConfirmDelete">
+                <i class="fas fa-trash-alt me-2"></i>Eliminar
+            </button>
         </div>
     </div>
 </div>
@@ -641,30 +856,64 @@
             }
         });
         
-        // Modal de eliminación
-        const confirmDeleteModal = new bootstrap.Modal($('#confirmDeleteModal'));
+        // Modal de eliminación con alerta personalizada
+        const customAlertOverlay = document.getElementById('customAlertOverlay');
+        const btnCancelDelete = document.getElementById('btnCancelDelete');
+        const btnConfirmDelete = document.getElementById('btnConfirmDelete');
         let administradorAEliminar = null;
-        
+
+        // Función para mostrar alerta
+        function mostrarAlerta() {
+            customAlertOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Función para ocultar alerta
+        function ocultarAlerta() {
+            customAlertOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            administradorAEliminar = null;
+        }
+
+        // Evento click en botón eliminar
         $('#administradoresTable').on('click', '.eliminar-administrador', function() {
             administradorAEliminar = $(this).data('id');
-            confirmDeleteModal.show();
+            mostrarAlerta();
         });
 
-        $('#confirmDelete').on('click', async () => {
+        // Evento click en botón cancelar
+        btnCancelDelete.addEventListener('click', ocultarAlerta);
+
+        // Cerrar al hacer click fuera del modal
+        customAlertOverlay.addEventListener('click', function(e) {
+            if (e.target === customAlertOverlay) {
+                ocultarAlerta();
+            }
+        });
+
+        // Evento click en botón confirmar
+        btnConfirmDelete.addEventListener('click', async () => {
             if (!administradorAEliminar) return;
+            
+            // Deshabilitar botón para evitar múltiples clicks
+            btnConfirmDelete.disabled = true;
+            btnConfirmDelete.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Eliminando...';
+            
             try {
                 const response = await fetch(`/administrador/administrador/${administradorAEliminar}`, { method: 'DELETE' });
                 const data = await response.json();
                 if (response.ok && data.success) {
                     tabla.ajax.reload();
+                    ocultarAlerta();
                 } else {
                     throw new Error(data.message || 'Error al eliminar');
                 }
             } catch (err) {
                 console.error('Error al eliminar administrador:', err);
+                alert('Error al eliminar el administrador. Por favor, inténtelo de nuevo.');
             } finally {
-                confirmDeleteModal.hide();
-                administradorAEliminar = null;
+                btnConfirmDelete.disabled = false;
+                btnConfirmDelete.innerHTML = '<i class="fas fa-trash-alt me-2"></i>Eliminar';
             }
         });
 
