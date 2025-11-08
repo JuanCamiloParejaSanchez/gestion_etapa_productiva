@@ -6,42 +6,87 @@ exports.mostrarFormulario = (req, res) => {
     res.render('administrador/registroAdministrador');
 };
 
-// Procesar registro de administrador
-exports.registrarAdministrador = async (req, res) => {
+// Verificar duplicados de correo o número de identificación
+exports.verificarDuplicado = async (req, res) => {
     try {
-        let { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo, contrasena, confirmarContrasena } = req.body;
+        const { campo, valor } = req.body;
 
-        // Normalizar email a minúsculas
-        if (correoInstitucional) {
-            correoInstitucional = correoInstitucional.toLowerCase().trim();
-        }
-
-        // Validaciones básicas
-        if (!nombreCompleto || !correoInstitucional || !numeroIdentificacion || !telefono || !departamento || !contrasena || !confirmarContrasena) {
-            return res.status(400).render('administrador/registroAdministrador', { mensaje: 'Todos los campos obligatorios deben ser completados.' });
-        }
-        if (contrasena !== confirmarContrasena) {
-            return res.status(400).render('administrador/registroAdministrador', { mensaje: 'Las contraseñas no coinciden.' });
-        }
-
-        // Validar requisitos de contraseña
-        const errors = [];
-        if (contrasena.length < 12) errors.push('al menos 12 caracteres');
-        if (!/[A-Z]/.test(contrasena)) errors.push('una letra mayúscula');
-        if (!/[a-z]/.test(contrasena)) errors.push('una letra minúscula');
-        if (!/[0-9]/.test(contrasena)) errors.push('un número');
-        if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(contrasena)) errors.push('un símbolo');
-        
-        if (errors.length > 0) {
-            return res.status(400).render('administrador/registroAdministrador', { 
-                mensaje: 'La contraseña debe contener: ' + errors.join(', ') 
+        if (!campo || !valor) {
+            return res.status(400).json({
+                success: false,
+                message: 'Campo y valor son requeridos'
             });
         }
 
-        // Hash de la contraseña
-        const hash = await bcrypt.hash(contrasena, 10);
+        let administradorExistente = null;
 
-        // Insertar en la base de datos
+        if (campo === 'correoInstitucional') {
+            administradorExistente = await servicioConsultasAdministrador.buscarPorEmail(valor.toLowerCase());
+        } else if (campo === 'numeroIdentificacion') {
+            administradorExistente = await servicioConsultasAdministrador.buscarPorNumeroIdentificacion(valor.toUpperCase());
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Campo no válido para verificación'
+            });
+        }
+
+        return res.json({
+            success: true,
+            existe: !!administradorExistente,
+            campo: campo
+        });
+
+    } catch (error) {
+        console.error('Error verificando duplicado:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error al verificar duplicado'
+        });
+    }
+};
+
+// Procesar registro de administrador
+exports.registrarAdministrador = async (req, res) => {
+    console.log('🚀 Iniciando registro de administrador');
+    console.log('📝 Método de petición:', req.method);
+    console.log('🌐 URL de petición:', req.originalUrl);
+    console.log('📋 Content-Type:', req.get('Content-Type'));
+    
+    try {
+        let { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo } = req.body;
+        console.log('📋 Datos recibidos en bruto:', req.body);
+
+        // Normalizar email a minúsculas y otros campos a mayúsculas
+        if (correoInstitucional) {
+            correoInstitucional = correoInstitucional.toLowerCase().trim();
+        }
+        
+        // Normalizar otros campos a mayúsculas
+        if (nombreCompleto) nombreCompleto = nombreCompleto.toUpperCase().trim();
+        if (numeroIdentificacion) numeroIdentificacion = numeroIdentificacion.toUpperCase().trim();
+        if (telefono) telefono = telefono.trim();
+        if (departamento) departamento = departamento.toUpperCase().trim();
+        if (cargo) cargo = cargo.toUpperCase().trim();
+
+        // Validaciones básicas
+        if (!nombreCompleto || !correoInstitucional || !numeroIdentificacion || !telefono || !departamento || !cargo) {
+            return res.status(400).json({
+                success: false,
+                message: 'Todos los campos obligatorios deben ser completados.'
+            });
+        }
+
+        console.log('📋 Datos procesados para registro:', {
+            nombreCompleto,
+            correoInstitucional,
+            numeroIdentificacion,
+            telefono,
+            departamento,
+            cargo
+        });
+
+        // Insertar en la base de datos sin contraseña
         const nuevoAdmin = {
             nombreCompleto,
             correoInstitucional,
@@ -49,17 +94,36 @@ exports.registrarAdministrador = async (req, res) => {
             telefono,
             departamento,
             cargo,
-            password: hash,
+            password: null, // Contraseña se creará después
             rol: 'admin',
             activo: true
         };
         const resultado = await servicioConsultasAdministrador.insertarAdministrador(nuevoAdmin);
 
         if (resultado && resultado.insertId) {
+            // Configurar sesión
+            req.session.userEmail = correoInstitucional;
+            req.session.administradorId = resultado.insertId;
+            req.session.registroEnProceso = true;
+            req.session.userRole = 'admin';
+            
+            console.log('💾 Sesión configurada:', {
+                userEmail: req.session.userEmail,
+                administradorId: req.session.administradorId,
+                registroEnProceso: req.session.registroEnProceso,
+                userRole: req.session.userRole
+            });
+
+            console.log('🎉 Registro completado exitosamente');
+            
             return res.json({
                 success: true,
-                message: 'Administrador registrado exitosamente.',
-                data: { redirect: '/auth/login' }
+                message: 'Registro exitoso. Ahora puedes crear tu contraseña.',
+                data: { 
+                    administradorId: resultado.insertId,
+                    email: correoInstitucional,
+                    redirect: '/crear-contrasena'
+                }
             });
         } else {
             return res.status(500).json({
@@ -68,21 +132,23 @@ exports.registrarAdministrador = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Error en registro de administrador:', error);
+        console.error('❌ Error en registro de administrador:', error);
         
         // Manejar error de duplicado
-        if (error.code === 'ER_DUP_ENTRY') {
-            if (error.message.includes('correo_institucional')) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Ya existe un administrador con este correo institucional.'
-                });
-            } else if (error.message.includes('numero_identificacion')) {
-                return res.status(409).json({
-                    success: false,
-                    message: 'Ya existe un administrador con este número de identificación.'
-                });
+        if (error.code === 'ER_DUP_ENTRY' || error.message.includes('ER_DUP_ENTRY')) {
+            let mensaje = 'Ya existe un registro con los mismos datos.';
+            
+            if (error.message.includes('correo_institucional') || error.message.includes('correoInstitucional')) {
+                mensaje = 'Ya existe un administrador registrado con este correo institucional.';
+            } else if (error.message.includes('numero_identificacion') || error.message.includes('numeroIdentificacion')) {
+                mensaje = 'Ya existe un administrador registrado con este número de identificación.';
             }
+            
+            return res.status(409).json({
+                success: false,
+                message: mensaje,
+                code: 'DUPLICATE_ENTRY'
+            });
         }
         
         return res.status(500).json({

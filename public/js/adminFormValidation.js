@@ -13,9 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
         numeroIdentificacion: { validacion: val => validacionesUI.soloNumeros(val) && validacionesUI.numeroDocumento(val), mensaje: 'Solo números, entre 7 y 12 dígitos' },
         telefono: { validacion: val => validacionesUI.soloNumeros(val) && validacionesUI.celular(val), mensaje: 'Solo números, exactamente 10 dígitos' },
         departamento: { validacion: val => val.trim().length >= 3, mensaje: 'El departamento debe tener al menos 3 caracteres' },
-        cargo: { validacion: val => val.trim().length >= 3, mensaje: 'El cargo debe tener al menos 3 caracteres' },
-        contrasena: { validacion: validacionesUI.password, mensaje: 'La contraseña debe tener al menos 12 caracteres, una mayúscula, una minúscula, un número y un símbolo' },
-        confirmarContrasena: { validacion: val => val.trim() !== '' && val === document.getElementById('contrasena').value, mensaje: 'Las contraseñas no coinciden' },
+        cargo: { validacion: val => val.trim().length >= 3, mensaje: 'El cargo debe tener al menos 3 caracteres' }
     };
 
     Object.entries(fieldsToValidate).forEach(([fieldId, validation]) => {

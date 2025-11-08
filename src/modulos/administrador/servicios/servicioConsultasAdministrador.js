@@ -21,6 +21,22 @@ const servicioConsultasAdministrador = {
     },
 
     /**
+     * Busca un administrador por su número de identificación.
+     * @param {string} numeroIdentificacion - El número de identificación del administrador.
+     * @returns {Promise<Object|undefined>} Los datos del administrador o undefined si no se encuentra.
+     */
+    async buscarPorNumeroIdentificacion(numeroIdentificacion) {
+        try {
+            const query = 'SELECT * FROM administradores WHERE numeroIdentificacion = ?';
+            const [rows] = await pool.query(query, [numeroIdentificacion]);
+            return rows[0]; // Retorna el primer administrador encontrado o undefined
+        } catch (error) {
+            console.error('Error al buscar administrador por numeroIdentificacion:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Inserta un nuevo administrador en la base de datos.
      * NOTA: La contraseña debe estar HASHEDA antes de llamar a esta función.
      * @param {Object} datosAdmin - Objeto con nombreUsuario, correoElectronico, password (hashed).

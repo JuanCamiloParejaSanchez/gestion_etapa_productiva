@@ -95,7 +95,7 @@ CREATE TABLE `administradores` (
   `telefono` varchar(20) NOT NULL COMMENT 'Teléfono de contacto',
   `departamento` varchar(100) NOT NULL COMMENT 'Departamento o área',
   `cargo` varchar(100) DEFAULT NULL COMMENT 'Cargo o rol',
-  `password` varchar(255) NOT NULL COMMENT 'Contraseña hasheada',
+  `password` varchar(255) DEFAULT NULL COMMENT 'Contraseña hasheada (NULL durante proceso de registro)',
   `rol` enum('admin','super_admin','instructor') DEFAULT 'admin' COMMENT 'Rol del administrador',
   `activo` boolean DEFAULT TRUE COMMENT 'Estado activo/inactivo',
   `ultimoAcceso` timestamp NULL DEFAULT NULL COMMENT 'Último acceso al sistema',
@@ -766,6 +766,5 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 select * from aprendices;
-
-
-
+select * from administradores;
+delete from administradores where id='87'
