@@ -766,5 +766,7 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 select * from aprendices;
+delete from aprendices where id='226'
+
 select * from administradores;
-delete from administradores where id='87'
+delete from administradores where id='88'
