@@ -14,7 +14,22 @@
     cursor: not-allowed;
     pointer-events: none;
 }
+
+html.dark-mode .fas.fa-edit {
+    color: #ffffff;
+}
+
+html.dark-mode .btn-primary {
+    color: #ffffff !important;
+}
+
+html.dark-mode .btn-primary:hover {
+    color: #ffffff !important;
+    background-color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+}
 </style>
+
 <%- contentFor('body') %>
 <%- contentFor('navigation') %>
 <nav class="navbar navbar-expand-lg navbar-dark">
