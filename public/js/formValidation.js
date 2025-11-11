@@ -6,30 +6,38 @@ import { validacionesUI, MESSAGES } from './utilidades/validacionesUI.js';
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('aprendizForm');
 
-    // Validaciones en tiempo real
+    // Validaciones en tiempo real - TODOS LOS CAMPOS
     const fieldsToValidate = {
+        // Datos Personales
         nombres: { validacion: val => val.trim().length >= 2, mensaje: 'El nombre debe tener al menos 2 caracteres' },
         primerApellido: { validacion: val => val.trim().length >= 2, mensaje: 'El apellido debe tener al menos 2 caracteres' },
         segundoApellido: { validacion: val => val.trim().length >= 2 || val.trim() === '', mensaje: 'El apellido debe tener al menos 2 caracteres' },
-        tipoDocumento: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
-        // numeroDocumento se valida por duplicados en script inline
+        tipoDocumento: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        genero: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        numeroDocumento: { validacion: val => /^\d{7,10}$/.test(val), mensaje: 'El número de documento debe tener entre 7 y 10 dígitos' },
         fechaNacimiento: { validacion: val => validacionesUI.fechaNacimiento(val), mensaje: MESSAGES.INVALID_AGE },
-        eps: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
+        eps: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        
+        // Datos de Ubicación
         telefonoFijo: { validacion: val => val === '' || validacionesUI.telefonoFijo(val), mensaje: 'Teléfono fijo inválido (7-10 dígitos)' },
         celular: { validacion: val => validacionesUI.celular(val), mensaje: MESSAGES.INVALID_PHONE },
         direccion: { validacion: val => val.trim().length >= 5, mensaje: 'La dirección debe tener al menos 5 caracteres' },
         barrio: { validacion: val => val.trim().length >= 2, mensaje: 'El barrio debe tener al menos 2 caracteres' },
-        departamento: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
-        municipio: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
-        // correoElectronico se valida por duplicados en script inline
+        departamento: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        municipio: { validacion: val => val !== '' && val !== 'SELECCIONE UN MUNICIPIO...', mensaje: MESSAGES.REQUIRED },
+        correoElectronico: { validacion: val => validacionesUI.correoElectronico(val), mensaje: MESSAGES.INVALID_EMAIL },
+        
+        // Datos de la Formación
         fechaInicioLectiva: { validacion: val => validacionesUI.fechaValida(val), mensaje: 'Fecha inválida' },
         fechaFinLectiva: { validacion: val => validacionesUI.fechaValida(val), mensaje: 'Fecha inválida' },
         instructorLectiva: { validacion: val => val.trim().length >= 3, mensaje: 'El nombre debe tener al menos 3 caracteres' },
         instructorProductiva: { validacion: val => val.trim().length >= 3, mensaje: 'El nombre debe tener al menos 3 caracteres' },
         numeroFicha: { validacion: val => /^\d{1,10}$/.test(val), mensaje: 'Número de ficha inválido' },
-        programaFormacion: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
-        alternativaSeleccionada: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
-        areaFormacion: { validacion: val => val !== '', mensaje: MESSAGES.REQUIRED },
+        programaFormacion: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        
+        // Datos de la Alternativa de Etapa Productiva
+        alternativaSeleccionada: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
+        areaFormacion: { validacion: val => val !== '' && val !== 'SELECCIONE...', mensaje: MESSAGES.REQUIRED },
         fechaInicioProductiva: { validacion: val => validacionesUI.fechaValida(val), mensaje: 'Fecha inválida' },
         fechaFinProductiva: { validacion: val => validacionesUI.fechaValida(val), mensaje: 'Fecha inválida' },
         empresaPatrocinadora: { validacion: val => val.trim().length >= 3, mensaje: 'El nombre debe tener al menos 3 caracteres' },

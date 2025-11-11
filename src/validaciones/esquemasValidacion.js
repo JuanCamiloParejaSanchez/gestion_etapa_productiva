@@ -50,15 +50,15 @@ const aprendizSchemas = {
             }),
 
         numeroDocumento: Joi.string()
-            .min(5)
-            .max(20)
-            .pattern(/^[0-9A-Za-z]+$/)
+            .min(7)
+            .max(10)
+            .pattern(/^[0-9]+$/)
             .required()
             .messages({
-                'string.min': 'Número de documento debe tener al menos 5 caracteres',
-                'string.max': 'Número de documento no puede exceder 20 caracteres',
-                'string.pattern.base': 'Número de documento solo puede contener letras y números',
-                'any.required': 'Número de documento es requerido'
+                'string.min': 'El número de documento debe tener al menos 7 dígitos',
+                'string.max': 'El número de documento no puede exceder 10 dígitos',
+                'string.pattern.base': 'El número de documento solo puede contener números',
+                'any.required': 'El número de documento es requerido'
             }),
 
         nombres: Joi.string()

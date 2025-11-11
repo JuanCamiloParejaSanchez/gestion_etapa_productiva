@@ -5,7 +5,7 @@
 
 export const REGEX = {
     correoElectronico: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    numeroDocumento: /^\d{7,12}$/,
+    numeroDocumento: /^\d{7,10}$/,
     celular: /^\d{10}$/,
     password: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{12,}$/
 };
@@ -13,7 +13,7 @@ export const REGEX = {
 export const MESSAGES = {
     REQUIRED: 'Este campo es obligatorio',
     INVALID_EMAIL: 'Correo electrónico inválido',
-    INVALID_DOCUMENT: 'Número de documento inválido',
+    INVALID_DOCUMENT: 'El número de documento debe tener entre 7 y 10 dígitos',
     INVALID_PHONE: 'Número de celular inválido',
     INVALID_PASSWORD: 'La contraseña debe tener al menos 12 caracteres, una mayúscula, una minúscula, un número y un símbolo',
     INVALID_AGE: 'Debe ser mayor de 14 años'

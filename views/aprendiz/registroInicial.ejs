@@ -109,12 +109,12 @@
                         <h3 class="form-subheader mt-4">Datos Personales</h3>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label for="nombres" class="form-label">Nombres <span class="required">*</span></label>
+                                <label for="nombres" class="form-label">Nombres<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="nombres" name="nombres" required placeholder="Ej: JUAN CARLOS">
                                 <small id="nombresHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="primerApellido" class="form-label">Primer apellido <span class="required">*</span></label>
+                                <label for="primerApellido" class="form-label">Primer apellido<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="primerApellido" name="primerApellido" required placeholder="Ej: PÉREZ">
                                 <small id="primerApellidoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
@@ -124,59 +124,102 @@
                                 <small id="segundoApellidoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="tipoDocumento" class="form-label">Tipo de documento <span class="required">*</span></label>
+                                <label for="tipoDocumento" class="form-label">Tipo de documento<span class="required">*</span></label>
                                 <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
                                     <option value="">SELECCIONE...</option>
                                     <option value="CC">CÉDULA DE CIUDADANÍA</option>
                                     <option value="TI">TARJETA DE IDENTIDAD</option>
                                     <option value="CE">CÉDULA DE EXTRANJERÍA</option>
-                                    <option value="PEP">PEP</option>
+                                    <option value="PEP">PERMISO ESPECIAL DE PERMANENCIA</option>
                                     <option value="PPT">PERMISO DE PROTECCIÓN TEMPORAL</option>
+                                    <option value="RU">REGISTRO ÚNICO</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="numeroDocumento" class="form-label">Número de documento <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" required placeholder="Ej: 1234567890">
+                                <label for="genero" class="form-label">Género<span class="required">*</span></label>
+                                <select class="form-select" id="genero" name="genero" required>
+                                    <option value="">SELECCIONE...</option>
+                                    <option value="MASCULINO">MASCULINO</option>
+                                    <option value="FEMENINO">FEMENINO</option>
+                                    <option value="TRANSEXUAL">TRANSEXUAL</option>
+                                    <option value="NO BINARIO">NO BINARIO</option>
+                                    <option value="OTROS">OTROS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="numeroDocumento" class="form-label">Número de documento<span class="required">*</span></label>
+                                <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" required placeholder="Ej: 1234567890" minlength="7" maxlength="10" pattern="\d{7,10}" title="Debe contener entre 7 y 10 dígitos">
                                 <small id="numeroDocumentoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="fechaNacimiento" class="form-label">Fecha de nacimiento <span class="required">*</span></label>
+                                <label for="fechaNacimiento" class="form-label">Fecha de nacimiento<span class="required">*</span></label>
                                 <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" required aria-label="Fecha de nacimiento">
                                 <small id="fechaNacimientoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="eps" class="form-label">EPS <span class="required">*</span></label>
+                                <label for="eps" class="form-label">EPS<span class="required">*</span></label>
                                 <select class="form-select" id="eps" name="eps" required>
-                                    <option value="">SELECCIONE...</option>
-                                    <option value="COOSALUD EPS-S">COOSALUD EPS-S</option>
-                                    <option value="NUEVA EPS">NUEVA EPS</option>
-                                    <option value="MUTUAL SER">MUTUAL SER</option>
-                                    <option value="ALIANSALUD EPS">ALIANSALUD EPS</option>
-                                    <option value="SALUD TOTAL EPS S.A.">SALUD TOTAL EPS S.A.</option>
-                                    <option value="EPS SANITAS">EPS SANITAS</option>
-                                    <option value="EPS SURA">EPS SURA</option>
-                                    <option value="FAMISANAR">FAMISANAR</option>
-                                    <option value="SERVICIO OCCIDENTAL DE SALUD EPS SOS">SERVICIO OCCIDENTAL DE SALUD EPS SOS</option>
-                                    <option value="SALUD MIA">SALUD MIA</option>
-                                    <option value="COMFENALCO VALLE">COMFENALCO VALLE</option>
-                                    <option value="COMPENSAR EPS">COMPENSAR EPS</option>
-                                    <option value="EPM - EMPRESAS PUBLICAS DE MEDELLIN">EPM - EMPRESAS PUBLICAS DE MEDELLIN</option>
-                                    <option value="FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA">FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA</option>
-                                    <option value="CAJACOPI ATLANTICO">CAJACOPI ATLANTICO</option>
-                                    <option value="CAPRESOCA">CAPRESOCA</option>
-                                    <option value="COMFACHOCO">COMFACHOCO</option>
+                                    <option value="">SELECCIONE...</option>                                    
+                                    <option value="COMFAMILIAR CARTAGENA">COMFAMILIAR CARTAGENA</option>
+                                    <option value="CAJA DE COMPENSACIÓN FAMILIAR DE NARIÑO">CAJA DE COMPENSACIÓN FAMILIAR DE NARIÑO</option>
                                     <option value="COMFAORIENTE">COMFAORIENTE</option>
-                                    <option value="EPS FAMILIAR DE COLOMBIA">EPS FAMILIAR DE COLOMBIA</option>
-                                    <option value="ASMET SALUD">ASMET SALUD</option>
-                                    <option value="EMSSANAR E.S.S.">EMSSANAR E.S.S.</option>
-                                    <option value="CAPITAL SALUD EPS-S">CAPITAL SALUD EPS-S</option>
+                                    <option value="CAJA DE COMPENSACIÓN FAMILIAR DEL CHOCÓ">CAJA DE COMPENSACIÓN FAMILIAR DEL CHOCÓ</option>
+                                    <option value="COMFABOY">COMFABOY</option>
+                                    <option value="CCF COLSUBSIDIO">CCF COLSUBSIDIO</option>
+                                    <option value="CCF DE CORDOBA COMFACOR EPS-S">CCF DE CORDOBA COMFACOR EPS-S</option>
+                                    <option value="CAFAM EPS REGIMEN SUBSIDIADO">CAFAM EPS REGIMEN SUBSIDIADO</option>
+                                    <option value="CCF DEL CHOCO COMFACHOCO EPSS">CCF DEL CHOCO COMFACHOCO EPSS</option>
+                                    <option value="CCF DE LA GUAJIRA">CCF DE LA GUAJIRA</option>
+                                    <option value="COMFAMILIAR HUILA">COMFAMILIAR HUILA</option>
+                                    <option value="COMFAMILIAR NARIÑO">COMFAMILIAR NARIÑO</option>
+                                    <option value="COMFAMILIAR SUCRE">COMFAMILIAR SUCRE</option>
+                                    <option value="COMFACUNDI">COMFACUNDI</option>
+                                    <option value="CAJACOPI EPS">CAJACOPI EPS</option>
+                                    <option value="EMPRESAS PUBLICAS DE MEDELLIN">EMPRESAS PUBLICAS DE MEDELLIN</option>
+                                    <option value="FONDO DE PASIVO SOCIAL DE LOS FERROCARRILES NACIONALES">FONDO DE PASIVO SOCIAL DE LOS FERROCARRILES NACIONALES</option>
+                                    <option value="COLMEDICA E.P.S. - ALIANSALUD">COLMEDICA E.P.S. - ALIANSALUD</option>
+                                    <option value="SALUD TOTAL S.A. E.P.S.">SALUD TOTAL S.A. E.P.S.</option>
+                                    <option value="E.P.S. SANITAS S.A.">E.P.S. SANITAS S.A.</option>
+                                    <option value="COMPENSAR E.P.S.">COMPENSAR E.P.S.</option>
+                                    <option value="E.P.S. PROGRAMA COMFENALCO ANTIOQUIA">E.P.S. PROGRAMA COMFENALCO ANTIOQUIA</option>
+                                    <option value="SUSALUD - SURA - SURAMERICANA E.P.S.">SUSALUD - SURA - SURAMERICANA E.P.S.</option>
+                                    <option value="COMFENALCO VALLE E.P.S.">COMFENALCO VALLE E.P.S.</option>
+                                    <option value="HUMANA - VIVIR S.A. E.P.S.">HUMANA - VIVIR S.A. E.P.S.</option>
+                                    <option value="SALUD COLPATRIA E.P.S.">SALUD COLPATRIA E.P.S.</option>
+                                    <option value="COOMEVA E.P.S. S.A.">COOMEVA E.P.S. S.A.</option>
+                                    <option value="E.P.S. FAMISANAR LIMITADA CAFAM-COLSUBSIDIO">E.P.S. FAMISANAR LIMITADA CAFAM-COLSUBSIDIO</option>
+                                    <option value="E.P.S. SERVICIO OCCIDENTAL DE SALUD S.A. S.O.S.">E.P.S. SERVICIO OCCIDENTAL DE SALUD S.A. S.O.S.</option>
+                                    <option value="CRUZ BLANCA E.P.S. S.A.">CRUZ BLANCA E.P.S. S.A.</option>
+                                    <option value="SOLSALUD E.P.S. S.A.">SOLSALUD E.P.S. S.A.</option>
+                                    <option value="SELVASALUD S.A. E.P.S.">SELVASALUD S.A. E.P.S.</option>
+                                    <option value="SALUDVIDA S.A. E.P.S.">SALUDVIDA S.A. E.P.S.</option>
+                                    <option value="NUEVA EPS">NUEVA EPS</option>
+                                    <option value="GOLDEN GROUP">GOLDEN GROUP</option>
                                     <option value="SAVIA SALUD EPS">SAVIA SALUD EPS</option>
+                                    <option value="MEDIMAS EPS S.A.S">MEDIMAS EPS S.A.S</option>
+                                    <option value="FUNDACION SALUDMIA EPS">FUNDACION SALUDMIA EPS</option>
+                                    <option value="UNISALUD">UNISALUD</option>
+                                    <option value="FOSYGA - ADRES">FOSYGA - ADRES</option>
+                                    <option value="EPS CAPRECOM">EPS CAPRECOM</option>
+                                    <option value="CONVIDA">CONVIDA</option>
+                                    <option value="CAPRESOCA EPS">CAPRESOCA EPS</option>
+                                    <option value="CAPITAL SALUD">CAPITAL SALUD</option>
+                                    <option value="MALLAMAS EPS INDIGENA">MALLAMAS EPS INDIGENA</option>
                                     <option value="DUSAKAWI EPSI">DUSAKAWI EPSI</option>
-                                    <option value="ASOCIACION INDIGENA DEL CAUCA EPSI">ASOCIACION INDIGENA DEL CAUCA EPSI</option>
-                                    <option value="ANAS WAYUU EPSI">ANAS WAYUU EPSI</option>
-                                    <option value="MALLAMAS EPSI">MALLAMAS EPSI</option>
+                                    <option value="MANEXKA EPS INDIGENA">MANEXKA EPS INDIGENA</option>
+                                    <option value="ASOCIACION INDIGENA DEL CAUCA">ASOCIACION INDIGENA DEL CAUCA</option>
+                                    <option value="ANASWAYUU">ANASWAYUU</option>
+                                    <option value="MALLAMAS">MALLAMAS</option>
                                     <option value="PIJAOS SALUD EPSI">PIJAOS SALUD EPSI</option>
-                                    <option value="SALUD BÓLIVAR EPS SAS">SALUD BÓLIVAR EPS SAS</option>
+                                    <option value="EMDISALUD">EMDISALUD</option>
+                                    <option value="ASOCIACIÓN MUTUAL SER EMPRESA SOLIDARIA DE SALUD A.R.S.">ASOCIACIÓN MUTUAL SER EMPRESA SOLIDARIA DE SALUD A.R.S.</option>
+                                    <option value="ASOCIACION MUTUAL EMPRESA SOLIDARIA DE SALUD EMSSANAR EPS">ASOCIACION MUTUAL EMPRESA SOLIDARIA DE SALUD EMSSANAR EPS</option>
+                                    <option value="COOSALUD">COOSALUD</option>
+                                    <option value="COMPARTA EPS-S">COMPARTA EPS-S</option>
+                                    <option value="ASMET SALUD">ASMET SALUD</option>
+                                    <option value="AMBUQ EPS ESS">AMBUQ EPS ESS</option>
+                                    <option value="ECOOPSOS">ECOOPSOS</option>
+                                    <option value="EPS UNIVERSIDAD DE ANTIOQUIA">EPS UNIVERSIDAD DE ANTIOQUIA</option>
                                     <option value="NO APLICA">NO APLICA</option>
                                 </select>
                             </div>
@@ -190,36 +233,36 @@
                                 <small id="telefonoFijoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="celular" class="form-label">Celular <span class="required">*</span></label>
+                                <label for="celular" class="form-label">Celular<span class="required">*</span></label>
                                 <input type="tel" class="form-control" id="celular" name="celular" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                 <small id="celularHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="direccion" class="form-label">Dirección de residencia <span class="required">*</span></label>
+                                <label for="direccion" class="form-label">Dirección de residencia<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="direccion" name="direccion" required placeholder="Ej: CRA 10 #20-30">
                                 <small id="direccionHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="barrio" class="form-label">Barrio <span class="required">*</span></label>
+                                <label for="barrio" class="form-label">Barrio<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="barrio" name="barrio" required placeholder="Ej: CENTRO">
                                 <small id="barrioHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="departamento" class="form-label">Departamento <span class="required">*</span></label>
+                                <label for="departamento" class="form-label">Departamento<span class="required">*</span></label>
                                 <select class="form-select" id="departamento" name="departamento" required>
                                     <option value="">SELECCIONE...</option>
                                 </select>
                             </div>
 
                             <div class="col-md-3">
-                                <label for="municipio" class="form-label">Municipio <span class="required">*</span></label>
+                                <label for="municipio" class="form-label">Municipio<span class="required">*</span></label>
                                 <select class="form-select" id="municipio" name="municipio" required>
                                     <option value="">SELECCIONE UN MUNICIPIO...</option>
                                 </select>
                             </div>
 
                             <div class="col-md-3">
-                                <label for="correoElectronico" class="form-label">Correo electrónico <span class="required">*</span></label>
+                                <label for="correoElectronico" class="form-label">Correo electrónico<span class="required">*</span></label>
                                 <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" required placeholder="Ej: ejemplo@correo.com">
                                 <small id="correoElectronicoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
@@ -228,39 +271,47 @@
                         <h3 class="form-subheader mt-4">Datos de la Formación</h3>
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label for="fechaInicioLectiva" class="form-label">Fecha inicio etapa lectiva <span class="required">*</span></label>
+                                <label for="fechaInicioLectiva" class="form-label">Fecha inicio etapa lectiva<span class="required">*</span></label>
                                 <input type="date" class="form-control" id="fechaInicioLectiva" name="fechaInicioLectiva" required aria-label="Fecha inicio etapa lectiva">
                                 <small id="fechaInicioLectivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="fechaFinLectiva" class="form-label">Fecha fin etapa lectiva <span class="required">*</span></label>
+                                <label for="fechaFinLectiva" class="form-label">Fecha fin etapa lectiva<span class="required">*</span></label>
                                 <input type="date" class="form-control" id="fechaFinLectiva" name="fechaFinLectiva" required aria-label="Fecha fin etapa lectiva">
                                 <small id="fechaFinLectivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="instructorLectiva" class="form-label">Instructor/a responsable etapa lectiva <span class="required">*</span></label>
+                                <label for="instructorLectiva" class="form-label">Instructor/a responsable etapa lectiva<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="instructorLectiva" name="instructorLectiva" required placeholder="Ej: MARÍA GONZÁLEZ">
                                 <small id="instructorLectivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="instructorProductiva" class="form-label">Instructor/a responsable etapa productiva <span class="required">*</span></label>
+                                <label for="instructorProductiva" class="form-label">Instructor/a responsable etapa productiva<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="instructorProductiva" name="instructorProductiva" required placeholder="Ej: CARLOS RODRÍGUEZ">
                                 <small id="instructorProductivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="numeroFicha" class="form-label">Número de ficha <span class="required">*</span></label>
+                                <label for="numeroFicha" class="form-label">Número de ficha o grupo<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="numeroFicha" name="numeroFicha" required placeholder="Ej: 1234567">
                                 <small id="numeroFichaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-9">
-                                <label for="programaFormacion" class="form-label">Programa de formación <span class="required">*</span></label>
+                                <label for="programaFormacion" class="form-label">Programa de formación<span class="required">*</span></label>
                                 <select class="form-select" id="programaFormacion" name="programaFormacion" required>
                                     <option value="">SELECCIONE...</option>
-                                    <option value="tecnoActividadFisica">TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
-                                    <option value="tecnoEntrenamientoDeportivo">TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
-                                    <option value="tecnoAnalisisDesarrollo">TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
+                                    <option value="tecProgramasDeportivos">TÉCNICO EN EJECUCIÓN DE PROGRAMAS DEPORTIVOS</option>
+                                    <option value="tecRecreComunitaria">TÉCNICO EN RECREACIÓN COMUNITARIA</option>
+                                    <option value="tecOperativoRescateAcuatico">TÉCNICO OPERATIVO EN RESCATE ACUÁTICO EN AGUAS CONFINADAS</option>
                                     <option value="tecProcesamientoPruebas">TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
                                     <option value="tecProgramacion">TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
+                                    <option value="tecProgramacionMoviles">TÉCNICO EN PROGRAMACIÓN DE APLICACIONES PARA DISPOSITIVOS MÓVILES</option>
+                                    <option value="tecSeguridadWeb">TÉCNICO EN SEGURIDAD DE APLICACIONES WEB</option>
+                                    <option value="tecnoEntrenaFutbol">TECNOLOGÍA EN ENTRENAMIENTO Y FORMACIÓN EN FÚTBOL</option>                                    
+                                    <option value="tecnoGestionServiciosRecreativos">TECNOLOGÍA EN GESTIÓN DE SERVICIOS RECREATIVOS</option>
+                                    <option value="tecnoActividadFisica">TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
+                                    <option value="tecnoEntrenamientoDeportivo">TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
+                                    <option value="tecnoAnalisisDesarrollo">TECNOLOGÍA EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
+                                    <option value="tecnoProcesosLogisticos">TECNOLOGÍA EN COORDINACIÓN DE PROCESOS LOGÍSTICOS</option>
                                 </select>
                             </div>
                         </div>
@@ -268,47 +319,45 @@
                         <h3 class="form-subheader mt-4">Datos de la Alternativa de Etapa Productiva</h3>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada <span class="required">*</span></label>
+                                <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada<span class="required">*</span></label>
                                 <select class="form-select" id="alternativaSeleccionada" name="alternativaSeleccionada" required>
                                     <option value="">SELECCIONE...</option>
                                     <option value="contratoAprendizaje">CONTRATO DE APRENDIZAJE</option>
-                                    <option value="pasantia">PASANTÍA</option>
-                                    <option value="apoyoEntidades">APOYO A ENTIDADES</option>
+                                    <option value="pasantia">VÍNCULO FORMATIVO</option>                                    
                                     <option value="vinculoLaboral">VÍNCULO LABORAL</option>
                                     <option value="proyectosProductivos">PROYECTOS PRODUCTIVOS</option>
                                     <option value="monitoria">MONITORÍA</option>
-                                    <option value="unidadesProductivas">UNIDADES PRODUCTIVAS FAMILIARES</option>
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label for="areaFormacion" class="form-label">¿En el área de formación? <span class="required">*</span></label>
+                                <label for="areaFormacion" class="form-label">¿En el área de formación?<span class="required">*</span></label>
                                 <select class="form-select" id="areaFormacion" name="areaFormacion" required>
                                     <option value="SI">SÍ</option>
                                     <option value="NO">NO</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="fechaInicioProductiva" class="form-label">Fecha inicio etapa productiva <span class="required">*</span></label>
+                                <label for="fechaInicioProductiva" class="form-label">Fecha inicio etapa productiva<span class="required">*</span></label>
                                 <input type="date" class="form-control" id="fechaInicioProductiva" name="fechaInicioProductiva" required>
                                 <small id="fechaInicioProductivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
-                                <label for="fechaFinProductiva" class="form-label">Fecha fin etapa productiva <span class="required">*</span></label>
+                                <label for="fechaFinProductiva" class="form-label">Fecha fin etapa productiva<span class="required">*</span></label>
                                 <input type="date" class="form-control" id="fechaFinProductiva" name="fechaFinProductiva" required>
                                 <small id="fechaFinProductivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="empresaPatrocinadora" class="form-label">Empresa patrocinadora <span class="required">*</span></label>
+                                <label for="empresaPatrocinadora" class="form-label">Empresa patrocinadora<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="empresaPatrocinadora" name="empresaPatrocinadora" required placeholder="Ej: EMPRESA ABC S.A.S">
                                 <small id="empresaPatrocinadoraHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="areaPractica" class="form-label">Área donde realiza la práctica <span class="required">*</span></label>
+                                <label for="areaPractica" class="form-label">Área donde realiza la práctica<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="areaPractica" name="areaPractica" required placeholder="Ej: DESARROLLO DE SOFTWARE">
                                 <small id="areaPracticaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="jefeInmediato" class="form-label">Nombre del jefe inmediato <span class="required">*</span></label>
+                                <label for="jefeInmediato" class="form-label">Nombre del jefe inmediato<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="jefeInmediato" name="jefeInmediato" required placeholder="Ej: ANA MARTÍNEZ">
                                 <small id="jefeInmediatoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
@@ -318,22 +367,22 @@
                                 <small id="telefonoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="celularEmpresa" class="form-label">Celular <span class="required">*</span></label>
+                                <label for="celularEmpresa" class="form-label">Celular<span class="required">*</span></label>
                                 <input type="tel" class="form-control" id="celularEmpresa" name="celularEmpresa" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                 <small id="celularEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="direccionEmpresa" class="form-label">Dirección de la empresa <span class="required">*</span></label>
+                                <label for="direccionEmpresa" class="form-label">Dirección de la empresa<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="direccionEmpresa" name="direccionEmpresa" required placeholder="Ej: CRA 15 #25-30">
                                 <small id="direccionEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="correoEmpresa" class="form-label">Correo de la empresa <span class="required">*</span></label>
+                                <label for="correoEmpresa" class="form-label">Correo de la empresa<span class="required">*</span></label>
                                 <input type="email" class="form-control" id="correoEmpresa" name="correoEmpresa" required placeholder="Ej: contacto@empresa.com">
                                 <small id="correoEmpresaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-4">
-                                <label for="horario" class="form-label">Horario <span class="required">*</span></label>
+                                <label for="horario" class="form-label">Horario<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="horario" name="horario" required placeholder="Ej: L a V 8:00am a 5:00pm">
                                 <small id="horarioHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
@@ -357,10 +406,7 @@
             <h4>Contrato de Aprendizaje</h4>
         </div>
         <div class="alternativa">
-            <h4>Pasantía</h4>
-        </div>
-        <div class="alternativa">
-            <h4>Apoyo a Entidades</h4>
+            <h4>Vínculo Formativo</h4>
         </div>
         <div class="alternativa">
             <h4>Vínculo Laboral</h4>
@@ -370,9 +416,6 @@
         </div>
         <div class="alternativa">
             <h4>Monitoría</h4>
-        </div>
-        <div class="alternativa">
-            <h4>Unidades Productivas Familiares</h4>
             <p>Conoce más sobre las etapas productivas dando clic en el botón
                 <a href="/imagenes/pdf/alternativas/alternativas-etapa-productiva.pdf"
                    target="_blank"
@@ -538,8 +581,48 @@
         if (documentoInput) {
             const validarDocumentoDebounced = debounce(async (event) => {
                 const valor = event.target.value.trim();
-                if (valor && valor.length >= 7) {
-                    await validarDuplicados('numeroDocumento', valor);
+                
+                // Primero validar longitud y formato
+                if (valor) {
+                    const helpElement = document.getElementById('numeroDocumentoHelp');
+                    
+                    if (valor.length < 7) {
+                        documentoInput.classList.add('is-invalid');
+                        documentoInput.classList.remove('is-valid');
+                        if (helpElement) {
+                            helpElement.style.display = 'block';
+                            helpElement.textContent = 'El número de documento debe tener entre 7 y 10 dígitos';
+                            helpElement.classList.add('text-danger');
+                        }
+                        return;
+                    }
+                    
+                    if (valor.length > 10) {
+                        documentoInput.classList.add('is-invalid');
+                        documentoInput.classList.remove('is-valid');
+                        if (helpElement) {
+                            helpElement.style.display = 'block';
+                            helpElement.textContent = 'El número de documento no puede tener más de 10 dígitos';
+                            helpElement.classList.add('text-danger');
+                        }
+                        return;
+                    }
+                    
+                    if (!/^\d{7,10}$/.test(valor)) {
+                        documentoInput.classList.add('is-invalid');
+                        documentoInput.classList.remove('is-valid');
+                        if (helpElement) {
+                            helpElement.style.display = 'block';
+                            helpElement.textContent = 'El número de documento solo debe contener dígitos';
+                            helpElement.classList.add('text-danger');
+                        }
+                        return;
+                    }
+                    
+                    // Si pasa las validaciones de formato, verificar duplicados
+                    if (valor.length >= 7 && valor.length <= 10) {
+                        await validarDuplicados('numeroDocumento', valor);
+                    }
                 }
             }, 1000);
 

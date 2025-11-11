@@ -30,7 +30,7 @@ const validacionesCamposBasicos = [
         .trim()
         .notEmpty().withMessage('El número de documento es obligatorio')
         .isNumeric().withMessage('El número de documento debe contener solo números')
-        .isLength({ min: 8, max: 22 }).withMessage('El número de documento debe tener entre 8 y 22 dígitos'),
+        .isLength({ min: 7, max: 10 }).withMessage('El número de documento debe tener entre 7 y 10 dígitos'),
 
     body('fechaNacimiento')
         .notEmpty().withMessage('La fecha de nacimiento es obligatoria')

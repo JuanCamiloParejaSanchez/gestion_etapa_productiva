@@ -81,10 +81,10 @@ const validacionesAutenticacion = {
             .withMessage('Tipo de documento inválido'),
 
         body('numeroDocumento')
-            .isLength({ min: 5, max: 20 })
-            .withMessage('Número de documento inválido')
-            .matches(/^[0-9A-Z]+$/)
-            .withMessage('El número de documento solo puede contener números y letras mayúsculas'),
+            .isLength({ min: 7, max: 10 })
+            .withMessage('El número de documento debe tener entre 7 y 10 dígitos')
+            .isNumeric()
+            .withMessage('El número de documento solo puede contener números'),
 
         body('fechaNacimiento')
             .isISO8601()
