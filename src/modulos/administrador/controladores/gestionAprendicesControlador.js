@@ -9,6 +9,7 @@ const servicioGestionAprendices = new ServicioGestionAprendices();
 const { logger } = require('../../../compartido/utilidades/logger');
 const XLSX = require('xlsx');
 const servicioCorreo = require('../../../compartido/servicios/servicioCorreo');
+const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
@@ -1161,6 +1162,51 @@ const gestionAprendicesControlador = {
         } catch (error) {
             logger.error('Error al rechazar documento:', error);
             res.status(500).json({ success: false, message: 'Error al rechazar el documento' });
+        }
+    },
+
+    /**
+     * Obtener opciones para filtros dinámicos desde el servicio centralizado
+     * Este endpoint proporciona las mismas opciones que aparecen en el formulario de registro
+     * Garantiza una única fuente de verdad para todas las opciones del sistema
+     * 
+     * @route GET /administrador/opciones-filtros
+     * @returns {Object} JSON con todas las opciones de filtros
+     */
+    async obtenerOpcionesFiltros(req, res) {
+        try {
+            // Obtener todas las opciones del servicio centralizado
+            const opciones = opcionesFormularioServicio.obtenerTodasLasOpciones();
+
+            logger.info('✅ Opciones de filtros obtenidas del servicio centralizado', {
+                programas: opciones.programaFormacion.length,
+                alternativas: opciones.alternativaSeleccionada.length,
+                tipoDocumento: opciones.tipoDocumento.length,
+                eps: opciones.eps.length,
+                genero: opciones.genero.length
+            });
+
+            // Responder con las opciones en el formato esperado por el frontend
+            res.json({
+                success: true,
+                data: {
+                    programas: opciones.programaFormacion,
+                    alternativas: opciones.alternativaSeleccionada,
+                    tipoDocumento: opciones.tipoDocumento,
+                    eps: opciones.eps,
+                    genero: opciones.genero,
+                    estadoFormacion: opciones.estadoFormacion,
+                    areaFormacion: opciones.areaFormacion
+                }
+            });
+
+        } catch (error) {
+            logger.error('❌ Error al obtener opciones de filtros:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al cargar las opciones de filtros',
+                error: error.message
+            });
         }
     }
 };

@@ -265,11 +265,7 @@
                             </label>
                             <select class="form-select modern-form-control" id="programaBusqueda" name="programaFormacion">
                                 <option value="">Todos los Programas</option>
-                                <option value="tecnoActividadFisica">Tec. Actividad Física</option>
-                                <option value="tecnoEntrenamientoDeportivo">Tec. Entrenamiento Deportivo</option>
-                                <option value="tecnoAnalisisDesarrollo">Tec. Análisis y Desarrollo</option>
-                                <option value="tecProcesamientoPruebas">Téc. Pruebas de Software</option>
-                                <option value="tecProgramacion">Téc. Programación de Software</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -278,12 +274,7 @@
                             </label>
                             <select class="form-select modern-form-control" id="alternativaBusqueda" name="alternativaSeleccionada">
                                 <option value="">Todas las Alternativas</option>
-                                <option value="contratoAprendizaje">Contrato de Aprendizaje</option>
-                                <option value="pasantia">Pasantía</option>
-                                <option value="proyectosProductivos">Proyectos Productivos</option>
-                                <option value="vinculoLaboral">Vínculo laboral</option>
-                                <option value="monitoria">Monitoría</option>
-                                <option value="unidadesProductivas">Unidades productivas familiares</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
                             </select>
                         </div>
                         <div class="form-group">
@@ -293,9 +284,10 @@
                             <select class="form-select modern-form-control" id="estadoFormacionBusqueda" name="estadoFormacion">
                                 <option value="">Todos los Estados</option>
                                 <option value="activo">Activo</option>
-                                <option value="inactivo">Inactivo</option>
+                                <option value="inactivo">Inactivo (Proceso de Cancelación)</option>
                                 <option value="aplazado">Aplazado</option>
-                                <option value="retirado">Retirado</option>
+                                <option value="retirado">Retirado o Cancelado</option>
+                                <option value="por certificar">Por Certificar</option>
                                 <option value="certificado">Certificado</option>
                             </select>
                         </div>
@@ -443,6 +435,56 @@
     import utilidadesAdmin from '/js/admin/utilidadesAdmin.js';
     
     document.addEventListener('DOMContentLoaded', function() {
+        // Cargar opciones de filtros dinámicamente
+        async function cargarOpcionesFiltros() {
+            try {
+                const response = await fetch('/administrador/opciones-filtros');
+                
+                if (!response.ok) {
+                    throw new Error(`Error al cargar opciones de filtros: ${response.status}`);
+                }
+                
+                const resultado = await response.json();
+                
+                if (resultado.success && resultado.data) {
+                    // Cargar programas
+                    const programaSelect = document.getElementById('programaBusqueda');
+                    if (programaSelect && resultado.data.programas) {
+                        // Mantener la opción "Todos los Programas"
+                        programaSelect.innerHTML = '<option value="">Todos los Programas</option>';
+                        
+                        resultado.data.programas.forEach((programa) => {
+                            const option = document.createElement('option');
+                            option.value = programa.value;
+                            option.textContent = programa.label;
+                            programaSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // Cargar alternativas
+                    const alternativaSelect = document.getElementById('alternativaBusqueda');
+                    if (alternativaSelect && resultado.data.alternativas) {
+                        // Mantener la opción "Todas las Alternativas"
+                        alternativaSelect.innerHTML = '<option value="">Todas las Alternativas</option>';
+                        
+                        resultado.data.alternativas.forEach((alternativa) => {
+                            const option = document.createElement('option');
+                            option.value = alternativa.value;
+                            option.textContent = alternativa.label;
+                            alternativaSelect.appendChild(option);
+                        });
+                    }
+                } else {
+                    console.error('❌ Error: La respuesta no contiene datos válidos');
+                }
+            } catch (error) {
+                console.error('❌ Error al cargar opciones de filtros:', error);
+            }
+        }
+        
+        // Cargar opciones al iniciar
+        cargarOpcionesFiltros();
+        
         // Configuración de columnas
         const columnasConfig = [
             { data: "tipoDocumento", title: "Tipo Documento", visible: true },

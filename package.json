@@ -9,6 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:opciones": "node scripts/test-opciones-centralizadas.js",
     "start-sync": "browser-sync start --proxy \"localhost:3000\" --files views,public --ui-port 3100",
     "pm2:start": "pm2 start ecosystem.config.js --env development",
     "pm2:start:dev": "pm2 start ecosystem.config.js --only gestion-etapa-productiva-dev",

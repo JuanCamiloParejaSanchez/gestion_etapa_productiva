@@ -22,6 +22,7 @@ router.get('/reportes/exportar/completo', gestionAprendicesControlador.exportarR
 // --- Rutas CRUD para Gestión de Aprendices ---
 router.get('/listar-aprendices', gestionAprendicesControlador.listarAprendices);
 router.post('/aprendices-data', gestionAprendicesControlador.obtenerDatosAprendices); // Para la tabla dinámica
+router.get('/opciones-filtros', gestionAprendicesControlador.obtenerOpcionesFiltros); // Para filtros dinámicos
 router.get('/aprendiz/:id', gestionAprendicesControlador.verAprendiz);
 router.get('/aprendiz/editar/:id', gestionAprendicesControlador.editarAprendiz);
 router.post('/aprendiz/actualizar/:id', gestionAprendicesControlador.actualizarAprendiz);

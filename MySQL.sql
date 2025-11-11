@@ -21,14 +21,15 @@ USE `sena_etapa_productiva`;
 
 CREATE TABLE `aprendices` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `tipoDocumento` enum('CC','TI','CE','PEP','PPT') NOT NULL COMMENT 'Tipo de documento de identidad',
+  `tipoDocumento` enum('CC','TI','CE','PEP','PPT','RU') NOT NULL COMMENT 'Tipo de documento de identidad',
   `numeroDocumento` varchar(20) NOT NULL COMMENT 'Número de documento único',
-  `estadoFormacion` enum('activo','inactivo','aplazado','retirado','certificado') DEFAULT 'activo' COMMENT 'Estado actual de la formación',
+  `estadoFormacion` enum('activo','inactivo','aplazado','retirado','por certificar','certificado') DEFAULT 'activo' COMMENT 'Estado actual de la formación (activo, inactivo, aplazado, retirado, por certificar, certificado)',
   `nombres` varchar(100) NOT NULL COMMENT 'Nombres del aprendiz',
   `primerApellido` varchar(50) NOT NULL COMMENT 'Primer apellido',
   `segundoApellido` varchar(50) DEFAULT NULL COMMENT 'Segundo apellido (opcional)',
+  `genero` enum('MASCULINO','FEMENINO','TRANSEXUAL','NO BINARIO','OTROS') NOT NULL COMMENT 'Género del aprendiz',
   `fechaNacimiento` date NOT NULL COMMENT 'Fecha de nacimiento',
-  `eps` varchar(100) DEFAULT NULL COMMENT 'Entidad prestadora de salud',
+  `eps` varchar(150) DEFAULT NULL COMMENT 'Entidad prestadora de salud',
   `telefonoFijo` varchar(15) DEFAULT NULL COMMENT 'Teléfono fijo',
   `celular` varchar(15) NOT NULL COMMENT 'Número de celular',
   `direccion` varchar(255) NOT NULL COMMENT 'Dirección de residencia',
@@ -43,9 +44,9 @@ CREATE TABLE `aprendices` (
   `instructorLectiva` varchar(100) DEFAULT NULL COMMENT 'Instructor etapa lectiva',
   `instructorProductiva` varchar(100) DEFAULT NULL COMMENT 'Instructor etapa productiva',
   `numeroFicha` varchar(20) NOT NULL COMMENT 'Número de ficha de formación',
-  `programaFormacion` varchar(255) NOT NULL COMMENT 'Programa de formación',
-  `alternativaSeleccionada` enum('contratoAprendizaje','pasantia','apoyoEntidades','vinculoLaboral','proyectosProductivos','monitoria','unidadesProductivas') DEFAULT NULL COMMENT 'Alternativa de etapa productiva',
-  `areaFormacion` enum('si','no') DEFAULT 'no' COMMENT '¿El área de práctica está relacionada con la formación?',
+  `programaFormacion` varchar(300) NOT NULL COMMENT 'Programa de formación',
+  `alternativaSeleccionada` varchar(100) DEFAULT NULL COMMENT 'Alternativa de etapa productiva',
+  `areaFormacion` enum('SI','NO') DEFAULT 'NO' COMMENT '¿El área de práctica está relacionada con la formación?',
   `empresaPatrocinadora` varchar(255) DEFAULT NULL COMMENT 'Empresa patrocinadora',
   `areaPractica` varchar(255) DEFAULT NULL COMMENT 'Área de práctica en la empresa',
   `jefeInmediato` varchar(100) DEFAULT NULL COMMENT 'Jefe inmediato en la empresa',
@@ -770,3 +771,6 @@ delete from aprendices where id='226'
 
 select * from administradores;
 delete from administradores where id='88'
+
+
+
