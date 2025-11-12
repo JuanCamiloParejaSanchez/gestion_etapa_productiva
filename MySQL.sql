@@ -773,4 +773,3 @@ select * from administradores;
 delete from administradores where id='88'
 
 
-

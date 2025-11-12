@@ -144,16 +144,27 @@
                                     <label for="tipoDocumento" class="form-label">Tipo de documento <span class="required">*</span></label>
                                     <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
                                         <option value="">SELECCIONE...</option>
-                                        <option value="CC" <%= aprendiz.tipoDocumento === 'CC' ? 'selected' : '' %>>CÉDULA DE CIUDADANÍA</option>
-                                        <option value="TI" <%= aprendiz.tipoDocumento === 'TI' ? 'selected' : '' %>>TARJETA DE IDENTIDAD</option>
-                                        <option value="CE" <%= aprendiz.tipoDocumento === 'CE' ? 'selected' : '' %>>CÉDULA DE EXTRANJERÍA</option>
-                                        <option value="PEP" <%= aprendiz.tipoDocumento === 'PEP' ? 'selected' : '' %>>PEP</option>
-                                        <option value="PPT" <%= aprendiz.tipoDocumento === 'PPT' ? 'selected' : '' %>>PERMISO DE PROTECCIÓN TEMPORAL</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.tipoDocumento) { %>
+                                            <% opciones.tipoDocumento.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.tipoDocumento === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="genero" class="form-label">Género <span class="required">*</span></label>
+                                    <select class="form-select" id="genero" name="genero" required>
+                                        <option value="">SELECCIONE...</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.genero) { %>
+                                            <% opciones.genero.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.genero === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label for="numeroDocumento" class="form-label">Número de documento <span class="required">*</span></label>
-                                    <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" value="<%= aprendiz.numeroDocumento || '' %>" required placeholder="Ej: 1234567890">
+                                    <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" value="<%= aprendiz.numeroDocumento || '' %>" required placeholder="Ej: 1234567890" minlength="7" maxlength="10" pattern="\d{7,10}" title="Debe contener entre 7 y 10 dígitos">
                                     <small id="numeroDocumentoHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-3">
@@ -165,36 +176,11 @@
                                     <label for="eps" class="form-label">EPS <span class="required">*</span></label>
                                     <select class="form-select" id="eps" name="eps" required>
                                         <option value="">SELECCIONE...</option>
-                                        <option value="COOSALUD EPS-S" <%= aprendiz.eps === 'COOSALUD EPS-S' ? 'selected' : '' %>>COOSALUD EPS-S</option>
-                                        <option value="NUEVA EPS" <%= aprendiz.eps === 'NUEVA EPS' ? 'selected' : '' %>>NUEVA EPS</option>
-                                        <option value="MUTUAL SER" <%= aprendiz.eps === 'MUTUAL SER' ? 'selected' : '' %>>MUTUAL SER</option>
-                                        <option value="ALIANSALUD EPS" <%= aprendiz.eps === 'ALIANSALUD EPS' ? 'selected' : '' %>>ALIANSALUD EPS</option>
-                                        <option value="SALUD TOTAL EPS S.A." <%= aprendiz.eps === 'SALUD TOTAL EPS S.A.' ? 'selected' : '' %>>SALUD TOTAL EPS S.A.</option>
-                                        <option value="EPS SANITAS" <%= aprendiz.eps === 'EPS SANITAS' ? 'selected' : '' %>>EPS SANITAS</option>
-                                        <option value="EPS SURA" <%= aprendiz.eps === 'EPS SURA' ? 'selected' : '' %>>EPS SURA</option>
-                                        <option value="FAMISANAR" <%= aprendiz.eps === 'FAMISANAR' ? 'selected' : '' %>>FAMISANAR</option>
-                                        <option value="SERVICIO OCCIDENTAL DE SALUD EPS SOS" <%= aprendiz.eps === 'SERVICIO OCCIDENTAL DE SALUD EPS SOS' ? 'selected' : '' %>>SERVICIO OCCIDENTAL DE SALUD EPS SOS</option>
-                                        <option value="SALUD MIA" <%= aprendiz.eps === 'SALUD MIA' ? 'selected' : '' %>>SALUD MIA</option>
-                                        <option value="COMFENALCO VALLE" <%= aprendiz.eps === 'COMFENALCO VALLE' ? 'selected' : '' %>>COMFENALCO VALLE</option>
-                                        <option value="COMPENSAR EPS" <%= aprendiz.eps === 'COMPENSAR EPS' ? 'selected' : '' %>>COMPENSAR EPS</option>
-                                        <option value="EPM - EMPRESAS PUBLICAS DE MEDELLIN" <%= aprendiz.eps === 'EPM - EMPRESAS PUBLICAS DE MEDELLIN' ? 'selected' : '' %>>EPM - EMPRESAS PUBLICAS DE MEDELLIN</option>
-                                        <option value="FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA" <%= aprendiz.eps === 'FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA' ? 'selected' : '' %>>FONDO DE PASIVO SOCIAL DE FERROCARRILES NACIONALES DE COLOMBIA</option>
-                                        <option value="CAJACOPI ATLANTICO" <%= aprendiz.eps === 'CAJACOPI ATLANTICO' ? 'selected' : '' %>>CAJACOPI ATLANTICO</option>
-                                        <option value="CAPRESOCA" <%= aprendiz.eps === 'CAPRESOCA' ? 'selected' : '' %>>CAPRESOCA</option>
-                                        <option value="COMFACHOCO" <%= aprendiz.eps === 'COMFACHOCO' ? 'selected' : '' %>>COMFACHOCO</option>
-                                        <option value="COMFAORIENTE" <%= aprendiz.eps === 'COMFAORIENTE' ? 'selected' : '' %>>COMFAORIENTE</option>
-                                        <option value="EPS FAMILIAR DE COLOMBIA" <%= aprendiz.eps === 'EPS FAMILIAR DE COLOMBIA' ? 'selected' : '' %>>EPS FAMILIAR DE COLOMBIA</option>
-                                        <option value="ASMET SALUD" <%= aprendiz.eps === 'ASMET SALUD' ? 'selected' : '' %>>ASMET SALUD</option>
-                                        <option value="EMSSANAR E.S.S." <%= aprendiz.eps === 'EMSSANAR E.S.S.' ? 'selected' : '' %>>EMSSANAR E.S.S.</option>
-                                        <option value="CAPITAL SALUD EPS-S" <%= aprendiz.eps === 'CAPITAL SALUD EPS-S' ? 'selected' : '' %>>CAPITAL SALUD EPS-S</option>
-                                        <option value="SAVIA SALUD EPS" <%= aprendiz.eps === 'SAVIA SALUD EPS' ? 'selected' : '' %>>SAVIA SALUD EPS</option>
-                                        <option value="DUSAKAWI EPSI" <%= aprendiz.eps === 'DUSAKAWI EPSI' ? 'selected' : '' %>>DUSAKAWI EPSI</option>
-                                        <option value="ASOCIACION INDIGENA DEL CAUCA EPSI" <%= aprendiz.eps === 'ASOCIACION INDIGENA DEL CAUCA EPSI' ? 'selected' : '' %>>ASOCIACION INDIGENA DEL CAUCA EPSI</option>
-                                        <option value="ANAS WAYUU EPSI" <%= aprendiz.eps === 'ANAS WAYUU EPSI' ? 'selected' : '' %>>ANAS WAYUU EPSI</option>
-                                        <option value="MALLAMAS EPSI" <%= aprendiz.eps === 'MALLAMAS EPSI' ? 'selected' : '' %>>MALLAMAS EPSI</option>
-                                        <option value="PIJAOS SALUD EPSI" <%= aprendiz.eps === 'PIJAOS SALUD EPSI' ? 'selected' : '' %>>PIJAOS SALUD EPSI</option>
-                                        <option value="SALUD BÓLIVAR EPS SAS" <%= aprendiz.eps === 'SALUD BÓLIVAR EPS SAS' ? 'selected' : '' %>>SALUD BÓLIVAR EPS SAS</option>
-                                        <option value="NO APLICA" <%= aprendiz.eps === 'NO APLICA' ? 'selected' : '' %>>NO APLICA</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.eps) { %>
+                                            <% opciones.eps.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.eps === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
                                     </select>
                                 </div>
                                </div>
@@ -277,7 +263,7 @@
                                     <small id="instructorProductivaHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="numeroFicha" class="form-label">Número de ficha <span class="required">*</span></label>
+                                    <label for="numeroFicha" class="form-label">Número de ficha o grupo <span class="required">*</span></label>
                                     <input type="text" class="form-control" id="numeroFicha" name="numeroFicha" value="<%= aprendiz.numeroFicha || '' %>" required placeholder="Ej: 1234567">
                                     <small id="numeroFichaHelp" class="form-text text-danger" style="display:none;"></small>
                                 </div>
@@ -285,11 +271,11 @@
                                     <label for="programaFormacion" class="form-label">Programa de formación <span class="required">*</span></label>
                                     <select class="form-select" id="programaFormacion" name="programaFormacion" required>
                                         <option value="">SELECCIONE...</option>
-                                        <option value="tecnoActividadFisica" <%= aprendiz.programaFormacion === 'tecnoActividadFisica' ? 'selected' : '' %>>TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
-                                        <option value="tecnoEntrenamientoDeportivo" <%= aprendiz.programaFormacion === 'tecnoEntrenamientoDeportivo' ? 'selected' : '' %>>TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
-                                        <option value="tecnoAnalisisDesarrollo" <%= aprendiz.programaFormacion === 'tecnoAnalisisDesarrollo' ? 'selected' : '' %>>TECNÓLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
-                                        <option value="tecProcesamientoPruebas" <%= aprendiz.programaFormacion === 'tecProcesamientoPruebas' ? 'selected' : '' %>>TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
-                                        <option value="tecProgramacion" <%= aprendiz.programaFormacion === 'tecProgramacion' ? 'selected' : '' %>>TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.programaFormacion) { %>
+                                            <% opciones.programaFormacion.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.programaFormacion === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
                                     </select>
                                </div>
                            </div>
@@ -306,20 +292,21 @@
                                     <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada <span class="required">*</span></label>
                                     <select class="form-select" id="alternativaSeleccionada" name="alternativaSeleccionada" required>
                                         <option value="">SELECCIONE...</option>
-                                        <option value="contratoAprendizaje" <%= aprendiz.alternativaSeleccionada === 'contratoAprendizaje' ? 'selected' : '' %>>CONTRATO DE APRENDIZAJE</option>
-                                        <option value="pasantia" <%= aprendiz.alternativaSeleccionada === 'pasantia' ? 'selected' : '' %>>PASANTÍA</option>
-                                        <option value="apoyoEntidades" <%= aprendiz.alternativaSeleccionada === 'apoyoEntidades' ? 'selected' : '' %>>APOYO A ENTIDADES</option>
-                                        <option value="vinculoLaboral" <%= aprendiz.alternativaSeleccionada === 'vinculoLaboral' ? 'selected' : '' %>>VÍNCULO LABORAL</option>
-                                        <option value="proyectosProductivos" <%= aprendiz.alternativaSeleccionada === 'proyectosProductivos' ? 'selected' : '' %>>PROYECTOS PRODUCTIVOS</option>
-                                        <option value="monitoria" <%= aprendiz.alternativaSeleccionada === 'monitoria' ? 'selected' : '' %>>MONITORÍA</option>
-                                        <option value="unidadesProductivas" <%= aprendiz.alternativaSeleccionada === 'unidadesProductivas' ? 'selected' : '' %>>UNIDADES PRODUCTIVAS FAMILIARES</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.alternativaSeleccionada) { %>
+                                            <% opciones.alternativaSeleccionada.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.alternativaSeleccionada === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
                                     <label for="areaFormacion" class="form-label">¿En el área de formación? <span class="required">*</span></label>
                                     <select class="form-select" id="areaFormacion" name="areaFormacion" required>
-                                        <option value="SI" <%= aprendiz.areaFormacion === 'SI' ? 'selected' : '' %>>SÍ</option>
-                                        <option value="NO" <%= aprendiz.areaFormacion === 'NO' ? 'selected' : '' %>>NO</option>
+                                        <% if (typeof opciones !== 'undefined' && opciones.areaFormacion) { %>
+                                            <% opciones.areaFormacion.forEach(opcion => { %>
+                                                <option value="<%= opcion.value %>" <%= aprendiz.areaFormacion === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                            <% }); %>
+                                        <% } %>
                                     </select>
                                 </div>
                                 <div class="col-md-3">

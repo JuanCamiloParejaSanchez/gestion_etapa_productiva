@@ -127,23 +127,22 @@
                                 <label for="tipoDocumento" class="form-label">Tipo de documento<span class="required">*</span></label>
                                 <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
                                     <option value="">SELECCIONE...</option>
-                                    <option value="CC">CÉDULA DE CIUDADANÍA</option>
-                                    <option value="TI">TARJETA DE IDENTIDAD</option>
-                                    <option value="CE">CÉDULA DE EXTRANJERÍA</option>
-                                    <option value="PEP">PERMISO ESPECIAL DE PERMANENCIA</option>
-                                    <option value="PPT">PERMISO DE PROTECCIÓN TEMPORAL</option>
-                                    <option value="RU">REGISTRO ÚNICO</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.tipoDocumento) { %>
+                                        <% opciones.tipoDocumento.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label for="genero" class="form-label">Género<span class="required">*</span></label>
                                 <select class="form-select" id="genero" name="genero" required>
                                     <option value="">SELECCIONE...</option>
-                                    <option value="MASCULINO">MASCULINO</option>
-                                    <option value="FEMENINO">FEMENINO</option>
-                                    <option value="TRANSEXUAL">TRANSEXUAL</option>
-                                    <option value="NO BINARIO">NO BINARIO</option>
-                                    <option value="OTROS">OTROS</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.genero) { %>
+                                        <% opciones.genero.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -159,68 +158,12 @@
                             <div class="col-md-3">
                                 <label for="eps" class="form-label">EPS<span class="required">*</span></label>
                                 <select class="form-select" id="eps" name="eps" required>
-                                    <option value="">SELECCIONE...</option>                                    
-                                    <option value="COMFAMILIAR CARTAGENA">COMFAMILIAR CARTAGENA</option>
-                                    <option value="CAJA DE COMPENSACIÓN FAMILIAR DE NARIÑO">CAJA DE COMPENSACIÓN FAMILIAR DE NARIÑO</option>
-                                    <option value="COMFAORIENTE">COMFAORIENTE</option>
-                                    <option value="CAJA DE COMPENSACIÓN FAMILIAR DEL CHOCÓ">CAJA DE COMPENSACIÓN FAMILIAR DEL CHOCÓ</option>
-                                    <option value="COMFABOY">COMFABOY</option>
-                                    <option value="CCF COLSUBSIDIO">CCF COLSUBSIDIO</option>
-                                    <option value="CCF DE CORDOBA COMFACOR EPS-S">CCF DE CORDOBA COMFACOR EPS-S</option>
-                                    <option value="CAFAM EPS REGIMEN SUBSIDIADO">CAFAM EPS REGIMEN SUBSIDIADO</option>
-                                    <option value="CCF DEL CHOCO COMFACHOCO EPSS">CCF DEL CHOCO COMFACHOCO EPSS</option>
-                                    <option value="CCF DE LA GUAJIRA">CCF DE LA GUAJIRA</option>
-                                    <option value="COMFAMILIAR HUILA">COMFAMILIAR HUILA</option>
-                                    <option value="COMFAMILIAR NARIÑO">COMFAMILIAR NARIÑO</option>
-                                    <option value="COMFAMILIAR SUCRE">COMFAMILIAR SUCRE</option>
-                                    <option value="COMFACUNDI">COMFACUNDI</option>
-                                    <option value="CAJACOPI EPS">CAJACOPI EPS</option>
-                                    <option value="EMPRESAS PUBLICAS DE MEDELLIN">EMPRESAS PUBLICAS DE MEDELLIN</option>
-                                    <option value="FONDO DE PASIVO SOCIAL DE LOS FERROCARRILES NACIONALES">FONDO DE PASIVO SOCIAL DE LOS FERROCARRILES NACIONALES</option>
-                                    <option value="COLMEDICA E.P.S. - ALIANSALUD">COLMEDICA E.P.S. - ALIANSALUD</option>
-                                    <option value="SALUD TOTAL S.A. E.P.S.">SALUD TOTAL S.A. E.P.S.</option>
-                                    <option value="E.P.S. SANITAS S.A.">E.P.S. SANITAS S.A.</option>
-                                    <option value="COMPENSAR E.P.S.">COMPENSAR E.P.S.</option>
-                                    <option value="E.P.S. PROGRAMA COMFENALCO ANTIOQUIA">E.P.S. PROGRAMA COMFENALCO ANTIOQUIA</option>
-                                    <option value="SUSALUD - SURA - SURAMERICANA E.P.S.">SUSALUD - SURA - SURAMERICANA E.P.S.</option>
-                                    <option value="COMFENALCO VALLE E.P.S.">COMFENALCO VALLE E.P.S.</option>
-                                    <option value="HUMANA - VIVIR S.A. E.P.S.">HUMANA - VIVIR S.A. E.P.S.</option>
-                                    <option value="SALUD COLPATRIA E.P.S.">SALUD COLPATRIA E.P.S.</option>
-                                    <option value="COOMEVA E.P.S. S.A.">COOMEVA E.P.S. S.A.</option>
-                                    <option value="E.P.S. FAMISANAR LIMITADA CAFAM-COLSUBSIDIO">E.P.S. FAMISANAR LIMITADA CAFAM-COLSUBSIDIO</option>
-                                    <option value="E.P.S. SERVICIO OCCIDENTAL DE SALUD S.A. S.O.S.">E.P.S. SERVICIO OCCIDENTAL DE SALUD S.A. S.O.S.</option>
-                                    <option value="CRUZ BLANCA E.P.S. S.A.">CRUZ BLANCA E.P.S. S.A.</option>
-                                    <option value="SOLSALUD E.P.S. S.A.">SOLSALUD E.P.S. S.A.</option>
-                                    <option value="SELVASALUD S.A. E.P.S.">SELVASALUD S.A. E.P.S.</option>
-                                    <option value="SALUDVIDA S.A. E.P.S.">SALUDVIDA S.A. E.P.S.</option>
-                                    <option value="NUEVA EPS">NUEVA EPS</option>
-                                    <option value="GOLDEN GROUP">GOLDEN GROUP</option>
-                                    <option value="SAVIA SALUD EPS">SAVIA SALUD EPS</option>
-                                    <option value="MEDIMAS EPS S.A.S">MEDIMAS EPS S.A.S</option>
-                                    <option value="FUNDACION SALUDMIA EPS">FUNDACION SALUDMIA EPS</option>
-                                    <option value="UNISALUD">UNISALUD</option>
-                                    <option value="FOSYGA - ADRES">FOSYGA - ADRES</option>
-                                    <option value="EPS CAPRECOM">EPS CAPRECOM</option>
-                                    <option value="CONVIDA">CONVIDA</option>
-                                    <option value="CAPRESOCA EPS">CAPRESOCA EPS</option>
-                                    <option value="CAPITAL SALUD">CAPITAL SALUD</option>
-                                    <option value="MALLAMAS EPS INDIGENA">MALLAMAS EPS INDIGENA</option>
-                                    <option value="DUSAKAWI EPSI">DUSAKAWI EPSI</option>
-                                    <option value="MANEXKA EPS INDIGENA">MANEXKA EPS INDIGENA</option>
-                                    <option value="ASOCIACION INDIGENA DEL CAUCA">ASOCIACION INDIGENA DEL CAUCA</option>
-                                    <option value="ANASWAYUU">ANASWAYUU</option>
-                                    <option value="MALLAMAS">MALLAMAS</option>
-                                    <option value="PIJAOS SALUD EPSI">PIJAOS SALUD EPSI</option>
-                                    <option value="EMDISALUD">EMDISALUD</option>
-                                    <option value="ASOCIACIÓN MUTUAL SER EMPRESA SOLIDARIA DE SALUD A.R.S.">ASOCIACIÓN MUTUAL SER EMPRESA SOLIDARIA DE SALUD A.R.S.</option>
-                                    <option value="ASOCIACION MUTUAL EMPRESA SOLIDARIA DE SALUD EMSSANAR EPS">ASOCIACION MUTUAL EMPRESA SOLIDARIA DE SALUD EMSSANAR EPS</option>
-                                    <option value="COOSALUD">COOSALUD</option>
-                                    <option value="COMPARTA EPS-S">COMPARTA EPS-S</option>
-                                    <option value="ASMET SALUD">ASMET SALUD</option>
-                                    <option value="AMBUQ EPS ESS">AMBUQ EPS ESS</option>
-                                    <option value="ECOOPSOS">ECOOPSOS</option>
-                                    <option value="EPS UNIVERSIDAD DE ANTIOQUIA">EPS UNIVERSIDAD DE ANTIOQUIA</option>
-                                    <option value="NO APLICA">NO APLICA</option>
+                                    <option value="">SELECCIONE...</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.eps) { %>
+                                        <% opciones.eps.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                         </div>
@@ -299,19 +242,11 @@
                                 <label for="programaFormacion" class="form-label">Programa de formación<span class="required">*</span></label>
                                 <select class="form-select" id="programaFormacion" name="programaFormacion" required>
                                     <option value="">SELECCIONE...</option>
-                                    <option value="tecProgramasDeportivos">TÉCNICO EN EJECUCIÓN DE PROGRAMAS DEPORTIVOS</option>
-                                    <option value="tecRecreComunitaria">TÉCNICO EN RECREACIÓN COMUNITARIA</option>
-                                    <option value="tecOperativoRescateAcuatico">TÉCNICO OPERATIVO EN RESCATE ACUÁTICO EN AGUAS CONFINADAS</option>
-                                    <option value="tecProcesamientoPruebas">TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE</option>
-                                    <option value="tecProgramacion">TÉCNICO EN PROGRAMACIÓN DE SOFTWARE</option>
-                                    <option value="tecProgramacionMoviles">TÉCNICO EN PROGRAMACIÓN DE APLICACIONES PARA DISPOSITIVOS MÓVILES</option>
-                                    <option value="tecSeguridadWeb">TÉCNICO EN SEGURIDAD DE APLICACIONES WEB</option>
-                                    <option value="tecnoEntrenaFutbol">TECNOLOGÍA EN ENTRENAMIENTO Y FORMACIÓN EN FÚTBOL</option>                                    
-                                    <option value="tecnoGestionServiciosRecreativos">TECNOLOGÍA EN GESTIÓN DE SERVICIOS RECREATIVOS</option>
-                                    <option value="tecnoActividadFisica">TECNOLOGÍA EN ACTIVIDAD FÍSICA</option>
-                                    <option value="tecnoEntrenamientoDeportivo">TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO</option>
-                                    <option value="tecnoAnalisisDesarrollo">TECNOLOGÍA EN ANÁLISIS Y DESARROLLO DE SOFTWARE</option>
-                                    <option value="tecnoProcesosLogisticos">TECNOLOGÍA EN COORDINACIÓN DE PROCESOS LOGÍSTICOS</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.programaFormacion) { %>
+                                        <% opciones.programaFormacion.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                         </div>
@@ -322,18 +257,21 @@
                                 <label for="alternativaSeleccionada" class="form-label">Alternativa seleccionada<span class="required">*</span></label>
                                 <select class="form-select" id="alternativaSeleccionada" name="alternativaSeleccionada" required>
                                     <option value="">SELECCIONE...</option>
-                                    <option value="contratoAprendizaje">CONTRATO DE APRENDIZAJE</option>
-                                    <option value="pasantia">VÍNCULO FORMATIVO</option>                                    
-                                    <option value="vinculoLaboral">VÍNCULO LABORAL</option>
-                                    <option value="proyectosProductivos">PROYECTOS PRODUCTIVOS</option>
-                                    <option value="monitoria">MONITORÍA</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.alternativaSeleccionada) { %>
+                                        <% opciones.alternativaSeleccionada.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                             <div class="col-md-2">
                                 <label for="areaFormacion" class="form-label">¿En el área de formación?<span class="required">*</span></label>
                                 <select class="form-select" id="areaFormacion" name="areaFormacion" required>
-                                    <option value="SI">SÍ</option>
-                                    <option value="NO">NO</option>
+                                    <% if (typeof opciones !== 'undefined' && opciones.areaFormacion) { %>
+                                        <% opciones.areaFormacion.forEach(opcion => { %>
+                                            <option value="<%= opcion.value %>"><%= opcion.label %></option>
+                                        <% }); %>
+                                    <% } %>
                                 </select>
                             </div>
                             <div class="col-md-3">

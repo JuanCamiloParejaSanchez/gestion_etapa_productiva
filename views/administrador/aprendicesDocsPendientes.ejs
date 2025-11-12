@@ -416,6 +416,28 @@
         text-align: center;
     }
 }
+
+/* Estilos para columnas Programa y Alternativa - Ajuste de texto estilo Excel */
+#aprendicesTable td:nth-child(11), /* Columna programaFormacion */
+#aprendicesTable td:nth-child(12)  /* Columna alternativaSeleccionada */
+{
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    max-width: 200px;
+    min-width: 150px;
+    line-height: 1.4;
+    padding: 8px !important;
+}
+
+/* Ajustar encabezados también */
+#aprendicesTable th:nth-child(11),
+#aprendicesTable th:nth-child(12) {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    max-width: 200px;
+    min-width: 150px;
+}
 </style>
 
 <%- contentFor('body') %>
@@ -825,8 +847,10 @@
 
         // Función para obtener clase de estado
         function getEstadoClass(estado) {
-            // Los valores de la BD están en minúsculas según el enum
-            switch (estado) {
+            // Normalizar el estado a minúsculas para comparación
+            const estadoNormalizado = estado ? estado.toLowerCase() : '';
+            
+            switch (estadoNormalizado) {
                 case 'activo':
                     return 'estado-activo';
                 case 'inactivo':

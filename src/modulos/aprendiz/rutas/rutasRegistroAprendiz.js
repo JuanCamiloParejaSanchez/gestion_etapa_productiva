@@ -7,6 +7,7 @@ const path = require('path');
 const registroAprendizControlador = require('../controladores/controladorRegistroAprendiz');
 const autenticacionControlador = require('../../compartido/controladores/controladorAutenticacionGeneral');
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
+const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 
 // Ruta inicial de registro
 // router.get('/', (req, res) => {
@@ -53,11 +54,13 @@ router.get('/crear-contrasena', AuthMiddleware.verificarRegistro, (req, res) => 
 
 // Ruta para mostrar el formulario de registro de aprendiz
 router.get('/registrar-aprendiz', (req, res) => {
+    const opciones = opcionesFormularioServicio.obtenerTodasLasOpciones();
     res.render('aprendiz/registroInicial', {
         title: 'Registro de Aprendiz',
         pagina: 'registro-aprendiz',
         layout: 'plantillas/principal',
-        isPublic: true
+        isPublic: true,
+        opciones: opciones
     });
 });
 

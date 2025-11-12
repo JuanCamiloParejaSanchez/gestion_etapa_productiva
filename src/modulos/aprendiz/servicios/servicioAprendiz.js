@@ -63,14 +63,39 @@ class ServicioAprendiz {
         try {
             const datosFormateados = { ...datos };
 
+            // Formatear fechas
             this.#camposFecha.forEach(campo => {
                 if (datosFormateados[campo]) {
                     datosFormateados[campo] = formatearFechaParaDB(datosFormateados[campo]);
                 }
             });
 
+            // Mapear alternativa si existe
             if (datosFormateados.alternativaSeleccionada) {
                 datosFormateados.alternativaSeleccionada = mapearAlternativa(datosFormateados.alternativaSeleccionada);
+            }
+
+            // Normalizar todos los campos de texto a MAYÚSCULAS (excepto emails)
+            for (const key in datosFormateados) {
+                if (typeof datosFormateados[key] === 'string') {
+                    // Emails en minúsculas
+                    if (key === 'correoElectronico' || key === 'correoEmpresa') {
+                        datosFormateados[key] = datosFormateados[key].toLowerCase().trim();
+                    }
+                    // estadoFormacion mantiene su formato del enum (minúsculas)
+                    else if (key === 'estadoFormacion') {
+                        datosFormateados[key] = datosFormateados[key].toLowerCase().trim();
+                    }
+                    // Los valores de select (programaFormacion, alternativaSeleccionada, etc.) mantienen su camelCase
+                    else if (key === 'programaFormacion' || key === 'alternativaSeleccionada' || 
+                             key === 'tipoDocumento' || key === 'genero' || key === 'areaFormacion') {
+                        datosFormateados[key] = datosFormateados[key].trim();
+                    }
+                    // Resto de campos en MAYÚSCULAS
+                    else {
+                        datosFormateados[key] = datosFormateados[key].toUpperCase().trim();
+                    }
+                }
             }
 
             const [resultado] = await pool.query('INSERT INTO aprendices SET ?', [datosFormateados]);
@@ -92,16 +117,41 @@ class ServicioAprendiz {
     async actualizarAprendiz(id, datos) {
         let datosActualizados = { ...datos };
 
+        // Mapear alternativa si existe
         if (datosActualizados.alternativaSeleccionada) {
             datosActualizados.alternativaSeleccionada =
                 mapearAlternativa(datosActualizados.alternativaSeleccionada);
         }
 
+        // Formatear fechas
         this.#camposFecha.forEach(campo => {
             if (datosActualizados[campo] !== null && datosActualizados[campo]) {
                 datosActualizados[campo] = formatearFechaParaDB(datosActualizados[campo]);
             }
         });
+
+        // Normalizar todos los campos de texto a MAYÚSCULAS (excepto emails)
+        for (const key in datosActualizados) {
+            if (typeof datosActualizados[key] === 'string') {
+                // Emails en minúsculas
+                if (key === 'correoElectronico' || key === 'correoEmpresa') {
+                    datosActualizados[key] = datosActualizados[key].toLowerCase().trim();
+                }
+                // estadoFormacion mantiene su formato del enum (minúsculas)
+                else if (key === 'estadoFormacion') {
+                    datosActualizados[key] = datosActualizados[key].toLowerCase().trim();
+                }
+                // Los valores de select (programaFormacion, alternativaSeleccionada, etc.) mantienen su camelCase
+                else if (key === 'programaFormacion' || key === 'alternativaSeleccionada' || 
+                         key === 'tipoDocumento' || key === 'genero' || key === 'areaFormacion') {
+                    datosActualizados[key] = datosActualizados[key].trim();
+                }
+                // Resto de campos en MAYÚSCULAS
+                else {
+                    datosActualizados[key] = datosActualizados[key].toUpperCase().trim();
+                }
+            }
+        }
 
         datosActualizados = eliminarCamposVacios(datosActualizados);
 

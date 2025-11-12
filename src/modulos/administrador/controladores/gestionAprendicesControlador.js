@@ -283,6 +283,10 @@ const gestionAprendicesControlador = {
                 });
             }
 
+            // NO normalizar para el formulario de edición
+            // Los valores deben coincidir con las opciones del formulario (camelCase)
+            const aprendiz = aprendizResult[0];
+
             // Obtener mensajes de sesión si existen
             const successMessage = req.session?.successMessage;
             const errorMessage = req.session?.errorMessage;
@@ -297,7 +301,7 @@ const gestionAprendicesControlador = {
                 title: 'Editar Aprendiz',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0],
+                aprendiz: aprendiz,
                 successMessage: successMessage,
                 errorMessage: errorMessage,
                 userName: req.session?.userName || 'Administrador'
@@ -329,11 +333,14 @@ const gestionAprendicesControlador = {
                 });
             }
             
+            // Normalizar datos del aprendiz para mostrar uniformemente
+            const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
+            
             res.render('administrador/verAprendiz', {
                 title: 'Ver Aprendiz',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0],
+                aprendiz: aprendizNormalizado,
                 userName: req.session?.userName || 'Administrador'
             });
             

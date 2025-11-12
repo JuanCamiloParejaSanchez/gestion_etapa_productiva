@@ -18,6 +18,7 @@ const { decodeOriginalName, normalizarNombreDocumento } = require('../../../comp
 const servicioAlertas = require('../../../compartido/servicios/servicioAlertas');
 const servicioCorreo = require('../servicios/servicioCorreo');
 const notificacionesService = require('../../../compartido/servicios/notificacionesService');
+const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -93,10 +94,12 @@ class ControladorDashboardAprendiz extends BaseController {
                 });
             }
 
+            const opciones = opcionesFormularioServicio.obtenerTodasLasOpciones();
             res.render('aprendiz/editarPerfilAprendiz', {
                 title: 'Editar Mi Perfil - SENA',
                 aprendiz: aprendiz,
-                layout: 'plantillas/principal'
+                layout: 'plantillas/principal',
+                opciones: opciones
             });
         } catch (error) {
             console.error('Error al cargar el formulario de edición del perfil del aprendiz:', error);

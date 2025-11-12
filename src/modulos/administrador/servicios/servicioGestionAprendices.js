@@ -8,34 +8,140 @@ const { Cache } = require('../../../configuracion/cache');
 // Listas de constantes
 const COLUMNAS_PERMITIDAS = [
     'id', 'tipoDocumento', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido', 'segundoApellido',
-    'fechaNacimiento', 'eps', 'telefonoFijo', 'celular', 'direccion', 'barrio', 'departamento', 'municipio',
+    'genero', 'fechaNacimiento', 'eps', 'telefonoFijo', 'celular', 'direccion', 'barrio', 'departamento', 'municipio',
     'correoElectronico', 'fechaInicioFormacion', 'fechaInicioLectiva', 'fechaFinLectiva', 'fechaInicioProductiva',
     'fechaFinProductiva', 'instructorLectiva', 'instructorProductiva', 'numeroFicha', 'programaFormacion',
     'alternativaSeleccionada', 'areaFormacion', 'empresaPatrocinadora', 'areaPractica', 'jefeInmediato',
     'telefonoEmpresa', 'celularEmpresa', 'direccionEmpresa', 'correoEmpresa', 'horario'
 ];
 
+// Mapeo de valores de BD a nombres completos para reportes/gráficos
+// Incluye variaciones en mayúsculas/minúsculas para compatibilidad con datos antiguos
 const NOMBRES_PROGRAMAS = {
-    'tecnoActividadFisica': 'Tec. Actividad Física',
-    'tecnoEntrenamientoDeportivo': 'Tec. Entrenamiento Deportivo',
-    'tecnoAnalisisDesarrollo': 'Tec. Análisis y Desarrollo',
-    'tecProcesamientoPruebas': 'Téc. Pruebas de Software',
-    'tecProgramacion': 'Téc. Programación de Software',
-    'default': 'No especificado'
+    'tecProgramasDeportivos': 'TÉCNICO EN EJECUCIÓN DE PROGRAMAS DEPORTIVOS',
+    'TECPROGRAMASDEPORTIVOS': 'TÉCNICO EN EJECUCIÓN DE PROGRAMAS DEPORTIVOS',
+    'tecRecreComunitaria': 'TÉCNICO EN RECREACIÓN COMUNITARIA',
+    'TECRECRECOMUNITARIA': 'TÉCNICO EN RECREACIÓN COMUNITARIA',
+    'tecOperativoRescateAcuatico': 'TÉCNICO OPERATIVO EN RESCATE ACUÁTICO EN AGUAS CONFINADAS',
+    'TECOPERATIVORESCATEACUATICO': 'TÉCNICO OPERATIVO EN RESCATE ACUÁTICO EN AGUAS CONFINADAS',
+    'tecProcesamientoPruebas': 'TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE',
+    'TECPROCESAMIENTOPRUEBAS': 'TÉCNICO EN PROCESAMIENTO DE PRUEBAS DE SOFTWARE',
+    'tecProgramacion': 'TÉCNICO EN PROGRAMACIÓN DE SOFTWARE',
+    'TECPROGRAMACION': 'TÉCNICO EN PROGRAMACIÓN DE SOFTWARE',
+    'tecProgramacionMoviles': 'TÉCNICO EN PROGRAMACIÓN DE APLICACIONES PARA DISPOSITIVOS MÓVILES',
+    'TECPROGRAMACIONMOVILES': 'TÉCNICO EN PROGRAMACIÓN DE APLICACIONES PARA DISPOSITIVOS MÓVILES',
+    'tecSeguridadWeb': 'TÉCNICO EN SEGURIDAD DE APLICACIONES WEB',
+    'TECSEGURIDADWEB': 'TÉCNICO EN SEGURIDAD DE APLICACIONES WEB',
+    'tecnoEntrenaFutbol': 'TECNOLOGÍA EN ENTRENAMIENTO Y FORMACIÓN EN FÚTBOL',
+    'TECNOENTRENA FUTBOL': 'TECNOLOGÍA EN ENTRENAMIENTO Y FORMACIÓN EN FÚTBOL',
+    'tecnoGestionServiciosRecreativos': 'TECNOLOGÍA EN GESTIÓN DE SERVICIOS RECREATIVOS',
+    'TECNOGESTIONSERVICIOSRECREATIVOS': 'TECNOLOGÍA EN GESTIÓN DE SERVICIOS RECREATIVOS',
+    'tecnoActividadFisica': 'TECNOLOGÍA EN ACTIVIDAD FÍSICA',
+    'TECNOACTIVIDADFISICA': 'TECNOLOGÍA EN ACTIVIDAD FÍSICA',
+    'tecnoEntrenamientoDeportivo': 'TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO',
+    'TECNOENTRENAMIENTODEPORTIVO': 'TECNOLOGÍA EN ENTRENAMIENTO DEPORTIVO',
+    'tecnoAnalisisDesarrollo': 'TECNOLOGÍA EN ANÁLISIS Y DESARROLLO DE SOFTWARE',
+    'TECNOANALISISDESARROLLO': 'TECNOLOGÍA EN ANÁLISIS Y DESARROLLO DE SOFTWARE',
+    'tecnoProcesosLogisticos': 'TECNOLOGÍA EN COORDINACIÓN DE PROCESOS LOGÍSTICOS',
+    'TECNOPROCESOSLOGISTICOS': 'TECNOLOGÍA EN COORDINACIÓN DE PROCESOS LOGÍSTICOS',
+    'default': 'NO ESPECIFICADO'
 };
 
 const NOMBRES_ALTERNATIVAS = {
-    'contratoAprendizaje': 'Contrato de Aprendizaje',
-    'pasantia': 'Pasantía',
-    'apoyoEntidades': 'Apoyo a Entidades',
-    'vinculoLaboral': 'Vínculo Laboral',
-    'proyectosProductivos': 'Proyectos Productivos',
-    'monitoria': 'Monitoria',
-    'unidadesProductivas': 'Unidades Productivas',
-    'default': 'No especificada'
+    'contratoAprendizaje': 'CONTRATO DE APRENDIZAJE',
+    'CONTRATOAPRENDIZAJE': 'CONTRATO DE APRENDIZAJE',
+    'pasantia': 'VÍNCULO FORMATIVO',
+    'PASANTIA': 'VÍNCULO FORMATIVO',
+    'vinculoLaboral': 'VÍNCULO LABORAL',
+    'VINCULOLABORAL': 'VÍNCULO LABORAL',
+    'proyectosProductivos': 'PROYECTOS PRODUCTIVOS',
+    'PROYECTOSPRODUCTIVOS': 'PROYECTOS PRODUCTIVOS',
+    'monitoria': 'MONITORÍA',
+    'MONITORIA': 'MONITORÍA',
+    'default': 'NO ESPECIFICADA'
 };
 
 class ServicioGestionAprendices {
+
+    /**
+     * Normaliza un objeto aprendiz para mostrar datos uniformes
+     * @param {Object} aprendiz - Datos del aprendiz
+     * @returns {Object} - Aprendiz con datos normalizados
+     */
+    normalizarAprendiz(aprendiz) {
+        if (!aprendiz) return null;
+        
+        const normalizado = { ...aprendiz };
+        
+        // Convertir programaFormacion al nombre completo desde la BD
+        if (normalizado.programaFormacion) {
+            // Intentar búsqueda directa primero
+            let nombrePrograma = NOMBRES_PROGRAMAS[normalizado.programaFormacion];
+            
+            // Si no encuentra, intentar búsqueda sin distinción de mayúsculas
+            if (!nombrePrograma) {
+                const valorOriginal = normalizado.programaFormacion.toUpperCase();
+                nombrePrograma = NOMBRES_PROGRAMAS[valorOriginal];
+            }
+            
+            // Si aún no encuentra, intentar sin espacios ni guiones
+            if (!nombrePrograma) {
+                const valorLimpio = normalizado.programaFormacion.replace(/[\s-_]/g, '').toUpperCase();
+                nombrePrograma = NOMBRES_PROGRAMAS[valorLimpio];
+            }
+            
+            // Usar el nombre encontrado o el valor original en mayúsculas
+            normalizado.programaFormacion = nombrePrograma || normalizado.programaFormacion.toUpperCase();
+        }
+        
+        // Convertir alternativaSeleccionada al nombre completo desde la BD
+        if (normalizado.alternativaSeleccionada) {
+            // Intentar búsqueda directa primero
+            let nombreAlternativa = NOMBRES_ALTERNATIVAS[normalizado.alternativaSeleccionada];
+            
+            // Si no encuentra, intentar búsqueda sin distinción de mayúsculas
+            if (!nombreAlternativa) {
+                const valorOriginal = normalizado.alternativaSeleccionada.toUpperCase();
+                nombreAlternativa = NOMBRES_ALTERNATIVAS[valorOriginal];
+            }
+            
+            // Si aún no encuentra, intentar sin espacios ni guiones
+            if (!nombreAlternativa) {
+                const valorLimpio = normalizado.alternativaSeleccionada.replace(/[\s-_]/g, '').toUpperCase();
+                nombreAlternativa = NOMBRES_ALTERNATIVAS[valorLimpio];
+            }
+            
+            // Usar el nombre encontrado o el valor original en mayúsculas
+            normalizado.alternativaSeleccionada = nombreAlternativa || normalizado.alternativaSeleccionada.toUpperCase();
+        }
+        
+        // Normalizar campos de texto a MAYÚSCULAS (excepto email)
+        const camposTexto = [
+            'nombres', 'primerApellido', 'segundoApellido', 'tipoDocumento',
+            'eps', 'direccion', 'barrio', 'departamento', 'municipio',
+            'instructorLectiva', 'instructorProductiva', 'areaFormacion',
+            'empresaPatrocinadora', 'areaPractica', 'jefeInmediato',
+            'direccionEmpresa', 'horario', 'genero', 'estadoFormacion'
+        ];
+        
+        camposTexto.forEach(campo => {
+            if (normalizado[campo] && typeof normalizado[campo] === 'string') {
+                normalizado[campo] = normalizado[campo].toUpperCase();
+            }
+        });
+        
+        // El email se mantiene en minúsculas
+        if (normalizado.correoElectronico) {
+            normalizado.correoElectronico = normalizado.correoElectronico.toLowerCase();
+        }
+        
+        // El email de empresa también en minúsculas
+        if (normalizado.correoEmpresa) {
+            normalizado.correoEmpresa = normalizado.correoEmpresa.toLowerCase();
+        }
+        
+        return normalizado;
+    }
 
     /**
      * Construye la consulta dinámica para filtrado y paginación
@@ -182,12 +288,8 @@ class ServicioGestionAprendices {
                 [aprendices] = await pool.query(dataQuery, params);
             }
 
-            const processedData = aprendices.map(aprendiz => ({
-                ...aprendiz,
-                programaFormacion: NOMBRES_PROGRAMAS[aprendiz.programaFormacion] || aprendiz.programaFormacion,
-                alternativaSeleccionada: aprendiz.alternativaSeleccionada ? aprendiz.alternativaSeleccionada.toUpperCase() : aprendiz.alternativaSeleccionada,
-                areaFormacion: aprendiz.areaFormacion ? aprendiz.areaFormacion.toUpperCase() : aprendiz.areaFormacion
-            }));
+            // Normalizar datos para mostrar uniformemente en mayúsculas
+            const processedData = aprendices.map(aprendiz => this.normalizarAprendiz(aprendiz));
 
             return {
                 draw: parseInt(draw) || 1,
