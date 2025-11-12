@@ -125,7 +125,7 @@ const opcionesFormularioServicio = {
      */
     alternativaSeleccionada: [
         { value: 'contratoAprendizaje', label: 'CONTRATO DE APRENDIZAJE' },
-        { value: 'pasantia', label: 'VÍNCULO FORMATIVO' },
+        { value: 'vinculoFormativo', label: 'VÍNCULO FORMATIVO' },
         { value: 'vinculoLaboral', label: 'VÍNCULO LABORAL' },
         { value: 'proyectosProductivos', label: 'PROYECTOS PRODUCTIVOS' },
         { value: 'monitoria', label: 'MONITORÍA' }

@@ -11,6 +11,33 @@
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
 <%- contentFor('styles') %>
 
+<%
+// Función auxiliar para formatear fechas a YYYY-MM-DD sin problemas de zona horaria
+function formatearFechaParaInput(fecha) {
+    if (!fecha) return '';
+    
+    // Si es string, extraer la parte de fecha
+    if (typeof fecha === 'string') {
+        const partes = fecha.split('T')[0].split('-');
+        if (partes.length === 3) {
+            // Ya está en formato correcto YYYY-MM-DD
+            return fecha.split('T')[0];
+        }
+    }
+    
+    // Si es un objeto Date o necesita procesamiento
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return '';
+    
+    // Extraer año, mes y día en zona horaria local
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+}
+%>
+
 <%- contentFor('body') %>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -142,7 +169,7 @@
             <div class="mb-3">
                 <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
                 <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" 
-                       value="<%= aprendiz.fechaNacimiento ? new Date(aprendiz.fechaNacimiento).toISOString().split('T')[0] : '' %>">
+                       value="<%= formatearFechaParaInput(aprendiz.fechaNacimiento) %>">
             </div>
 
             <!-- Género -->
@@ -200,14 +227,14 @@
             <div class="mb-3">
                 <label for="fechaInicioLectiva" class="form-label">Fecha Inicio Etapa Lectiva</label>
                 <input type="date" class="form-control" id="fechaInicioLectiva" name="fechaInicioLectiva" 
-                       value="<%= aprendiz.fechaInicioLectiva ? new Date(aprendiz.fechaInicioLectiva).toISOString().split('T')[0] : '' %>">
+                       value="<%= formatearFechaParaInput(aprendiz.fechaInicioLectiva) %>">
             </div>
 
             <!-- Fecha Fin Etapa Lectiva -->
             <div class="mb-3">
                 <label for="fechaFinLectiva" class="form-label">Fecha Fin Etapa Lectiva</label>
                 <input type="date" class="form-control" id="fechaFinLectiva" name="fechaFinLectiva" 
-                       value="<%= aprendiz.fechaFinLectiva ? new Date(aprendiz.fechaFinLectiva).toISOString().split('T')[0] : '' %>">
+                       value="<%= formatearFechaParaInput(aprendiz.fechaFinLectiva) %>">
             </div>
 
             <!-- Instructor Etapa Lectiva -->
@@ -235,14 +262,14 @@
             <div class="mb-3">
                 <label for="fechaInicioProductiva" class="form-label">Fecha Inicio Etapa Productiva</label>
                 <input type="date" class="form-control" id="fechaInicioProductiva" name="fechaInicioProductiva" 
-                       value="<%= aprendiz.fechaInicioProductiva ? new Date(aprendiz.fechaInicioProductiva).toISOString().split('T')[0] : '' %>">
+                       value="<%= formatearFechaParaInput(aprendiz.fechaInicioProductiva) %>">
             </div>
 
             <!-- Fecha Fin Etapa Productiva -->
             <div class="mb-3">
                 <label for="fechaFinProductiva" class="form-label">Fecha Fin Etapa Productiva</label>
                 <input type="date" class="form-control" id="fechaFinProductiva" name="fechaFinProductiva" 
-                       value="<%= aprendiz.fechaFinProductiva ? new Date(aprendiz.fechaFinProductiva).toISOString().split('T')[0] : '' %>">
+                       value="<%= formatearFechaParaInput(aprendiz.fechaFinProductiva) %>">
             </div>
 
             <!-- Empresa Patrocinadora -->
@@ -766,6 +793,29 @@
                 input.addEventListener('input', function() {
                     this.value = this.value.replace(/\D/g, '');
                 });
+            }
+        });
+
+        // Convertir a mayúsculas todos los campos de texto excepto correos electrónicos
+        const todosLosCampos = document.querySelectorAll('input[type="text"], input[type="tel"], textarea');
+        todosLosCampos.forEach(campo => {
+            // Excluir los campos de correo electrónico
+            if (campo.id !== 'correoElectronico' && campo.id !== 'correoEmpresa' && 
+                campo.id !== 'created_at' && campo.id !== 'updated_at') {
+                campo.addEventListener('input', function() {
+                    const cursorPos = this.selectionStart;
+                    this.value = this.value.toUpperCase();
+                    this.setSelectionRange(cursorPos, cursorPos);
+                });
+            }
+        });
+
+        // Convertir valores iniciales a mayúsculas (excepto correos)
+        todosLosCampos.forEach(campo => {
+            if (campo.id !== 'correoElectronico' && campo.id !== 'correoEmpresa' && 
+                campo.id !== 'created_at' && campo.id !== 'updated_at' && 
+                !campo.readOnly && campo.value) {
+                campo.value = campo.value.toUpperCase();
             }
         });
     });

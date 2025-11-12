@@ -21,7 +21,8 @@ const NOMBRES_PROGRAMAS = {
 };
 const NOMBRES_ALTERNATIVAS = {
     'contratoAprendizaje': 'Contrato de Aprendizaje',
-    'pasantia': 'Pasantía',
+    'pasantia': 'Vínculo Formativo',
+    'vinculoFormativo': 'Vínculo Formativo',
     'apoyoEntidades': 'Apoyo a Entidades',
     'vinculoLaboral': 'Vínculo Laboral',
     'proyectosProductivos': 'Proyectos Productivos',

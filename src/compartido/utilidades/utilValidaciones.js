@@ -17,6 +17,7 @@ const REGEX = {
 const ALTERNATIVAS = {
     CONTRATO: 'contratoAprendizaje',
     PASANTIA: 'pasantia',
+    VINCULO_FORMATIVO: 'vinculoFormativo',
     APOYO: 'apoyoEntidades',
     VINCULO: 'vinculoLaboral',
     PROYECTOS: 'proyectosProductivos',
@@ -70,6 +71,7 @@ function validarEmail(email) {
 const mapeoAlternativas = {
     'contrato': ALTERNATIVAS.CONTRATO,
     'pasantia': ALTERNATIVAS.PASANTIA,
+    'vinculoFormativo': ALTERNATIVAS.VINCULO_FORMATIVO,
     'apoyo': ALTERNATIVAS.APOYO,
     'vinculo': ALTERNATIVAS.VINCULO,
     'proyectos': ALTERNATIVAS.PROYECTOS,

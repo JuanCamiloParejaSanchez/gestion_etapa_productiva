@@ -97,6 +97,7 @@ const validacionesEtapaProductiva = [
         .isIn([
             'contratoAprendizaje',
             'pasantia',
+            'vinculoFormativo',
             'apoyoEntidades',
             'vinculoLaboral',
             'proyectosProductivos',
@@ -194,6 +195,7 @@ const validarFiltros = [
         .isIn([
             'contratoAprendizaje',
             'pasantia',
+            'vinculoFormativo',
             'apoyoEntidades',
             'vinculoLaboral',
             'proyectosProductivos',

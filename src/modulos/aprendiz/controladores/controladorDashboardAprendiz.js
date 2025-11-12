@@ -19,6 +19,8 @@ const servicioAlertas = require('../../../compartido/servicios/servicioAlertas')
 const servicioCorreo = require('../servicios/servicioCorreo');
 const notificacionesService = require('../../../compartido/servicios/notificacionesService');
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
+const ServicioGestionAprendices = require('../../administrador/servicios/servicioGestionAprendices');
+const servicioGestionAprendices = new ServicioGestionAprendices();
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -219,9 +221,13 @@ class ControladorDashboardAprendiz extends BaseController {
                     layout: 'plantillas/principal'
                 });
             }
+            
+            // Normalizar datos del aprendiz para mostrar los nombres completos
+            const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendiz);
+            
             res.render('aprendiz/verMiPerfilAprendiz', {
                 title: 'Mi Perfil de Aprendiz',
-                aprendiz: aprendiz,
+                aprendiz: aprendizNormalizado,
                 layout: 'plantillas/principal'
             });
         } catch (error) {

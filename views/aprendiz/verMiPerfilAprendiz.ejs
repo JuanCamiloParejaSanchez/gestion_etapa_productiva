@@ -5,6 +5,50 @@
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
 
+<%
+// Función auxiliar para formatear fechas correctamente (sin problemas de zona horaria)
+function formatearFechaLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    // Si es string, parsearlo como fecha local
+    let date;
+    if (typeof fecha === 'string') {
+        const [year, month, day] = fecha.split('T')[0].split('-');
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(fecha);
+    }
+    
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Función auxiliar para formatear fecha y hora
+function formatearFechaHoraLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+%>
+
 <style>
 html.dark-mode .fas.fa-edit {
     color: #ffffff;
@@ -54,20 +98,20 @@ html.dark-mode .btn-primary:hover {
                 <p><strong>Barrio:</strong> <%= aprendiz.barrio || 'N/A' %></p>
                 <p><strong>Departamento:</strong> <%= aprendiz.departamento || 'N/A' %></p>
                 <p><strong>Municipio:</strong> <%= aprendiz.municipio || 'N/A' %></p>
-                <p><strong>Fecha de Nacimiento:</strong> <%= aprendiz.fechaNacimiento || 'N/A' %></p>
+                <p><strong>Fecha de Nacimiento:</strong> <%= formatearFechaLocal(aprendiz.fechaNacimiento) %></p>
                 <p><strong>Género:</strong> <%= aprendiz.genero || 'N/A' %></p>
                 <p><strong>Programa de Formación:</strong> <%= aprendiz.programaFormacion || 'N/A' %></p>
                 <p><strong>Ficha:</strong> <%= aprendiz.numeroFicha || 'N/A' %></p>
                 <p><strong>Estado de Formación:</strong> <%= aprendiz.estadoFormacion ? aprendiz.estadoFormacion.charAt(0).toUpperCase() + aprendiz.estadoFormacion.slice(1) : 'N/A' %></p>
                 <p><strong>Alternativa Seleccionada:</strong> <%= aprendiz.alternativaSeleccionada ? aprendiz.alternativaSeleccionada.toUpperCase() : 'N/A' %></p>
                 <p><strong>EPS:</strong> <%= aprendiz.eps || 'N/A' %></p>
-                <p><strong>Fecha Inicio Etapa Lectiva:</strong> <%= aprendiz.fechaInicioLectiva || 'N/A' %></p>
-                <p><strong>Fecha Fin Etapa Lectiva:</strong> <%= aprendiz.fechaFinLectiva || 'N/A' %></p>
+                <p><strong>Fecha Inicio Etapa Lectiva:</strong> <%= formatearFechaLocal(aprendiz.fechaInicioLectiva) %></p>
+                <p><strong>Fecha Fin Etapa Lectiva:</strong> <%= formatearFechaLocal(aprendiz.fechaFinLectiva) %></p>
                 <p><strong>Instructor Etapa Lectiva:</strong> <%= aprendiz.instructorLectiva || 'N/A' %></p>
                 <p><strong>Instructor Etapa Productiva:</strong> <%= aprendiz.instructorProductiva || 'N/A' %></p>
                 <p><strong>Área de Formación:</strong> <%= aprendiz.areaFormacion ? aprendiz.areaFormacion.toUpperCase() : 'N/A' %></p>
-                <p><strong>Fecha Inicio Etapa Productiva:</strong> <%= aprendiz.fechaInicioProductiva || 'N/A' %></p>
-                <p><strong>Fecha Fin Etapa Productiva:</strong> <%= aprendiz.fechaFinProductiva || 'N/A' %></p>
+                <p><strong>Fecha Inicio Etapa Productiva:</strong> <%= formatearFechaLocal(aprendiz.fechaInicioProductiva) %></p>
+                <p><strong>Fecha Fin Etapa Productiva:</strong> <%= formatearFechaLocal(aprendiz.fechaFinProductiva) %></p>
                 <p><strong>Empresa Patrocinadora:</strong> <%= aprendiz.empresaPatrocinadora || 'N/A' %></p>
                 <p><strong>Área donde Realiza la Práctica:</strong> <%= aprendiz.areaPractica || 'N/A' %></p>
                 <p><strong>Nombre del Jefe Inmediato:</strong> <%= aprendiz.jefeInmediato || 'N/A' %></p>
@@ -76,7 +120,7 @@ html.dark-mode .btn-primary:hover {
                 <p><strong>Dirección Empresa:</strong> <%= aprendiz.direccionEmpresa || 'N/A' %></p>
                 <p><strong>Correo Empresa:</strong> <%= aprendiz.correoEmpresa || 'N/A' %></p>
                 <p><strong>Horario:</strong> <%= aprendiz.horario || 'N/A' %></p>
-                <p><strong>Fecha de Registro:</strong> <%= aprendiz.created_at ? new Date(aprendiz.created_at).toISOString().split('T')[0] : 'N/A' %></p>
+                <p><strong>Fecha de Registro:</strong> <%= formatearFechaHoraLocal(aprendiz.created_at) %></p>
 
                 <div class="mt-4 text-center">
                     <a href="/aprendiz/perfil/editar" class="btn btn-primary">

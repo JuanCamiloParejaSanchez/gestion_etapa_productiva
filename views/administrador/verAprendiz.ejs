@@ -13,6 +13,50 @@
 <%- contentFor('scripts') %>
 <script src="/js/utilidades/sessionTimeout.js"></script>
 
+<%
+// Función auxiliar para formatear fechas correctamente (sin problemas de zona horaria)
+function formatearFechaLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    // Si es string, parsearlo como fecha local
+    let date;
+    if (typeof fecha === 'string') {
+        const [year, month, day] = fecha.split('T')[0].split('-');
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(fecha);
+    }
+    
+    // Verificar si la fecha es válida
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+// Función auxiliar para formatear fecha y hora
+function formatearFechaHoraLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+%>
+
 <%- contentFor('body') %>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -82,12 +126,7 @@
                 </div>
                 <div class="mb-3">
                     <strong>Fecha de Nacimiento:</strong>
-                    <%= aprendiz.fechaNacimiento ? new Date(aprendiz.fechaNacimiento).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : 'N/A' %>
+                    <%= formatearFechaLocal(aprendiz.fechaNacimiento) %>
                 </div>
                 <div class="mb-3">
                     <strong>Género:</strong>
@@ -115,21 +154,11 @@
                 </div>
                 <div class="mb-3">
                     <strong>Fecha Inicio Etapa Lectiva:</strong>
-                    <%= aprendiz.fechaInicioLectiva ? new Date(aprendiz.fechaInicioLectiva).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : 'N/A' %>
+                    <%= formatearFechaLocal(aprendiz.fechaInicioLectiva) %>
                 </div>
                 <div class="mb-3">
                     <strong>Fecha Fin Etapa Lectiva:</strong>
-                    <%= aprendiz.fechaFinLectiva ? new Date(aprendiz.fechaFinLectiva).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : 'N/A' %>
+                    <%= formatearFechaLocal(aprendiz.fechaFinLectiva) %>
                 </div>
                 <div class="mb-3">
                     <strong>Instructor Etapa Lectiva:</strong>
@@ -145,21 +174,11 @@
                 </div>
                 <div class="mb-3">
                     <strong>Fecha Inicio Etapa Productiva:</strong>
-                    <%= aprendiz.fechaInicioProductiva ? new Date(aprendiz.fechaInicioProductiva).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : 'N/A' %>
+                    <%= formatearFechaLocal(aprendiz.fechaInicioProductiva) %>
                 </div>
                 <div class="mb-3">
                     <strong>Fecha Fin Etapa Productiva:</strong>
-                    <%= aprendiz.fechaFinProductiva ? new Date(aprendiz.fechaFinProductiva).toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    }) : 'N/A' %>
+                    <%= formatearFechaLocal(aprendiz.fechaFinProductiva) %>
                 </div>
                 <div class="mb-3">
                     <strong>Empresa Patrocinadora:</strong>
@@ -195,15 +214,7 @@
                 </div>
                 <div class="mb-3">
                     <strong>Fecha creación de usuario:</strong>
-                    <%= aprendiz.created_at ? new Date(aprendiz.created_at).toLocaleString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    }) : 'N/A' %>
+                    <%= formatearFechaHoraLocal(aprendiz.created_at) %>
                 </div>
             <% } else { %>
                 <div class="alert alert-danger">

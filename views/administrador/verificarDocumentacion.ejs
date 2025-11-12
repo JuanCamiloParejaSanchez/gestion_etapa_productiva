@@ -10,6 +10,29 @@
     </div>
 </nav>
 
+<%
+// Función auxiliar para formatear fechas sin problemas de zona horaria
+function formatearFechaLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    let date;
+    if (typeof fecha === 'string') {
+        const [year, month, day] = fecha.split('T')[0].split('-');
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(fecha);
+    }
+    
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+%>
+
 <%- contentFor('styles') %>
 <style>
     /* Estilos para la tabla en modo oscuro */
@@ -547,7 +570,7 @@ function rechazarDocumento() {
                                     <td><%= tipoDocumento %></td>
                                     <td><%= descripcion || 'N/A' %></td>
                                     <td><%= nombreOriginal %></td>
-                                    <td><%= new Date(fechaSubida).toLocaleDateString() %></td>
+                                    <td><%= formatearFechaLocal(fechaSubida) %></td>
                                     <td>
                                         <% if (estado === 'aprobado') { %>
                                             <span class="badge bg-success">Aprobado</span>

@@ -14,6 +14,7 @@ const validacionesEtapaProductiva = [
         .isIn([
             'contratoAprendizaje',
             'pasantia',
+            'vinculoFormativo',
             'apoyoEntidades',
             'vinculoLaboral',
             'proyectosProductivos',

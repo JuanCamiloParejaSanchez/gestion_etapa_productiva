@@ -134,7 +134,7 @@ const validacionesAutenticacion = {
 
         body('alternativaSeleccionada')
             .optional()
-            .isIn(['contratoAprendizaje', 'pasantia', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas'])
+            .isIn(['contratoAprendizaje', 'pasantia', 'vinculoFormativo', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas'])
             .withMessage('Alternativa de etapa productiva inválida')
     ],
 
@@ -267,7 +267,7 @@ const validacionesGestionAprendices = {
 
         query('alternativaSeleccionada')
             .optional()
-            .isIn(['contratoAprendizaje', 'pasantia', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas'])
+            .isIn(['contratoAprendizaje', 'pasantia', 'vinculoFormativo', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas'])
             .withMessage('Alternativa inválida'),
 
         query('order.*.column')

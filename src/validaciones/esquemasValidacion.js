@@ -293,7 +293,7 @@ const aprendizSchemas = {
             }),
 
         alternativaSeleccionada: Joi.string()
-            .valid('contratoAprendizaje', 'pasantia', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas')
+            .valid('contratoAprendizaje', 'pasantia', 'vinculoFormativo', 'apoyoEntidades', 'vinculoLaboral', 'proyectosProductivos', 'monitoria', 'unidadesProductivas')
             .required()
             .messages({
                 'any.only': 'Alternativa de etapa productiva inválida',

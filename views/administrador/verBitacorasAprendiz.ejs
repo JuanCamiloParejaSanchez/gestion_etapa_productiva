@@ -9,6 +9,29 @@
     </div>
 </nav>
 
+<%
+// Función auxiliar para formatear fechas sin problemas de zona horaria
+function formatearFechaLocal(fecha) {
+    if (!fecha) return 'N/A';
+    
+    let date;
+    if (typeof fecha === 'string') {
+        const [year, month, day] = fecha.split('T')[0].split('-');
+        date = new Date(year, month - 1, day);
+    } else {
+        date = new Date(fecha);
+    }
+    
+    if (isNaN(date.getTime())) return 'N/A';
+    
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+%>
+
 <%- contentFor('styles') %>
 <link rel="stylesheet" href="/estilos/base/variables.css">
 <link rel="stylesheet" href="/estilos/base/layout.css">
@@ -390,7 +413,7 @@ html.dark-mode .acciones-recomendadas small {
                             <div class="accordion-item mb-2">
                                 <h2 class="accordion-header" id="heading-<%= b.id %>">
                                     <button class="accordion-button <%= idx !== 0 ? 'collapsed' : '' %>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<%= b.id %>" aria-expanded="<%= idx === 0 ? 'true' : 'false' %>" aria-controls="collapse-<%= b.id %>">
-                                        <strong>Bitácora del <%= new Date(b.fechaCreacion).toLocaleDateString() %></strong>
+                                        <strong>Bitácora del <%= formatearFechaLocal(b.fechaCreacion) %></strong>
                                         <% if (b.sentimiento_general && b.sentimiento_general !== 'neutral') { %>
                                             &nbsp;| Estado: <span class="badge bg-<%= b.sentimiento_general === 'positivo' || b.sentimiento_general === 'muy_positivo' ? 'success' : (b.sentimiento_general === 'negativo' || b.sentimiento_general === 'muy_negativo' ? 'danger' : 'warning') %>"><%= b.sentimiento_general.replace('_', ' ') %></span>
                                         <% } %>
