@@ -75,7 +75,7 @@ class ServicioAprendiz {
                 datosFormateados.alternativaSeleccionada = mapearAlternativa(datosFormateados.alternativaSeleccionada);
             }
 
-            // Normalizar todos los campos de texto a MAYÚSCULAS (excepto emails)
+            // Normalizar todos los campos de texto a MAYÚSCULAS (excepto emails y archivos)
             for (const key in datosFormateados) {
                 if (typeof datosFormateados[key] === 'string') {
                     // Emails en minúsculas
@@ -89,6 +89,10 @@ class ServicioAprendiz {
                     // Los valores de select (programaFormacion, alternativaSeleccionada, etc.) mantienen su camelCase
                     else if (key === 'programaFormacion' || key === 'alternativaSeleccionada' || 
                              key === 'tipoDocumento' || key === 'genero' || key === 'areaFormacion') {
+                        datosFormateados[key] = datosFormateados[key].trim();
+                    }
+                    // Campos relacionados con archivos (no convertir a mayúsculas)
+                    else if (key.includes('documentoSoporte') || key.includes('fotoPerfil')) {
                         datosFormateados[key] = datosFormateados[key].trim();
                     }
                     // Resto de campos en MAYÚSCULAS

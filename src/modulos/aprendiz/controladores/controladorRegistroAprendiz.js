@@ -13,13 +13,17 @@ const registrarAprendiz = async (req, res) => {
     console.log('🌐 URL de petición:', req.originalUrl);
     console.log('📋 Content-Type:', req.get('Content-Type'));
     
+    // Variables para almacenar información de archivos
+    let documentoSoporteInfo = null;
+    let fotoPerfilInfo = null;
+    
     try {
         const datosAprendiz = req.body;
         console.log('📋 Datos recibidos en bruto:', datosAprendiz);
         
-        // Verificar si se subió un archivo
-        if (req.file) {
-            console.log('📎 Archivo recibido:', {
+        // Verificar si se subió el documento de soporte
+        if (req.file && req.file.fieldname === 'documentoSoporte') {
+            console.log('📎 Documento de soporte recibido:', {
                 fieldname: req.file.fieldname,
                 originalname: req.file.originalname,
                 filename: req.file.filename,
@@ -28,20 +32,59 @@ const registrarAprendiz = async (req, res) => {
                 path: req.file.path
             });
             
-            // Decodificar el nombre original para manejar correctamente caracteres especiales
+                // Decodificar el nombre original para manejar correctamente caracteres especiales
             const nombreOriginalDecodificado = decodeOriginalName(req.file.originalname);
             
-            // Agregar la información del archivo a los datos del aprendiz
+            // Agregar documento de soporte a los datos del aprendiz (columnas: documentoSoporte, documentoSoporteOriginal, documentoSoportePath)
             datosAprendiz.documentoSoporte = req.file.filename;
             datosAprendiz.documentoSoporteOriginal = nombreOriginalDecodificado;
             datosAprendiz.documentoSoportePath = `/uploads/documentos/${req.file.filename}`;
-        } else {
-            console.warn('⚠️ No se recibió ningún archivo');
+            
+            // Guardar información del documento temporalmente para documentos_aprendiz
+            documentoSoporteInfo = {
+                filename: req.file.filename,
+                originalname: nombreOriginalDecodificado,
+                path: `/uploads/documentos/${req.file.filename}`,
+                mimetype: req.file.mimetype,
+                size: req.file.size
+            };
+        } else if (!req.files || !req.files.documentoSoporte) {
+            console.warn('⚠️ No se recibió el documento de soporte');
             return res.status(400).json({
                 success: false,
                 message: 'El documento de soporte es obligatorio'
             });
         }
+        
+        // Verificar si se subió la foto de perfil (OBLIGATORIA)
+        if (!req.fotoPerfilProcesada) {
+            console.warn('⚠️ No se recibió foto de perfil');
+            return res.status(400).json({
+                success: false,
+                message: 'La foto de perfil es obligatoria'
+            });
+        }
+        
+        console.log('📸 Foto de perfil recibida y procesada:', {
+            originalname: req.fotoPerfilProcesada.originalname,
+            filename: req.fotoPerfilProcesada.filename,
+            mimetype: req.fotoPerfilProcesada.mimetype,
+            size: req.fotoPerfilProcesada.size,
+            path: req.fotoPerfilProcesada.path
+        });
+        
+        // Agregar foto de perfil a los datos del aprendiz (columnas: fotoPerfil, fotoPerfilPath)
+        datosAprendiz.fotoPerfil = req.fotoPerfilProcesada.filename;
+        datosAprendiz.fotoPerfilPath = req.fotoPerfilProcesada.path;
+        
+        // Guardar información de la foto temporalmente para documentos_aprendiz
+        fotoPerfilInfo = {
+            filename: req.fotoPerfilProcesada.filename,
+            originalname: req.fotoPerfilProcesada.originalname,
+            path: req.fotoPerfilProcesada.path,
+            mimetype: req.fotoPerfilProcesada.mimetype,
+            size: req.fotoPerfilProcesada.size
+        };
         
         if (!datosAprendiz || typeof datosAprendiz !== 'object') {
             console.error('❌ Datos inválidos recibidos');
@@ -56,8 +99,8 @@ const registrarAprendiz = async (req, res) => {
             if (typeof datosAprendiz[key] === 'string') {
                 if (key === 'correoElectronico') {
                     datosAprendiz[key] = datosAprendiz[key].toLowerCase();
-                } else if (!key.startsWith('documentoSoporte')) {
-                    // No convertir a mayúsculas los campos relacionados con el documento
+                } else if (!key.startsWith('documentoSoporte') && !key.startsWith('fotoPerfil')) {
+                    // No convertir a mayúsculas los campos relacionados con archivos
                     datosAprendiz[key] = datosAprendiz[key].toUpperCase();
                 }
             }
@@ -77,19 +120,16 @@ const registrarAprendiz = async (req, res) => {
         console.log('✅ Resultado del registro:', resultado);
 
         // Insertar el documento de soporte en la tabla documentos_aprendiz
-        if (req.file && resultado.id) {
+        if (req.file && resultado.id && documentoSoporteInfo) {
             console.log('📎 Insertando documento de soporte en documentos_aprendiz...');
             try {
-                // Decodificar el nombre original para manejar correctamente caracteres especiales
-                const nombreOriginalDecodificado = decodeOriginalName(req.file.originalname);
-                
                 const datosDocumento = {
                     aprendiz_id: resultado.id,
-                    nombre_original: nombreOriginalDecodificado,
-                    nombre_guardado: req.file.filename,
-                    ruta_archivo: `/uploads/documentos/${req.file.filename}`,
-                    tipo_mime: req.file.mimetype,
-                    tamano_bytes: req.file.size,
+                    nombre_original: documentoSoporteInfo.originalname,
+                    nombre_guardado: documentoSoporteInfo.filename,
+                    ruta_archivo: documentoSoporteInfo.path,
+                    tipo_mime: documentoSoporteInfo.mimetype,
+                    tamano_bytes: documentoSoporteInfo.size,
                     tipo_documento: 'Documento de soporte',
                     descripcion: 'Documento de soporte cargado durante el registro inicial',
                     activo: 1
@@ -105,6 +145,35 @@ const registrarAprendiz = async (req, res) => {
             } catch (errorDocumento) {
                 console.error('❌ Error al insertar documento de soporte:', errorDocumento);
                 // No detenemos el proceso de registro aunque falle la inserción del documento
+            }
+        }
+        
+        // Insertar la foto de perfil en la tabla documentos_aprendiz
+        if (req.fotoPerfilProcesada && resultado.id && fotoPerfilInfo) {
+            console.log('📸 Insertando foto de perfil en documentos_aprendiz...');
+            try {
+                const datosFoto = {
+                    aprendiz_id: resultado.id,
+                    nombre_original: fotoPerfilInfo.originalname,
+                    nombre_guardado: fotoPerfilInfo.filename,
+                    ruta_archivo: fotoPerfilInfo.path,
+                    tipo_mime: fotoPerfilInfo.mimetype,
+                    tamano_bytes: fotoPerfilInfo.size,
+                    tipo_documento: 'Foto de perfil',
+                    descripcion: 'Foto de perfil cargada durante el registro inicial',
+                    activo: 1
+                };
+
+                const resultadoFoto = await servicioDocumentosAprendiz.insertarDocumento(datosFoto);
+                
+                if (resultadoFoto.success) {
+                    console.log('✅ Foto de perfil insertada correctamente en documentos_aprendiz:', resultadoFoto);
+                } else {
+                    console.warn('⚠️ No se pudo insertar la foto de perfil en documentos_aprendiz:', resultadoFoto.message);
+                }
+            } catch (errorFoto) {
+                console.error('❌ Error al insertar foto de perfil:', errorFoto);
+                // No detenemos el proceso de registro aunque falle la inserción de la foto
             }
         }
 
@@ -130,7 +199,8 @@ const registrarAprendiz = async (req, res) => {
             data: { 
                 aprendizId: resultado.id,
                 email: datosAprendiz.correoElectronico,
-                documentoSoporte: datosAprendiz.documentoSoportePath,
+                documentoSoporte: documentoSoporteInfo ? documentoSoporteInfo.path : null,
+                fotoPerfil: fotoPerfilInfo ? fotoPerfilInfo.path : null,
                 redirect: '/crear-contrasena'
             }
         });
