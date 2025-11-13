@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/estilos/components/navbar.css">
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
-<%- contentFor('styles') %>
+
 <style>
 .btn.disabled {
     opacity: 0.5;
@@ -30,7 +30,6 @@ html.dark-mode .btn-primary:hover {
 }
 </style>
 
-<%- contentFor('body') %>
 <%- contentFor('navigation') %>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
@@ -43,7 +42,8 @@ html.dark-mode .btn-primary:hover {
     </div>
 </nav>
 
-<div class="container mt-4">
+<%- contentFor('body') %>
+<div class="container mt-4 mb-4">
     <div class="card">
         <div class="card-header">
             <h2 class="mb-0"><%= typeof title !== 'undefined' ? title : 'Mi Perfil de Administrador' %></h2>
