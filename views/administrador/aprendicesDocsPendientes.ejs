@@ -418,8 +418,8 @@
 }
 
 /* Estilos para columnas Programa y Alternativa - Ajuste de texto estilo Excel */
-#aprendicesTable td:nth-child(11), /* Columna programaFormacion */
-#aprendicesTable td:nth-child(12)  /* Columna alternativaSeleccionada */
+#aprendicesTable td:nth-child(12), /* Columna programaFormacion */
+#aprendicesTable td:nth-child(13)  /* Columna alternativaSeleccionada */
 {
     white-space: normal !important;
     word-wrap: break-word !important;
@@ -431,8 +431,8 @@
 }
 
 /* Ajustar encabezados también */
-#aprendicesTable th:nth-child(11),
-#aprendicesTable th:nth-child(12) {
+#aprendicesTable th:nth-child(12),
+#aprendicesTable th:nth-child(13) {
     white-space: normal !important;
     word-wrap: break-word !important;
     max-width: 200px;
@@ -571,6 +571,7 @@
                     <thead>
                         <tr>
                             <th data-column="tipoDocumento">Tipo Documento</th>
+                            <th data-column="genero">Género</th>
                             <th data-column="numeroDocumento">Número Documento</th>
                             <th data-column="estadoFormacion">Estado Formación</th>
                             <th data-column="nombres">Nombres</th>
@@ -713,6 +714,7 @@
         // Configuración de columnas
         const columnasConfig = [
             { data: "tipoDocumento", title: "Tipo Documento", visible: false },
+            { data: "genero", title: "Género", visible: true },
             { data: "numeroDocumento", title: "Número Documento", visible: false },
             { data: "estadoFormacion", title: "Estado Formación", visible: false },
             { data: "nombres", title: "Nombres", visible: true },
@@ -884,21 +886,22 @@
             
             // Mapear nombre de columna a índice y tipo
             // IMPORTANTE: Los índices deben coincidir exactamente con el orden de las columnas en el HTML
-            // Esta tabla tiene solo 13 columnas (diferente a listarAprendices.ejs que tiene 34)
+            // Esta tabla tiene solo 14 columnas (diferente a listarAprendices.ejs que tiene 35)
             const columnMapping = {
                 'tipoDocumento': { index: 0, type: 'text' },
-                'numeroDocumento': { index: 1, type: 'number' },
-                'estadoFormacion': { index: 2, type: 'text' },
-                'nombres': { index: 3, type: 'text' },
-                'primerApellido': { index: 4, type: 'text' },
-                'segundoApellido': { index: 5, type: 'text' },
-                'telefonoFijo': { index: 6, type: 'number' },
-                'celular': { index: 7, type: 'number' },
-                'correoElectronico': { index: 8, type: 'text' },
-                'numeroFicha': { index: 9, type: 'number' },
-                'programaFormacion': { index: 10, type: 'text' },
-                'alternativaSeleccionada': { index: 11, type: 'text' },
-                'acciones': { index: 12, type: 'none' }
+                'genero': { index: 1, type: 'text' },
+                'numeroDocumento': { index: 2, type: 'number' },
+                'estadoFormacion': { index: 3, type: 'text' },
+                'nombres': { index: 4, type: 'text' },
+                'primerApellido': { index: 5, type: 'text' },
+                'segundoApellido': { index: 6, type: 'text' },
+                'telefonoFijo': { index: 7, type: 'number' },
+                'celular': { index: 8, type: 'number' },
+                'correoElectronico': { index: 9, type: 'text' },
+                'numeroFicha': { index: 10, type: 'number' },
+                'programaFormacion': { index: 11, type: 'text' },
+                'alternativaSeleccionada': { index: 12, type: 'text' },
+                'acciones': { index: 13, type: 'none' }
             };
             
             const columnInfo = columnMapping[ordenamiento.columna];
@@ -919,16 +922,27 @@
             ajax: { 
                 url: '/administrador/aprendices-data', 
                 type: 'POST', 
-                data: d => ({ 
-                    ...d, 
-                    nombre: $('#nombreBusqueda').val(), 
-                    documento: $('#documentoBusqueda').val(), 
-                    programaFormacion: $('#programaBusqueda').val(), 
-                    alternativaSeleccionada: $('#alternativaBusqueda').val(),
-                    estadoFormacion: $('#estadoFormacionBusqueda').val(),
-                    order: getOrderData(),
-                    tableType: 'docsPendientes' // Identificador para esta tabla específica
-                }) 
+                data: d => {
+                    const requestData = {
+                        ...d, 
+                        nombre: $('#nombreBusqueda').val(), 
+                        documento: $('#documentoBusqueda').val(), 
+                        programaFormacion: $('#programaBusqueda').val(), 
+                        alternativaSeleccionada: $('#alternativaBusqueda').val(),
+                        estadoFormacion: $('#estadoFormacionBusqueda').val(),
+                        order: getOrderData(),
+                        tableType: 'docsPendientes' // Identificador para esta tabla específica
+                    };
+                    console.log('📤 Datos enviados a servidor:', requestData);
+                    return requestData;
+                },
+                dataSrc: function(json) {
+                    console.log('📥 Respuesta del servidor:', json);
+                    if (json.data && json.data.length > 0) {
+                        console.log('📊 Primer registro:', json.data[0]);
+                    }
+                    return json.data;
+                }
             },
             language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
             info: false,

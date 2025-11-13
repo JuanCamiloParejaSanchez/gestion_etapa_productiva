@@ -51,6 +51,14 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
+        // Para el documento de soporte (registro), solo permitir PDF y Excel
+        const documentoSoporteMimes = [
+            'application/pdf',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
+        
+        // Para otros documentos (gestión general), permitir más tipos
         const allowedMimes = [
             'application/pdf', 'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -59,10 +67,20 @@ const upload = multer({
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         ];
         
-        if (allowedMimes.includes(file.mimetype)) {
-            cb(null, true);
+        // Verificar si es el campo documentoSoporte (del registro)
+        if (file.fieldname === 'documentoSoporte') {
+            if (documentoSoporteMimes.includes(file.mimetype)) {
+                cb(null, true);
+            } else {
+                cb(new Error('Para el documento de soporte solo se permiten archivos PDF o Excel (XLS, XLSX).'), false);
+            }
         } else {
-            cb(new Error('Tipo de archivo no permitido.'), false);
+            // Para otros documentos, usar la lista completa
+            if (allowedMimes.includes(file.mimetype)) {
+                cb(null, true);
+            } else {
+                cb(new Error('Tipo de archivo no permitido.'), false);
+            }
         }
     }
 });

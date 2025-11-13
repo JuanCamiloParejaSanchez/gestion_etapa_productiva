@@ -212,13 +212,13 @@ class ServicioGestionAprendices {
         let columnMapping;
         if (tableType === 'docsPendientes') {
             columnMapping = [
-                'tipoDocumento', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
+                'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
                 'segundoApellido', 'telefonoFijo', 'celular', 'correoElectronico', 'numeroFicha',
                 'programaFormacion', 'alternativaSeleccionada', 'acciones'
             ];
         } else {
             columnMapping = [
-                'tipoDocumento', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
+                'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
                 'segundoApellido', 'fechaNacimiento', 'eps', 'telefonoFijo', 'celular', 'direccion',
                 'barrio', 'departamento', 'municipio', 'correoElectronico', 'fechaInicioLectiva',
                 'fechaFinLectiva', 'fechaInicioProductiva', 'fechaFinProductiva', 'instructorLectiva',
@@ -260,7 +260,7 @@ class ServicioGestionAprendices {
 
             // Obtener datos paginados
             const dataQuery = `
-                SELECT id, tipoDocumento, numeroDocumento, estadoFormacion, nombres, primerApellido, segundoApellido,
+                SELECT id, tipoDocumento, genero, numeroDocumento, estadoFormacion, nombres, primerApellido, segundoApellido,
                        fechaNacimiento, eps, telefonoFijo, celular, direccion, barrio, departamento, municipio,
                        correoElectronico, fechaInicioLectiva, fechaFinLectiva, fechaInicioProductiva,
                        fechaFinProductiva, instructorLectiva, instructorProductiva, numeroFicha, programaFormacion,
@@ -275,7 +275,7 @@ class ServicioGestionAprendices {
             const limit = parseInt(length);
             if (limit === -1) {
                 const dataQuerySinLimit = `
-                    SELECT id, tipoDocumento, numeroDocumento, estadoFormacion, nombres, primerApellido, segundoApellido,
+                    SELECT id, tipoDocumento, genero, numeroDocumento, estadoFormacion, nombres, primerApellido, segundoApellido,
                            fechaNacimiento, eps, telefonoFijo, celular, direccion, barrio, departamento, municipio,
                            correoElectronico, fechaInicioLectiva, fechaFinLectiva, fechaInicioProductiva,
                            fechaFinProductiva, instructorLectiva, instructorProductiva, numeroFicha, programaFormacion,

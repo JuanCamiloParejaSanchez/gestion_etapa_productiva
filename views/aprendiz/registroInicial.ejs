@@ -104,7 +104,7 @@
                         </button>
                     </div>
                     
-                    <form id="aprendizForm" action="/registrar-aprendiz" method="POST">
+                    <form id="aprendizForm" action="/registrar-aprendiz" method="POST" enctype="multipart/form-data">
 
                         <h3 class="form-subheader mt-4">Datos Personales</h3>
                         <div class="row g-3">
@@ -263,6 +263,14 @@
                                         <% }); %>
                                     <% } %>
                                 </select>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="documentoSoporte" class="form-label">Documento de soporte<span class="required">*</span></label>
+                                <input type="file" class="form-control" id="documentoSoporte" name="documentoSoporte" accept=".pdf,.xls,.xlsx" required>
+                                <small class="form-text text-muted">
+                                    Formatos permitidos: PDF o Excel (XLS, XLSX) - Máximo 5MB
+                                </small>
+                                <small id="documentoSoporteHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-2">
                                 <label for="areaFormacion" class="form-label">¿En el área de formación?<span class="required">*</span></label>
@@ -780,5 +788,51 @@
                 this.value = this.value.replace(/\D/g, '');
             });
         });
+
+        // Validación del archivo de soporte
+        const documentoSoporteInput = document.getElementById('documentoSoporte');
+        if (documentoSoporteInput) {
+            documentoSoporteInput.addEventListener('change', function() {
+                const file = this.files[0];
+                const helpElement = document.getElementById('documentoSoporteHelp');
+                
+                if (file) {
+                    // Validar tamaño (5MB máximo)
+                    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+                    if (file.size > maxSize) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                        if (helpElement) {
+                            helpElement.style.display = 'block';
+                            helpElement.textContent = 'El archivo no puede superar los 5MB';
+                        }
+                        this.value = ''; // Limpiar el input
+                        return;
+                    }
+                    
+                    // Validar formato
+                    const allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                        if (helpElement) {
+                            helpElement.style.display = 'block';
+                            helpElement.textContent = 'Formato no permitido. Use: PDF, DOC, DOCX, JPG o PNG';
+                        }
+                        this.value = ''; // Limpiar el input
+                        return;
+                    }
+                    
+                    // Si todo está bien
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    if (helpElement) {
+                        helpElement.style.display = 'none';
+                    }
+                }
+            });
+        }
     });
 </script>

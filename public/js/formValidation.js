@@ -50,6 +50,33 @@ document.addEventListener('DOMContentLoaded', function() {
         horario: { validacion: val => val.trim().length >= 5, mensaje: 'El horario debe tener al menos 5 caracteres' }
     };
 
+    // Validación del archivo de soporte
+    function validateDocumentoSoporte() {
+        const fileInput = document.getElementById('documentoSoporte');
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+            validacionesUI.mostrarError(fileInput, 'Debe seleccionar un archivo');
+            return false;
+        }
+
+        const file = fileInput.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedExtensions = ['pdf', 'xls', 'xlsx'];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        if (file.size > maxSize) {
+            validacionesUI.mostrarError(fileInput, 'El archivo no puede superar los 5MB');
+            return false;
+        }
+
+        if (!allowedExtensions.includes(fileExtension)) {
+            validacionesUI.mostrarError(fileInput, 'Solo se permiten archivos PDF o Excel (XLS, XLSX)');
+            return false;
+        }
+
+        validacionesUI.mostrarExito(fileInput);
+        return true;
+    }
+
     // Función para validar campo individual
     function validateField(fieldId, validation) {
         const field = document.getElementById(fieldId);
@@ -144,6 +171,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
+        // Validar archivo de soporte
+        if (!validateDocumentoSoporte()) {
+            isValid = false;
+        }
+
         return isValid;
     }
 
@@ -156,24 +188,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Preparar datos del formulario
+        // Preparar datos del formulario usando FormData para soportar archivos
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
 
         try {
             const response = await fetch('/registrar-aprendiz', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                body: formData  // Enviar FormData directamente (NO usar JSON cuando hay archivos)
             });
 
             const result = await response.json();
 
             if (result.success) {
                 // Mostrar modal de éxito
-                const modal = new bootstrap.Modal(document.getElementById('modalRegistroExitoso'));
+                const modalElement = document.getElementById('modalRegistroExitoso');
+                const modal = new bootstrap.Modal(modalElement);
                 modal.show();
             } else {
                 // Mostrar mensaje de error

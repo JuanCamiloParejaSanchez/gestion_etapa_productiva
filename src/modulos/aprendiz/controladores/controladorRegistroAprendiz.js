@@ -3,6 +3,8 @@
 
 
 const ServicioAprendiz = require('../servicios/servicioAprendiz');
+const servicioDocumentosAprendiz = require('../servicios/servicioDocumentosAprendiz');
+const { decodeOriginalName } = require('../../../compartido/middlewares/multerConfig');
 const servicioAprendiz = new ServicioAprendiz();
 
 const registrarAprendiz = async (req, res) => {
@@ -14,6 +16,32 @@ const registrarAprendiz = async (req, res) => {
     try {
         const datosAprendiz = req.body;
         console.log('📋 Datos recibidos en bruto:', datosAprendiz);
+        
+        // Verificar si se subió un archivo
+        if (req.file) {
+            console.log('📎 Archivo recibido:', {
+                fieldname: req.file.fieldname,
+                originalname: req.file.originalname,
+                filename: req.file.filename,
+                mimetype: req.file.mimetype,
+                size: req.file.size,
+                path: req.file.path
+            });
+            
+            // Decodificar el nombre original para manejar correctamente caracteres especiales
+            const nombreOriginalDecodificado = decodeOriginalName(req.file.originalname);
+            
+            // Agregar la información del archivo a los datos del aprendiz
+            datosAprendiz.documentoSoporte = req.file.filename;
+            datosAprendiz.documentoSoporteOriginal = nombreOriginalDecodificado;
+            datosAprendiz.documentoSoportePath = `/uploads/documentos/${req.file.filename}`;
+        } else {
+            console.warn('⚠️ No se recibió ningún archivo');
+            return res.status(400).json({
+                success: false,
+                message: 'El documento de soporte es obligatorio'
+            });
+        }
         
         if (!datosAprendiz || typeof datosAprendiz !== 'object') {
             console.error('❌ Datos inválidos recibidos');
@@ -28,7 +56,8 @@ const registrarAprendiz = async (req, res) => {
             if (typeof datosAprendiz[key] === 'string') {
                 if (key === 'correoElectronico') {
                     datosAprendiz[key] = datosAprendiz[key].toLowerCase();
-                } else {
+                } else if (!key.startsWith('documentoSoporte')) {
+                    // No convertir a mayúsculas los campos relacionados con el documento
                     datosAprendiz[key] = datosAprendiz[key].toUpperCase();
                 }
             }
@@ -46,6 +75,38 @@ const registrarAprendiz = async (req, res) => {
         // Intentar crear el aprendiz
         const resultado = await servicioAprendiz.crearAprendiz(datosAprendiz);
         console.log('✅ Resultado del registro:', resultado);
+
+        // Insertar el documento de soporte en la tabla documentos_aprendiz
+        if (req.file && resultado.id) {
+            console.log('📎 Insertando documento de soporte en documentos_aprendiz...');
+            try {
+                // Decodificar el nombre original para manejar correctamente caracteres especiales
+                const nombreOriginalDecodificado = decodeOriginalName(req.file.originalname);
+                
+                const datosDocumento = {
+                    aprendiz_id: resultado.id,
+                    nombre_original: nombreOriginalDecodificado,
+                    nombre_guardado: req.file.filename,
+                    ruta_archivo: `/uploads/documentos/${req.file.filename}`,
+                    tipo_mime: req.file.mimetype,
+                    tamano_bytes: req.file.size,
+                    tipo_documento: 'Documento de soporte',
+                    descripcion: 'Documento de soporte cargado durante el registro inicial',
+                    activo: 1
+                };
+
+                const resultadoDocumento = await servicioDocumentosAprendiz.insertarDocumento(datosDocumento);
+                
+                if (resultadoDocumento.success) {
+                    console.log('✅ Documento de soporte insertado correctamente en documentos_aprendiz:', resultadoDocumento);
+                } else {
+                    console.warn('⚠️ No se pudo insertar el documento de soporte en documentos_aprendiz:', resultadoDocumento.message);
+                }
+            } catch (errorDocumento) {
+                console.error('❌ Error al insertar documento de soporte:', errorDocumento);
+                // No detenemos el proceso de registro aunque falle la inserción del documento
+            }
+        }
 
         // Configurar sesión
         req.session.userEmail = datosAprendiz.correoElectronico;
@@ -69,6 +130,7 @@ const registrarAprendiz = async (req, res) => {
             data: { 
                 aprendizId: resultado.id,
                 email: datosAprendiz.correoElectronico,
+                documentoSoporte: datosAprendiz.documentoSoportePath,
                 redirect: '/crear-contrasena'
             }
         });
@@ -89,6 +151,28 @@ const registrarAprendiz = async (req, res) => {
                 success: false,
                 message: mensaje,
                 code: 'DUPLICATE_ENTRY'
+            });
+        }
+        
+        // Manejo de errores de multer
+        if (error.message.includes('Tipo de archivo no permitido')) {
+            return res.status(400).json({
+                success: false,
+                message: 'Tipo de archivo no permitido. Use PDF, DOC, DOCX, JPG o PNG.'
+            });
+        }
+        
+        if (error.message.includes('documento de soporte solo se permiten')) {
+            return res.status(400).json({
+                success: false,
+                message: 'Para el documento de soporte solo se permiten archivos PDF o Excel (XLS, XLSX).'
+            });
+        }
+        
+        if (error.message.includes('File too large')) {
+            return res.status(400).json({
+                success: false,
+                message: 'El archivo es demasiado grande. El tamaño máximo es 5MB.'
             });
         }
         

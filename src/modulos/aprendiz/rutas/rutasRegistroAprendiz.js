@@ -8,6 +8,8 @@ const registroAprendizControlador = require('../controladores/controladorRegistr
 const autenticacionControlador = require('../../compartido/controladores/controladorAutenticacionGeneral');
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
+const upload = require('../../../compartido/middlewares/multerConfig');
+const multerErrorHandler = require('../../../compartido/middlewares/multerErrorHandler');
 
 // Ruta inicial de registro
 // router.get('/', (req, res) => {
@@ -20,10 +22,10 @@ const opcionesFormularioServicio = require('../../../compartido/servicios/opcion
 // });
 
 // Procesar el formulario de registro
-router.post('/registrar-aprendiz', (req, res) => {
+router.post('/registrar-aprendiz', upload.single('documentoSoporte'), (req, res) => {
     console.log('Ruta /registrar-aprendiz alcanzada');
     registroAprendizControlador.registrarAprendiz(req, res);
-});
+}, multerErrorHandler);
 
 // Ruta para verificar duplicados
 router.post('/verificar-duplicado', registroAprendizControlador.verificarDuplicado);

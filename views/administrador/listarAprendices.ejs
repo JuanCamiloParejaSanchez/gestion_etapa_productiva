@@ -232,8 +232,8 @@
 }
 
 /* Estilos para columnas Programa y Alternativa - Ajuste de texto estilo Excel */
-#aprendicesTable td:nth-child(23), /* Columna programaFormacion */
-#aprendicesTable td:nth-child(24)  /* Columna alternativaSeleccionada */
+#aprendicesTable td:nth-child(24), /* Columna programaFormacion */
+#aprendicesTable td:nth-child(25)  /* Columna alternativaSeleccionada */
 {
     white-space: normal !important;
     word-wrap: break-word !important;
@@ -245,8 +245,8 @@
 }
 
 /* Ajustar encabezados también */
-#aprendicesTable th:nth-child(23),
-#aprendicesTable th:nth-child(24) {
+#aprendicesTable th:nth-child(24),
+#aprendicesTable th:nth-child(25) {
     white-space: normal !important;
     word-wrap: break-word !important;
     max-width: 200px;
@@ -385,6 +385,7 @@
                     <thead>
                         <tr>
                             <th data-column="tipoDocumento">Tipo Documento</th>
+                            <th data-column="genero">Género</th>
                             <th data-column="numeroDocumento">Número Documento</th>
                             <th data-column="estadoFormacion">Estado Formación</th>
                             <th data-column="nombres">Nombres</th>
@@ -510,6 +511,7 @@
         // Configuración de columnas
         const columnasConfig = [
             { data: "tipoDocumento", title: "Tipo Documento", visible: true },
+            { data: "genero", title: "Género", visible: true },
             { data: "numeroDocumento", title: "Número Documento", visible: true },
             { data: "estadoFormacion", title: "Estado Formación", visible: true },
             { data: "nombres", title: "Nombres", visible: true },
@@ -703,38 +705,39 @@
             // Mapear nombre de columna a índice y tipo
             const columnMapping = {
                 'tipoDocumento': { index: 0, type: 'text' },
-                'numeroDocumento': { index: 1, type: 'number' },
-                'estadoFormacion': { index: 2, type: 'text' },
-                'nombres': { index: 3, type: 'text' },
-                'primerApellido': { index: 4, type: 'text' },
-                'segundoApellido': { index: 5, type: 'text' },
-                'fechaNacimiento': { index: 6, type: 'date' },
-                'eps': { index: 7, type: 'text' },
-                'telefonoFijo': { index: 8, type: 'number' },
-                'celular': { index: 9, type: 'number' },
-                'direccion': { index: 10, type: 'text' },
-                'barrio': { index: 11, type: 'text' },
-                'departamento': { index: 12, type: 'text' },
-                'municipio': { index: 13, type: 'text' },
-                'correoElectronico': { index: 14, type: 'text' },
-                'fechaInicioLectiva': { index: 15, type: 'date' },
-                'fechaFinLectiva': { index: 16, type: 'date' },
-                'fechaInicioProductiva': { index: 17, type: 'date' },
-                'fechaFinProductiva': { index: 18, type: 'date' },
-                'instructorLectiva': { index: 19, type: 'text' },
-                'instructorProductiva': { index: 20, type: 'text' },
-                'numeroFicha': { index: 21, type: 'number' },
-                'programaFormacion': { index: 22, type: 'text' },
-                'alternativaSeleccionada': { index: 23, type: 'text' },
-                'areaFormacion': { index: 24, type: 'text' },
-                'empresaPatrocinadora': { index: 25, type: 'text' },
-                'areaPractica': { index: 26, type: 'text' },
-                'jefeInmediato': { index: 27, type: 'text' },
-                'telefonoEmpresa': { index: 28, type: 'number' },
-                'celularEmpresa': { index: 29, type: 'number' },
-                'direccionEmpresa': { index: 30, type: 'text' },
-                'correoEmpresa': { index: 31, type: 'text' },
-                'horario': { index: 32, type: 'text' }
+                'genero': { index: 1, type: 'text' },
+                'numeroDocumento': { index: 2, type: 'number' },
+                'estadoFormacion': { index: 3, type: 'text' },
+                'nombres': { index: 4, type: 'text' },
+                'primerApellido': { index: 5, type: 'text' },
+                'segundoApellido': { index: 6, type: 'text' },
+                'fechaNacimiento': { index: 7, type: 'date' },
+                'eps': { index: 8, type: 'text' },
+                'telefonoFijo': { index: 9, type: 'number' },
+                'celular': { index: 10, type: 'number' },
+                'direccion': { index: 11, type: 'text' },
+                'barrio': { index: 12, type: 'text' },
+                'departamento': { index: 13, type: 'text' },
+                'municipio': { index: 14, type: 'text' },
+                'correoElectronico': { index: 15, type: 'text' },
+                'fechaInicioLectiva': { index: 16, type: 'date' },
+                'fechaFinLectiva': { index: 17, type: 'date' },
+                'fechaInicioProductiva': { index: 18, type: 'date' },
+                'fechaFinProductiva': { index: 19, type: 'date' },
+                'instructorLectiva': { index: 20, type: 'text' },
+                'instructorProductiva': { index: 21, type: 'text' },
+                'numeroFicha': { index: 22, type: 'number' },
+                'programaFormacion': { index: 23, type: 'text' },
+                'alternativaSeleccionada': { index: 24, type: 'text' },
+                'areaFormacion': { index: 25, type: 'text' },
+                'empresaPatrocinadora': { index: 26, type: 'text' },
+                'areaPractica': { index: 27, type: 'text' },
+                'jefeInmediato': { index: 28, type: 'text' },
+                'telefonoEmpresa': { index: 29, type: 'number' },
+                'celularEmpresa': { index: 30, type: 'number' },
+                'direccionEmpresa': { index: 31, type: 'text' },
+                'correoEmpresa': { index: 32, type: 'text' },
+                'horario': { index: 33, type: 'text' }
             };
             
             const columnInfo = columnMapping[ordenamiento.columna];
@@ -755,15 +758,26 @@
             ajax: {
                 url: '/administrador/aprendices-data',
                 type: 'POST',
-                data: d => ({
-                    ...d,
-                    nombre: $('#nombreBusqueda').val(),
-                    documento: $('#documentoBusqueda').val(),
-                    programaFormacion: $('#programaBusqueda').val(),
-                    alternativaSeleccionada: $('#alternativaBusqueda').val(),
-                    estadoFormacion: $('#estadoFormacionBusqueda').val(),
-                    order: getOrderData()
-                })
+                data: d => {
+                    const requestData = {
+                        ...d,
+                        nombre: $('#nombreBusqueda').val(),
+                        documento: $('#documentoBusqueda').val(),
+                        programaFormacion: $('#programaBusqueda').val(),
+                        alternativaSeleccionada: $('#alternativaBusqueda').val(),
+                        estadoFormacion: $('#estadoFormacionBusqueda').val(),
+                        order: getOrderData()
+                    };
+                    console.log('📤 Datos enviados a servidor:', requestData);
+                    return requestData;
+                },
+                dataSrc: function(json) {
+                    console.log('📥 Respuesta del servidor:', json);
+                    if (json.data && json.data.length > 0) {
+                        console.log('📊 Primer registro:', json.data[0]);
+                    }
+                    return json.data;
+                }
             },
             language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
             info: false,
@@ -855,10 +869,10 @@
                                 <a href="/administrador/aprendiz/${row.id}" class="action-btn btn-view" title="Ver Perfil Completo">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="/administrador/aprendiz/${row.id}/bitacoras" class="action-btn btn-bitacoras" title="Análisis de Bitácoras">
+                                <a href="/administrador/aprendiz/${row.id}/bitacoras" class="action-btn btn-bitacoras" title="Análisis de Sentimientos">
                                     <i class="fas fa-book-reader"></i>
                                 </a>
-                                <a href="/administrador/aprendiz/verificar-documentacion/${row.id}" class="action-btn btn-verify" title="Verificar Documentos">
+                                <a href="/administrador/aprendiz/verificar-documentacion/${row.id}" class="action-btn btn-verify" title="Evidencias">
                                     <i class="fas fa-check-double"></i>
                                 </a>
                                 <a href="/administrador/aprendiz/editar/${row.id}" class="action-btn btn-edit" title="Editar Aprendiz">
