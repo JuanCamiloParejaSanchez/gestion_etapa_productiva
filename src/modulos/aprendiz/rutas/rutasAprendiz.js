@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
 const controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
+const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
 const upload = require('../../../compartido/middlewares/multerConfig');
 const { uploadPhoto, procesarFotoPerfil } = require('../../../compartido/middlewares/multerConfigFotos');
 
@@ -46,6 +47,13 @@ router.get('/bitacora', controladorDashboardAprendiz.mostrarFormularioBitacora);
 
 // POST: Recibe y procesa los datos del formulario de la bitácora.
 router.post('/bitacora', controladorDashboardAprendiz.registrarBitacora);
+
+// --- Ruta para Listar Administradores ---
+router.get('/listar-administradores', controladorDashboardAprendiz.listarAdministradores);
+router.post('/administradores-data', gestionAdministradoresControlador.obtenerDatosAdministradores); // Para la tabla dinámica
+
+// --- Ruta para Ver Perfil de Administrador ---
+router.get('/ver-administrador/:id', controladorDashboardAprendiz.verPerfilAdministrador);
 
 
 module.exports = router;

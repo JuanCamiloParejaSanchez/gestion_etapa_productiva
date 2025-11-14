@@ -21,6 +21,7 @@ const notificacionesService = require('../../../compartido/servicios/notificacio
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 const ServicioGestionAprendices = require('../../administrador/servicios/servicioGestionAprendices');
 const servicioGestionAprendices = new ServicioGestionAprendices();
+const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -843,6 +844,77 @@ class ControladorDashboardAprendiz extends BaseController {
         } catch (error) {
             console.error('Error al eliminar notificaciones leídas:', error);
             res.status(500).json({ success: false, message: 'Error al eliminar las notificaciones' });
+        }
+    }
+
+    // --- Método para Listar Administradores ---
+    async listarAdministradores(req, res) {
+        try {
+            res.render('aprendiz/listarAdministradores', {
+                title: 'Listado de Administradores - SENA',
+                layout: 'plantillas/principal'
+            });
+        } catch (error) {
+            console.error('Error al mostrar la lista de administradores:', error);
+            res.status(500).render('compartido/paginaError', {
+                title: 'Error',
+                message: 'No se pudo cargar la lista de administradores',
+                error: formatearError(error),
+                layout: 'plantillas/principal'
+            });
+        }
+    }
+
+    // --- Método para Ver Perfil de Administrador ---
+    async verPerfilAdministrador(req, res) {
+        try {
+            const { id } = req.params;
+
+            // Consultar los datos del administrador
+            const consulta = `
+                SELECT
+                    id,
+                    nombreCompleto,
+                    correoInstitucional,
+                    numeroIdentificacion,
+                    telefono,
+                    departamento,
+                    cargo,
+                    fotoPerfil,
+                    fotoPerfilPath,
+                    created_at as fechaRegistro
+                FROM administradores
+                WHERE id = ?
+            `;
+
+            const [resultados] = await pool.execute(consulta, [id]);
+
+            if (resultados.length === 0) {
+                return res.status(404).render('compartido/paginaError', {
+                    layout: 'plantillas/principal',
+                    title: 'Administrador no encontrado',
+                    message: 'El administrador solicitado no existe',
+                    usuario: req.session.usuario
+                });
+            }
+
+            const administrador = resultados[0];
+
+            res.render('aprendiz/verAdministrador', {
+                layout: 'plantillas/principal',
+                title: 'Ver Administrador',
+                administrador,
+                usuario: req.session.usuario
+            });
+
+        } catch (error) {
+            console.error('Error al ver administrador:', error);
+            res.status(500).render('compartido/paginaError', {
+                layout: 'plantillas/principal',
+                title: 'Error del Servidor',
+                message: 'Error interno del servidor',
+                usuario: req.session.usuario
+            });
         }
     }
 

@@ -1,0 +1,218 @@
+<!-- Ruta: vistas/aprendiz/verAdministrador.ejs -->
+<!-- Propósito: Muestra los detalles completos de un administrador seleccionado por un aprendiz en un formato legible.
+     Permite visualizar toda la información registrada de un administrador específico. -->
+
+<%- contentFor('styles') %>
+<link rel="stylesheet" href="/estilos/base/variables.css">
+<link rel="stylesheet" href="/estilos/base/layout.css">
+<link rel="stylesheet" href="/estilos/components/navbar.css">
+<link rel="stylesheet" href="/estilos/components/buttons.css">
+<link rel="stylesheet" href="/estilos/general/estilosBase.css">
+
+<style>
+/* Color blanco para el botón Volver en modo oscuro */
+html.dark-mode .btn-primary {
+    color: #ffffff !important;
+}
+
+html.dark-mode .fas .fa-arrow-left {
+    color: #ffffff !important;
+}
+
+html.dark-mode .btn-primary:hover {
+    color: #ffffff !important;
+    background-color: #0b5ed7 !important;
+    border-color: #0b5ed7 !important;
+}
+
+/* Estilos para la foto de perfil */
+.profile-photo-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+}
+
+html.dark-mode .profile-photo-section {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+}
+
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-photo-display {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.profile-photo-display:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.5);
+}
+
+.profile-photo-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+}
+
+.profile-photo-placeholder i {
+    font-size: 60px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.profile-photo-placeholder span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .profile-photo-display {
+        width: 140px;
+        height: 140px;
+    }
+
+    .profile-photo-placeholder i {
+        font-size: 48px;
+    }
+}
+</style>
+
+<%
+function formatearFechaHoraLocal(fecha) {
+    if (!fecha) return 'N/A';
+
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return 'N/A';
+
+    return date.toLocaleString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
+%>
+
+<%- contentFor('navigation') %>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <div class="d-flex w-100 justify-content-start">
+            <a class="btn btn-primary btn-navbar" href="/aprendiz/listar-administradores">
+                <i class="fas fa-arrow-left me-2"></i>
+                Regresar a la lista
+            </a>
+        </div>
+    </div>
+</nav>
+
+<%- contentFor('body') %>
+<div class="container mt-4 mb-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Detalles del Administrador</h2>
+        </div>
+        <div class="card-body">
+            <% if (typeof administrador !== 'undefined' && administrador) { %>
+
+                <!-- Sección de Foto de Perfil -->
+                <div class="profile-photo-section">
+                    <div class="profile-photo-container">
+                        <div class="profile-photo-display">
+                            <%
+                            // Construir la ruta correcta de la foto
+                            let rutaFoto = null;
+                            if (administrador.fotoPerfilPath) {
+                                // Si tiene fotoPerfilPath, usarla (puede ser ruta relativa ya correcta)
+                                rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                            } else if (administrador.fotoPerfil) {
+                                // Si solo tiene fotoPerfil (nombre del archivo), construir ruta completa
+                                rutaFoto = `/uploads/fotos/optimized/${administrador.fotoPerfil}`;
+                            }
+                            %>
+
+                            <% if (rutaFoto) { %>
+                                <img src="<%= rutaFoto %>" alt="Foto de perfil de <%= administrador.nombreCompleto %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                <div class="profile-photo-placeholder" style="display: none;">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sin foto</span>
+                                </div>
+                            <% } else { %>
+                                <div class="profile-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sin foto</span>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Nombre completo:</strong>
+                    <%= administrador.nombreCompleto || 'N/A' %>
+                </div>
+                <div class="mb-3">
+                    <strong>Correo Institucional:</strong>
+                    <%= administrador.correoInstitucional || 'N/A' %>
+                </div>
+                <div class="mb-3">
+                    <strong>Número de Identificación:</strong>
+                    <%= administrador.numeroIdentificacion || 'N/A' %>
+                </div>
+                <div class="mb-3">
+                    <strong>Teléfono:</strong>
+                    <%= administrador.telefono || 'N/A' %>
+                </div>
+                <div class="mb-3">
+                    <strong>Departamento:</strong>
+                    <%= administrador.departamento || 'N/A' %>
+                </div>
+                <div class="mb-3">
+                    <strong>Cargo o rol:</strong>
+                    <%= administrador.cargo || 'N/A' %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-danger">
+                    No se encontraron datos del administrador.
+                </div>
+            <% } %>
+        </div>
+        <div class="card-footer">
+            <a href="/aprendiz/listar-administradores" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script src="/js/utilidades/sessionTimeout.js"></script>
