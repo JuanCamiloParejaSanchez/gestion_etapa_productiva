@@ -57,6 +57,23 @@ exports.registrarAdministrador = async (req, res) => {
         let { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo } = req.body;
         console.log('📋 Datos recibidos en bruto:', req.body);
 
+        // Verificar si se subió la foto de perfil (OBLIGATORIA)
+        if (!req.fotoPerfilProcesada) {
+            console.warn('⚠️ No se recibió foto de perfil');
+            return res.status(400).json({
+                success: false,
+                message: 'La foto de perfil es obligatoria'
+            });
+        }
+
+        console.log('📸 Foto de perfil recibida y procesada:', {
+            originalname: req.fotoPerfilProcesada.originalname,
+            filename: req.fotoPerfilProcesada.filename,
+            mimetype: req.fotoPerfilProcesada.mimetype,
+            size: req.fotoPerfilProcesada.size,
+            path: req.fotoPerfilProcesada.path
+        });
+
         // Normalizar email a minúsculas y otros campos a mayúsculas
         if (correoInstitucional) {
             correoInstitucional = correoInstitucional.toLowerCase().trim();
@@ -86,7 +103,7 @@ exports.registrarAdministrador = async (req, res) => {
             cargo
         });
 
-        // Insertar en la base de datos sin contraseña
+        // Insertar en la base de datos sin contraseña pero con foto de perfil
         const nuevoAdmin = {
             nombreCompleto,
             correoInstitucional,
@@ -94,10 +111,13 @@ exports.registrarAdministrador = async (req, res) => {
             telefono,
             departamento,
             cargo,
+            fotoPerfil: req.fotoPerfilProcesada.filename,
+            fotoPerfilPath: req.fotoPerfilProcesada.path,
             password: null, // Contraseña se creará después
             rol: 'admin',
             activo: true
         };
+        
         const resultado = await servicioConsultasAdministrador.insertarAdministrador(nuevoAdmin);
 
         if (resultado && resultado.insertId) {

@@ -104,6 +104,138 @@ html.dark-mode .form-label {
 html.dark-mode .required {
     color: #dc3545;
 }
+
+/* Estilos para la foto de perfil */
+.profile-photo-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+}
+
+html.dark-mode .profile-photo-section {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+}
+
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-photo-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.profile-photo-preview:hover {
+    border-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+}
+
+.profile-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+
+.profile-photo-preview img.active {
+    display: block;
+}
+
+.profile-photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+}
+
+.profile-photo-placeholder i {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.profile-photo-input {
+    display: none;
+}
+
+.profile-photo-input.is-invalid + .profile-photo-label {
+    border: 2px solid #dc3545;
+    animation: shake 0.5s;
+}
+
+.profile-photo-input.is-valid + .profile-photo-label {
+    border: 2px solid #28a745;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.profile-photo-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.profile-photo-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.profile-photo-label i {
+    font-size: 16px;
+}
+
+.profile-photo-info {
+    font-size: 12px;
+    color: #6c757d;
+    text-align: center;
+    max-width: 250px;
+}
+
+html.dark-mode .profile-photo-info {
+    color: #cbd5e1;
+}
+
+@media (max-width: 768px) {
+    .profile-photo-preview {
+        width: 120px;
+        height: 120px;
+    }
+}
 </style>
 
 <%- contentFor('body') %>
@@ -135,7 +267,59 @@ html.dark-mode .required {
                 <div class="card-body p-4">
                     <div id="messageContainer" class="mb-3"></div>
                     
-                    <form id="editProfileForm" action="<%= typeof esMiPerfil !== 'undefined' && esMiPerfil ? '/administrador/actualizar-perfil' : '/administrador/administrador/actualizar/' + administrador.id %>" method="POST">
+                    <form id="editProfileForm" action="<%= typeof esMiPerfil !== 'undefined' && esMiPerfil ? '/administrador/actualizar-perfil' : '/administrador/administrador/actualizar/' + administrador.id %>" method="POST" enctype="multipart/form-data">
+                        
+                        <!-- Sección de Foto de Perfil -->
+                        <div class="profile-photo-section">
+                            <div class="profile-photo-container">
+                                <div class="profile-photo-preview" id="photoPreview">
+                                    <% 
+                                    // Construir la ruta correcta de la foto
+                                    let rutaFoto = null;
+                                    if (administrador.fotoPerfilPath) {
+                                        rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                                    } else if (administrador.fotoPerfil) {
+                                        rutaFoto = `/uploads/fotos/optimized/${administrador.fotoPerfil}`;
+                                    }
+                                    
+                                    // Agregar timestamp para evitar caché del navegador
+                                    if (rutaFoto) {
+                                        rutaFoto += '?t=' + Date.now();
+                                    }
+                                    %>
+                                    
+                                    <% if (rutaFoto) { %>
+                                        <img src="<%= rutaFoto %>" alt="Foto de perfil" id="photoImage" class="active" />
+                                    <% } else { %>
+                                        <img src="" alt="Foto de perfil" id="photoImage" style="display: none;" />
+                                    <% } %>
+                                    
+                                    <div class="profile-photo-placeholder" style="<%= rutaFoto ? 'display: none;' : '' %>">
+                                        <i class="fas fa-user"></i>
+                                        <span>Sin foto</span>
+                                    </div>
+                                </div>
+                                
+                                <input type="file" 
+                                       id="fotoPerfil" 
+                                       name="fotoPerfil" 
+                                       class="profile-photo-input" 
+                                       accept="image/jpeg,image/jpg,image/png">
+                                
+                                <label for="fotoPerfil" class="profile-photo-label">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Cambiar Foto</span>
+                                </label>
+                                
+                                <div class="profile-photo-info">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Formatos: JPG, PNG. Máximo 2MB.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Datos Personales -->
                         <div class="form-section">
                             <h3 class="section-title">
@@ -361,15 +545,13 @@ html.dark-mode .required {
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
-                // Enviar datos con fetch
+                // Enviar datos con FormData (permite enviar archivos)
                 const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
 
                 try {
                     const response = await fetch(form.action, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
+                        body: formData // Enviar FormData directamente, SIN headers de Content-Type
                     });
 
                     const result = await response.json();
@@ -429,5 +611,70 @@ html.dark-mode .required {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
         });
+
+        // ========== MANEJO DE FOTO DE PERFIL ==========
+        const fotoPerfilInput = document.getElementById('fotoPerfil');
+        const photoPreview = document.getElementById('photoPreview');
+        const photoImage = document.getElementById('photoImage');
+        const photoPlaceholder = photoPreview?.querySelector('.profile-photo-placeholder');
+
+        if (fotoPerfilInput && photoPreview && photoImage) {
+            // Cuando se selecciona una nueva foto
+            fotoPerfilInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    // Validar tipo de archivo
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        messageContainer.innerHTML = `
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Error:</strong> Por favor selecciona una imagen válida (JPG o PNG).
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        this.value = '';
+                        this.classList.add('is-invalid');
+                        return;
+                    }
+
+                    // Validar tamaño (máximo 2MB)
+                    const maxSize = 2 * 1024 * 1024; // 2MB
+                    if (file.size > maxSize) {
+                        messageContainer.innerHTML = `
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Error:</strong> La imagen no debe superar los 2MB.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        this.value = '';
+                        this.classList.add('is-invalid');
+                        return;
+                    }
+
+                    // Previsualizar la imagen
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        photoImage.src = event.target.result;
+                        photoImage.classList.add('active');
+                        photoImage.style.display = 'block';
+                        
+                        if (photoPlaceholder) {
+                            photoPlaceholder.style.display = 'none';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Marcar como válido
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    
+                    // Limpiar mensajes de error previos
+                    messageContainer.innerHTML = '';
+                }
+            });
+        }
     });
 </script>

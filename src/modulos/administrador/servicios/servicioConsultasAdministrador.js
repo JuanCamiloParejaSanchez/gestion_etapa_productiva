@@ -44,10 +44,24 @@ const servicioConsultasAdministrador = {
      */
     async insertarAdministrador(datosAdmin) {
         try {
-            const { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo, password, rol, activo } = datosAdmin;
+            const { 
+                nombreCompleto, 
+                correoInstitucional, 
+                numeroIdentificacion, 
+                telefono, 
+                departamento, 
+                cargo, 
+                fotoPerfil,
+                fotoPerfilPath,
+                password, 
+                rol, 
+                activo 
+            } = datosAdmin;
+            
             const query = `INSERT INTO administradores 
-                (nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo, password, rol, activo)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                (nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo, fotoPerfil, fotoPerfilPath, password, rol, activo)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            
             const [result] = await pool.query(query, [
                 nombreCompleto,
                 correoInstitucional,
@@ -55,10 +69,13 @@ const servicioConsultasAdministrador = {
                 telefono,
                 departamento,
                 cargo,
+                fotoPerfil || null,
+                fotoPerfilPath || null,
                 password,
                 rol || 'admin',
                 activo !== undefined ? activo : true
             ]);
+            
             return { success: true, insertId: result.insertId };
         } catch (error) {
             console.error('Error al insertar administrador:', error);

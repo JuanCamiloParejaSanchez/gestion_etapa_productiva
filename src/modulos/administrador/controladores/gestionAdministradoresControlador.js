@@ -154,6 +154,8 @@ const verAdministrador = async (req, res) => {
                 telefono,
                 departamento,
                 cargo,
+                fotoPerfil,
+                fotoPerfilPath,
                 created_at as fechaRegistro
             FROM administradores
             WHERE id = ?
@@ -251,20 +253,55 @@ const actualizarAdministrador = async (req, res) => {
     try {
         const { id } = req.params;
 
+        // Log detallado de cada campo recibido
+        console.log('🟦 [ADMIN] Campos recibidos:', {
+            nombreCompleto: req.body.nombreCompleto,
+            correoInstitucional: req.body.correoInstitucional,
+            numeroIdentificacion: req.body.numeroIdentificacion,
+            telefono: req.body.telefono,
+            departamento: req.body.departamento,
+            cargo: req.body.cargo
+        });
+
+        // Función para limpiar valores undefined/null
+        const limpiarValor = (valor) => {
+            if (valor === undefined || valor === null || valor === '') {
+                return null;
+            }
+            return valor;
+        };
+
+        // Extraer y limpiar todos los campos
         const {
-            nombreCompleto,
-            correoInstitucional,
-            numeroIdentificacion,
-            telefono,
-            departamento,
-            cargo
+            nombreCompleto = '',
+            correoInstitucional = '',
+            numeroIdentificacion = '',
+            telefono = '',
+            departamento = '',
+            cargo = ''
         } = req.body;
 
-        // Normalizar email a minúsculas
-        const correoNormalizado = correoInstitucional ? correoInstitucional.toLowerCase().trim() : '';
+        // Limpiar y normalizar todos los valores
+        const nombreCompletoLimpio = limpiarValor(nombreCompleto.trim());
+        const correoInstitucionalLimpio = limpiarValor(correoInstitucional.trim().toLowerCase());
+        const numeroIdentificacionLimpio = limpiarValor(numeroIdentificacion.trim());
+        const telefonoLimpio = limpiarValor(telefono.trim());
+        const departamentoLimpio = limpiarValor(departamento.trim());
+        const cargoLimpio = limpiarValor(cargo.trim());
+
+        // Log de valores limpios
+        console.log('🟩 [ADMIN] Valores limpios:', {
+            nombreCompletoLimpio,
+            correoInstitucionalLimpio,
+            numeroIdentificacionLimpio,
+            telefonoLimpio,
+            departamentoLimpio,
+            cargoLimpio
+        });
 
         // Validaciones básicas
-        if (!nombreCompleto || !correoNormalizado || !numeroIdentificacion || !telefono || !departamento || !cargo) {
+        if (!nombreCompletoLimpio || !correoInstitucionalLimpio || !numeroIdentificacionLimpio ||
+            !telefonoLimpio || !departamentoLimpio || !cargoLimpio) {
             return res.status(400).json({
                 success: false,
                 message: 'Todos los campos son obligatorios'
@@ -273,7 +310,7 @@ const actualizarAdministrador = async (req, res) => {
 
         // Validar formato de correo
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(correoNormalizado)) {
+        if (!emailRegex.test(correoInstitucionalLimpio)) {
             return res.status(400).json({
                 success: false,
                 message: 'El formato del correo electrónico no es válido'
@@ -281,7 +318,7 @@ const actualizarAdministrador = async (req, res) => {
         }
 
         // Validar número de identificación
-        if (!/^\d{7,12}$/.test(numeroIdentificacion)) {
+        if (!/^\d{7,12}$/.test(numeroIdentificacionLimpio)) {
             return res.status(400).json({
                 success: false,
                 message: 'El número de identificación debe tener entre 7 y 12 dígitos'
@@ -289,7 +326,7 @@ const actualizarAdministrador = async (req, res) => {
         }
 
         // Validar teléfono
-        if (!/^\d{10}$/.test(telefono)) {
+        if (!/^\d{10}$/.test(telefonoLimpio)) {
             return res.status(400).json({
                 success: false,
                 message: 'El teléfono debe tener exactamente 10 dígitos'
@@ -301,7 +338,7 @@ const actualizarAdministrador = async (req, res) => {
             SELECT id FROM administradores
             WHERE correoInstitucional = ? AND id != ?
         `;
-        const [correoExistente] = await pool.execute(verificarCorreo, [correoNormalizado, id]);
+        const [correoExistente] = await pool.execute(verificarCorreo, [correoInstitucionalLimpio, id]);
 
         if (correoExistente.length > 0) {
             return res.status(400).json({
@@ -315,7 +352,7 @@ const actualizarAdministrador = async (req, res) => {
             SELECT id FROM administradores
             WHERE numeroIdentificacion = ? AND id != ?
         `;
-        const [identificacionExistente] = await pool.execute(verificarIdentificacion, [numeroIdentificacion, id]);
+        const [identificacionExistente] = await pool.execute(verificarIdentificacion, [numeroIdentificacionLimpio, id]);
 
         if (identificacionExistente.length > 0) {
             return res.status(400).json({
@@ -324,28 +361,64 @@ const actualizarAdministrador = async (req, res) => {
             });
         }
 
-        // Actualizar los datos del administrador
-        const actualizarConsulta = `
-            UPDATE administradores
-            SET
-                nombreCompleto = ?,
-                correoInstitucional = ?,
-                numeroIdentificacion = ?,
-                telefono = ?,
-                departamento = ?,
-                cargo = ?
-            WHERE id = ?
-        `;
+        // Si se recibió una nueva foto de perfil, actualizar también los campos de la foto
+        let actualizarConsulta, actualizarParams;
+        if (req.file && req.fotoPerfilProcesada) {
+            // Usar la información procesada por el middleware
+            const fotoPerfil = req.fotoPerfilProcesada.filename;
+            const fotoPerfilPath = req.fotoPerfilProcesada.path;
 
-        const [resultado] = await pool.execute(actualizarConsulta, [
-            nombreCompleto,
-            correoNormalizado,
-            numeroIdentificacion,
-            telefono,
-            departamento,
-            cargo,
-            id
-        ]);
+            actualizarConsulta = `
+                UPDATE administradores
+                SET
+                    nombreCompleto = ?,
+                    correoInstitucional = ?,
+                    numeroIdentificacion = ?,
+                    telefono = ?,
+                    departamento = ?,
+                    cargo = ?,
+                    fotoPerfil = ?,
+                    fotoPerfilPath = ?
+                WHERE id = ?
+            `;
+
+            actualizarParams = [
+                nombreCompletoLimpio,
+                correoInstitucionalLimpio,
+                numeroIdentificacionLimpio,
+                telefonoLimpio,
+                departamentoLimpio,
+                cargoLimpio,
+                fotoPerfil,
+                fotoPerfilPath,
+                id
+            ];
+        } else {
+            actualizarConsulta = `
+                UPDATE administradores
+                SET
+                    nombreCompleto = ?,
+                    correoInstitucional = ?,
+                    numeroIdentificacion = ?,
+                    telefono = ?,
+                    departamento = ?,
+                    cargo = ?
+                WHERE id = ?
+            `;
+            actualizarParams = [
+                nombreCompletoLimpio,
+                correoInstitucionalLimpio,
+                numeroIdentificacionLimpio,
+                telefonoLimpio,
+                departamentoLimpio,
+                cargoLimpio,
+                id
+            ];
+        }
+
+        console.log('🟨 [ADMIN] Parámetros para consulta SQL:', actualizarParams);
+
+        const [resultado] = await pool.execute(actualizarConsulta, actualizarParams);
 
         // Verificar si la actualización fue exitosa
         if (resultado.affectedRows === 0) {
@@ -355,8 +428,11 @@ const actualizarAdministrador = async (req, res) => {
             });
         }
 
-        // Responder con éxito
-        res.json({ success: true, message: 'Administrador actualizado exitosamente.' });
+        // Responder con JSON exitoso
+        res.json({
+            success: true,
+            message: 'Perfil actualizado exitosamente'
+        });
 
     } catch (error) {
         console.error('Error al actualizar administrador:', error);

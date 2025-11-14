@@ -96,6 +96,8 @@ CREATE TABLE `administradores` (
   `telefono` varchar(20) NOT NULL COMMENT 'Teléfono de contacto',
   `departamento` varchar(100) NOT NULL COMMENT 'Departamento o área',
   `cargo` varchar(100) DEFAULT NULL COMMENT 'Cargo o rol',
+  `fotoPerfil` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de foto de perfil',
+  `fotoPerfilPath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa de la foto de perfil',
   `password` varchar(255) DEFAULT NULL COMMENT 'Contraseña hasheada (NULL durante proceso de registro)',
   `rol` enum('admin','super_admin','instructor') DEFAULT 'admin' COMMENT 'Rol del administrador',
   `activo` boolean DEFAULT TRUE COMMENT 'Estado activo/inactivo',
@@ -770,7 +772,7 @@ select * from aprendices;
 delete from aprendices where id='231'
 
 select * from administradores;
-delete from administradores where id='88'
+delete from administradores where id='96'
 
 
 

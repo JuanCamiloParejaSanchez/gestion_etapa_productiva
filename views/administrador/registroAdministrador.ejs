@@ -35,6 +35,144 @@
         font-size: 0.875em;
         color: #dc3545 !important;
     }
+
+    /* Estilos para la foto de perfil */
+    .profile-photo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .profile-photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #e0e0e0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-photo-preview:hover {
+        border-color: #007bff;
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.2);
+    }
+
+    .profile-photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+
+    .profile-photo-preview img.active {
+        display: block;
+    }
+
+    .profile-photo-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 14px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .profile-photo-placeholder i {
+        font-size: 48px;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+
+    .profile-photo-input {
+        display: none;
+    }
+    
+    .profile-photo-input.is-invalid + .profile-photo-label {
+        border: 2px solid #dc3545;
+        animation: shake 0.5s;
+    }
+    
+    .profile-photo-input.is-valid + .profile-photo-label {
+        border: 2px solid #28a745;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .profile-photo-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .profile-photo-label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .profile-photo-label i {
+        font-size: 16px;
+    }
+
+    .profile-photo-remove {
+        display: none;
+        padding: 8px 16px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .profile-photo-remove:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.5);
+    }
+
+    .profile-photo-remove.active {
+        display: inline-block;
+    }
+
+    .profile-photo-info {
+        font-size: 12px;
+        color: #6c757d;
+        text-align: center;
+        max-width: 200px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-photo-preview {
+            width: 120px;
+            height: 120px;
+        }
+    }
 </style>
 
 <%- contentFor('navigation') %>
@@ -60,7 +198,34 @@
                 </div>
                 <div class="card-body">
                     <div id="messageContainer" class="mb-3"></div>
-                    <form id="adminForm" action="/registrar-administrador" method="POST">
+                    <form id="adminForm" action="/registrar-administrador" method="POST" enctype="multipart/form-data">
+                        <h3 class="form-subheader mt-4">Foto de Perfil <span class="required">*</span></h3>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <div class="profile-photo-container">
+                                    <div class="profile-photo-preview" id="photoPreview">
+                                        <img id="photoImage" alt="Foto de perfil">
+                                        <div class="profile-photo-placeholder">
+                                            <i class="fas fa-user-circle"></i>
+                                            <span>Foto de perfil</span>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="fotoPerfil" name="fotoPerfil" class="profile-photo-input" accept="image/jpeg,image/jpg,image/png" required>
+                                    <label for="fotoPerfil" class="profile-photo-label">
+                                        <i class="fas fa-camera"></i>
+                                        Seleccionar foto
+                                    </label>
+                                    <button type="button" class="profile-photo-remove" id="removePhoto">
+                                        <i class="fas fa-trash-alt"></i> Eliminar foto
+                                    </button>
+                                    <p class="profile-photo-info">
+                                        <strong>Obligatorio</strong> - Formato: JPG, JPEG o PNG. Tamaño máximo: 2MB
+                                    </p>
+                                    <small id="fotoPerfilHelp" class="form-text text-danger" style="display:none;"></small>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <h3 class="form-subheader mt-4">Datos Personales</h3>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -311,6 +476,102 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         console.warn('Modal o botón de continuar no encontrado');
+    }
+
+    // ========== MANEJO DE FOTO DE PERFIL ==========
+    const fotoPerfilInput = document.getElementById('fotoPerfil');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoImage = document.getElementById('photoImage');
+    const removePhotoBtn = document.getElementById('removePhoto');
+    const photoPlaceholder = photoPreview?.querySelector('.profile-photo-placeholder');
+    const form = document.getElementById('adminForm');
+
+    if (fotoPerfilInput && photoPreview && photoImage) {
+        // Cuando se selecciona una foto
+        fotoPerfilInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validar tipo de archivo
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                if (!validTypes.includes(file.type)) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    const helpElement = document.getElementById('fotoPerfilHelp');
+                    if (helpElement) {
+                        helpElement.style.display = 'block';
+                        helpElement.textContent = 'Solo se permiten imágenes JPG, JPEG o PNG';
+                    }
+                    this.value = '';
+                    return;
+                }
+                
+                // Validar tamaño (2MB máximo)
+                const maxSize = 2 * 1024 * 1024; // 2MB en bytes
+                if (file.size > maxSize) {
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    const helpElement = document.getElementById('fotoPerfilHelp');
+                    if (helpElement) {
+                        helpElement.style.display = 'block';
+                        helpElement.textContent = 'La foto no puede superar los 2MB';
+                    }
+                    this.value = '';
+                    return;
+                }
+                
+                // Marcar como válido
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                const helpElement = document.getElementById('fotoPerfilHelp');
+                if (helpElement) {
+                    helpElement.style.display = 'none';
+                }
+                
+                // Mostrar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    photoImage.src = e.target.result;
+                    photoImage.classList.add('active');
+                    if (photoPlaceholder) {
+                        photoPlaceholder.style.display = 'none';
+                    }
+                    if (removePhotoBtn) {
+                        removePhotoBtn.classList.add('active');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Cuando se elimina la foto
+        if (removePhotoBtn) {
+            removePhotoBtn.addEventListener('click', function() {
+                fotoPerfilInput.value = '';
+                fotoPerfilInput.classList.remove('is-valid');
+                photoImage.src = '';
+                photoImage.classList.remove('active');
+                if (photoPlaceholder) {
+                    photoPlaceholder.style.display = 'flex';
+                }
+                removePhotoBtn.classList.remove('active');
+            });
+        }
+        
+        // Validación antes de enviar el formulario
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (!fotoPerfilInput.files || fotoPerfilInput.files.length === 0) {
+                    e.preventDefault();
+                    fotoPerfilInput.classList.add('is-invalid');
+                    const helpElement = document.getElementById('fotoPerfilHelp');
+                    if (helpElement) {
+                        helpElement.style.display = 'block';
+                        helpElement.textContent = 'La foto de perfil es obligatoria';
+                    }
+                }
+            });
+        }
     }
 });
 </script>

@@ -84,18 +84,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Validar foto de perfil (obligatoria)
+        const fotoPerfilInput = document.getElementById('fotoPerfil');
+        if (!fotoPerfilInput || !fotoPerfilInput.files || fotoPerfilInput.files.length === 0) {
+            validacionesUI.mostrarError(fotoPerfilInput, 'La foto de perfil es obligatoria');
+            const helpElement = document.getElementById('fotoPerfilHelp');
+            if (helpElement) {
+                helpElement.style.display = 'block';
+                helpElement.textContent = 'La foto de perfil es obligatoria';
+            }
+            return;
+        }
+
         try {
+            // Crear FormData para enviar archivo y datos
             const formData = new FormData(form);
-            const jsonData = Object.fromEntries(formData);
-            console.log('Datos a enviar:', jsonData);
+            console.log('Datos a enviar (incluyendo foto de perfil)');
 
             const response = await fetch('/registrar-administrador', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(jsonData)
+                // NO establecer Content-Type, el navegador lo establece automáticamente con el boundary correcto
+                body: formData
             });
 
             let result;

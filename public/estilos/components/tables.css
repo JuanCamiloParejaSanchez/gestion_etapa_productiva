@@ -1575,3 +1575,9 @@
     color: #5415ac;
     border: 1px solid rgba(84, 21, 172, 0.2);
 }
+
+.estado-por-certificar {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    border: 1px solid rgba(13, 110, 253, 0.2);
+}

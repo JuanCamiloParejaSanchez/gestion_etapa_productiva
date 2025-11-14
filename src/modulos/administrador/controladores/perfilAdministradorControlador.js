@@ -29,6 +29,8 @@ const perfilAdministradorControlador = {
                     telefono,
                     departamento,
                     cargo,
+                    fotoPerfil,
+                    fotoPerfilPath,
                     created_at as fechaRegistro
                 FROM administradores 
                 WHERE id = ?
@@ -85,7 +87,9 @@ const perfilAdministradorControlador = {
                     numeroIdentificacion,
                     telefono,
                     departamento,
-                    cargo
+                    cargo,
+                    fotoPerfil,
+                    fotoPerfilPath
                 FROM administradores 
                 WHERE id = ?
             `;
@@ -121,26 +125,64 @@ const perfilAdministradorControlador = {
     // Actualizar el perfil del administrador
     async actualizarPerfil(req, res) {
         try {
+            console.log('🔄 [ACTUALIZAR PERFIL] Iniciando actualización de perfil');
+            console.log('📋 [ACTUALIZAR PERFIL] Body recibido:', req.body);
+            console.log('📸 [ACTUALIZAR PERFIL] Archivo recibido:', req.file ? 'Sí' : 'No');
+            console.log('📸 [ACTUALIZAR PERFIL] Foto procesada:', req.fotoPerfilProcesada ? 'Sí' : 'No');
+            
             const adminId = req.session.userId;
             
             if (!adminId) {
                 return res.redirect('/auth/login');
             }
 
+            // Función para limpiar valores undefined/null
+            const limpiarValor = (valor) => {
+                if (valor === undefined || valor === null || valor === '') {
+                    return null;
+                }
+                return valor;
+            };
+
+            // Extraer y limpiar todos los campos
             const {
-                nombreCompleto,
-                correoInstitucional,
-                numeroIdentificacion,
-                telefono,
-                departamento,
-                cargo
+                nombreCompleto = '',
+                correoInstitucional = '',
+                numeroIdentificacion = '',
+                telefono = '',
+                departamento = '',
+                cargo = ''
             } = req.body;
 
-            // Normalizar email a minúsculas
-            const correoNormalizado = correoInstitucional ? correoInstitucional.toLowerCase().trim() : '';
+            // Limpiar y normalizar todos los valores
+            const nombreCompletoLimpio = limpiarValor(nombreCompleto.trim());
+            const correoInstitucionalLimpio = limpiarValor(correoInstitucional.trim().toLowerCase());
+            const numeroIdentificacionLimpio = limpiarValor(numeroIdentificacion.trim());
+            const telefonoLimpio = limpiarValor(telefono.trim());
+            const departamentoLimpio = limpiarValor(departamento.trim());
+            const cargoLimpio = limpiarValor(cargo.trim());
+
+            // Log de valores limpios
+            console.log('🟩 [PERFIL] Valores limpios:', {
+                nombreCompletoLimpio,
+                correoInstitucionalLimpio,
+                numeroIdentificacionLimpio,
+                telefonoLimpio,
+                departamentoLimpio,
+                cargoLimpio
+            });
 
             // Validaciones básicas
-            if (!nombreCompleto || !correoNormalizado || !numeroIdentificacion || !telefono || !departamento || !cargo) {
+            if (!nombreCompletoLimpio || !correoInstitucionalLimpio || !numeroIdentificacionLimpio ||
+                !telefonoLimpio || !departamentoLimpio || !cargoLimpio) {
+                console.log('❌ [VALIDACIÓN] Campos faltantes:', {
+                    nombreCompleto: nombreCompletoLimpio,
+                    correo: correoInstitucionalLimpio,
+                    numeroIdentificacion: numeroIdentificacionLimpio,
+                    telefono: telefonoLimpio,
+                    departamento: departamentoLimpio,
+                    cargo: cargoLimpio
+                });
                 return res.status(400).json({
                     success: false,
                     message: 'Todos los campos son obligatorios'
@@ -149,7 +191,7 @@ const perfilAdministradorControlador = {
 
             // Validar formato de correo
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(correoNormalizado)) {
+            if (!emailRegex.test(correoInstitucionalLimpio)) {
                 return res.status(400).json({
                     success: false,
                     message: 'El formato del correo electrónico no es válido'
@@ -157,7 +199,7 @@ const perfilAdministradorControlador = {
             }
 
             // Validar número de identificación
-            if (!/^\d{7,12}$/.test(numeroIdentificacion)) {
+            if (!/^\d{7,12}$/.test(numeroIdentificacionLimpio)) {
                 return res.status(400).json({
                     success: false,
                     message: 'El número de identificación debe tener entre 7 y 12 dígitos'
@@ -165,7 +207,7 @@ const perfilAdministradorControlador = {
             }
 
             // Validar teléfono
-            if (!/^\d{10}$/.test(telefono)) {
+            if (!/^\d{10}$/.test(telefonoLimpio)) {
                 return res.status(400).json({
                     success: false,
                     message: 'El teléfono debe tener exactamente 10 dígitos'
@@ -174,10 +216,10 @@ const perfilAdministradorControlador = {
 
             // Verificar que el correo no esté en uso por otro administrador
             const verificarCorreo = `
-                SELECT id FROM administradores 
+                SELECT id FROM administradores
                 WHERE correoInstitucional = ? AND id != ?
             `;
-            const [correoExistente] = await pool.execute(verificarCorreo, [correoNormalizado, adminId]);
+            const [correoExistente] = await pool.execute(verificarCorreo, [correoInstitucionalLimpio, adminId]);
             
             if (correoExistente.length > 0) {
                 return res.status(400).json({
@@ -188,10 +230,10 @@ const perfilAdministradorControlador = {
 
             // Verificar que el número de identificación no esté en uso por otro administrador
             const verificarIdentificacion = `
-                SELECT id FROM administradores 
+                SELECT id FROM administradores
                 WHERE numeroIdentificacion = ? AND id != ?
             `;
-            const [identificacionExistente] = await pool.execute(verificarIdentificacion, [numeroIdentificacion, adminId]);
+            const [identificacionExistente] = await pool.execute(verificarIdentificacion, [numeroIdentificacionLimpio, adminId]);
             
             if (identificacionExistente.length > 0) {
                 return res.status(400).json({
@@ -200,28 +242,71 @@ const perfilAdministradorControlador = {
                 });
             }
 
-            // Actualizar los datos del administrador
-            const actualizarConsulta = `
-                UPDATE administradores 
-                SET 
-                    nombreCompleto = ?,
-                    correoInstitucional = ?,
-                    numeroIdentificacion = ?,
-                    telefono = ?,
-                    departamento = ?,
-                    cargo = ?
-                WHERE id = ?
-            `;
+            // Preparar los datos para actualizar
+            let actualizarConsulta;
+            let parametros;
 
-            const [resultado] = await pool.execute(actualizarConsulta, [
-                nombreCompleto,
-                correoNormalizado,
-                numeroIdentificacion,
-                telefono,
-                departamento,
-                cargo,
-                adminId
-            ]);
+            // Verificar si se subió una nueva foto de perfil
+            if (req.fotoPerfilProcesada) {
+                console.log('📸 Nueva foto de perfil recibida:', {
+                    filename: req.fotoPerfilProcesada.filename,
+                    path: req.fotoPerfilProcesada.path
+                });
+
+                // Actualizar con la nueva foto
+                actualizarConsulta = `
+                    UPDATE administradores
+                    SET
+                        nombreCompleto = ?,
+                        correoInstitucional = ?,
+                        numeroIdentificacion = ?,
+                        telefono = ?,
+                        departamento = ?,
+                        cargo = ?,
+                        fotoPerfil = ?,
+                        fotoPerfilPath = ?
+                    WHERE id = ?
+                `;
+
+                parametros = [
+                    nombreCompletoLimpio,
+                    correoInstitucionalLimpio,
+                    numeroIdentificacionLimpio,
+                    telefonoLimpio,
+                    departamentoLimpio,
+                    cargoLimpio,
+                    req.fotoPerfilProcesada.filename,
+                    req.fotoPerfilProcesada.path,
+                    adminId
+                ];
+            } else {
+                // Actualizar sin cambiar la foto
+                actualizarConsulta = `
+                    UPDATE administradores
+                    SET
+                        nombreCompleto = ?,
+                        correoInstitucional = ?,
+                        numeroIdentificacion = ?,
+                        telefono = ?,
+                        departamento = ?,
+                        cargo = ?
+                    WHERE id = ?
+                `;
+
+                parametros = [
+                    nombreCompletoLimpio,
+                    correoInstitucionalLimpio,
+                    numeroIdentificacionLimpio,
+                    telefonoLimpio,
+                    departamentoLimpio,
+                    cargoLimpio,
+                    adminId
+                ];
+            }
+
+            console.log('🟨 [PERFIL] Parámetros para consulta SQL:', parametros);
+
+            const [resultado] = await pool.execute(actualizarConsulta, parametros);
 
             // Verificar si la actualización fue exitosa
             if (resultado.affectedRows === 0) {
@@ -232,8 +317,8 @@ const perfilAdministradorControlador = {
             }
 
             // Actualizar la sesión con el nuevo nombre si cambió
-            if (req.session.userName !== nombreCompleto) {
-                req.session.userName = nombreCompleto;
+            if (req.session.userName !== nombreCompletoLimpio) {
+                req.session.userName = nombreCompletoLimpio;
             }
 
             // Responder con éxito
