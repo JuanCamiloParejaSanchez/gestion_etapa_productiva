@@ -55,9 +55,26 @@ class ControladorDashboardAprendiz extends BaseController {
                 'alternativaSeleccionada', 'areaFormacion', 'fechaInicioProductiva', 'fechaFinProductiva', 'empresaPatrocinadora', 'areaPractica', 'jefeInmediato', 'celularEmpresa', 'direccionEmpresa', 'correoEmpresa', 'horario'
             ];
             for (const field of camposRequeridos) {
-                if (!datosActualizados.hasOwnProperty(field) || (datosActualizados[field] !== null && datosActualizados[field].trim() === '')) {
+                const valor = datosActualizados[field];
+                if (valor === undefined || valor === null || (typeof valor === 'string' && valor.trim() === '')) {
                     return res.status(400).json({ success: false, message: `El campo '${field}' es requerido.` });
                 }
+            }
+
+            // Procesar foto de perfil si se subió una nueva
+            if (req.fotoPerfilProcesada) {
+                console.log('📸 Nueva foto de perfil detectada');
+                
+                // Obtener datos actuales del aprendiz para eliminar foto anterior
+                const aprendizActual = await servicioAprendiz.obtenerAprendizPorId(aprendizId);
+                if (aprendizActual && aprendizActual.fotoPerfilPath) {
+                    const { eliminarFotoAnterior } = require('../../../compartido/middlewares/multerConfigFotos');
+                    await eliminarFotoAnterior(aprendizActual.fotoPerfilPath);
+                }
+                
+                // Agregar datos de la nueva foto
+                datosActualizados.fotoPerfil = req.fotoPerfilProcesada.filename;
+                datosActualizados.fotoPerfilPath = req.fotoPerfilProcesada.path;
             }
 
             const resultado = await servicioAprendiz.actualizarAprendiz(aprendizId, datosActualizados);

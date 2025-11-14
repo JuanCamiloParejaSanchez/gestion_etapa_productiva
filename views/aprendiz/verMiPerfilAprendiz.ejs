@@ -19,6 +19,84 @@ html.dark-mode .btn-primary:hover {
     background-color: #0b5ed7 !important;
     border-color: #0b5ed7 !important;
 }
+
+/* Estilos para la foto de perfil */
+.profile-photo-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+}
+
+html.dark-mode .profile-photo-section {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+}
+
+.profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-photo-display {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.profile-photo-display:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.5);
+}
+
+.profile-photo-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+}
+
+.profile-photo-placeholder i {
+    font-size: 60px;
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.profile-photo-placeholder span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .profile-photo-display {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .profile-photo-placeholder i {
+        font-size: 48px;
+    }
+}
 </style>
 
 <%
@@ -85,6 +163,39 @@ function formatearFechaHoraLocal(fecha) {
         </div>
         <div class="card-body">
             <% if (typeof aprendiz !== 'undefined' && aprendiz) { %>
+                
+                <!-- Sección de Foto de Perfil -->
+                <div class="profile-photo-section">
+                    <div class="profile-photo-container">
+                        <div class="profile-photo-display">
+                            <% 
+                            // Construir la ruta correcta de la foto
+                            let rutaFoto = null;
+                            if (aprendiz.fotoPerfilPath) {
+                                // Si tiene fotoPerfilPath, usarla (puede ser ruta relativa ya correcta)
+                                rutaFoto = aprendiz.fotoPerfilPath.startsWith('/') ? aprendiz.fotoPerfilPath : '/' + aprendiz.fotoPerfilPath;
+                            } else if (aprendiz.fotoPerfil) {
+                                // Si solo tiene fotoPerfil (nombre del archivo), construir ruta completa
+                                rutaFoto = `/uploads/fotos/optimized/${aprendiz.fotoPerfil}`;
+                            }
+                            %>
+                            
+                            <% if (rutaFoto) { %>
+                                <img src="<%= rutaFoto %>" alt="Foto de perfil de <%= aprendiz.nombres %>" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                <div class="profile-photo-placeholder" style="display: none;">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sin foto</span>
+                                </div>
+                            <% } else { %>
+                                <div class="profile-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sin foto</span>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
                 <p><strong>Nombres:</strong> <%= aprendiz.nombres || 'N/A' %></p>
                 <p><strong>Primer Apellido:</strong> <%= aprendiz.primerApellido || 'N/A' %></p>
                 <p><strong>Segundo Apellido:</strong> <%= aprendiz.segundoApellido || 'N/A' %></p>

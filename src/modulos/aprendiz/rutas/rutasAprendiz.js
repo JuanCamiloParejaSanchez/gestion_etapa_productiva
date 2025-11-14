@@ -7,6 +7,7 @@ const router = express.Router();
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
 const controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
 const upload = require('../../../compartido/middlewares/multerConfig');
+const { uploadPhoto, procesarFotoPerfil } = require('../../../compartido/middlewares/multerConfigFotos');
 
 // Middleware de autenticación para asegurar que solo los aprendices autenticados
 // puedan acceder a estas rutas.
@@ -16,7 +17,7 @@ router.use(AuthMiddleware.validarSesionAprendiz);
 router.get('/dashboard', controladorDashboardAprendiz.mostrarDashboard);
 router.get('/perfil', controladorDashboardAprendiz.mostrarMiPerfil);
 router.get('/perfil/editar', controladorDashboardAprendiz.mostrarFormularioEditarPerfil);
-router.put('/perfil/actualizar', controladorDashboardAprendiz.actualizarPerfil);
+router.put('/perfil/actualizar', uploadPhoto.single('fotoPerfil'), procesarFotoPerfil, controladorDashboardAprendiz.actualizarPerfil);
 
 // --- Endpoint AJAX para contador de alertas ---
 router.get('/alertas/contador', controladorDashboardAprendiz.getContadorAlertas);
