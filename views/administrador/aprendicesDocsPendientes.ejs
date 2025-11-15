@@ -418,8 +418,8 @@
 }
 
 /* Estilos para columnas Programa y Alternativa - Ajuste de texto estilo Excel */
-#aprendicesTable td:nth-child(12), /* Columna programaFormacion */
-#aprendicesTable td:nth-child(13)  /* Columna alternativaSeleccionada */
+#aprendicesTable td:nth-child(2), /* Columna programaFormacion */
+#aprendicesTable td:nth-child(14)  /* Columna alternativaSeleccionada */
 {
     white-space: normal !important;
     word-wrap: break-word !important;
@@ -431,8 +431,8 @@
 }
 
 /* Ajustar encabezados también */
-#aprendicesTable th:nth-child(12),
-#aprendicesTable th:nth-child(13) {
+#aprendicesTable th:nth-child(2),
+#aprendicesTable th:nth-child(14) {
     white-space: normal !important;
     word-wrap: break-word !important;
     max-width: 200px;
@@ -570,8 +570,11 @@
                 <table id="aprendicesTable" class="modern-table">
                     <thead>
                         <tr>
-                            <th data-column="tipoDocumento">Tipo Documento</th>
+                            <th data-column="instructorProductiva">Instructor Productiva</th>
+                            <th data-column="programaFormacion">Programa</th>
+                            <th data-column="numeroFicha">Ficha</th>
                             <th data-column="genero">Género</th>
+                            <th data-column="tipoDocumento">Tipo Documento</th>
                             <th data-column="numeroDocumento">Número Documento</th>
                             <th data-column="estadoFormacion">Estado Formación</th>
                             <th data-column="nombres">Nombres</th>
@@ -580,8 +583,6 @@
                             <th data-column="telefonoFijo">Teléfono</th>
                             <th data-column="celular">Celular</th>
                             <th data-column="correoElectronico">Correo</th>
-                            <th data-column="numeroFicha">Ficha</th>
-                            <th data-column="programaFormacion">Programa</th>
                             <th data-column="alternativaSeleccionada">Alternativa</th>
                             <th data-column="acciones">Acciones</th>
                         </tr>
@@ -713,19 +714,20 @@
         
         // Configuración de columnas
         const columnasConfig = [
+            { data: "instructorProductiva", title: "Instructor Productiva", visible: true },
+            { data: "programaFormacion", title: "Programa", visible: true },
+            { data: "numeroFicha", title: "Ficha", visible: true },
+            { data: "genero", title: "Género", visible: false },
             { data: "tipoDocumento", title: "Tipo Documento", visible: false },
-            { data: "genero", title: "Género", visible: true },
             { data: "numeroDocumento", title: "Número Documento", visible: false },
-            { data: "estadoFormacion", title: "Estado Formación", visible: false },
+            { data: "estadoFormacion", title: "Estado Formación", visible: true },
             { data: "nombres", title: "Nombres", visible: true },
             { data: "primerApellido", title: "Primer Apellido", visible: true },
             { data: "segundoApellido", title: "Segundo Apellido", visible: true },
-            { data: "telefonoFijo", title: "Teléfono", visible: true },
-            { data: "celular", title: "Celular", visible: true },
-            { data: "correoElectronico", title: "Email", visible: true },
-            { data: "numeroFicha", title: "Ficha", visible: true },
-            { data: "programaFormacion", title: "Programa", visible: false },
-            { data: "alternativaSeleccionada", title: "Alternativa", visible: false },
+            { data: "telefonoFijo", title: "Teléfono", visible: false },
+            { data: "celular", title: "Celular", visible: false },
+            { data: "correoElectronico", title: "Email", visible: false },
+            { data: "alternativaSeleccionada", title: "Alternativa", visible: true },
             { data: "acciones", title: "Acciones", visible: true, orderable: false }
         ];
 
@@ -888,22 +890,23 @@
             
             // Mapear nombre de columna a índice y tipo
             // IMPORTANTE: Los índices deben coincidir exactamente con el orden de las columnas en el HTML
-            // Esta tabla tiene solo 14 columnas (diferente a listarAprendices.ejs que tiene 35)
+            // Esta tabla tiene 15 columnas ahora (con instructorProductiva agregada)
             const columnMapping = {
-                'tipoDocumento': { index: 0, type: 'text' },
-                'genero': { index: 1, type: 'text' },
-                'numeroDocumento': { index: 2, type: 'number' },
-                'estadoFormacion': { index: 3, type: 'text' },
-                'nombres': { index: 4, type: 'text' },
-                'primerApellido': { index: 5, type: 'text' },
-                'segundoApellido': { index: 6, type: 'text' },
-                'telefonoFijo': { index: 7, type: 'number' },
-                'celular': { index: 8, type: 'number' },
-                'correoElectronico': { index: 9, type: 'text' },
-                'numeroFicha': { index: 10, type: 'number' },
-                'programaFormacion': { index: 11, type: 'text' },
-                'alternativaSeleccionada': { index: 12, type: 'text' },
-                'acciones': { index: 13, type: 'none' }
+                'instructorProductiva': { index: 0, type: 'text' },
+                'programaFormacion': { index: 1, type: 'text' },
+                'numeroFicha': { index: 2, type: 'number' },
+                'genero': { index: 3, type: 'text' },
+                'tipoDocumento': { index: 4, type: 'text' },
+                'numeroDocumento': { index: 5, type: 'number' },
+                'estadoFormacion': { index: 6, type: 'text' },
+                'nombres': { index: 7, type: 'text' },
+                'primerApellido': { index: 8, type: 'text' },
+                'segundoApellido': { index: 9, type: 'text' },
+                'telefonoFijo': { index: 10, type: 'number' },
+                'celular': { index: 11, type: 'number' },
+                'correoElectronico': { index: 12, type: 'text' },
+                'alternativaSeleccionada': { index: 13, type: 'text' },
+                'acciones': { index: 14, type: 'none' }
             };
             
             const columnInfo = columnMapping[ordenamiento.columna];
@@ -965,7 +968,7 @@
                     orientation: 'landscape',
                     pageSize: 'LEGAL',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11] // Columnas específicas para PDF
+                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 13] // Columnas específicas para PDF
                     },
                     customize: function(doc) {
                         // Personalizar el documento PDF
@@ -994,7 +997,7 @@
                         };
                         
                         // Ajustar el ancho de las columnas para mejor distribución
-                        doc.content[1].table.widths = ['5%', '7%', '6%', '11%', '9%', '9%', '7%', '16%', '6%', '12%', '12%'];
+                        doc.content[1].table.widths = ['7%', '12%', '6%', '6%', '7%', '8%', '10%', '6%', '6%', '8%', '16%', '8%'];
                         
                         // Estilo de las celdas
                         doc.content[1].table.body.forEach(function(row, index) {
