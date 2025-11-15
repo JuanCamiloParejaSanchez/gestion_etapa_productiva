@@ -1176,7 +1176,7 @@ const gestionAprendicesControlador = {
      * Obtener opciones para filtros dinámicos desde el servicio centralizado
      * Este endpoint proporciona las mismas opciones que aparecen en el formulario de registro
      * Garantiza una única fuente de verdad para todas las opciones del sistema
-     * 
+     *
      * @route GET /administrador/opciones-filtros
      * @returns {Object} JSON con todas las opciones de filtros
      */
@@ -1185,12 +1185,45 @@ const gestionAprendicesControlador = {
             // Obtener todas las opciones del servicio centralizado
             const opciones = opcionesFormularioServicio.obtenerTodasLasOpciones();
 
+            // Obtener lista de administradores activos para el filtro de instructores
+            const [administradoresResult] = await pool.execute(`
+                SELECT
+                    id,
+                    nombreCompleto as value,
+                    nombreCompleto as label
+                FROM administradores
+                WHERE activo = TRUE
+                ORDER BY nombreCompleto ASC
+            `);
+
+            const instructoresProductiva = administradoresResult.map(admin => ({
+                value: admin.value,
+                label: admin.label
+            }));
+
+            // Obtener lista de fichas únicas de administradores activos
+            const [fichasResult] = await pool.execute(`
+                SELECT DISTINCT
+                    fichaGrupo as value,
+                    fichaGrupo as label
+                FROM administradores
+                WHERE activo = TRUE AND fichaGrupo IS NOT NULL AND fichaGrupo != ''
+                ORDER BY fichaGrupo ASC
+            `);
+
+            const fichas = fichasResult.map(ficha => ({
+                value: ficha.value,
+                label: ficha.label
+            }));
+
             logger.info('✅ Opciones de filtros obtenidas del servicio centralizado', {
                 programas: opciones.programaFormacion.length,
                 alternativas: opciones.alternativaSeleccionada.length,
                 tipoDocumento: opciones.tipoDocumento.length,
                 eps: opciones.eps.length,
-                genero: opciones.genero.length
+                genero: opciones.genero.length,
+                instructores: instructoresProductiva.length,
+                fichas: fichas.length
             });
 
             // Responder con las opciones en el formato esperado por el frontend
@@ -1201,16 +1234,18 @@ const gestionAprendicesControlador = {
                     alternativas: opciones.alternativaSeleccionada,
                     tipoDocumento: opciones.tipoDocumento,
                     eps: opciones.eps,
-                    genero: opciones.genero,
+                    genero: opciones.genero.length,
                     estadoFormacion: opciones.estadoFormacion,
-                    areaFormacion: opciones.areaFormacion
+                    areaFormacion: opciones.areaFormacion,
+                    instructoresProductiva: instructoresProductiva,
+                    fichas: fichas
                 }
             });
 
         } catch (error) {
             logger.error('❌ Error al obtener opciones de filtros:', error);
-            res.status(500).json({ 
-                success: false, 
+            res.status(500).json({
+                success: false,
                 message: 'Error al cargar las opciones de filtros',
                 error: error.message
             });

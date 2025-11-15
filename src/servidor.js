@@ -84,6 +84,16 @@ app.use(AuthMiddleware.verificarExpiracionSesion);
 // Middleware para cargar la información del usuario en res.locals
 app.use(AuthMiddleware.cargarUsuario);
 
+// --- Rutas públicas ---
+const gestionAdministradoresControlador = require('./modulos/administrador/controladores/gestionAdministradoresControlador');
+const gestionAprendicesControlador = require('./modulos/administrador/controladores/gestionAprendicesControlador');
+
+// Ruta pública para obtener lista de administradores (para registro de aprendices)
+app.get('/api/administradores', gestionAdministradoresControlador.obtenerListaAdministradores);
+
+// Ruta pública para obtener opciones de filtros (para registro de aprendices)
+app.get('/api/opciones-filtros', gestionAprendicesControlador.obtenerOpcionesFiltros);
+
 // --- Uso de routers ---
 // Rutas de registro de administradores (sin autenticación previa)
 app.use('/', rutasRegistroAdministrador);
@@ -110,10 +120,6 @@ app.use('/aprendiz', rutasAprendiz);
 app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasAdministrador);
 // Luego las rutas de gestión de aprendices
 app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasGestionAprendices);
-
-// Ruta pública para obtener lista de administradores (para registro de aprendices)
-const gestionAdministradoresControlador = require('./modulos/administrador/controladores/gestionAdministradoresControlador');
-app.get('/api/administradores', gestionAdministradoresControlador.obtenerListaAdministradores);
 
 // --- Manejo de errores ---
 

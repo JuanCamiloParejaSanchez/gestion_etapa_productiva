@@ -229,38 +229,43 @@
                         <h3 class="form-subheader mt-4">Datos Personales</h3>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="nombreCompleto" class="form-label">Nombre completo <span class="required">*</span></label>
+                                <label for="nombreCompleto" class="form-label">Nombre completo<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto" required placeholder="Ej: JUAN CARLOS PÉREZ GÓMEZ">
                                 <small id="nombreCompletoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="correoInstitucional" class="form-label">Correo institucional <span class="required">*</span></label>
-                                <input type="email" class="form-control" id="correoInstitucional" name="correoInstitucional" required placeholder="Ej: juan.perez@sena.edu.co">
-                                <small id="correoInstitucionalHelp" class="form-text text-danger" style="display:none;"></small>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="numeroIdentificacion" class="form-label">Número de identificación <span class="required">*</span></label>
+                                <label for="numeroIdentificacion" class="form-label">Número de identificación<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="numeroIdentificacion" name="numeroIdentificacion" required placeholder="Ej: 1234567890">
                                 <small id="numeroIdentificacionHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="telefono" class="form-label">Teléfono de contacto <span class="required">*</span></label>
+                                <label for="correoInstitucional" class="form-label">Correo institucional<span class="required">*</span></label>
+                                <input type="email" class="form-control" id="correoInstitucional" name="correoInstitucional" required placeholder="Ej: juan.perez@sena.edu.co">
+                                <small id="correoInstitucionalHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label">Teléfono de contacto<span class="required">*</span></label>
                                 <input type="tel" class="form-control" id="telefono" name="telefono" required placeholder="Ej: 3001234567" minlength="10" maxlength="10" pattern="\d{10}" title="Debe contener exactamente 10 dígitos">
                                 <small id="telefonoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="departamento" class="form-label">Departamento o área <span class="required">*</span></label>
+                                <label for="fichaGrupo" class="form-label">Ficha o Grupo<span class="required">*</span></label>
+                                <input type="text" class="form-control" id="fichaGrupo" name="fichaGrupo" required placeholder="Ej: 123456789">
+                                <small id="fichaGrupoHelp" class="form-text text-danger" style="display:none;"></small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="departamento" class="form-label">Departamento o área<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="departamento" name="departamento" required placeholder="Ej: TECNOLOGÍA DE LA INFORMACIÓN">
                                 <small id="departamentoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-6">
-                                <label for="cargo" class="form-label">Cargo o rol <span class="required">*</span></label>
+                                <label for="cargo" class="form-label">Cargo o rol<span class="required">*</span></label>
                                 <input type="text" class="form-control" id="cargo" name="cargo" required placeholder="Ej: COORDINADOR ACADÉMICO">
                                 <small id="cargoHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-4">Registrar Administrador</button>
-                        <p class="mt-3" style="font-size:var(--font-size-sm);"><span class="required">*</span> Campos obligatorios</p>
+                        <p class="mt-3" style="font-size:var(--font-size-sm);"><span class="required">*</span>Campos obligatorios</p>
                     </form>
                 </div>
             </div>
@@ -430,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Restringir entrada en campos de texto (solo letras, espacios y caracteres especiales)
-    const textInputs = document.querySelectorAll('input[type="text"]:not([name="numeroIdentificacion"])');
+    const textInputs = document.querySelectorAll('input[type="text"]:not([name="numeroIdentificacion"]):not([name="fichaGrupo"])');
     textInputs.forEach(input => {
         input.addEventListener('input', function() {
             this.value = this.value.replace(/[^a-zA-Z\sáéíóúÁÉÍÓÚñÑ]/g, '');
@@ -438,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Restringir entrada en campos numéricos (solo dígitos)
-    const numberInputs = document.querySelectorAll('input[type="tel"], input[name="numeroIdentificacion"]');
+    const numberInputs = document.querySelectorAll('input[type="tel"], input[name="numeroIdentificacion"], input[name="fichaGrupo"]');
     numberInputs.forEach(input => {
         input.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '');

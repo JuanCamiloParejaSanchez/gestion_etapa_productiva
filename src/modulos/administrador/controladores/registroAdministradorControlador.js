@@ -54,7 +54,7 @@ exports.registrarAdministrador = async (req, res) => {
     console.log('📋 Content-Type:', req.get('Content-Type'));
     
     try {
-        let { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo } = req.body;
+        let { nombreCompleto, correoInstitucional, numeroIdentificacion, telefono, departamento, cargo, fichaGrupo } = req.body;
         console.log('📋 Datos recibidos en bruto:', req.body);
 
         // Verificar si se subió la foto de perfil (OBLIGATORIA)
@@ -85,9 +85,10 @@ exports.registrarAdministrador = async (req, res) => {
         if (telefono) telefono = telefono.trim();
         if (departamento) departamento = departamento.toUpperCase().trim();
         if (cargo) cargo = cargo.toUpperCase().trim();
+        if (fichaGrupo) fichaGrupo = fichaGrupo.toUpperCase().trim();
 
         // Validaciones básicas
-        if (!nombreCompleto || !correoInstitucional || !numeroIdentificacion || !telefono || !departamento || !cargo) {
+        if (!nombreCompleto || !correoInstitucional || !numeroIdentificacion || !telefono || !departamento || !cargo || !fichaGrupo) {
             return res.status(400).json({
                 success: false,
                 message: 'Todos los campos obligatorios deben ser completados.'
@@ -100,7 +101,8 @@ exports.registrarAdministrador = async (req, res) => {
             numeroIdentificacion,
             telefono,
             departamento,
-            cargo
+            cargo,
+            fichaGrupo
         });
 
         // Insertar en la base de datos sin contraseña pero con foto de perfil
@@ -111,6 +113,7 @@ exports.registrarAdministrador = async (req, res) => {
             telefono,
             departamento,
             cargo,
+            fichaGrupo,
             fotoPerfil: req.fotoPerfilProcesada.filename,
             fotoPerfilPath: req.fotoPerfilProcesada.path,
             password: null, // Contraseña se creará después

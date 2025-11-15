@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
         correoInstitucional: { validacion: validacionesUI.correoElectronico, mensaje: 'Correo electrónico inválido' },
         numeroIdentificacion: { validacion: val => validacionesUI.soloNumeros(val) && validacionesUI.numeroDocumento(val), mensaje: 'Solo números, entre 7 y 12 dígitos' },
         telefono: { validacion: val => validacionesUI.soloNumeros(val) && validacionesUI.celular(val), mensaje: 'Solo números, exactamente 10 dígitos' },
+        fichaGrupo: { validacion: val => validacionesUI.soloNumeros(val) && val.trim().length >= 3, mensaje: 'Solo números, al menos 3 dígitos' },
         departamento: { validacion: val => val.trim().length >= 3, mensaje: 'El departamento debe tener al menos 3 caracteres' },
         cargo: { validacion: val => val.trim().length >= 3, mensaje: 'El cargo debe tener al menos 3 caracteres' }
     };
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Prevenir entrada de caracteres no numéricos en campos numéricos
-    const camposNumericos = ['numeroIdentificacion', 'telefono'];
+    const camposNumericos = ['numeroIdentificacion', 'telefono', 'fichaGrupo'];
     camposNumericos.forEach(id => {
         const field = document.getElementById(id);
         if (field) {
