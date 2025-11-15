@@ -313,6 +313,24 @@
                                 <option value="certificado">Certificado</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="fichaBusqueda" class="modern-form-label">
+                                <i class="fas fa-hashtag me-1"></i>Ficha
+                            </label>
+                            <select class="form-select modern-form-control" id="fichaBusqueda" name="numeroFicha">
+                                <option value="">Todas las Fichas</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="instructorProductivaBusqueda" class="modern-form-label">
+                                <i class="fas fa-user-tie me-1"></i>Instructor Productiva
+                            </label>
+                            <select class="form-select modern-form-control" id="instructorProductivaBusqueda" name="instructorProductiva">
+                                <option value="">Todos los Instructores</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
                     </div>
                     <div class="filters-actions">
                         <button type="submit" class="btn-custom btn-custom-primary" style="width: 140px; height: 38px;">
@@ -489,12 +507,38 @@
                     if (alternativaSelect && resultado.data.alternativas) {
                         // Mantener la opción "Todas las Alternativas"
                         alternativaSelect.innerHTML = '<option value="">Todas las Alternativas</option>';
-                        
+
                         resultado.data.alternativas.forEach((alternativa) => {
                             const option = document.createElement('option');
                             option.value = alternativa.value;
                             option.textContent = alternativa.label;
                             alternativaSelect.appendChild(option);
+                        });
+                    }
+
+                    // Cargar fichas
+                    const fichaSelect = document.getElementById('fichaBusqueda');
+                    if (fichaSelect && resultado.data.fichas) {
+                        fichaSelect.innerHTML = '<option value="">Todas las Fichas</option>';
+
+                        resultado.data.fichas.forEach((ficha) => {
+                            const option = document.createElement('option');
+                            option.value = ficha.value;
+                            option.textContent = ficha.label;
+                            fichaSelect.appendChild(option);
+                        });
+                    }
+
+                    // Cargar instructores productiva
+                    const instructorSelect = document.getElementById('instructorProductivaBusqueda');
+                    if (instructorSelect && resultado.data.instructoresProductiva) {
+                        instructorSelect.innerHTML = '<option value="">Todos los Instructores</option>';
+
+                        resultado.data.instructoresProductiva.forEach((instructor) => {
+                            const option = document.createElement('option');
+                            option.value = instructor.value;
+                            option.textContent = instructor.label;
+                            instructorSelect.appendChild(option);
                         });
                     }
                 } else {
@@ -768,6 +812,8 @@
                         programaFormacion: $('#programaBusqueda').val(),
                         alternativaSeleccionada: $('#alternativaBusqueda').val(),
                         estadoFormacion: $('#estadoFormacionBusqueda').val(),
+                        numeroFicha: $('#fichaBusqueda').val(),
+                        instructorProductiva: $('#instructorProductivaBusqueda').val(),
                         order: getOrderData()
                     };
                     console.log('📤 Datos enviados a servidor:', requestData);
