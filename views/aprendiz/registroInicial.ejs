@@ -404,7 +404,10 @@
                             </div>
                             <div class="col-md-3">
                                 <label for="instructorProductiva" class="form-label">Instructor/a responsable etapa productiva<span class="required">*</span></label>
-                                <input type="text" class="form-control" id="instructorProductiva" name="instructorProductiva" required placeholder="Ej: CARLOS RODRÍGUEZ">
+                                <select class="form-select" id="instructorProductiva" name="instructorProductiva" required>
+                                    <option value="">SELECCIONE UN INSTRUCTOR...</option>
+                                    <!-- Opciones se cargarán dinámicamente -->
+                                </select>
                                 <small id="instructorProductivaHelp" class="form-text text-danger" style="display:none;"></small>
                             </div>
                             <div class="col-md-3">
@@ -922,6 +925,30 @@
         setupPopup();
         cargarDatosEstaticos();
         await cargarDatosUbicacion();
+
+        // Cargar lista de administradores para instructor productiva
+        const cargarAdministradores = async () => {
+            try {
+                const response = await fetch('/api/administradores');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('instructorProductiva');
+                    data.administradores.forEach(admin => {
+                        const option = document.createElement('option');
+                        option.value = admin.nombreCompleto;
+                        option.textContent = admin.nombreCompleto;
+                        select.appendChild(option);
+                    });
+                } else {
+                    console.error('Error al cargar administradores:', data.message);
+                }
+            } catch (error) {
+                console.error('Error al cargar administradores:', error);
+            }
+        };
+
+        await cargarAdministradores();
 
         // Normalizar inputs y selects a mayúsculas en frontend (EXCEPTO EMAIL)
         const upperCaseInputs = document.querySelectorAll('input[type="text"], input[type="tel"]');

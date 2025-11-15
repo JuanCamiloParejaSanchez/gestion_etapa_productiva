@@ -33,7 +33,7 @@ router.get('/listar-administradores', gestionAdministradoresControlador.listarAd
 router.post('/administradores-data', gestionAdministradoresControlador.obtenerDatosAdministradores); // Para la tabla dinámica
 router.get('/administrador/:id', gestionAdministradoresControlador.verAdministrador);
 router.get('/administrador/editar/:id', gestionAdministradoresControlador.editarAdministrador);
-router.post('/administrador/actualizar/:id', 
+router.post('/administrador/actualizar/:id',
     uploadPhoto.single('fotoPerfil'),
     (req, res, next) => {
         if (req.file) {

@@ -111,6 +111,12 @@ app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasAdministrador)
 // Luego las rutas de gestión de aprendices
 app.use('/administrador', AuthMiddleware.validarSesionAdmin, rutasGestionAprendices);
 
+// Ruta pública para obtener lista de administradores (para registro de aprendices)
+const gestionAdministradoresControlador = require('./modulos/administrador/controladores/gestionAdministradoresControlador');
+app.get('/api/administradores', gestionAdministradoresControlador.obtenerListaAdministradores);
+
+// --- Manejo de errores ---
+
 // --- Manejo de errores ---
 // Manejo de errores 404 (debe ir al final de todas las rutas)
 app.use((req, res) => {

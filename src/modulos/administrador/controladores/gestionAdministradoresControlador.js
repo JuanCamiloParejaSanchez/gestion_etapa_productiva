@@ -460,6 +460,39 @@ const actualizarAdministrador = async (req, res) => {
 };
 
 /**
+ * Obtener lista de administradores para select (solo nombres completos)
+ */
+const obtenerListaAdministradores = async (req, res) => {
+    console.log('🔍 Ejecutando obtenerListaAdministradores');
+    try {
+        const consulta = `
+            SELECT
+                id,
+                nombreCompleto
+            FROM administradores
+            WHERE activo = TRUE
+            ORDER BY nombreCompleto ASC
+        `;
+
+        console.log('📝 Consulta SQL:', consulta);
+        const [resultados] = await pool.execute(consulta);
+        console.log('📊 Resultados obtenidos:', resultados.length, 'administradores');
+
+        res.json({
+            success: true,
+            administradores: resultados
+        });
+
+    } catch (error) {
+        console.error('❌ Error al obtener lista de administradores:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor al obtener administradores'
+        });
+    }
+};
+
+/**
  * Eliminar un administrador
  */
 const eliminarAdministrador = async (req, res) => {
@@ -513,6 +546,7 @@ const eliminarAdministrador = async (req, res) => {
 module.exports = {
     listarAdministradores,
     obtenerDatosAdministradores,
+    obtenerListaAdministradores,
     verAdministrador,
     editarAdministrador,
     actualizarAdministrador,

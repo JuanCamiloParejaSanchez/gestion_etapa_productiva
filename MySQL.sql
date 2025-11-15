@@ -772,7 +772,7 @@ select * from aprendices;
 delete from aprendices where id='231'
 
 select * from administradores;
-delete from administradores where id='96'
+delete from administradores where id='20'
 
 
 
