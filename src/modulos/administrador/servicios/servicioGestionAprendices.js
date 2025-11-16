@@ -155,7 +155,8 @@ class ServicioGestionAprendices {
         const whereClauses = [];
         const params = [];
 
-        const { nombre, documento, programaFormacion, alternativaSeleccionada, estadoFormacion } = filtros;
+
+        const { nombre, documento, programaFormacion, alternativaSeleccionada, estadoFormacion, numeroFicha, instructorProductiva } = filtros;
 
         if (nombre) {
             whereClauses.push('(nombres LIKE ? OR primerApellido LIKE ? OR segundoApellido LIKE ?)');
@@ -183,6 +184,18 @@ class ServicioGestionAprendices {
             params.push(estadoFormacion);
         }
 
+        // Filtro por ficha
+        if (numeroFicha) {
+            whereClauses.push('numeroFicha = ?');
+            params.push(numeroFicha);
+        }
+
+        // Filtro por instructor productiva
+        if (instructorProductiva) {
+            whereClauses.push('instructorProductiva = ?');
+            params.push(instructorProductiva);
+        }
+
         if (whereClauses.length > 0) {
             baseQuery += ' WHERE ' + whereClauses.join(' AND ');
         }
@@ -202,36 +215,44 @@ class ServicioGestionAprendices {
         }
 
         const orderColumn = orderData[0];
-        const columnIndex = orderColumn.column;
-        const direction = orderColumn.dir.toUpperCase();
+        // Nuevo: usar el nombre de la columna si está presente
+        const columnName = orderColumn.data || null;
+        const direction = orderColumn.dir ? orderColumn.dir.toUpperCase() : 'ASC';
 
         if (direction !== 'ASC' && direction !== 'DESC') {
             throw new Error('Dirección de ordenamiento inválida');
         }
 
-        let columnMapping;
-        if (tableType === 'docsPendientes') {
-            columnMapping = [
-                'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
-                'segundoApellido', 'telefonoFijo', 'celular', 'correoElectronico', 'numeroFicha',
-                'programaFormacion', 'alternativaSeleccionada', 'acciones'
-            ];
-        } else {
-            columnMapping = [
-                'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
-                'segundoApellido', 'fechaNacimiento', 'eps', 'telefonoFijo', 'celular', 'direccion',
-                'barrio', 'departamento', 'municipio', 'correoElectronico', 'fechaInicioLectiva',
-                'fechaFinLectiva', 'fechaInicioProductiva', 'fechaFinProductiva', 'instructorLectiva',
-                'instructorProductiva', 'numeroFicha', 'programaFormacion', 'alternativaSeleccionada',
-                'areaFormacion', 'empresaPatrocinadora', 'areaPractica', 'jefeInmediato', 'telefonoEmpresa',
-                'celularEmpresa', 'direccionEmpresa', 'correoEmpresa', 'horario'
-            ];
+        if (columnName && COLUMNAS_PERMITIDAS.includes(columnName)) {
+            return `ORDER BY ${columnName} ${direction}`;
         }
 
-        if (columnIndex >= 0 && columnIndex < columnMapping.length) {
-            const columnName = columnMapping[columnIndex];
-            if (COLUMNAS_PERMITIDAS.includes(columnName)) {
-                return `ORDER BY ${columnName} ${direction}`;
+        // Fallback: si no se envía el nombre, usar el índice como antes
+        if (typeof orderColumn.column === 'number') {
+            let columnMapping;
+            if (tableType === 'docsPendientes') {
+                columnMapping = [
+                    'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
+                    'segundoApellido', 'telefonoFijo', 'celular', 'correoElectronico', 'numeroFicha',
+                    'programaFormacion', 'alternativaSeleccionada', 'acciones'
+                ];
+            } else {
+                columnMapping = [
+                    'tipoDocumento', 'genero', 'numeroDocumento', 'estadoFormacion', 'nombres', 'primerApellido',
+                    'segundoApellido', 'fechaNacimiento', 'eps', 'telefonoFijo', 'celular', 'direccion',
+                    'barrio', 'departamento', 'municipio', 'correoElectronico', 'fechaInicioLectiva',
+                    'fechaFinLectiva', 'fechaInicioProductiva', 'fechaFinProductiva', 'instructorLectiva',
+                    'instructorProductiva', 'numeroFicha', 'programaFormacion', 'alternativaSeleccionada',
+                    'areaFormacion', 'empresaPatrocinadora', 'areaPractica', 'jefeInmediato', 'telefonoEmpresa',
+                    'celularEmpresa', 'direccionEmpresa', 'correoEmpresa', 'horario'
+                ];
+            }
+            const idx = orderColumn.column;
+            if (idx >= 0 && idx < columnMapping.length) {
+                const col = columnMapping[idx];
+                if (COLUMNAS_PERMITIDAS.includes(col)) {
+                    return `ORDER BY ${col} ${direction}`;
+                }
             }
         }
 

@@ -757,20 +757,21 @@
         cargarOpcionesFiltros();
         
         // Configuración de columnas
+        // Configuración de columnas (ajustada al orden de los <th> en la tabla)
         const columnasConfig = [
             { data: "instructorProductiva", title: "Instructor Productiva", visible: true },
             { data: "programaFormacion", title: "Programa", visible: true },
             { data: "numeroFicha", title: "Ficha", visible: true },
-            { data: "genero", title: "Género", visible: false },
-            { data: "tipoDocumento", title: "Tipo Documento", visible: false },
-            { data: "numeroDocumento", title: "Número Documento", visible: false },
+            { data: "genero", title: "Género", visible: true },
+            { data: "tipoDocumento", title: "Tipo Documento", visible: true },
+            { data: "numeroDocumento", title: "Número Documento", visible: true },
             { data: "estadoFormacion", title: "Estado Formación", visible: true },
             { data: "nombres", title: "Nombres", visible: true },
             { data: "primerApellido", title: "Primer Apellido", visible: true },
             { data: "segundoApellido", title: "Segundo Apellido", visible: true },
-            { data: "telefonoFijo", title: "Teléfono", visible: false },
-            { data: "celular", title: "Celular", visible: false },
-            { data: "correoElectronico", title: "Email", visible: false },
+            { data: "telefonoFijo", title: "Teléfono", visible: true },
+            { data: "celular", title: "Celular", visible: true },
+            { data: "correoElectronico", title: "Correo", visible: true },
             { data: "alternativaSeleccionada", title: "Alternativa", visible: true },
             { data: "acciones", title: "Acciones", visible: true, orderable: false }
         ];
@@ -923,75 +924,51 @@
                 console.log('No hay ordenamiento activo');
                 return null;
             }
-            
+
             console.log('Ordenamiento actual:', ordenamiento);
-            
-            // Mapear el tipo de ordenamiento a dirección
+
+            // Mapear el tipo de ordenamiento a dirección CORRECTAMENTE
             let direccion = 'asc';
             if (ordenamiento.direccion === 'desc' || ordenamiento.direccion === 'newest') {
                 direccion = 'desc';
             }
-            
-            // Mapear nombre de columna a índice y tipo
-            // IMPORTANTE: Los índices deben coincidir exactamente con el orden de las columnas en el HTML
-            // Esta tabla tiene 15 columnas ahora (con instructorProductiva agregada)
-            const columnMapping = {
-                'instructorProductiva': { index: 0, type: 'text' },
-                'programaFormacion': { index: 1, type: 'text' },
-                'numeroFicha': { index: 2, type: 'number' },
-                'genero': { index: 3, type: 'text' },
-                'tipoDocumento': { index: 4, type: 'text' },
-                'numeroDocumento': { index: 5, type: 'number' },
-                'estadoFormacion': { index: 6, type: 'text' },
-                'nombres': { index: 7, type: 'text' },
-                'primerApellido': { index: 8, type: 'text' },
-                'segundoApellido': { index: 9, type: 'text' },
-                'telefonoFijo': { index: 10, type: 'number' },
-                'celular': { index: 11, type: 'number' },
-                'correoElectronico': { index: 12, type: 'text' },
-                'alternativaSeleccionada': { index: 13, type: 'text' },
-                'acciones': { index: 14, type: 'none' }
-            };
-            
-            const columnInfo = columnMapping[ordenamiento.columna];
-            if (columnInfo) {
-                const orderData = [{
-                    column: columnInfo.index,
-                    dir: direccion
-                }];
-                console.log('Datos de ordenamiento enviados:', orderData);
-                return orderData;
+
+            // Obtener el índice de la columna desde DataTables (se adapta al orden actual)
+            const tabla = $('#aprendicesTable').DataTable();
+            if (tabla) {
+                const columnIndex = tabla.column('[data-column="' + ordenamiento.columna + '"]').index();
+                if (columnIndex !== -1) {
+                    const orderData = [{
+                        column: columnIndex,
+                        dir: direccion,
+                        data: ordenamiento.columna // Enviar el nombre de la columna
+                    }];
+                    console.log('Datos de ordenamiento enviados:', orderData);
+                    return orderData;
+                }
             }
-            
-            console.log('Columna no encontrada en el mapeo:', ordenamiento.columna);
+
+            console.log('Columna no encontrada en DataTables:', ordenamiento.columna);
             return null;
         }
 
         const tabla = utilidadesAdmin.inicializarTablaAprendices('#aprendicesTable', {
-            ajax: { 
-                url: '/administrador/aprendices-data', 
-                type: 'POST', 
-                data: d => {
-                    const requestData = {
-                        ...d,
-                        nombre: $('#nombreBusqueda').val(),
-                        documento: $('#documentoBusqueda').val(),
-                        programaFormacion: $('#programaBusqueda').val(),
-                        alternativaSeleccionada: $('#alternativaBusqueda').val(),
-                        estadoFormacion: $('#estadoFormacionBusqueda').val(),
-                        numeroFicha: $('#fichaBusqueda').val(),
-                        instructorProductiva: $('#instructorProductivaBusqueda').val(),
-                        order: getOrderData(),
-                        tableType: 'docsPendientes' // Identificador para esta tabla específica
-                    };
-                    console.log('📤 Datos enviados a servidor:', requestData);
-                    return requestData;
+            ajax: {
+                url: '/administrador/aprendices-data',
+                type: 'POST',
+                data: function(d) {
+                    d.nombre = $('#nombreBusqueda').val();
+                    d.documento = $('#documentoBusqueda').val();
+                    d.programaFormacion = $('#programaBusqueda').val();
+                    d.alternativaSeleccionada = $('#alternativaBusqueda').val();
+                    d.estadoFormacion = $('#estadoFormacionBusqueda').val();
+                    d.numeroFicha = $('#fichaBusqueda').val();
+                    d.instructorProductiva = $('#instructorProductivaBusqueda').val();
+                    d.order = getOrderData();
+                    d.tableType = 'docsPendientes';
+                    return d;
                 },
                 dataSrc: function(json) {
-                    console.log('📥 Respuesta del servidor:', json);
-                    if (json.data && json.data.length > 0) {
-                        console.log('📊 Primer registro:', json.data[0]);
-                    }
                     return json.data;
                 }
             },

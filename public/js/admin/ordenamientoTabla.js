@@ -311,12 +311,20 @@ class OrdenamientoTabla {
             return;
         }
 
-        console.log('Aplicando ordenamiento:', { columna, tipoOrden });
+        // Obtener el índice real de la columna visible usando el atributo data-column
+        const columnIndex = tabla.column(`[data-column="${columna}"]`).index();
+        if (columnIndex === undefined || columnIndex === -1) {
+            console.error('No se encontró el índice de la columna:', columna);
+            return;
+        }
+
+        console.log('Aplicando ordenamiento:', { columna, tipoOrden, columnIndex });
 
         // Actualizar variable global para que se use en la próxima recarga
         window.ordenamientoActual = {
             columna: columna,
-            direccion: tipoOrden
+            direccion: tipoOrden,
+            columnIndex: columnIndex
         };
 
         // Recargar la tabla para aplicar el ordenamiento
@@ -333,6 +341,10 @@ class OrdenamientoTabla {
     // Método para obtener el tipo de columna
     getColumnType(columna) {
         const columnTypes = {
+            'instructorProductiva': 'text',
+            'programaFormacion': 'text',
+            'numeroFicha': 'number',
+            'genero': 'text',
             'tipoDocumento': 'text',
             'numeroDocumento': 'number',
             'estadoFormacion': 'text',
@@ -353,9 +365,6 @@ class OrdenamientoTabla {
             'fechaInicioProductiva': 'date',
             'fechaFinProductiva': 'date',
             'instructorLectiva': 'text',
-            'instructorProductiva': 'text',
-            'numeroFicha': 'number',
-            'programaFormacion': 'text',
             'alternativaSeleccionada': 'text',
             'areaFormacion': 'text',
             'empresaPatrocinadora': 'text',
@@ -367,7 +376,7 @@ class OrdenamientoTabla {
             'correoEmpresa': 'text',
             'horario': 'text'
         };
-        
+
         return columnTypes[columna] || 'text';
     }
 

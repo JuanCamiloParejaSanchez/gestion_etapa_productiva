@@ -739,64 +739,31 @@
                 console.log('No hay ordenamiento activo');
                 return null;
             }
-            
+
             console.log('Ordenamiento actual:', ordenamiento);
-            
-            // Mapear el tipo de ordenamiento a dirección
+
+            // Mapear el tipo de ordenamiento a dirección CORRECTAMENTE
             let direccion = 'asc';
             if (ordenamiento.direccion === 'desc' || ordenamiento.direccion === 'newest') {
                 direccion = 'desc';
             }
-            
-            // Mapear nombre de columna a índice y tipo
-            const columnMapping = {
-                'instructorProductiva': { index: 0, type: 'text' },
-                'programaFormacion': { index: 1, type: 'text' },
-                'numeroFicha': { index: 2, type: 'number' },
-                'genero': { index: 3, type: 'text' },
-                'tipoDocumento': { index: 4, type: 'text' },
-                'numeroDocumento': { index: 5, type: 'number' },
-                'estadoFormacion': { index: 6, type: 'text' },
-                'nombres': { index: 7, type: 'text' },
-                'primerApellido': { index: 8, type: 'text' },
-                'segundoApellido': { index: 9, type: 'text' },
-                'fechaNacimiento': { index: 10, type: 'date' },
-                'eps': { index: 11, type: 'text' },
-                'telefonoFijo': { index: 12, type: 'number' },
-                'celular': { index: 13, type: 'number' },
-                'direccion': { index: 14, type: 'text' },
-                'barrio': { index: 15, type: 'text' },
-                'departamento': { index: 16, type: 'text' },
-                'municipio': { index: 17, type: 'text' },
-                'correoElectronico': { index: 18, type: 'text' },
-                'fechaInicioLectiva': { index: 19, type: 'date' },
-                'fechaFinLectiva': { index: 20, type: 'date' },
-                'fechaInicioProductiva': { index: 21, type: 'date' },
-                'fechaFinProductiva': { index: 22, type: 'date' },
-                'instructorLectiva': { index: 23, type: 'text' },
-                'alternativaSeleccionada': { index: 24, type: 'text' },
-                'areaFormacion': { index: 25, type: 'text' },
-                'empresaPatrocinadora': { index: 26, type: 'text' },
-                'areaPractica': { index: 27, type: 'text' },
-                'jefeInmediato': { index: 28, type: 'text' },
-                'telefonoEmpresa': { index: 29, type: 'number' },
-                'celularEmpresa': { index: 30, type: 'number' },
-                'direccionEmpresa': { index: 31, type: 'text' },
-                'correoEmpresa': { index: 32, type: 'text' },
-                'horario': { index: 33, type: 'text' }
-            };
-            
-            const columnInfo = columnMapping[ordenamiento.columna];
-            if (columnInfo) {
-                const orderData = [{
-                    column: columnInfo.index,
-                    dir: direccion
-                }];
-                console.log('Datos de ordenamiento enviados:', orderData);
-                return orderData;
+
+            // Obtener el índice de la columna desde DataTables (se adapta al orden actual)
+            const tabla = $('#aprendicesTable').DataTable();
+            if (tabla) {
+                const columnIndex = tabla.column('[data-column="' + ordenamiento.columna + '"]').index();
+                if (columnIndex !== -1) {
+                    const orderData = [{
+                        column: columnIndex,
+                        dir: direccion,
+                        data: ordenamiento.columna // Enviar el nombre de la columna
+                    }];
+                    console.log('Datos de ordenamiento enviados:', orderData);
+                    return orderData;
+                }
             }
-            
-            console.log('Columna no encontrada en el mapeo:', ordenamiento.columna);
+
+            console.log('Columna no encontrada en DataTables:', ordenamiento.columna);
             return null;
         }
 
@@ -804,26 +771,20 @@
             ajax: {
                 url: '/administrador/aprendices-data',
                 type: 'POST',
-                data: d => {
-                    const requestData = {
-                        ...d,
-                        nombre: $('#nombreBusqueda').val(),
-                        documento: $('#documentoBusqueda').val(),
-                        programaFormacion: $('#programaBusqueda').val(),
-                        alternativaSeleccionada: $('#alternativaBusqueda').val(),
-                        estadoFormacion: $('#estadoFormacionBusqueda').val(),
-                        numeroFicha: $('#fichaBusqueda').val(),
-                        instructorProductiva: $('#instructorProductivaBusqueda').val(),
-                        order: getOrderData()
-                    };
-                    console.log('📤 Datos enviados a servidor:', requestData);
-                    return requestData;
+                data: function(d) {
+                    // Tomar los valores actuales de los filtros
+                    d.nombre = $('#nombreBusqueda').val();
+                    d.documento = $('#documentoBusqueda').val();
+                    d.programaFormacion = $('#programaBusqueda').val();
+                    d.alternativaSeleccionada = $('#alternativaBusqueda').val();
+                    d.estadoFormacion = $('#estadoFormacionBusqueda').val();
+                    d.numeroFicha = $('#fichaBusqueda').val();
+                    d.instructorProductiva = $('#instructorProductivaBusqueda').val();
+                    d.order = getOrderData();
+                    // Si la tabla es de aprendicesDocsPendientes, puedes agregar d.tableType = 'docsPendientes';
+                    return d;
                 },
                 dataSrc: function(json) {
-                    console.log('📥 Respuesta del servidor:', json);
-                    if (json.data && json.data.length > 0) {
-                        console.log('📊 Primer registro:', json.data[0]);
-                    }
                     return json.data;
                 }
             },
