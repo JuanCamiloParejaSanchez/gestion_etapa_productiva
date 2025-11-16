@@ -366,6 +366,7 @@
                         <tr>
                             <th data-column="numeroIdentificacion">Documento</th>
                             <th data-column="nombreCompleto">Nombre</th>
+                            <th data-column="fichaGrupo">Ficha o Grupo</th>
                             <th data-column="correoInstitucional">Correo institucional</th>
                             <th data-column="telefono">Teléfono</th>
                             <th data-column="departamento">Departamento</th>
@@ -564,6 +565,7 @@
         const columnasConfig = [
             { data: "numeroIdentificacion", title: "Documento", visible: true },
             { data: "nombreCompleto", title: "Nombre", visible: true },
+            { data: "fichaGrupo", title: "Ficha o Grupo", visible: true },
             { data: "correoInstitucional", title: "Correo institucional", visible: true },
             { data: "telefono", title: "Teléfono", visible: true },
             { data: "departamento", title: "Departamento", visible: true },
@@ -721,10 +723,12 @@
             const columnMapping = {
                 'numeroIdentificacion': { index: 0, type: 'number' },
                 'nombreCompleto': { index: 1, type: 'text' },
-                'correoInstitucional': { index: 2, type: 'text' },
-                'telefono': { index: 3, type: 'number' },
-                'departamento': { index: 4, type: 'text' },
-                'cargo': { index: 5, type: 'text' }
+                'fichaGrupo': { index: 2, type: 'text' },
+                'correoInstitucional': { index: 3, type: 'text' },
+                'telefono': { index: 4, type: 'number' },
+                'departamento': { index: 5, type: 'text' },
+                'cargo': { index: 6, type: 'text' },
+                
             };
             
             const columnInfo = columnMapping[ordenamiento.columna];

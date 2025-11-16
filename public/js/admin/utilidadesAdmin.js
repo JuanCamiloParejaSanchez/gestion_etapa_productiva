@@ -327,13 +327,13 @@ class AdminUtils {
                     className: 'btn btn-danger',
                     title: 'Listado de Administradores',
                     orientation: 'landscape',
-                    pageSize: 'LETTER',
+                    pageSize: 'LEGAL',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     },
                     customize: function(doc) {
                         // Personalizar el documento PDF
-                        doc.content[1].table.widths = ['10%', '30%', '30%', '10%', '20%'];
+                        doc.content[1].table.widths = ['10%', '20%', '10%', '20%', '10%', '20%', '10%'];
                     }
                 }                
             ],

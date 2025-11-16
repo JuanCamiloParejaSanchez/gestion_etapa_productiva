@@ -91,11 +91,13 @@ CREATE TABLE `aprendices` (
 CREATE TABLE `administradores` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nombreCompleto` varchar(150) NOT NULL COMMENT 'Nombre completo del administrador',
+  `fichaGrupo` varchar(100) DEFAULT NULL COMMENT 'Ficha o Grupo',
   `correoInstitucional` varchar(100) NOT NULL COMMENT 'Correo institucional único',
   `numeroIdentificacion` varchar(30) NOT NULL COMMENT 'Número de identificación',
   `telefono` varchar(20) NOT NULL COMMENT 'Teléfono de contacto',
   `departamento` varchar(100) NOT NULL COMMENT 'Departamento o área',
   `cargo` varchar(100) DEFAULT NULL COMMENT 'Cargo o rol',
+  `fichaGrupo` varchar(100) DEFAULT NULL COMMENT 'Ficha o Grupo',
   `fotoPerfil` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de foto de perfil',
   `fotoPerfilPath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa de la foto de perfil',
   `password` varchar(255) DEFAULT NULL COMMENT 'Contraseña hasheada (NULL durante proceso de registro)',
@@ -112,7 +114,8 @@ CREATE TABLE `administradores` (
   UNIQUE KEY `uk_numero_identificacion_admin` (`numeroIdentificacion`),
   KEY `idx_rol` (`rol`),
   KEY `idx_activo` (`activo`),
-  
+  KEY `idx_ficha_grupo` (`fichaGrupo`),
+
   CONSTRAINT `chk_intentos_fallidos_admin` CHECK (`intentosFallidos` >= 0 AND `intentosFallidos` <= 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla de administradores del sistema';
 
@@ -775,6 +778,9 @@ select * from administradores;
 delete from administradores where id='102'
 
 
-
+-- Mover la columna fichaGrupo para que esté después de nombreCompleto
+ALTER TABLE administradores 
+MODIFY COLUMN fichaGrupo VARCHAR(100) DEFAULT NULL COMMENT 'Ficha o Grupo' 
+AFTER nombreCompleto;
 
 

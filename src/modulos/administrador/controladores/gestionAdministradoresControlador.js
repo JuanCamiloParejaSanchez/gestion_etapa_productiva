@@ -39,15 +39,16 @@ const obtenerDatosAdministradores = async (req, res) => {
         const { nombre = '', documento = '' } = req.body;
 
         let query = `
-            SELECT 
+            SELECT
                 id,
                 numeroIdentificacion,
                 nombreCompleto,
+                fichaGrupo,
                 correoInstitucional,
                 telefono,
                 departamento,
                 cargo
-            FROM administradores 
+            FROM administradores
             WHERE 1=1
         `;
 
@@ -67,14 +68,15 @@ const obtenerDatosAdministradores = async (req, res) => {
         // Búsqueda global de DataTables
         if (search.value && search.value.trim()) {
             query += ` AND (
-                nombreCompleto LIKE ? OR 
-                numeroIdentificacion LIKE ? OR 
-                correoInstitucional LIKE ? OR 
-                departamento LIKE ? OR 
+                nombreCompleto LIKE ? OR
+                fichaGrupo LIKE ? OR
+                numeroIdentificacion LIKE ? OR
+                correoInstitucional LIKE ? OR
+                departamento LIKE ? OR
                 cargo LIKE ?
             )`;
             const searchValue = `%${search.value.trim()}%`;
-            params.push(searchValue, searchValue, searchValue, searchValue, searchValue);
+            params.push(searchValue, searchValue, searchValue, searchValue, searchValue, searchValue);
         }
 
         // Contar total de registros sin filtros
@@ -92,7 +94,7 @@ const obtenerDatosAdministradores = async (req, res) => {
             const direction = order[0].dir === 'desc' ? 'DESC' : 'ASC';
             
             const columnNames = [
-                'numeroIdentificacion', 'nombreCompleto', 'correoInstitucional', 
+                'numeroIdentificacion', 'nombreCompleto', 'fichaGrupo', 'correoInstitucional',
                 'telefono', 'departamento', 'cargo'
             ];
             
