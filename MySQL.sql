@@ -778,9 +778,6 @@ select * from administradores;
 delete from administradores where id='102'
 
 
--- Mover la columna fichaGrupo para que esté después de nombreCompleto
-ALTER TABLE administradores 
-MODIFY COLUMN fichaGrupo VARCHAR(100) DEFAULT NULL COMMENT 'Ficha o Grupo' 
-AFTER nombreCompleto;
+
 
 
