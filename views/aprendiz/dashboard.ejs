@@ -903,7 +903,7 @@
     </div>
 </div>
 
-<%- contentFor('scripts') %>
+
 <!-- Modal de Notificaciones de Documentos -->
 <div class="modal fade" id="modalNotificaciones" tabindex="-1" aria-labelledby="modalNotificacionesLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -993,7 +993,10 @@
 <div class="modal fade" id="modalChat" tabindex="-1" aria-labelledby="modalChatLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-info text-white">
+      <div class="modal-header bg-success text-white">
+        <button id="btn-regresar-chat" class="btn btn-link text-white" style="display: none;" title="Regresar">
+          <i class="fas fa-arrow-left"></i>
+        </button>
         <h5 class="modal-title text-white" id="modalChatLabel">
           <i class="fas fa-envelope me-2"></i>Chat con Administrador
         </h5>
@@ -1008,16 +1011,17 @@
           </div>
         </div>
         <div class="chat-input-area">
-          <textarea
-            id="chat-input"
-            class="chat-input form-control"
-            placeholder="Escribe tu mensaje..."
-            rows="1"
-            maxlength="500"></textarea>
-          <button id="send-chat-btn" class="btn btn-info btn-send-chat">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
+           <textarea
+             id="chat-input"
+             class="chat-input form-control"
+             placeholder="Selecciona una conversación para enviar mensajes"
+             rows="1"
+             maxlength="500"
+             disabled></textarea>
+           <button id="send-chat-btn" class="btn btn-info btn-send-chat" disabled>
+             <i class="fas fa-paper-plane"></i>
+           </button>
+         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -1027,6 +1031,7 @@
 </div>
 
 
+<%- contentFor('scripts') %>
 <script src="/js/utilidades/sessionTimeout.js"></script>
 <script>
 document.getElementById('confirmLogoutBtn').addEventListener('click', function() {
@@ -1366,12 +1371,25 @@ function mostrarNotificacionExito(mensaje, tipo = 'success') {
 
 // Funciones del Chat
 let currentChatUser = null;
+let chatViewState = 'list';
+let cachedConversations = [];
 
 // Cargar contador de mensajes no leídos al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     cargarContadorChat();
     // Actualizar cada 30 segundos
     setInterval(cargarContadorChat, 30000);
+
+    // Event listener para el botón de regresar
+    document.getElementById('btn-regresar-chat').addEventListener('click', function() {
+        chatViewState = 'list';
+        document.getElementById('btn-regresar-chat').style.display = 'none';
+        document.getElementById('modalChatLabel').textContent = 'Chat con Administrador';
+        document.getElementById('chat-input').disabled = true;
+        document.getElementById('chat-input').placeholder = 'Selecciona una conversación para enviar mensajes';
+        document.getElementById('send-chat-btn').disabled = true;
+        mostrarListaConversaciones(cachedConversations);
+    });
 });
 
 // Cargar contador de mensajes no leídos
@@ -1392,6 +1410,11 @@ function cargarContadorChat() {
 
 // Abrir modal de chat
 document.getElementById('btnChat').addEventListener('click', function() {
+    chatViewState = 'list';
+    document.getElementById('btn-regresar-chat').style.display = 'none';
+    document.getElementById('chat-input').disabled = true;
+    document.getElementById('chat-input').placeholder = 'Selecciona una conversación para enviar mensajes';
+    document.getElementById('send-chat-btn').disabled = true;
     cargarConversaciones();
 });
 
@@ -1410,6 +1433,7 @@ function cargarConversaciones() {
 
 // Mostrar lista de conversaciones
 function mostrarListaConversaciones(conversaciones) {
+    cachedConversations = conversaciones;
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = `
         <div class="mb-3">
@@ -1443,7 +1467,8 @@ function mostrarListaConversaciones(conversaciones) {
         item.addEventListener('click', function() {
             const otroUsuarioId = this.dataset.otroUsuarioId;
             const otroUsuarioTipo = this.dataset.otroUsuarioTipo;
-            abrirConversacion(otroUsuarioId, otroUsuarioTipo);
+            const nombre = this.querySelector('strong').textContent;
+            abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre);
         });
     });
 
@@ -1516,8 +1541,14 @@ function mostrarResultadosBusqueda(usuarios) {
 }
 
 // Abrir conversación específica
-function abrirConversacion(otroUsuarioId, otroUsuarioTipo) {
+function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
     currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
+    chatViewState = 'messages';
+    document.getElementById('btn-regresar-chat').style.display = 'inline-block';
+    document.getElementById('modalChatLabel').textContent = `Chat con ${nombre}`;
+    document.getElementById('chat-input').disabled = false;
+    document.getElementById('chat-input').placeholder = 'Escribe tu mensaje...';
+    document.getElementById('send-chat-btn').disabled = false;
     cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo);
 }
 
@@ -1649,6 +1680,10 @@ function enviarMensaje() {
 }
 
 // Auto-resize del textarea
+document.getElementById('chat-input').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
 document.getElementById('chat-input').addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
