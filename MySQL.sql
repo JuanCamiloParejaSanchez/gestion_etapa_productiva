@@ -403,6 +403,33 @@ CREATE TABLE `logs_acceso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Logs de acceso y acciones de usuarios';
 
 -- =====================================================
+-- TABLA: MENSAJES (CHAT)
+-- =====================================================
+
+CREATE TABLE `mensajes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `remitente_id` int NOT NULL COMMENT 'ID del usuario remitente (aprendiz o admin)',
+  `remitente_tipo` enum('aprendiz','admin') NOT NULL COMMENT 'Tipo de remitente',
+  `destinatario_id` int NOT NULL COMMENT 'ID del usuario destinatario (aprendiz o admin)',
+  `destinatario_tipo` enum('aprendiz','admin') NOT NULL COMMENT 'Tipo de destinatario',
+  `mensaje` text NOT NULL COMMENT 'Contenido del mensaje',
+  `leido` boolean DEFAULT FALSE COMMENT 'Indica si el mensaje fue leído',
+  `fecha_creacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de envío',
+  `fecha_lectura` datetime NULL COMMENT 'Fecha en que se leyó el mensaje',
+
+  PRIMARY KEY (`id`),
+  KEY `idx_remitente` (`remitente_id`, `remitente_tipo`),
+  KEY `idx_destinatario` (`destinatario_id`, `destinatario_tipo`),
+  KEY `idx_leido` (`leido`),
+  KEY `idx_fecha_creacion` (`fecha_creacion`),
+
+  CONSTRAINT `fk_mensajes_remitente_aprendiz` FOREIGN KEY (`remitente_id`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_mensajes_remitente_admin` FOREIGN KEY (`remitente_id`) REFERENCES `administradores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_mensajes_destinatario_aprendiz` FOREIGN KEY (`destinatario_id`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_mensajes_destinatario_admin` FOREIGN KEY (`destinatario_id`) REFERENCES `administradores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Mensajes del sistema de chat entre aprendices y administradores';
+
+-- =====================================================
 -- TABLA: CONFIGURACION_SISTEMA
 -- =====================================================
 CREATE TABLE `configuracion_sistema` (

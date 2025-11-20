@@ -40,19 +40,19 @@ const AuthMiddleware = {
     validarSesionAdmin: (req, res, next) => {
         console.log('🔐 Verificando sesión de administrador...');
 
-        if (req.session && req.session.userId && req.session.userRole === 'admin') {
+        if (req.session && req.session.userId && ['admin', 'super_admin', 'instructor'].includes(req.session.userRole)) {
             console.log('✅ Sesión válida como administrador.');
             AuthMiddleware.setNoCacheHeaders(res);
             return next();
         }
 
-        console.log('❌ Acceso denegado: no hay sesión o el rol no es admin. Redirigiendo a /auth/login');
-        
+        console.log('❌ Acceso denegado: no hay sesión o el rol no es administrador. Redirigiendo a /auth/login');
+
         // Solo guardar redirectUrl si req.session existe
         if (req.session) {
             req.session.redirectUrl = req.originalUrl;
         }
-        
+
         return res.redirect('/auth/login');
     },
 

@@ -7,11 +7,234 @@
 <link rel="stylesheet" href="/estilos/components/navbar.css">
 <link rel="stylesheet" href="/estilos/components/buttons.css">
 <link rel="stylesheet" href="/estilos/general/estilosBase.css">
+<style>
+    /* Estilos para el modal de chat */
+    #modalChat .modal-dialog {
+        max-width: 600px;
+    }
+
+    @media (max-width: 768px) {
+        #modalChat .modal-dialog {
+            max-width: 95%;
+            margin: 1rem auto;
+        }
+    }
+
+    .chat-messages {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .dark-mode .chat-messages {
+        background-color: #1e1e1e;
+        color: #e6edf3;
+    }
+
+    .chat-message {
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+
+    .chat-message.sent {
+        background-color: #007bff;
+        color: white;
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .chat-message.received {
+        background-color: #e9ecef;
+        color: #333;
+    }
+
+    .dark-mode .chat-message.received {
+        background-color: #2d3748;
+        color: #e6edf3;
+    }
+
+    .chat-message .sender {
+        font-weight: bold;
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .chat-message .timestamp {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 0.25rem;
+    }
+
+    .chat-input-area {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    .chat-input {
+        flex: 1;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        border: 1px solid #ced4da;
+        resize: none;
+        min-height: 38px;
+        max-height: 100px;
+    }
+
+    .dark-mode .chat-input {
+        background-color: #2d3748;
+        border-color: #475569;
+        color: #e6edf3;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .dark-mode .chat-input:focus {
+        border-color: #58a6ff;
+        box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+    }
+
+    .btn-send-chat {
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chat-empty {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+
+    .dark-mode .chat-empty {
+        color: #8b949e;
+    }
+
+    /* Variante de éxito para notificaciones */
+    .success-popup-overlay {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        animation: slideInRight 0.3s ease-out forwards;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .success-popup {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        border-left: 4px solid #28a745;
+    }
+
+    .dark-mode .success-popup {
+        background: #161b22;
+        border-left-color: #4caf50;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .success-popup-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d4edda 0%, #28a745 100%);
+        color: #155724;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .dark-mode .success-popup-icon {
+        background: linear-gradient(135deg, #0f3d1a 0%, #28a745 100%);
+        color: #4caf50;
+    }
+
+    .success-popup-content {
+        flex: 1;
+    }
+
+    .success-popup-title {
+        font-weight: 600;
+        color: #155724;
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+    }
+
+    .dark-mode .success-popup-title {
+        color: #4caf50;
+    }
+
+    .success-popup-message {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .dark-mode .success-popup-message {
+        color: #8b949e;
+    }
+</style>
 
 <%- contentFor('navigation') %>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <div class="d-flex w-100 justify-content-end">
+        <div class="d-flex w-100 justify-content-end align-items-center">
+            <!-- Chat -->
+            <div class="position-relative me-3" style="overflow: visible;">
+                <button class="btn btn-primary btn-navbar position-relative"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalChat"
+                        id="btnChat"
+                        style="overflow: visible;">
+                    <i class="fas fa-envelope me-2"></i>
+                    Chat
+                    <span id="badgeChat" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none; z-index: 10;">
+                        0
+                    </span>
+                </button>
+            </div>
              <a href="#" class="btn btn-primary btn-navbar" data-bs-toggle="modal" data-bs-target="#confirmLogoutModal">
                 <i class="fas fa-sign-out-alt me-2"></i>
                 Cerrar Sesión
@@ -111,29 +334,382 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Prevenir cualquier inicialización de DataTables en el panel principal
         window.skipDataTableInit = true;
-        
+    
         // Limpiar cualquier tabla DataTable residual
         if ($.fn.DataTable && $.fn.DataTable.isDataTable('#aprendicesTable')) {
             $('#aprendicesTable').DataTable().destroy();
             console.log('Tabla DataTable residual eliminada');
         }
-        
+    
         // Evitar que se ejecuten scripts de ordenamiento de tabla
         if (window.OrdenamientoTabla) {
             console.log('Prevención de inicialización de OrdenamientoTabla en panel principal');
             return;
         }
-        
+    
         // Lógica específica del panel principal
         console.log('Panel principal cargado correctamente');
-        
+    
         // Verificar que no hay elementos de tabla que no deberían estar aquí
         const tablaAprendices = document.getElementById('aprendicesTable');
         if (tablaAprendices) {
             console.warn('¡ADVERTENCIA! Se encontró tabla aprendicesTable en panel principal');
             tablaAprendices.remove();
         }
+    
+        // Agregar event listeners del chat
+        const btnChat = document.getElementById('btnChat');
+        if (btnChat) {
+            btnChat.addEventListener('click', function() {
+                cargarConversaciones();
+            });
+        }
+
+        const sendBtn = document.getElementById('send-chat-btn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', enviarMensaje);
+        }
+
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    enviarMensaje();
+                }
+            });
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+        }
+    
+        // Cargar contador de mensajes no leídos
+        cargarContadorChat();
+        // Actualizar cada 30 segundos
+        setInterval(cargarContadorChat, 30000);
     });
+</script>
+<script>
+/**
+ * Mostrar notificación de éxito/error tipo toast
+ */
+function mostrarNotificacionExito(mensaje, tipo = 'success') {
+    const overlay = document.createElement('div');
+    overlay.className = 'success-popup-overlay';
+
+    let icono = 'fas fa-check-circle';
+    let titulo = 'Éxito';
+    let borderColor = '#28a745';
+
+    if (tipo === 'danger') {
+        icono = 'fas fa-exclamation-circle';
+        titulo = 'Error';
+        borderColor = '#dc3545';
+    } else if (tipo === 'warning') {
+        icono = 'fas fa-exclamation-triangle';
+        titulo = 'Advertencia';
+        borderColor = '#ffc107';
+    }
+
+    const popup = document.createElement('div');
+    popup.className = 'success-popup';
+    popup.style.borderLeftColor = borderColor;
+
+    popup.innerHTML = `
+        <div class="success-popup-icon">
+            <i class="${icono}"></i>
+        </div>
+        <div class="success-popup-content">
+            <div class="success-popup-title">${titulo}</div>
+            <p class="success-popup-message">${mensaje}</p>
+        </div>
+    `;
+
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
+
+    // Auto-cerrar después de 4 segundos
+    setTimeout(() => {
+        overlay.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    }, 4000);
+
+    // Cerrar al hacer clic
+    overlay.addEventListener('click', () => {
+        overlay.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => {
+            document.body.removeChild(overlay);
+        }, 300);
+    });
+}
+
+// Funciones del Chat
+let currentChatUser = null;
+
+// Cargar contador de mensajes no leídos
+function cargarContadorChat() {
+    fetch('/administrador/chat/contador')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('badgeChat');
+            if (data.success && data.count > 0) {
+                badge.textContent = data.count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error al cargar contador de chat:', error));
+}
+
+// Cargar conversaciones disponibles
+function cargarConversaciones() {
+    fetch('/administrador/chat/conversaciones')
+        .then(response => response.json())
+        .then(data => {
+            mostrarListaConversaciones(data.conversaciones || []);
+        })
+        .catch(error => {
+            console.error('Error al cargar conversaciones:', error);
+            mostrarListaConversaciones([]);
+        });
+}
+
+// Mostrar lista de conversaciones
+function mostrarListaConversaciones(conversaciones) {
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = `
+        <div class="mb-3">
+            <h6>Buscar Aprendiz:</h6>
+            <div class="input-group mb-3">
+                <input type="text" id="search-user-input" class="form-control" placeholder="Escribe el nombre del aprendiz..." autocomplete="off">
+                <button class="btn btn-outline-primary" type="button" onclick="buscarUsuarios()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div id="search-results" class="mb-3" style="display: none;"></div>
+            <h6>Conversaciones activas:</h6>
+            ${conversaciones.length > 0 ? conversaciones.map(conv => `
+                <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 cursor-pointer conversation-item"
+                      data-otro-usuario-id="${conv.otro_usuario_id}"
+                      data-otro-usuario-tipo="${conv.otro_usuario_tipo}">
+                    <div>
+                        <strong>${conv.nombre}</strong>
+                        ${conv.no_leidos > 0 ? `<span class="badge bg-danger ms-2">${conv.no_leidos}</span>` : ''}
+                        <br>
+                        <small class="text-muted">${new Date(conv.ultimo_mensaje).toLocaleString('es-CO')}</small>
+                    </div>
+                    <i class="fas fa-chevron-right text-muted"></i>
+                </div>
+            `).join('') : '<p class="text-muted">No hay conversaciones activas.</p>'}
+        </div>
+    `;
+
+    // Agregar event listeners para las conversaciones
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const otroUsuarioId = this.dataset.otroUsuarioId;
+            const otroUsuarioTipo = this.dataset.otroUsuarioTipo;
+            abrirConversacion(otroUsuarioId, otroUsuarioTipo);
+        });
+    });
+
+    // Agregar event listener para búsqueda en tiempo real
+    document.getElementById('search-user-input').addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length >= 2) {
+            buscarUsuarios(query);
+        } else {
+            document.getElementById('search-results').style.display = 'none';
+        }
+    });
+}
+
+// Buscar usuarios
+function buscarUsuarios(query = '') {
+    if (!query) {
+        query = document.getElementById('search-user-input').value.trim();
+    }
+
+    if (query.length < 2) {
+        mostrarNotificacionExito('Escribe al menos 2 caracteres para buscar.', 'warning');
+        return;
+    }
+
+    fetch(`/administrador/chat/buscar-usuarios?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarResultadosBusqueda(data.usuarios);
+            } else {
+                mostrarResultadosBusqueda([]);
+            }
+        })
+        .catch(error => {
+            console.error('Error al buscar usuarios:', error);
+            mostrarResultadosBusqueda([]);
+        });
+}
+
+// Mostrar resultados de búsqueda
+function mostrarResultadosBusqueda(usuarios) {
+    const resultsDiv = document.getElementById('search-results');
+    if (usuarios.length > 0) {
+        resultsDiv.innerHTML = `
+            <div class="list-group">
+                ${usuarios.map(user => `
+                    <button type="button" class="list-group-item list-group-item-action search-result-item"
+                            data-user-id="${user.id}"
+                            data-user-tipo="aprendiz">
+                        <i class="fas fa-user-graduate me-2"></i>${user.nombre}
+                    </button>
+                `).join('')}
+            </div>
+        `;
+        resultsDiv.style.display = 'block';
+
+        // Agregar event listeners para los resultados de búsqueda
+        document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const userTipo = this.dataset.userTipo;
+                abrirConversacion(userId, userTipo);
+            });
+        });
+    } else {
+        resultsDiv.innerHTML = '<p class="text-muted">No se encontraron aprendices.</p>';
+        resultsDiv.style.display = 'block';
+    }
+}
+
+// Abrir conversación específica
+function abrirConversacion(otroUsuarioId, otroUsuarioTipo) {
+    currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
+    cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo);
+}
+
+// Cargar mensajes de una conversación
+function cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo) {
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-info" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    `;
+
+    fetch(`/administrador/chat/historial/${otroUsuarioId}/${otroUsuarioTipo}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarMensajes(data.mensajes);
+                // Marcar mensajes como leídos
+                marcarMensajesComoLeidos(data.mensajes);
+            } else {
+                chatMessages.innerHTML = '<div class="alert alert-warning">Error al cargar los mensajes.</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error al cargar mensajes:', error);
+            chatMessages.innerHTML = '<div class="alert alert-danger">Error al cargar los mensajes.</div>';
+        });
+}
+
+// Mostrar mensajes en el chat
+function mostrarMensajes(mensajes) {
+    const chatMessages = document.getElementById('chat-messages');
+    if (mensajes.length === 0) {
+        chatMessages.innerHTML = `
+            <div class="chat-empty">
+                <i class="fas fa-comments fa-2x mb-2"></i>
+                <p>No hay mensajes en esta conversación. ¡Envía el primero!</p>
+            </div>
+        `;
+        return;
+    }
+
+    chatMessages.innerHTML = mensajes.map(msg => `
+        <div class="chat-message ${msg.es_remitente ? 'sent' : 'received'}">
+            <div class="sender">${msg.es_remitente ? 'Tú' : msg.remitente_nombre}</div>
+            <div>${msg.mensaje}</div>
+            <div class="timestamp">${new Date(msg.fecha_creacion).toLocaleString('es-CO')}</div>
+        </div>
+    `).join('');
+
+    // Scroll al final
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Marcar mensajes como leídos
+function marcarMensajesComoLeidos(mensajes) {
+    const mensajesNoLeidos = mensajes.filter(msg => !msg.es_remitente && !msg.leido);
+    mensajesNoLeidos.forEach(msg => {
+        fetch(`/administrador/chat/mensajes/${msg.id}/marcar-leido`, {
+            method: 'POST'
+        }).catch(error => console.error('Error al marcar mensaje como leído:', error));
+    });
+
+    // Actualizar contador después de marcar como leídos
+    setTimeout(cargarContadorChat, 1000);
+}
+
+
+function enviarMensaje() {
+    if (!currentChatUser) {
+        mostrarNotificacionExito('Selecciona una conversación primero.', 'warning');
+        return;
+    }
+
+    const input = document.getElementById('chat-input');
+    const mensaje = input.value.trim();
+
+    if (!mensaje) {
+        mostrarNotificacionExito('Escribe un mensaje antes de enviar.', 'warning');
+        return;
+    }
+
+    // Deshabilitar botón mientras se envía
+    const btn = document.getElementById('send-chat-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    fetch('/administrador/chat/enviar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            destinatarioId: currentChatUser.id,
+            destinatarioTipo: currentChatUser.tipo,
+            mensaje: mensaje
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            // Recargar mensajes
+            cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+            mostrarNotificacionExito('Mensaje enviado correctamente.');
+        } else {
+            mostrarNotificacionExito(data.message || 'Error al enviar el mensaje.', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error al enviar mensaje:', error);
+        mostrarNotificacionExito('Error al enviar el mensaje.', 'danger');
+    })
+    .finally(() => {
+        // Rehabilitar botón
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    });
+}
+
 </script>
 
 <!-- Modal de Confirmación de Cierre de Sesión -->
@@ -163,6 +739,43 @@
           <i class="fas fa-sign-out-alt me-2"></i>
           Cerrar Sesión
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Chat -->
+<div class="modal fade" id="modalChat" tabindex="-1" aria-labelledby="modalChatLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title text-white" id="modalChatLabel">
+          <i class="fas fa-envelope me-2"></i>Chat con Aprendices
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div id="chat-messages" class="chat-messages">
+          <!-- Los mensajes se cargarán dinámicamente aquí -->
+          <div class="chat-empty">
+            <i class="fas fa-comments fa-2x mb-2"></i>
+            <p>No hay mensajes aún. Selecciona un aprendiz para iniciar una conversación.</p>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <textarea
+            id="chat-input"
+            class="chat-input form-control"
+            placeholder="Escribe tu mensaje..."
+            rows="1"
+            maxlength="500"></textarea>
+          <button id="send-chat-btn" class="btn btn-info btn-send-chat">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>

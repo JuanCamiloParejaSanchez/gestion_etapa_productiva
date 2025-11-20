@@ -7,6 +7,7 @@ const router = express.Router();
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
 const controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
+const chatControlador = require('../../compartido/controladores/chatControlador');
 const upload = require('../../../compartido/middlewares/multerConfig');
 const { uploadPhoto, procesarFotoPerfil } = require('../../../compartido/middlewares/multerConfigFotos');
 
@@ -31,6 +32,15 @@ router.post('/notificaciones/marcar-todas-leidas', controladorDashboardAprendiz.
 router.delete('/notificaciones/eliminar-leidas', controladorDashboardAprendiz.eliminarTodasNotificacionesLeidas);
 router.post('/notificaciones/:id/marcar-leida', controladorDashboardAprendiz.marcarNotificacionLeida);
 router.delete('/notificaciones/:id', controladorDashboardAprendiz.eliminarNotificacion);
+
+// --- Rutas de Chat ---
+router.post('/chat/enviar', chatControlador.enviarMensaje);
+router.get('/chat/mensajes', chatControlador.obtenerMensajesNoLeidos);
+router.get('/chat/historial/:otroUsuarioId/:otroUsuarioTipo', chatControlador.obtenerHistorialMensajes);
+router.post('/chat/mensajes/:id/marcar-leido', chatControlador.marcarMensajeLeido);
+router.get('/chat/contador', chatControlador.obtenerContadorMensajes);
+router.get('/chat/conversaciones', chatControlador.obtenerConversaciones);
+router.get('/chat/buscar-usuarios', chatControlador.buscarUsuarios);
 
 // --- Rutas de Gestión de Documentos ---
 router.get('/documentos', controladorDashboardAprendiz.mostrarGestionDocumentos);
