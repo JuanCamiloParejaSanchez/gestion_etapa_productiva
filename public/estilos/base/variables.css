@@ -248,16 +248,16 @@ html.dark-mode body .modal-content {
     color: #f0f6fc;
 }
 
-html.dark-mode body .modal-header {
+/* html.dark-mode body .modal-header {
     background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
     color: white;
     border-bottom: none;
-}
+} */
 
-html.dark-mode body .modal-footer {
+/* html.dark-mode body .modal-footer {
     background-color: #161b22;
     border-top: 1px solid #30363d;
-}
+} */
 
 /* Dropdowns en modo oscuro */
 html.dark-mode body .dropdown-menu {

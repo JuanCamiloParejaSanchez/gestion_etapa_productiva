@@ -429,6 +429,26 @@ CREATE TABLE `mensajes` (
   CONSTRAINT `fk_mensajes_destinatario_admin` FOREIGN KEY (`destinatario_id`) REFERENCES `administradores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Mensajes del sistema de chat entre aprendices y administradores';
 
+
+-- =====================================================
+-- TABLA: CONVERSACIONES_ELIMINADAS
+-- =====================================================
+
+CREATE TABLE `conversaciones_eliminadas` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `usuario_id` int NOT NULL COMMENT 'ID del usuario que eliminó la conversación',
+  `usuario_tipo` enum('aprendiz','admin') NOT NULL COMMENT 'Tipo del usuario que eliminó',
+  `otro_usuario_id` int NOT NULL COMMENT 'ID del otro usuario en la conversación',
+  `otro_usuario_tipo` enum('aprendiz','admin') NOT NULL COMMENT 'Tipo del otro usuario',
+  `fecha_eliminacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de eliminación',
+
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_conversacion_eliminada` (`usuario_id`, `usuario_tipo`, `otro_usuario_id`, `otro_usuario_tipo`),
+  KEY `idx_usuario` (`usuario_id`, `usuario_tipo`),
+  KEY `idx_otro_usuario` (`otro_usuario_id`, `otro_usuario_tipo`),
+  KEY `idx_fecha_eliminacion` (`fecha_eliminacion`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Conversaciones eliminadas unilateralmente por usuarios';
+
 -- =====================================================
 -- TABLA: CONFIGURACION_SISTEMA
 -- =====================================================

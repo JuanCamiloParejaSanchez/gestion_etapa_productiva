@@ -60,6 +60,7 @@ router.get('/chat/historial/:otroUsuarioId/:otroUsuarioTipo', chatControlador.ob
 router.post('/chat/mensajes/:id/marcar-leido', chatControlador.marcarMensajeLeido);
 router.get('/chat/contador', chatControlador.obtenerContadorMensajes);
 router.get('/chat/conversaciones', chatControlador.obtenerConversaciones);
+router.delete('/chat/conversaciones/:otroUsuarioId/:otroUsuarioTipo', chatControlador.eliminarConversacion);
 router.get('/chat/buscar-usuarios', chatControlador.buscarUsuarios);
 
 module.exports = router;

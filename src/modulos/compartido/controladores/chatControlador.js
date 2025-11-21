@@ -250,6 +250,51 @@ class ChatControlador extends BaseController {
     }
 
     /**
+     * Eliminar conversación unilateralmente
+     */
+    async eliminarConversacion(req, res) {
+        try {
+            const usuarioId = req.session.userId;
+            const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
+            const { otroUsuarioId, otroUsuarioTipo } = req.params;
+
+            if (!usuarioId) {
+                return res.status(401).json({ success: false, message: 'Usuario no autenticado' });
+            }
+
+            // Validar que el usuario actual existe
+            const tablaUsuario = usuarioTipo === 'aprendiz' ? 'aprendices' : 'administradores';
+            const [usuario] = await pool.execute(`SELECT id FROM ${tablaUsuario} WHERE id = ?`, [usuarioId]);
+            if (usuario.length === 0) {
+                return res.status(401).json({ success: false, message: 'Usuario no encontrado' });
+            }
+
+            // Validar que el otro usuario existe
+            const tablaOtro = otroUsuarioTipo === 'aprendiz' ? 'aprendices' : 'administradores';
+            const [otroUsuario] = await pool.execute(`SELECT id FROM ${tablaOtro} WHERE id = ?`, [otroUsuarioId]);
+            if (otroUsuario.length === 0) {
+                return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+            }
+
+            // Insertar en conversaciones_eliminadas (ON DUPLICATE KEY UPDATE para evitar duplicados)
+            const query = `
+                INSERT INTO conversaciones_eliminadas (usuario_id, usuario_tipo, otro_usuario_id, otro_usuario_tipo)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE fecha_eliminacion = CURRENT_TIMESTAMP
+            `;
+
+            console.log('Eliminando conversación:', { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo });
+            await pool.execute(query, [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]);
+
+            res.json({ success: true, message: 'Conversación eliminada correctamente' });
+
+        } catch (error) {
+            console.error('Error al eliminar conversación:', error);
+            res.status(500).json({ success: false, message: 'Error interno del servidor' });
+        }
+    }
+
+    /**
      * Obtener lista de conversaciones (usuarios con los que se ha chateado)
      */
     async obtenerConversaciones(req, res) {
@@ -285,13 +330,26 @@ class ChatControlador extends BaseController {
                 LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
                 LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
                 WHERE (m.remitente_id = ? AND m.remitente_tipo = ?) OR (m.destinatario_id = ? AND m.destinatario_tipo = ?)
+                AND NOT EXISTS (
+                    SELECT 1 FROM conversaciones_eliminadas ce
+                    WHERE ce.usuario_id = ? AND ce.usuario_tipo = ?
+                    AND ce.otro_usuario_id = CASE
+                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_id
+                        ELSE m.remitente_id
+                    END
+                    AND ce.otro_usuario_tipo = CASE
+                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_tipo
+                        ELSE m.remitente_tipo
+                    END
+                )
                 GROUP BY otro_usuario_id, otro_usuario_tipo, nombre
                 ORDER BY ultimo_mensaje DESC
             `;
 
             const [conversaciones] = await pool.execute(query, [
                 usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioId, usuarioId, usuarioId, usuarioTipo,
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo
+                usuarioId, usuarioTipo, usuarioId, usuarioTipo,
+                usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioTipo
             ]);
 
             res.json({ success: true, conversaciones });

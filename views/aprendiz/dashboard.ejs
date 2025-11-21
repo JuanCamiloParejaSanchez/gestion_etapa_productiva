@@ -18,18 +18,6 @@
         color: #fff;
     }
 
-    .btn-outline-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: #fff;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #b02a37;
-        border-color: #b02a37;
-        color: #fff;
-    }
-
     .indicator-value {
         font-size: 1.5em;
         font-weight: bold;
@@ -154,6 +142,7 @@
     .dark-mode .modal-header.bg-primary .modal-title {
         color: #ffffff;
     }
+
 
     /* Estilos para cards de notificaciones */
     .dark-mode .card {
@@ -370,19 +359,7 @@
     .dark-mode .text-warning {
         color: #d29922 !important;
     }
-
-    /* Botones de acción en notificaciones */
-    .dark-mode .btn-outline-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: #ffffff;
-    }
-
-    .dark-mode .btn-outline-danger:hover {
-        background-color: #8b0000;
-        border-color: #8b0000;
-        color: #ffffff;
-    }
+    
 
     /* Mejora visual de botones en cards */
     .card-body .d-flex.gap-2 {
@@ -671,6 +648,14 @@
         }
     }
 
+    .bg-success-chat {
+        background-color: #39a900 !important;
+    }
+
+    html.dark-mode #modalChat .modal-header.bg-success-chat {
+        background-color: #2d7d00 !important;
+    }
+
     .chat-messages {
         max-height: 400px;
         overflow-y: auto;
@@ -741,7 +726,7 @@
     .dark-mode .chat-input {
         background-color: #2d3748;
         border-color: #475569;
-        color: #e6edf3;
+        color: #e6edf3 !important;
     }
 
     .chat-input:focus {
@@ -993,7 +978,7 @@
 <div class="modal fade" id="modalChat" tabindex="-1" aria-labelledby="modalChatLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white">
+      <div class="modal-header bg-success-chat text-white">
         <button id="btn-regresar-chat" class="btn btn-link text-white" style="display: none;" title="Regresar">
           <i class="fas fa-arrow-left"></i>
         </button>
@@ -1450,13 +1435,18 @@ function mostrarListaConversaciones(conversaciones) {
                 <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 cursor-pointer conversation-item"
                       data-otro-usuario-id="${conv.otro_usuario_id}"
                       data-otro-usuario-tipo="${conv.otro_usuario_tipo}">
-                    <div>
+                    <div class="flex-grow-1">
                         <strong>${conv.nombre}</strong>
                         ${conv.no_leidos > 0 ? `<span class="badge bg-danger ms-2">${conv.no_leidos}</span>` : ''}
                         <br>
                         <small class="text-muted">${new Date(conv.ultimo_mensaje).toLocaleString('es-CO')}</small>
                     </div>
-                    <i class="fas fa-chevron-right text-muted"></i>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarConversacion(${conv.otro_usuario_id}, '${conv.otro_usuario_tipo}', '${conv.nombre}')" title="Eliminar conversación">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <i class="fas fa-chevron-right text-muted"></i>
+                    </div>
                 </div>
             `).join('') : '<p class="text-muted">No hay conversaciones activas.</p>'}
         </div>
@@ -1679,11 +1669,50 @@ function enviarMensaje() {
     });
 }
 
+// Eliminar conversación
+function eliminarConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
+    mostrarConfirmacion({
+        titulo: '¿Eliminar conversación?',
+        mensaje: `¿Estás seguro de que deseas eliminar la conversación con ${nombre}? Solo se eliminará para ti, el otro usuario seguirá viendo los mensajes.`,
+        tipo: 'warning',
+        textoConfirmar: 'Eliminar',
+        textoCancelar: 'Cancelar',
+        onConfirm: () => {
+            fetch(`/aprendiz/chat/conversaciones/${otroUsuarioId}/${otroUsuarioTipo}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarNotificacionExito('Conversación eliminada correctamente.');
+                    // Si estamos en la conversación eliminada, regresar a la lista
+                    if (currentChatUser && currentChatUser.id == otroUsuarioId && currentChatUser.tipo == otroUsuarioTipo) {
+                        chatViewState = 'list';
+                        document.getElementById('btn-regresar-chat').style.display = 'none';
+                        document.getElementById('modalChatLabel').textContent = 'Chat con Administrador';
+                        document.getElementById('chat-input').disabled = true;
+                        document.getElementById('chat-input').placeholder = 'Selecciona una conversación para enviar mensajes';
+                        document.getElementById('send-chat-btn').disabled = true;
+                        mostrarListaConversaciones(cachedConversations.filter(conv =>
+                            !(conv.otro_usuario_id == otroUsuarioId && conv.otro_usuario_tipo == otroUsuarioTipo)
+                        ));
+                    } else {
+                        // Recargar conversaciones
+                        cargarConversaciones();
+                    }
+                } else {
+                    mostrarNotificacionExito(data.message || 'Error al eliminar la conversación.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error al eliminar conversación:', error);
+                mostrarNotificacionExito('Error al eliminar la conversación.', 'danger');
+            });
+        }
+    });
+}
+
 // Auto-resize del textarea
-document.getElementById('chat-input').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-});
 document.getElementById('chat-input').addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 100) + 'px';
