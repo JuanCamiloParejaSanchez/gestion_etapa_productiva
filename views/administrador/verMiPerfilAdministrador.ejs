@@ -175,12 +175,18 @@ html.dark-mode .profile-photo-section {
 
 
                 <div class="mt-4 text-center">
-                    <% if (typeof esMiPerfil !== 'undefined' && esMiPerfil) { %>
-                        <a href="/administrador/editar-perfil" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Editar Perfil
-                        </a>
+                    <% if ((typeof esMiPerfil !== 'undefined' && esMiPerfil) || (administrador.cargo && administrador.cargo.toLowerCase() !== 'administrador')) { %>
+                        <% if (typeof esMiPerfil !== 'undefined' && esMiPerfil) { %>
+                            <a href="/administrador/editar-perfil" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Editar Perfil
+                            </a>
+                        <% } else { %>
+                            <a href="/administrador/administrador/editar/<%= administrador.id %>" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Editar Administrador
+                            </a>
+                        <% } %>
                     <% } else { %>
-                        <button class="btn btn-secondary disabled" title="Solo puedes editar tu propio perfil" disabled>
+                        <button class="btn btn-secondary disabled" title="No puedes editar administradores" disabled>
                             <i class="fas fa-edit"></i> Editar Administrador
                         </button>
                     <% } %>

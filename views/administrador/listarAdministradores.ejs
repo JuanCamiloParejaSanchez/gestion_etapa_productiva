@@ -772,29 +772,30 @@
                         render: (data, type, row) => {
                             const userId = '<%= userId %>';
                             const isCurrentUser = row.id == userId;
+                            const isAdmin = row.cargo && row.cargo.toLowerCase() === 'administrador';
 
                             return `
                                 <div class="action-buttons">
                                     <a href="/administrador/administrador/${row.id}" class="action-btn btn-view" title="Ver Perfil Completo">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    ${isCurrentUser ? `
+                                    ${(isAdmin && !isCurrentUser) ? `
+                                        <span class="action-btn btn-edit disabled" data-tooltip="No puedes editar administradores">
+                                            <i class="fas fa-edit"></i>
+                                        </span>
+                                    ` : `
                                         <a href="/administrador/administrador/editar/${row.id}" class="action-btn btn-edit" title="Editar Administrador">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                    ` : `
-                                        <span class="action-btn btn-edit disabled" data-tooltip="Solo puedes editar tu propio perfil">
-                                            <i class="fas fa-edit"></i>
-                                        </span>
                                     `}
-                                    ${isCurrentUser ? `
+                                    ${isAdmin ? `
+                                        <span class="action-btn btn-delete disabled" data-tooltip="No puedes eliminar administradores">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </span>
+                                    ` : `
                                         <button class="action-btn btn-delete eliminar-administrador" data-id="${row.id}" title="Eliminar Administrador">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
-                                    ` : `
-                                        <span class="action-btn btn-delete disabled" data-tooltip="Solo puedes eliminar tu propio perfil">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </span>
                                     `}
                                 </div>
                             `;
