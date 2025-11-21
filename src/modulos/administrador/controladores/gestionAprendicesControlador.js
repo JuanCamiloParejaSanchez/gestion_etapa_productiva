@@ -206,11 +206,14 @@ const gestionAprendicesControlador = {
             // Obtener estado de Watson
             const estadoWatson = servicioAnalisisSentimientos.obtenerEstadoConexion();
 
+            // Normalizar datos del aprendiz para mostrar uniformemente
+            const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
+
             res.render('administrador/verBitacorasAprendiz', {
                 title: 'Bitácoras del Aprendiz',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0],
+                aprendiz: aprendizNormalizado,
                 bitacoras: bitacorasResult,
                 analisisSentimientos: analisisSentimientos,
                 erroresAnalisis: erroresAnalisis.length > 0 ? erroresAnalisis : null,
@@ -249,11 +252,14 @@ const gestionAprendicesControlador = {
                 [id]
             );
             
+            // Normalizar datos del aprendiz para mostrar uniformemente
+            const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
+
             res.render('administrador/verificarDocumentacion', {
                 title: 'Verificar Documentación',
                 userRole: 'admin',
                 layout: 'plantillas/principal',
-                aprendiz: aprendizResult[0],
+                aprendiz: aprendizNormalizado,
                 documentos: documentosResult
             });
             
