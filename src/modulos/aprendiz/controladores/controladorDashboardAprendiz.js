@@ -167,7 +167,8 @@ class ControladorDashboardAprendiz extends BaseController {
             let enviarCorreo = false;
             const ahora = new Date();
             const diaSemana = ahora.getDay(); // 0=domingo, 1=lunes, 2=martes, ..., 6=sábado
-            const esLunes = diaSemana === 1;
+            /* const esLunes = diaSemana === 1; */
+            const esLunes = true;
             const fechaUltimoCorreo = aprendiz.fechaUltimoCorreoAlerta;
             console.log('Fecha último correo en BD:', fechaUltimoCorreo);
             console.log('Día de la semana actual:', diaSemana, '(0=domingo, 1=lunes, etc.)');
@@ -188,11 +189,38 @@ class ControladorDashboardAprendiz extends BaseController {
 
             if (enviarCorreo && alertas && alertas.length > 0 && aprendiz.correoElectronico) {
                 try {
-                    await servicioCorreo.enviarResumenAlertas(aprendiz.correoElectronico, alertas);
+                    // Preparar lista de destinatarios con información para personalizar mensajes
+                    const destinatarios = [
+                        {
+                            email: aprendiz.correoElectronico,
+                            esInstructor: false,
+                            nombreAprendiz: `${aprendiz.nombres} ${aprendiz.primerApellido} ${aprendiz.segundoApellido || ''}`.trim()
+                        }
+                    ];
+
+                    // Buscar correo del instructor productiva si está asignado
+                    if (aprendiz.instructorProductiva) {
+                        const [instructorResult] = await pool.query(
+                            'SELECT correoInstitucional FROM administradores WHERE nombreCompleto = ? AND activo = TRUE',
+                            [aprendiz.instructorProductiva]
+                        );
+                        if (instructorResult.length > 0 && instructorResult[0].correoInstitucional) {
+                            destinatarios.push({
+                                email: instructorResult[0].correoInstitucional,
+                                esInstructor: true,
+                                nombreAprendiz: `${aprendiz.nombres} ${aprendiz.primerApellido} ${aprendiz.segundoApellido || ''}`.trim()
+                            });
+                            console.log('📧 Enviando copia al instructor:', instructorResult[0].correoInstitucional);
+                        }
+                    }
+
+                    // Enviar correos personalizados a cada destinatario
+                    await servicioCorreo.enviarResumenAlertasMultiples(destinatarios, alertas);
+
                     // Actualizar la fecha del último envío (formato compatible con MySQL)
                     const fechaMysql = ahora.toISOString().slice(0, 19).replace('T', ' ');
                     await pool.query('UPDATE aprendices SET fechaUltimoCorreoAlerta = ? WHERE id = ?', [fechaMysql, aprendizId]);
-                    console.log('✅ Correo de alertas enviado y fecha actualizada');
+                    console.log('✅ Correo de alertas enviado a', destinatarios.length, 'destinatarios y fecha actualizada');
                 } catch (e) {
                     console.error('Error enviando correo de alertas:', e);
                 }

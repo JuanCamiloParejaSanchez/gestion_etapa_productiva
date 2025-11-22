@@ -185,6 +185,79 @@ const servicioCorreo = {
         } catch (error) {
             console.error('Error al enviar correo de alertas:', error);
         }
+    },
+
+    /**
+     * Envía un resumen de alertas a múltiples destinatarios con mensajes personalizados
+     * @param {Array<Object>} destinatarios - Array de objetos {email, esInstructor, nombreAprendiz}
+     * @param {Array} alertas - Array de objetos de alertas
+     * @returns {Promise<void>}
+     */
+    async enviarResumenAlertasMultiples(destinatarios, alertas) {
+        if (!this.transporter) {
+            this.inicializar();
+        }
+        if (!destinatarios || !Array.isArray(destinatarios) || destinatarios.length === 0 || !Array.isArray(alertas) || alertas.length === 0) return;
+
+        const htmlAlertas = alertas.map(a => `<li>${a.mensaje}</li>`).join('');
+
+        // Verificar si hay instructor en los destinatarios
+        const hayInstructor = destinatarios.some(dest => dest.esInstructor);
+
+        for (const destinatario of destinatarios) {
+            const { email, esInstructor, nombreAprendiz } = destinatario;
+
+            const subject = esInstructor
+                ? `Alertas de ${nombreAprendiz} en su etapa productiva - SENA`
+                : 'Alertas de tu etapa productiva - SENA';
+
+            const htmlContent = esInstructor
+                ? `
+                    <div style="font-family: Arial, sans-serif; padding:20px; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #39a900;">El aprendiz ${nombreAprendiz} tiene nuevas alertas en su etapa productiva</h2>
+                        <ul style="font-size: 16px; color: #333;">
+                            ${htmlAlertas}
+                        </ul>
+                        <p style="color: #666; font-size: 12px;">
+                            Este es un correo automático del Sistema de Gestión de Etapa Productiva - SENA.<br>
+                            Por favor no responder a este mensaje.
+                        </p>
+                    </div>
+                `
+                : `
+                    <div style="font-family: Arial, sans-serif; padding:20px; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #39a900;">Tienes nuevas alertas en tu etapa productiva</h2>
+                        <ul style="font-size: 16px; color: #333;">
+                            ${htmlAlertas}
+                        </ul>
+                        ${hayInstructor ? `
+                            <div style="background-color: #e8f5e8; border: 1px solid #4caf50; border-radius: 5px; padding: 15px; margin: 20px 0;">
+                                <p style="margin: 0; color: #2e7d32; font-size: 14px;">
+                                    <strong>ℹ️ Información:</strong> Se ha enviado una copia de este correo a tu instructor(a) responsable de etapa productiva para que pueda apoyarte en la resolución de estas alertas.
+                                </p>
+                            </div>
+                        ` : ''}
+                        <p style="color: #666; font-size: 12px;">
+                            Este es un correo automático del Sistema de Gestión de Etapa Productiva - SENA.<br>
+                            Por favor no responder a este mensaje.
+                        </p>
+                    </div>
+                `;
+
+            const mailOptions = {
+                from: `"SENA - Centro de Servicios de Salud" <${process.env.SMTP_USER}>`,
+                to: email,
+                subject: subject,
+                html: htmlContent
+            };
+
+            try {
+                await this.transporter.sendMail(mailOptions);
+                console.log(`Correo enviado a ${email} (${esInstructor ? 'instructor' : 'aprendiz'}) para ${nombreAprendiz}`);
+            } catch (error) {
+                console.error(`Error al enviar correo a ${email}:`, error);
+            }
+        }
     }
 };
 
