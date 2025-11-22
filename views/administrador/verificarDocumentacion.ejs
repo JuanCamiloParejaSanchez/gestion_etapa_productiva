@@ -437,14 +437,42 @@ function aprobarConRetroalimentacion() {
     const idDocumento = document.getElementById('documentoIdAprobacion').value;
     const retroalimentacion = document.getElementById('retroalimentacionAprobacion').value;
     const enviarEmail = document.getElementById('enviarEmailAprobacion').checked;
+    const archivoInput = document.getElementById('archivoAdjunto');
+    const archivo = archivoInput.files[0];
 
-    if (!retroalimentacion.trim()) {
-        Swal.fire('Atención', 'Debes proporcionar una retroalimentación o aprobar sin comentario', 'warning');
+    if (!retroalimentacion.trim() && !archivo) {
+        Swal.fire('Atención', 'Debes proporcionar una retroalimentación o adjuntar un archivo', 'warning');
         return;
     }
 
+    // Validar archivo si existe
+    if (archivo) {
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                             'image/jpeg', 'image/png', 'image/jpg', 'application/zip'];
+
+        if (archivo.size > maxSize) {
+            Swal.fire('Archivo demasiado grande', 'El archivo no puede superar los 10MB', 'error');
+            return;
+        }
+
+        if (!allowedTypes.includes(archivo.type)) {
+            Swal.fire('Tipo de archivo no permitido', 'Solo se permiten PDF, DOC, DOCX, imágenes y archivos ZIP', 'error');
+            return;
+        }
+    }
+
     modalRetroalimentacionAprobacion.hide();
-    enviarAprobacion(idDocumento, retroalimentacion, enviarEmail);
+
+    // Crear FormData para enviar archivo
+    const formData = new FormData();
+    formData.append('retroalimentacion', retroalimentacion);
+    formData.append('enviarEmail', enviarEmail);
+    if (archivo) {
+        formData.append('archivoAdjunto', archivo);
+    }
+
+    enviarAprobacionConArchivo(idDocumento, formData);
 }
 
 function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
@@ -460,6 +488,26 @@ function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(body)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
+                .then(() => location.reload());
+        } else {
+            Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
+    });
+}
+
+function enviarAprobacionConArchivo(idDocumento, formData) {
+    fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
+        method: 'POST',
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
@@ -703,12 +751,21 @@ function rechazarDocumento() {
                     </div>
                     <div class="mb-3">
                         <label for="retroalimentacionAprobacion" class="form-label">Comentarios / Retroalimentación (opcional):</label>
-                        <textarea class="form-control" 
-                                  id="retroalimentacionAprobacion" 
-                                  name="retroalimentacionAprobacion" 
-                                  rows="4" 
+                        <textarea class="form-control"
+                                  id="retroalimentacionAprobacion"
+                                  name="retroalimentacionAprobacion"
+                                  rows="4"
                                   placeholder="Ejemplo: Excelente trabajo, el documento está muy bien estructurado. Sigue así..."></textarea>
                         <small class="text-muted">Esta retroalimentación será enviada al aprendiz junto con la notificación de aprobación.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="archivoAdjunto" class="form-label">Archivo adjunto (opcional):</label>
+                        <input type="file"
+                               class="form-control"
+                               id="archivoAdjunto"
+                               name="archivoAdjunto"
+                               accept=".pdf,.doc,.docx,.jpg,.png,.zip">
+                        <small class="text-muted">Puedes adjuntar un documento adicional, guía o recurso para el aprendiz (máx. 10MB).</small>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" 

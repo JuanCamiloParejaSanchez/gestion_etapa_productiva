@@ -4,6 +4,8 @@
  */
 
 const { pool } = require('../../configuracion/baseDatos');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Crear una notificación para un aprendiz
@@ -15,16 +17,17 @@ const { pool } = require('../../configuracion/baseDatos');
  * @param {number} params.referenciaId - ID de referencia (opcional)
  * @param {string} params.referenciaTipo - Tipo de referencia (opcional)
  * @param {string} params.retroalimentacion - Retroalimentación asociada (opcional)
+ * @param {string} params.archivoAdjunto - Ruta del archivo adjunto (opcional)
  * @returns {Promise<Object>} - Resultado de la operación
  */
-async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaId = null, referenciaTipo = null, retroalimentacion = null }) {
+async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaId = null, referenciaTipo = null, retroalimentacion = null, archivoAdjunto = null }) {
     try {
         const query = `
-            INSERT INTO notificaciones 
-            (usuario_id, tipo, titulo, mensaje, referencia_id, referencia_tipo, retroalimentacion)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO notificaciones
+            (usuario_id, tipo, titulo, mensaje, referencia_id, referencia_tipo, retroalimentacion, archivo_adjunto)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        
+
         const [resultado] = await pool.query(query, [
             usuarioId,
             tipo,
@@ -32,7 +35,8 @@ async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaI
             mensaje,
             referenciaId,
             referenciaTipo,
-            retroalimentacion
+            retroalimentacion,
+            archivoAdjunto
         ]);
 
         return {
@@ -54,7 +58,7 @@ async function crearNotificacion({ usuarioId, tipo, titulo, mensaje, referenciaI
 async function obtenerNotificaciones(usuarioId, soloNoLeidas = false) {
     try {
         let query = `
-            SELECT 
+            SELECT
                 n.id,
                 n.tipo,
                 n.titulo,
@@ -65,21 +69,43 @@ async function obtenerNotificaciones(usuarioId, soloNoLeidas = false) {
                 n.referencia_id,
                 n.referencia_tipo,
                 n.retroalimentacion,
+                n.archivo_adjunto,
                 d.tipo_documento
             FROM notificaciones n
             LEFT JOIN documentos_aprendiz d ON n.referencia_id = d.id AND n.referencia_tipo = 'documento'
             WHERE n.usuario_id = ?
         `;
-        
+
         if (soloNoLeidas) {
             query += ' AND n.leida = FALSE';
         }
-        
+
         query += ' ORDER BY n.fecha_creacion DESC LIMIT 50';
-        
+
         const [notificaciones] = await pool.query(query, [usuarioId]);
-        
-        return notificaciones;
+
+        // Verificar si los archivos adjuntos existen y filtrar los que no
+        const notificacionesFiltradas = await Promise.all(notificaciones.map(async (notif) => {
+            if (notif.archivo_adjunto) {
+                // Extraer el path relativo del archivo (remover '/uploads' del inicio)
+                const relativePath = notif.archivo_adjunto.replace('/uploads/', '');
+                const fullPath = path.join(__dirname, '../../../public/uploads', relativePath);
+
+                try {
+                    // Verificar si el archivo existe
+                    await fs.promises.access(fullPath, fs.constants.F_OK);
+                    // Si existe, mantener el archivo_adjunto
+                    return notif;
+                } catch (error) {
+                    // Si no existe, remover el archivo_adjunto
+                    console.warn(`Archivo adjunto no encontrado: ${fullPath}`);
+                    return { ...notif, archivo_adjunto: null };
+                }
+            }
+            return notif;
+        }));
+
+        return notificacionesFiltradas;
     } catch (error) {
         console.error('Error al obtener notificaciones:', error);
         throw error;

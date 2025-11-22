@@ -1080,6 +1080,13 @@ function cargarNotificaciones() {
                                             <span class="retroalimentacion-texto">${notif.retroalimentacion}</span>
                                         </div>
                                     ` : ''}
+                                    ${notif.archivo_adjunto ? `
+                                        <div class="mt-2">
+                                            <a href="${notif.archivo_adjunto}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download me-1"></i>Descargar Archivo Adjunto
+                                            </a>
+                                        </div>
+                                    ` : ''}
                                     <small class="text-muted">
                                         <i class="fas fa-clock me-1"></i>
                                         ${new Date(notif.fecha_creacion).toLocaleString('es-CO')}

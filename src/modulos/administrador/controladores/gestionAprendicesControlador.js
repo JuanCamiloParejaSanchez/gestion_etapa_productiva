@@ -540,7 +540,7 @@ const gestionAprendicesControlador = {
                 'Diagnóstico',
                 'GFPI-F-023 V5',
                 'Informe final',
-                'Carta de certificación',
+                'Carta de finalización o satisfacción',
                 'Documento de identidad'
             ];
 
@@ -954,6 +954,21 @@ const gestionAprendicesControlador = {
             const documentoId = req.params.id;
             const adminId = req.session.userId;
             const { retroalimentacion, enviarEmail } = req.body || {};
+            const archivoAdjunto = req.file; // Archivo subido con multer
+
+            logger.info('Intentando aprobar documento', {
+                documentoId,
+                adminId,
+                tieneArchivo: !!archivoAdjunto,
+                archivoAdjunto: archivoAdjunto ? {
+                    filename: archivoAdjunto.filename,
+                    originalname: archivoAdjunto.originalname,
+                    size: archivoAdjunto.size,
+                    path: archivoAdjunto.path
+                } : null,
+                reqBody: req.body,
+                reqFile: req.file
+            });
 
             // Obtener información del documento y del aprendiz
             const [documentoInfo] = await pool.query(`
@@ -1022,7 +1037,8 @@ const gestionAprendicesControlador = {
                 mensaje: mensajeNotificacion,
                 referenciaId: documentoId,
                 referenciaTipo: 'documento',
-                retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null
+                retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null,
+                archivoAdjunto: archivoAdjunto ? `/uploads/adjuntos/${archivoAdjunto.filename}` : null
             });
 
             // Enviar email si está habilitado
@@ -1240,7 +1256,7 @@ const gestionAprendicesControlador = {
                     alternativas: opciones.alternativaSeleccionada,
                     tipoDocumento: opciones.tipoDocumento,
                     eps: opciones.eps,
-                    genero: opciones.genero.length,
+                    genero: opciones.genero,
                     estadoFormacion: opciones.estadoFormacion,
                     areaFormacion: opciones.areaFormacion,
                     instructoresProductiva: instructoresProductiva,
