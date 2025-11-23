@@ -278,7 +278,7 @@ describe('ControladorDashboardAprendiz', () => {
 
     describe('mostrarMiPerfil()', () => {
         it('debería mostrar el perfil del aprendiz', async () => {
-            const mockAprendiz = { id: 100, nombres: 'Juan' };
+            const mockAprendiz = { id: 100, nombres: 'JUAN' };
 
             mockObtenerAprendizPorId.mockResolvedValue(mockAprendiz);
 

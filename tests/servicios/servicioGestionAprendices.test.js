@@ -218,9 +218,137 @@ describe('ServicioGestionAprendices', () => {
 
       const result = await servicio.obtenerDatosReportes();
 
-      expect(result.datosProgramas.labels).toContain('Téc. Programación de Software');
+      expect(result.datosProgramas.labels).toContain('TÉCNICO EN PROGRAMACIÓN DE SOFTWARE');
       expect(result.estadisticasGenerales.total_aprendices).toBe(10);
       expect(Cache.getOrSet).toHaveBeenCalled();
+    });
+
+    test('debe aplicar filtros de fecha correctamente', async () => {
+      Cache.getOrSet.mockResolvedValue({
+        programasResult: [{ programaFormacion: 'tecProgramacion', cantidad: 5 }],
+        estadosResult: [{ estado_normalizado: 'activo', cantidad: 4 }],
+        alternativasResult: [{ alternativaSeleccionada: 'contratoAprendizaje', cantidad: 3 }],
+        documentosRows: [{ estado_documentos: 'Completo', cantidad: 4 }],
+        seguimientoRows: [{ estado_seguimiento: 'Al día', cantidad: 3 }],
+        departamentoResult: [{ departamento: 'Cundinamarca', cantidad: 8 }],
+        estadisticasGenerales: { total_aprendices: 5, activos: 4 }
+      });
+
+      const result = await servicio.obtenerDatosReportes({ mes: 1, anio: 2024 });
+
+      expect(result.estadisticasGenerales.total_aprendices).toBe(5);
+      expect(Cache.getOrSet).toHaveBeenCalledWith(
+        'reportes_aprendices_2024_1',
+        expect.any(Function),
+        1800
+      );
+    });
+
+    test('debe usar clave de cache completa cuando no hay filtros de fecha', async () => {
+      Cache.getOrSet.mockResolvedValue({
+        programasResult: [],
+        estadosResult: [],
+        alternativasResult: [],
+        documentosRows: [],
+        seguimientoRows: [],
+        departamentoResult: [],
+        estadisticasGenerales: { total_aprendices: 0, activos: 0 }
+      });
+
+      await servicio.obtenerDatosReportes();
+
+      expect(Cache.getOrSet).toHaveBeenCalledWith(
+        'reportes_aprendices_completos',
+        expect.any(Function),
+        1800
+      );
+    });
+  });
+
+  describe('normalizarAprendiz', () => {
+    test('debe retornar null si no se proporciona aprendiz', () => {
+      const servicio = new ServicioGestionAprendices();
+      const result = servicio.normalizarAprendiz(null);
+      expect(result).toBeNull();
+    });
+
+    test('debe normalizar programaFormacion a nombre completo', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'juan',
+        programaFormacion: 'tecProgramacion'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.programaFormacion).toBe('TÉCNICO EN PROGRAMACIÓN DE SOFTWARE');
+    });
+
+    test('debe normalizar alternativaSeleccionada a nombre completo', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'maria',
+        alternativaSeleccionada: 'contratoAprendizaje'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.alternativaSeleccionada).toBe('CONTRATO DE APRENDIZAJE');
+    });
+
+    test('debe convertir campos de texto a mayúsculas', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'juan carlos',
+        primerApellido: 'pérez',
+        genero: 'masculino',
+        estadoFormacion: 'activo'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.nombres).toBe('JUAN CARLOS');
+      expect(result.primerApellido).toBe('PÉREZ');
+      expect(result.genero).toBe('MASCULINO');
+      expect(result.estadoFormacion).toBe('ACTIVO'); // Este campo se normaliza a mayúsculas
+    });
+
+    test('debe mantener email en minúsculas', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'ana',
+        correoElectronico: 'ANA@EXAMPLE.COM',
+        correoEmpresa: 'EMPRESA@EXAMPLE.COM'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.correoElectronico).toBe('ana@example.com');
+      expect(result.correoEmpresa).toBe('empresa@example.com');
+    });
+
+    test('debe manejar programaFormacion desconocido', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'test',
+        programaFormacion: 'programaDesconocido'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.programaFormacion).toBe('PROGRAMADESCONOCIDO');
+    });
+
+    test('debe manejar alternativaSeleccionada desconocida', () => {
+      const servicio = new ServicioGestionAprendices();
+      const aprendiz = {
+        nombres: 'test',
+        alternativaSeleccionada: 'alternativaDesconocida'
+      };
+
+      const result = servicio.normalizarAprendiz(aprendiz);
+
+      expect(result.alternativaSeleccionada).toBe('ALTERNATIVADESCONOCIDA');
     });
   });
 });

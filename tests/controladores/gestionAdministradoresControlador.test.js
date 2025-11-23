@@ -380,7 +380,7 @@ describe('GestionAdministradoresControlador', () => {
 
             expect(mockRes.json).toHaveBeenCalledWith({
                 success: true,
-                message: 'Administrador actualizado exitosamente.'
+                message: 'Perfil actualizado exitosamente'
             });
         });
 

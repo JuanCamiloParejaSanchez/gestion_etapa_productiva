@@ -405,9 +405,9 @@ describe('Tests de Middleware de Autenticación', () => {
     });
 
     describe('SESSION_TIMEOUT - Configuración de tiempo de expiración', () => {
-        test('Debe estar configurado en 30 minutos (1800000 ms)', () => {
-            expect(AuthMiddleware.SESSION_TIMEOUT).toBe(30 * 60 * 1000);
-            expect(AuthMiddleware.SESSION_TIMEOUT).toBe(1800000);
+        test('Debe estar configurado en 10 minutos (600000 ms)', () => {
+            expect(AuthMiddleware.SESSION_TIMEOUT).toBe(10 * 60 * 1000);
+            expect(AuthMiddleware.SESSION_TIMEOUT).toBe(600000);
         });
     });
 
