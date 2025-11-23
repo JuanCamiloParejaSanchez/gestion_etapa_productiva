@@ -7,7 +7,7 @@ const servicioAlertas = require('../../../compartido/servicios/servicioAlertas')
 const ServicioGestionAprendices = require('../servicios/servicioGestionAprendices');
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const { logger } = require('../../../compartido/utilidades/logger');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const servicioCorreo = require('../../../compartido/servicios/servicioCorreo');
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 
@@ -678,9 +678,15 @@ const gestionAprendicesControlador = {
             });
 
             // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(datos);
-            XLSX.utils.book_append_sheet(wb, ws, 'Programas');
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Programas');
+
+            // Definir columnas basadas en las claves del primer objeto
+            if (datos.length > 0) {
+                const columns = Object.keys(datos[0]).map(key => ({ header: key, key }));
+                worksheet.columns = columns;
+                worksheet.addRows(datos);
+            }
 
             // Configurar headers para descarga
             const fechaFiltro = filtros.mes && filtros.anio ? `${filtros.anio}_${filtros.mes.toString().padStart(2, '0')}_` : '';
@@ -689,7 +695,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
@@ -724,9 +730,15 @@ const gestionAprendicesControlador = {
             });
 
             // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(datos);
-            XLSX.utils.book_append_sheet(wb, ws, 'Estados');
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Estados');
+
+            // Definir columnas basadas en las claves del primer objeto
+            if (datos.length > 0) {
+                const columns = Object.keys(datos[0]).map(key => ({ header: key, key }));
+                worksheet.columns = columns;
+                worksheet.addRows(datos);
+            }
 
             // Configurar headers para descarga
             const nombreArchivo = `reporte_estados_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -734,7 +746,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
@@ -769,9 +781,15 @@ const gestionAprendicesControlador = {
             });
 
             // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(datos);
-            XLSX.utils.book_append_sheet(wb, ws, 'Alternativas');
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Alternativas');
+
+            // Definir columnas basadas en las claves del primer objeto
+            if (datos.length > 0) {
+                const columns = Object.keys(datos[0]).map(key => ({ header: key, key }));
+                worksheet.columns = columns;
+                worksheet.addRows(datos);
+            }
 
             // Configurar headers para descarga
             const nombreArchivo = `reporte_alternativas_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -779,7 +797,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
@@ -814,9 +832,15 @@ const gestionAprendicesControlador = {
             });
 
             // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(datos);
-            XLSX.utils.book_append_sheet(wb, ws, 'Documentos');
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Documentos');
+
+            // Definir columnas basadas en las claves del primer objeto
+            if (datos.length > 0) {
+                const columns = Object.keys(datos[0]).map(key => ({ header: key, key }));
+                worksheet.columns = columns;
+                worksheet.addRows(datos);
+            }
 
             // Configurar headers para descarga
             const nombreArchivo = `reporte_documentos_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -824,7 +848,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
@@ -859,9 +883,15 @@ const gestionAprendicesControlador = {
             });
 
             // Crear libro de Excel
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(datos);
-            XLSX.utils.book_append_sheet(wb, ws, 'Seguimiento');
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Seguimiento');
+
+            // Definir columnas basadas en las claves del primer objeto
+            if (datos.length > 0) {
+                const columns = Object.keys(datos[0]).map(key => ({ header: key, key }));
+                worksheet.columns = columns;
+                worksheet.addRows(datos);
+            }
 
             // Configurar headers para descarga
             const nombreArchivo = `reporte_seguimiento_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -869,7 +899,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
@@ -890,7 +920,7 @@ const gestionAprendicesControlador = {
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Crear libro de Excel con múltiples hojas
-            const wb = XLSX.utils.book_new();
+            const workbook = new ExcelJS.Workbook();
 
             // Función auxiliar para calcular porcentajes
             const calcularDatosConPorcentaje = (labels, data, nombreCampo) => {
@@ -912,8 +942,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosProgramas.data,
                 'Programa de Formación'
             );
-            const wsProgramas = XLSX.utils.json_to_sheet(datosProgramas);
-            XLSX.utils.book_append_sheet(wb, wsProgramas, 'Programas');
+            const wsProgramas = workbook.addWorksheet('Programas');
+            if (datosProgramas.length > 0) {
+                const columns = Object.keys(datosProgramas[0]).map(key => ({ header: key, key }));
+                wsProgramas.columns = columns;
+                wsProgramas.addRows(datosProgramas);
+            }
 
             // Hoja 2: Estados
             const datosEstados = calcularDatosConPorcentaje(
@@ -921,8 +955,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosEstados.data,
                 'Estado de Formación'
             );
-            const wsEstados = XLSX.utils.json_to_sheet(datosEstados);
-            XLSX.utils.book_append_sheet(wb, wsEstados, 'Estados');
+            const wsEstados = workbook.addWorksheet('Estados');
+            if (datosEstados.length > 0) {
+                const columns = Object.keys(datosEstados[0]).map(key => ({ header: key, key }));
+                wsEstados.columns = columns;
+                wsEstados.addRows(datosEstados);
+            }
 
             // Hoja 3: Alternativas
             const datosAlternativas = calcularDatosConPorcentaje(
@@ -930,8 +968,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosAlternativas.data,
                 'Alternativa de Etapa Productiva'
             );
-            const wsAlternativas = XLSX.utils.json_to_sheet(datosAlternativas);
-            XLSX.utils.book_append_sheet(wb, wsAlternativas, 'Alternativas');
+            const wsAlternativas = workbook.addWorksheet('Alternativas');
+            if (datosAlternativas.length > 0) {
+                const columns = Object.keys(datosAlternativas[0]).map(key => ({ header: key, key }));
+                wsAlternativas.columns = columns;
+                wsAlternativas.addRows(datosAlternativas);
+            }
 
             // Hoja 4: Documentos
             const datosDocumentos = calcularDatosConPorcentaje(
@@ -939,8 +981,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosDocumentos.data,
                 'Estado de Documentos'
             );
-            const wsDocumentos = XLSX.utils.json_to_sheet(datosDocumentos);
-            XLSX.utils.book_append_sheet(wb, wsDocumentos, 'Documentos');
+            const wsDocumentos = workbook.addWorksheet('Documentos');
+            if (datosDocumentos.length > 0) {
+                const columns = Object.keys(datosDocumentos[0]).map(key => ({ header: key, key }));
+                wsDocumentos.columns = columns;
+                wsDocumentos.addRows(datosDocumentos);
+            }
 
             // Hoja 5: Seguimiento
             const datosSeguimiento = calcularDatosConPorcentaje(
@@ -948,8 +994,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosSeguimiento.data,
                 'Estado de Seguimiento'
             );
-            const wsSeguimiento = XLSX.utils.json_to_sheet(datosSeguimiento);
-            XLSX.utils.book_append_sheet(wb, wsSeguimiento, 'Seguimiento');
+            const wsSeguimiento = workbook.addWorksheet('Seguimiento');
+            if (datosSeguimiento.length > 0) {
+                const columns = Object.keys(datosSeguimiento[0]).map(key => ({ header: key, key }));
+                wsSeguimiento.columns = columns;
+                wsSeguimiento.addRows(datosSeguimiento);
+            }
 
             // Hoja 6: Departamentos
             const datosDepartamentos = calcularDatosConPorcentaje(
@@ -957,8 +1007,12 @@ const gestionAprendicesControlador = {
                 datosReportes.datosDepartamentos.data,
                 'Departamento'
             );
-            const wsDepartamentos = XLSX.utils.json_to_sheet(datosDepartamentos);
-            XLSX.utils.book_append_sheet(wb, wsDepartamentos, 'Departamentos');
+            const wsDepartamentos = workbook.addWorksheet('Departamentos');
+            if (datosDepartamentos.length > 0) {
+                const columns = Object.keys(datosDepartamentos[0]).map(key => ({ header: key, key }));
+                wsDepartamentos.columns = columns;
+                wsDepartamentos.addRows(datosDepartamentos);
+            }
 
             // Hoja 7: KPIs Generales
             const datosKPIs = [{
@@ -983,8 +1037,12 @@ const gestionAprendicesControlador = {
                 'Métrica': 'Aprendices por Certificar',
                 'Valor': datosReportes.estadisticasGenerales.por_certificar || 0
             }];
-            const wsKPIs = XLSX.utils.json_to_sheet(datosKPIs);
-            XLSX.utils.book_append_sheet(wb, wsKPIs, 'KPIs');
+            const wsKPIs = workbook.addWorksheet('KPIs');
+            if (datosKPIs.length > 0) {
+                const columns = Object.keys(datosKPIs[0]).map(key => ({ header: key, key }));
+                wsKPIs.columns = columns;
+                wsKPIs.addRows(datosKPIs);
+            }
 
             // Configurar headers para descarga
             const nombreArchivo = `reporte_completo_${new Date().toISOString().split('T')[0]}.xlsx`;
@@ -992,7 +1050,7 @@ const gestionAprendicesControlador = {
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
             // Enviar archivo
-            const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+            const buffer = await workbook.xlsx.writeBuffer();
             res.send(buffer);
 
         } catch (error) {
