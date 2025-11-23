@@ -573,7 +573,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS `sp_cumplimiento_documentos`//
 
-CREATE PROCEDURE `sp_cumplimiento_documentos`()
+CREATE PROCEDURE `sp_cumplimiento_documentos`(IN p_mes INT, IN p_anio INT)
 BEGIN
     SELECT
         CASE
@@ -602,6 +602,7 @@ BEGIN
         LEFT JOIN documentos_aprendiz da ON a.id = da.aprendiz_id AND da.activo = 1
         WHERE a.estadoFormacion = 'activo'
         AND a.fechaInicioProductiva IS NOT NULL
+        AND (p_mes IS NULL OR p_anio IS NULL OR (YEAR(a.fechaInicioProductiva) = p_anio AND MONTH(a.fechaInicioProductiva) = p_mes))
         GROUP BY a.id, a.fechaInicioProductiva
     ) cumplimiento
     GROUP BY estado_documentos
@@ -619,7 +620,7 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS `sp_cumplimiento_seguimiento`//
 
-CREATE PROCEDURE `sp_cumplimiento_seguimiento`()
+CREATE PROCEDURE `sp_cumplimiento_seguimiento`(IN p_mes INT, IN p_anio INT)
 BEGIN
     SELECT
         CASE
@@ -649,6 +650,7 @@ BEGIN
         LEFT JOIN bitacoras b ON a.id = b.aprendizId AND b.estado = 'enviada'
         WHERE a.estadoFormacion = 'activo'
         AND a.fechaInicioProductiva IS NOT NULL
+        AND (p_mes IS NULL OR p_anio IS NULL OR (YEAR(a.fechaInicioProductiva) = p_anio AND MONTH(a.fechaInicioProductiva) = p_mes))
         GROUP BY a.id, a.fechaInicioProductiva
     ) cumplimiento
     GROUP BY estado_seguimiento

@@ -588,10 +588,20 @@
             'completo': '/administrador/reportes/exportar/completo'
         };
 
-        const url = rutas[tipo];
+        let url = rutas[tipo];
         if (!url) {
             alert('Tipo de reporte no válido');
             return;
+        }
+
+        // Obtener parámetros de filtro de la URL actual
+        const urlParams = new URLSearchParams(window.location.search);
+        const mes = urlParams.get('mes');
+        const anio = urlParams.get('anio');
+
+        // Agregar parámetros de filtro a la URL si existen
+        if (mes && anio) {
+            url += `?mes=${mes}&anio=${anio}`;
         }
 
         console.log('Exportando Excel:', tipo, 'URL:', url);

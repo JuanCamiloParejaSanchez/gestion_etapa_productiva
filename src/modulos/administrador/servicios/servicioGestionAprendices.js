@@ -387,28 +387,30 @@ class ServicioGestionAprendices {
                     ORDER BY cantidad DESC
                 `, fechaParams);
 
-                // Consulta cumplimiento de documentos (usando procedimiento almacenado)
-                const [documentosResult] = await pool.execute(`CALL sp_cumplimiento_documentos()`);
+                // Consulta cumplimiento de documentos (usando procedimiento almacenado con filtros de fecha)
+                const [documentosResult] = await pool.execute(`CALL sp_cumplimiento_documentos(?, ?)`, [filtros.mes || null, filtros.anio || null]);
                 // Los procedimientos almacenados devuelven un array de result sets
                 // El primer elemento [0] contiene las filas del resultado
                 const documentosRows = Array.isArray(documentosResult) && documentosResult.length > 0 ? documentosResult[0] : [];
-                
+
                 logger.debug('Datos de documentos obtenidos del procedimiento almacenado', {
                     documentosResultType: typeof documentosResult,
                     documentosResultLength: Array.isArray(documentosResult) ? documentosResult.length : 'no es array',
-                    documentosRows: documentosRows
+                    documentosRows: documentosRows,
+                    filtros: filtros
                 });
 
-                // Consulta cumplimiento de seguimiento (usando procedimiento almacenado)
-                const [seguimientoResult] = await pool.execute(`CALL sp_cumplimiento_seguimiento()`);
+                // Consulta cumplimiento de seguimiento (usando procedimiento almacenado con filtros de fecha)
+                const [seguimientoResult] = await pool.execute(`CALL sp_cumplimiento_seguimiento(?, ?)`, [filtros.mes || null, filtros.anio || null]);
                 // Los procedimientos almacenados devuelven un array de result sets
                 // El primer elemento [0] contiene las filas del resultado
                 const seguimientoRows = Array.isArray(seguimientoResult) && seguimientoResult.length > 0 ? seguimientoResult[0] : [];
-                
+
                 logger.debug('Datos de seguimiento obtenidos del procedimiento almacenado', {
                     seguimientoResultType: typeof seguimientoResult,
                     seguimientoResultLength: Array.isArray(seguimientoResult) ? seguimientoResult.length : 'no es array',
-                    seguimientoRows: seguimientoRows
+                    seguimientoRows: seguimientoRows,
+                    filtros: filtros
                 });
 
                 // Consulta distribución por departamento
