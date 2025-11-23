@@ -329,38 +329,63 @@ class ServicioGestionAprendices {
 
     /**
      * Obtiene datos para reportes con métricas adicionales
+     * @param {Object} filtros - Filtros opcionales (mes, anio)
      * @returns {Promise<Object>} - Datos para gráficos y KPIs
      */
-    async obtenerDatosReportes() {
+    async obtenerDatosReportes(filtros = {}) {
         try {
-            const cacheKey = 'reportes_aprendices_completos';
+            // Crear clave de cache que incluya filtros de fecha
+            const cacheKey = filtros.mes && filtros.anio
+                ? `reportes_aprendices_${filtros.anio}_${filtros.mes}`
+                : 'reportes_aprendices_completos';
             const cacheTTL = 1800; // 30 minutos
 
             const cached = await Cache.getOrSet(cacheKey, async () => {
+                // Construir condición de fecha si se especifica mes/año
+                let fechaCondition = '';
+                const fechaParams = [];
+                if (filtros.mes && filtros.anio) {
+                    fechaCondition = 'WHERE YEAR(fechaInicioProductiva) = ? AND MONTH(fechaInicioProductiva) = ?';
+                    fechaParams.push(filtros.anio, filtros.mes);
+                }
+
                 // Consulta programas de formación
                 const [programasResult] = await pool.execute(`
                     SELECT programaFormacion, COUNT(*) as cantidad
                     FROM aprendices
+                    ${fechaCondition}
                     GROUP BY programaFormacion
                     ORDER BY cantidad DESC
-                `);
+                `, fechaParams);
 
                 // Consulta estados de formación
                 const [estadosResult] = await pool.execute(`
-                    SELECT estadoFormacion, COUNT(*) as cantidad
+                    SELECT
+                        CASE
+                            WHEN LOWER(estadoFormacion) = 'retirado' THEN 'retirado'
+                            WHEN LOWER(estadoFormacion) = 'activo' THEN 'activo'
+                            WHEN LOWER(estadoFormacion) = 'inactivo' THEN 'inactivo'
+                            WHEN LOWER(estadoFormacion) = 'aplazado' THEN 'aplazado'
+                            WHEN LOWER(estadoFormacion) = 'certificado' THEN 'certificado'
+                            WHEN LOWER(estadoFormacion) = 'por certificar' THEN 'por certificar'
+                            ELSE LOWER(estadoFormacion)
+                        END as estado_normalizado,
+                        COUNT(*) as cantidad
                     FROM aprendices
-                    GROUP BY estadoFormacion
+                    ${fechaCondition}
+                    GROUP BY estado_normalizado
                     ORDER BY cantidad DESC
-                `);
+                `, fechaParams);
 
                 // Consulta alternativas de etapa productiva
                 const [alternativasResult] = await pool.execute(`
                     SELECT alternativaSeleccionada, COUNT(*) as cantidad
                     FROM aprendices
                     WHERE alternativaSeleccionada IS NOT NULL AND alternativaSeleccionada != ''
+                    ${fechaCondition ? 'AND ' + fechaCondition.substring(6) : ''}
                     GROUP BY alternativaSeleccionada
                     ORDER BY cantidad DESC
-                `);
+                `, fechaParams);
 
                 // Consulta cumplimiento de documentos (usando procedimiento almacenado)
                 const [documentosResult] = await pool.execute(`CALL sp_cumplimiento_documentos()`);
@@ -391,22 +416,25 @@ class ServicioGestionAprendices {
                     SELECT departamento, COUNT(*) as cantidad
                     FROM aprendices
                     WHERE departamento IS NOT NULL AND departamento != ''
+                    ${fechaCondition ? 'AND ' + fechaCondition.substring(6) : ''}
                     GROUP BY departamento
                     ORDER BY cantidad DESC
                     LIMIT 10
-                `);
+                `, fechaParams);
 
                 // Estadísticas generales
                 const [estadisticasGenerales] = await pool.execute(`
                     SELECT
                         COUNT(*) as total_aprendices,
-                        COUNT(CASE WHEN estadoFormacion = 'activo' THEN 1 END) as activos,
-                        COUNT(CASE WHEN estadoFormacion = 'inactivo' THEN 1 END) as inactivos,
-                        COUNT(CASE WHEN estadoFormacion = 'aplazado' THEN 1 END) as aplazados,
-                        COUNT(CASE WHEN estadoFormacion = 'retirado' THEN 1 END) as retirados,
-                        COUNT(CASE WHEN estadoFormacion = 'certificado' THEN 1 END) as certificados
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'activo' THEN 1 END) as activos,
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'inactivo' THEN 1 END) as inactivos,
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'aplazado' THEN 1 END) as aplazados,
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'retirado' THEN 1 END) as retirados,
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'certificado' THEN 1 END) as certificados,
+                        COUNT(CASE WHEN LOWER(estadoFormacion) = 'por certificar' THEN 1 END) as por_certificar
                     FROM aprendices
-                `);
+                    ${fechaCondition}
+                `, fechaParams);
 
                 return {
                     programasResult,
@@ -427,7 +455,7 @@ class ServicioGestionAprendices {
             };
 
             const datosEstados = {
-                labels: estadosResult.length > 0 ? estadosResult.map(row => row.estadoFormacion || 'No especificado') : ['No hay datos'],
+                labels: estadosResult.length > 0 ? estadosResult.map(row => row.estado_normalizado || 'No especificado') : ['No hay datos'],
                 data: estadosResult.length > 0 ? estadosResult.map(row => row.cantidad) : [0]
             };
 

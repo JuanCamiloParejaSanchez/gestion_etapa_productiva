@@ -39,7 +39,14 @@ const gestionAprendicesControlador = {
 
     async mostrarPaginaReportes(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             logger.debug('Datos completos para reportes obtenidos', {
                 programas: datosReportes.datosProgramas.labels.length,
@@ -60,7 +67,9 @@ const gestionAprendicesControlador = {
                 datosDocumentos: JSON.stringify(datosReportes.datosDocumentos),
                 datosSeguimiento: JSON.stringify(datosReportes.datosSeguimiento),
                 datosDepartamentos: JSON.stringify(datosReportes.datosDepartamentos),
-                estadisticasGenerales: datosReportes.estadisticasGenerales
+                estadisticasGenerales: datosReportes.estadisticasGenerales,
+                mes: filtros.mes,
+                anio: filtros.anio
             });
 
         } catch (error) {
@@ -645,7 +654,14 @@ const gestionAprendicesControlador = {
 
     async exportarProgramasExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Calcular total para porcentajes
             const total = datosReportes.datosProgramas.data.reduce((sum, val) => sum + val, 0);
@@ -667,7 +683,8 @@ const gestionAprendicesControlador = {
             XLSX.utils.book_append_sheet(wb, ws, 'Programas');
 
             // Configurar headers para descarga
-            const nombreArchivo = `reporte_programas_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const fechaFiltro = filtros.mes && filtros.anio ? `${filtros.anio}_${filtros.mes.toString().padStart(2, '0')}_` : '';
+            const nombreArchivo = `reporte_programas_${fechaFiltro}${new Date().toISOString().split('T')[0]}.xlsx`;
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
 
@@ -683,7 +700,14 @@ const gestionAprendicesControlador = {
 
     async exportarEstadosExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Calcular total para porcentajes
             const total = datosReportes.datosEstados.data.reduce((sum, val) => sum + val, 0);
@@ -721,7 +745,14 @@ const gestionAprendicesControlador = {
 
     async exportarAlternativasExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Calcular total para porcentajes
             const total = datosReportes.datosAlternativas.data.reduce((sum, val) => sum + val, 0);
@@ -759,7 +790,14 @@ const gestionAprendicesControlador = {
 
     async exportarDocumentosExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Calcular total para porcentajes
             const total = datosReportes.datosDocumentos.data.reduce((sum, val) => sum + val, 0);
@@ -797,7 +835,14 @@ const gestionAprendicesControlador = {
 
     async exportarSeguimientoExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Calcular total para porcentajes
             const total = datosReportes.datosSeguimiento.data.reduce((sum, val) => sum + val, 0);
@@ -835,7 +880,14 @@ const gestionAprendicesControlador = {
 
     async exportarReporteCompletoExcel(req, res) {
         try {
-            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes();
+            // Obtener filtros de fecha desde query parameters
+            const filtros = {};
+            if (req.query.mes && req.query.anio) {
+                filtros.mes = parseInt(req.query.mes);
+                filtros.anio = parseInt(req.query.anio);
+            }
+
+            const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
 
             // Crear libro de Excel con múltiples hojas
             const wb = XLSX.utils.book_new();
@@ -927,6 +979,9 @@ const gestionAprendicesControlador = {
             }, {
                 'Métrica': 'Aprendices Certificados',
                 'Valor': datosReportes.estadisticasGenerales.certificados || 0
+            }, {
+                'Métrica': 'Aprendices por Certificar',
+                'Valor': datosReportes.estadisticasGenerales.por_certificar || 0
             }];
             const wsKPIs = XLSX.utils.json_to_sheet(datosKPIs);
             XLSX.utils.book_append_sheet(wb, wsKPIs, 'KPIs');

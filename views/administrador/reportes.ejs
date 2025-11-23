@@ -74,7 +74,9 @@
         box-shadow: 0 2px 4px rgba(57, 169, 0, 0.2);
     }
 
+
     /* Modo oscuro */
+
     html.dark-mode .export-btn.btn-excel,
     html.dark-mode .export-btn.btn-pdf {
         background-color: #39a900;
@@ -114,6 +116,51 @@
     <h1 class="display-6">Reportes y Estadísticas</h1>
     <hr class="my-4">
 
+    <!-- Filtro de Fecha -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Filtrar por Mes</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filtroFechaForm" class="d-flex gap-3 align-items-end">
+                        <div class="flex-grow-1">
+                            <label for="mesAnio" class="form-label">Seleccionar Mes y Año (Fecha Inicio Productiva)</label>
+                            <input type="month" class="form-control" id="mesAnio" name="mesAnio"
+                                   value="<%= (typeof mes !== 'undefined' && typeof anio !== 'undefined') ? `${anio}-${mes.toString().padStart(2, '0')}` : '' %>">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Filtrar
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="limpiarFiltro">
+                            <i class="fas fa-times me-2"></i>Limpiar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <% if (typeof mes !== 'undefined' && typeof anio !== 'undefined') { %>
+                        <div class="alert alert-info mb-0 w-100">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <strong>Mostrando datos del mes:</strong>
+                            <%= new Date(anio, mes - 1).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }) %>
+                            <br><small>(filtrado por Fecha Inicio Productiva)</small>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-secondary mb-0 w-100">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            <strong>Mostrando datos generales</strong> (todos los períodos)
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- KPIs Generales -->
     <div class="row mb-4 justify-content-center">
         <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
@@ -150,6 +197,12 @@
             <div class="kpi-card">
                 <div class="kpi-value"><%= estadisticasGenerales.certificados || 0 %></div>
                 <div class="kpi-label">Aprendices Certificados</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+            <div class="kpi-card">
+                <div class="kpi-value"><%= estadisticasGenerales.por_certificar || 0 %></div>
+                <div class="kpi-label">Aprendices por Certificar</div>
             </div>
         </div>
     </div>
@@ -328,7 +381,8 @@
                             'rgba(255, 206, 86, 0.7)',
                             'rgba(75, 192, 192, 0.7)',
                             'rgba(153, 102, 255, 0.7)',
-                            'rgba(255, 159, 64, 0.7)'
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(54, 162, 235, 0.7)'
                         ],
                         hoverOffset: 4
                     }]
@@ -637,6 +691,7 @@
             pdf.text(`Aprendices Aplazados: ${estadisticas.aplazados}`, 20, 70);
             pdf.text(`Aprendices Retirados: ${estadisticas.retirados}`, 20, 80);
             pdf.text(`Aprendices Certificados: ${estadisticas.certificados || 0}`, 20, 90);
+            pdf.text(`Aprendices por Certificar: ${estadisticas.por_certificar || 0}`, 20, 100);
 
             pdf.save(`reporte_completo_${new Date().toISOString().split('T')[0]}.pdf`);
         } catch (error) {
@@ -671,4 +726,37 @@
 
     // Mejorar tooltips después de que se carguen los gráficos
     setTimeout(mejorarTooltips, 1000);
+
+    // --- FUNCIONALIDAD DEL FILTRO DE FECHA ---
+
+    // Manejar el envío del formulario de filtro
+    document.getElementById('filtroFechaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const mesAnioInput = document.getElementById('mesAnio');
+        const valor = mesAnioInput.value; // Formato: YYYY-MM
+
+        if (valor) {
+            const [anio, mes] = valor.split('-');
+            // Redirigir con parámetros de query
+            window.location.href = `/administrador/reportes?mes=${mes}&anio=${anio}`;
+        } else {
+            // Si no hay valor, mostrar datos generales
+            window.location.href = '/administrador/reportes';
+        }
+    });
+
+    // Manejar el botón de limpiar filtro
+    document.getElementById('limpiarFiltro').addEventListener('click', function() {
+        document.getElementById('mesAnio').value = '';
+        window.location.href = '/administrador/reportes';
+    });
+
+    // Establecer el valor del input si hay filtros aplicados
+    <% if (typeof mes !== 'undefined' && typeof anio !== 'undefined') { %>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mesAnioInput = document.getElementById('mesAnio');
+        mesAnioInput.value = '<%= anio %>-<%= mes.toString().padStart(2, '0') %>';
+    });
+    <% } %>
 </script>
