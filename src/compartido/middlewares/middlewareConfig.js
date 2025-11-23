@@ -88,12 +88,17 @@ function setupMiddlewares(app) {
         next();
     });
 
-    // Logging de solicitudes
+    // Logging de solicitudes con timestamp de inicio
     app.use((req, res, next) => {
-        const start = Date.now();
+        req.startTime = Date.now();
         res.on('finish', () => {
-            const duration = Date.now() - start;
+            const duration = Date.now() - req.startTime;
             console.log(`${req.method} ${req.url} ${res.statusCode} ${duration}ms`);
+
+            // Logging adicional para rutas DataTables
+            if (req.url.includes('aprendices-data') || req.url.includes('opciones-filtros')) {
+                console.log(`DataTables Request: ${req.method} ${req.url} - Duration: ${duration}ms - IP: ${req.ip} - User: ${req.session?.userId || 'Anonymous'}`);
+            }
         });
         next();
     });

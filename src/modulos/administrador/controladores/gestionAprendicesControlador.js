@@ -100,11 +100,48 @@ const gestionAprendicesControlador = {
     async obtenerDatosAprendices(req, res) {
         try {
             const options = req.body;
+            const clientIP = req.ip || req.connection.remoteAddress;
+            const userAgent = req.get('User-Agent') || 'Unknown';
+
+            logger.info('Solicitud DataTables recibida', {
+                ip: clientIP,
+                userAgent: userAgent.substring(0, 100), // Limitar longitud
+                userId: req.session?.userId,
+                userRole: req.session?.userRole,
+                options: {
+                    draw: options.draw,
+                    start: options.start,
+                    length: options.length,
+                    search: options.search?.value,
+                    order: options.order,
+                    hasFilters: !!(options.nombre || options.documento || options.programaFormacion || options.estadoFormacion)
+                }
+            });
+
             const result = await servicioGestionAprendices.obtenerDatosAprendices(options);
+
+            logger.info('Respuesta DataTables enviada', {
+                ip: clientIP,
+                recordsTotal: result.recordsTotal,
+                recordsFiltered: result.recordsFiltered,
+                dataLength: result.data?.length,
+                draw: result.draw,
+                duration: Date.now() - (req.startTime || Date.now())
+            });
+
             res.json(result);
         } catch (error) {
-            logger.error('Error al obtener datos de aprendices:', error);
-            res.status(500).json({ error: 'Error interno del servidor.' });
+            logger.error('Error al obtener datos de aprendices:', {
+                error: error.message,
+                stack: error.stack,
+                ip: req.ip,
+                userId: req.session?.userId,
+                options: req.body
+            });
+            res.status(500).json({
+                error: 'Error interno del servidor.',
+                message: process.env.NODE_ENV === 'development' ? error.message : 'Error interno'
+            });
         }
     },
     

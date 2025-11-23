@@ -141,14 +141,14 @@ class AdminUtils {
             console.log('Inicialización de DataTable omitida por skipDataTableInit');
             return null;
         }
-        
+
         // Verificar que la tabla existe en el DOM
         const elemento = document.querySelector(idTabla);
         if (!elemento) {
             console.log(`Tabla ${idTabla} no encontrada en el DOM`);
             return null;
         }
-        
+
         const configuracionBase = {
             serverSide: true,
             processing: true,
@@ -197,6 +197,105 @@ class AdminUtils {
                 }
             ],
             responsive: true,
+            // Configuración mejorada para móviles y producción
+            ajax: function(data, callback, settings) {
+                const ajaxConfig = {
+                    timeout: 30000, // 30 segundos timeout (antes era default ~10s)
+                    retries: 3, // Reintentar hasta 3 veces
+                    retryDelay: 1000, // Esperar 1 segundo entre reintentos
+                    ...opcionesPersonalizadas.ajax
+                };
+
+                // Función para ejecutar la petición con reintentos
+                const executeAjax = (attempt = 1) => {
+                    console.log(`DataTables Ajax - Intento ${attempt}/${ajaxConfig.retries + 1}`);
+
+                    $.ajax({
+                        ...ajaxConfig,
+                        data: data,
+                        success: function(response) {
+                            console.log('DataTables Ajax - Éxito en intento', attempt);
+                            callback(response);
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            console.warn(`DataTables Ajax - Error en intento ${attempt}:`, {
+                                status: xhr.status,
+                                statusText: xhr.statusText,
+                                textStatus: textStatus,
+                                errorThrown: errorThrown
+                            });
+
+                            // Si no es el último intento y el error es recuperable, reintentar
+                            if (attempt <= ajaxConfig.retries &&
+                                (xhr.status === 0 || xhr.status === 500 || xhr.status >= 502)) {
+
+                                console.log(`Reintentando en ${ajaxConfig.retryDelay}ms...`);
+                                setTimeout(() => {
+                                    executeAjax(attempt + 1);
+                                }, ajaxConfig.retryDelay);
+                            } else {
+                                // Último intento fallido o error no recuperable
+                                console.error('DataTables Ajax - Todos los intentos fallaron');
+                                callback({
+                                    error: true,
+                                    message: `Error después de ${attempt} intentos: ${textStatus}`,
+                                    data: []
+                                });
+                            }
+                        }
+                    });
+                };
+
+                executeAjax();
+            },
+            // Mejorar manejo de errores
+            initComplete: function(settings, json) {
+                // Configurar manejo de errores global para esta tabla
+                const table = this;
+                $(table).on('error.dt', function(e, settings, techNote, message) {
+                    console.error('Error en DataTables:', {
+                        settings: settings,
+                        techNote: techNote,
+                        message: message,
+                        url: opcionesPersonalizadas.ajax?.url || 'URL no especificada'
+                    });
+
+                    // Mostrar mensaje de error más específico
+                    let mensajeError = 'Error al cargar los datos. ';
+                    if (message && message.includes('timeout')) {
+                        mensajeError += 'La conexión tardó demasiado. Verifique su conexión a internet.';
+                    } else if (message && message.includes('401')) {
+                        mensajeError += 'Sesión expirada. Recargue la página.';
+                    } else if (message && message.includes('403')) {
+                        mensajeError += 'Acceso denegado.';
+                    } else if (message && message.includes('500')) {
+                        mensajeError += 'Error interno del servidor.';
+                    } else {
+                        mensajeError += 'Intente recargar la página.';
+                    }
+
+                    // Mostrar alerta al usuario
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: mensajeError,
+                            confirmButtonText: 'Reintentar',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Reintentar cargar la tabla
+                                table.DataTable().ajax.reload();
+                            }
+                        });
+                    } else {
+                        if (confirm(mensajeError + ' ¿Desea reintentar?')) {
+                            table.DataTable().ajax.reload();
+                        }
+                    }
+                });
+            },
             ...opcionesPersonalizadas
         };
 
