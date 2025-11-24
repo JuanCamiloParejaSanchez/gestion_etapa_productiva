@@ -5,7 +5,14 @@
 const express = require('express');
 const router = express.Router();
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
-const controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
+let controladorDashboardAprendiz;
+try {
+    controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
+    console.log('ControladorDashboardAprendiz cargado correctamente');
+} catch (error) {
+    console.error('Error cargando controladorDashboardAprendiz:', error);
+    controladorDashboardAprendiz = null;
+}
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
 const chatControlador = require('../../compartido/controladores/chatControlador');
 const upload = require('../../../compartido/middlewares/multerConfig');
