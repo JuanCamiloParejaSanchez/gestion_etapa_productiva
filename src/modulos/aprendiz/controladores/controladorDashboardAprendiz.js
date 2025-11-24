@@ -515,9 +515,10 @@ class ControladorDashboardAprendiz extends BaseController {
                     // Eliminar archivo de Cloudinary
                     try {
                         await deleteCloudinaryFile(ruta);
+                        console.log('Archivo eliminado de Cloudinary correctamente');
                     } catch (cloudinaryError) {
                         console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
-                        // No fallar la eliminación de BD por error en Cloudinary
+                        return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de Cloudinary. No se eliminó de la base de datos.' });
                     }
                 } else {
                     // Eliminar archivo local
