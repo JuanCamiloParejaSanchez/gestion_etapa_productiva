@@ -401,7 +401,11 @@ class ControladorDashboardAprendiz extends BaseController {
 
             const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
 
-            if (USE_CLOUDINARY && ruta.includes('/')) {
+            // Detectar si es archivo de Cloudinary (public_id que comienza con 'documentos/')
+            // vs archivo local (que comienza con 'public/uploads/')
+            const esArchivoCloudinary = USE_CLOUDINARY && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
+
+            if (esArchivoCloudinary) {
                 // Archivo en Cloudinary - generar URL directa
                 try {
                     const cloudinaryUrl = getUrl(ruta);
