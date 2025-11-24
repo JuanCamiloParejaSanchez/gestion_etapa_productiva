@@ -22,6 +22,8 @@ const opcionesFormularioServicio = require('../../../compartido/servicios/opcion
 const ServicioGestionAprendices = require('../../administrador/servicios/servicioGestionAprendices');
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
+// Importar configuración de Cloudinary
+const { getUrl, deleteFile: deleteCloudinaryFile } = require('../../../configuracion/cloudinaryConfig');
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -338,12 +340,24 @@ class ControladorDashboardAprendiz extends BaseController {
                 if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
                 await servicioDocumentosAprendiz.eliminarDocumentoPorId(documentoExistente.id);
             }
+            // Determinar la ruta del archivo basada en el entorno
+            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+            let rutaArchivo;
+
+            if (USE_CLOUDINARY) {
+                // En Cloudinary, la ruta es el public_id
+                rutaArchivo = file.filename; // multer-storage-cloudinary usa 'filename' para el public_id
+            } else {
+                // En desarrollo local, usar ruta relativa
+                rutaArchivo = `public/uploads/documentos/${file.filename}`.trim();
+            }
+
             // Forzar la categoría a 'certificado' para evitar errores de ENUM
             const datosDocumento = {
                 aprendiz_id: aprendizId,
                 nombre_original: nombreOriginalNormalizado,
                 nombre_guardado: file.filename,
-                ruta_archivo: `public/uploads/documentos/${file.filename}`.trim(),
+                ruta_archivo: rutaArchivo,
                 tipo_mime: file.mimetype,
                 tamano_bytes: file.size,
                 descripcion: descripcion || null,
@@ -384,13 +398,27 @@ class ControladorDashboardAprendiz extends BaseController {
                 console.error(`Error: El documento con nombre guardado ${nombreGuardado} no tiene una ruta válida.`);
                 return res.status(404).send('La ruta del archivo para este documento no es válida o no existe.');
             }
-            
-            const rutaCompleta = path.join(__dirname, '../../../..', ruta.trim());
-            if (fs.existsSync(rutaCompleta)) {
-                res.download(rutaCompleta, nombre);
+
+            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+
+            if (USE_CLOUDINARY && ruta.includes('/')) {
+                // Archivo en Cloudinary - generar URL directa
+                try {
+                    const cloudinaryUrl = getUrl(ruta);
+                    res.redirect(cloudinaryUrl);
+                } catch (cloudinaryError) {
+                    console.error('Error generando URL de Cloudinary:', cloudinaryError);
+                    res.status(500).send('Error al generar el enlace de descarga.');
+                }
             } else {
-                console.error(`Error: Archivo físico no encontrado en la ruta ${rutaCompleta}`);
-                res.status(404).send('El archivo que intenta descargar no se encuentra físicamente en el servidor.');
+                // Archivo local
+                const rutaCompleta = path.join(__dirname, '../../../..', ruta.trim());
+                if (fs.existsSync(rutaCompleta)) {
+                    res.download(rutaCompleta, nombre);
+                } else {
+                    console.error(`Error: Archivo físico no encontrado en la ruta ${rutaCompleta}`);
+                    res.status(404).send('El archivo que intenta descargar no se encuentra físicamente en el servidor.');
+                }
             }
             // --- FIN DE LA CORRECCIÓN ---
         } catch (error) {
@@ -452,9 +480,22 @@ class ControladorDashboardAprendiz extends BaseController {
             // --- INICIO DE LA CORRECCIÓN ---
             const ruta = docInfo.ruta_archivo || docInfo.ruta_archivo;
             if (ruta && typeof ruta === 'string') {
-                const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
+                const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+
+                if (USE_CLOUDINARY && ruta.includes('/')) {
+                    // Eliminar archivo de Cloudinary
+                    try {
+                        await deleteCloudinaryFile(ruta);
+                    } catch (cloudinaryError) {
+                        console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
+                        // No fallar la eliminación de BD por error en Cloudinary
+                    }
+                } else {
+                    // Eliminar archivo local
+                    const filePath = path.join(__dirname, '../../../..', ruta.trim());
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
                 }
             }
             // --- FIN DE LA CORRECCIÓN ---

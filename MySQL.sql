@@ -488,12 +488,6 @@ INSERT INTO `configuracion_sistema` (`clave`, `valor`, `tipo`, `descripcion`, `c
 ('notificaciones_email', 'true', 'boolean', 'Habilitar notificaciones por email', 'notificaciones'),
 ('mantenimiento_modo', 'false', 'boolean', 'Modo mantenimiento del sistema', 'sistema');
 
--- =====================================================
--- INSERTAR ADMINISTRADOR POR DEFECTO
--- =====================================================
--- NOTA: La contraseña debe ser hasheada en la aplicación
-INSERT INTO `administradores` (`nombreCompleto`, `correoInstitucional`, `numeroIdentificacion`, `telefono`, `departamento`, `password`, `rol`) VALUES
-('Administrador del Sistema', 'admin@sena.edu.co', '12345678', '3001234567', 'Sistemas', '$2b$10$default_hash_placeholder', 'super_admin');
 
 -- =====================================================
 -- CREAR VISTAS ÚTILES
@@ -728,6 +722,77 @@ BEGIN
     END IF;
 END //
 
+DELIMITER //
+
+-- Trigger para validar antes de INSERT
+CREATE TRIGGER tr_mensajes_before_insert
+BEFORE INSERT ON mensajes
+FOR EACH ROW
+BEGIN
+    -- Validar remitente
+    IF NEW.remitente_tipo = 'aprendiz' THEN
+        IF NOT EXISTS (SELECT 1 FROM aprendices WHERE id = NEW.remitente_id) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El remitente aprendiz especificado no existe';
+        END IF;
+    ELSEIF NEW.remitente_tipo = 'admin' THEN
+        IF NOT EXISTS (SELECT 1 FROM administradores WHERE id = NEW.remitente_id) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El remitente administrador especificado no existe';
+        END IF;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de remitente inválido';
+    END IF;
+
+    -- Validar destinatario
+    IF NEW.destinatario_tipo = 'aprendiz' THEN
+        IF NOT EXISTS (SELECT 1 FROM aprendices WHERE id = NEW.destinatario_id) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El destinatario aprendiz especificado no existe';
+        END IF;
+    ELSEIF NEW.destinatario_tipo = 'admin' THEN
+        IF NOT EXISTS (SELECT 1 FROM administradores WHERE id = NEW.destinatario_id) THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El destinatario administrador especificado no existe';
+        END IF;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de destinatario inválido';
+    END IF;
+END //
+
+-- Trigger para validar antes de UPDATE
+CREATE TRIGGER tr_mensajes_before_update
+BEFORE UPDATE ON mensajes
+FOR EACH ROW
+BEGIN
+    -- Solo validar si cambian los campos de referencia
+    IF NEW.remitente_id != OLD.remitente_id OR NEW.remitente_tipo != OLD.remitente_tipo THEN
+        -- Validar remitente
+        IF NEW.remitente_tipo = 'aprendiz' THEN
+            IF NOT EXISTS (SELECT 1 FROM aprendices WHERE id = NEW.remitente_id) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El remitente aprendiz especificado no existe';
+            END IF;
+        ELSEIF NEW.remitente_tipo = 'admin' THEN
+            IF NOT EXISTS (SELECT 1 FROM administradores WHERE id = NEW.remitente_id) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El remitente administrador especificado no existe';
+            END IF;
+        ELSE
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de remitente inválido';
+        END IF;
+    END IF;
+
+    IF NEW.destinatario_id != OLD.destinatario_id OR NEW.destinatario_tipo != OLD.destinatario_tipo THEN
+        -- Validar destinatario
+        IF NEW.destinatario_tipo = 'aprendiz' THEN
+            IF NOT EXISTS (SELECT 1 FROM aprendices WHERE id = NEW.destinatario_id) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El destinatario aprendiz especificado no existe';
+            END IF;
+        ELSEIF NEW.destinatario_tipo = 'admin' THEN
+            IF NOT EXISTS (SELECT 1 FROM administradores WHERE id = NEW.destinatario_id) THEN
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El destinatario administrador especificado no existe';
+            END IF;
+        ELSE
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tipo de destinatario inválido';
+        END IF;
+    END IF;
+END //
+
 DELIMITER ;
 
 
@@ -830,14 +895,5 @@ delete from aprendices where id='239'
 
 select * from administradores;
 delete from administradores where id='1'
-
-
-DESCRIBE aprendices;
-ALTER TABLE `aprendices` 
-ADD COLUMN `documentoSoporte` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de documento de soporte' AFTER `fechaUltimoCorreoAlerta`,
-ADD COLUMN `documentoSoporteOriginal` varchar(255) DEFAULT NULL COMMENT 'Nombre original del documento de soporte' AFTER `documentoSoporte`,
-ADD COLUMN `documentoSoportePath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa del documento de soporte' AFTER `documentoSoporteOriginal`,
-ADD COLUMN `fotoPerfil` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de foto de perfil' AFTER `documentoSoportePath`,
-ADD COLUMN `fotoPerfilPath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa de la foto de perfil' AFTER `fotoPerfil`;
 
 

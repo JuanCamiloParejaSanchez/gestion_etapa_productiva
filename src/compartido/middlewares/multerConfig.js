@@ -4,10 +4,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Directorio donde se guardarán los documentos subidos.
+// Importar configuración de Cloudinary
+const { createCloudinaryStorage } = require('../../configuracion/cloudinaryConfig');
+
+// Determinar si usar Cloudinary basado en variables de entorno
+const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true' && process.env.CLOUDINARY_CLOUD_NAME;
+
+// Directorio donde se guardarán los documentos subidos (solo para desarrollo local).
 const UPLOADS_DIR = path.join(__dirname, '../../../public/uploads/documentos');
 
-if (!fs.existsSync(UPLOADS_DIR)) {
+if (!USE_CLOUDINARY && !fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
@@ -28,24 +34,33 @@ const slugify = (text) => {
         .replace(/--+/g, '-');
 };
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, UPLOADS_DIR);
-    },
-    filename: (req, file, cb) => {
-        // Decodificar el nombre original para manejar tildes y caracteres especiales.
-        const nombreOriginalDecodificado = decodeOriginalName(file.originalname);
+// Configurar storage basado en el entorno
+let storage;
 
-        // Usar el nombre decodificado para crear el nombre base y la extensión.
-        const ext = path.extname(nombreOriginalDecodificado);
-        const basename = path.basename(nombreOriginalDecodificado, ext);
-        
-        const sanitizedBasename = slugify(basename);
-        const finalFilename = `${sanitizedBasename}-${Date.now()}${ext}`;
-        
-        cb(null, finalFilename);
-    }
-});
+if (USE_CLOUDINARY) {
+    // Usar Cloudinary (gratuito para pruebas)
+    storage = createCloudinaryStorage('documentos');
+} else {
+    // Usar almacenamiento local en desarrollo
+    storage = multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, UPLOADS_DIR);
+        },
+        filename: (req, file, cb) => {
+            // Decodificar el nombre original para manejar tildes y caracteres especiales.
+            const nombreOriginalDecodificado = decodeOriginalName(file.originalname);
+
+            // Usar el nombre decodificado para crear el nombre base y la extensión.
+            const ext = path.extname(nombreOriginalDecodificado);
+            const basename = path.basename(nombreOriginalDecodificado, ext);
+
+            const sanitizedBasename = slugify(basename);
+            const finalFilename = `${sanitizedBasename}-${Date.now()}${ext}`;
+
+            cb(null, finalFilename);
+        }
+    });
+}
 
 const upload = multer({
     storage: storage,
@@ -95,4 +110,7 @@ const normalizarNombreDocumento = (nombre) => {
         .trim();
 };
 
-module.exports = Object.assign(upload, { decodeOriginalName, normalizarNombreDocumento });
+module.exports = Object.assign(upload, {
+    decodeOriginalName,
+    normalizarNombreDocumento
+});
