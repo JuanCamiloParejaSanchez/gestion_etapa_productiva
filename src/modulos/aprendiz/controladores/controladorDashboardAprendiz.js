@@ -389,6 +389,7 @@ class ControladorDashboardAprendiz extends BaseController {
                 console.log('Error: No hay ID de aprendiz en la sesión');
                 return res.status(401).send('Acceso no autorizado.');
             }
+            console.log(`Llamando al servicio para buscar documento: nombreGuardado=${nombreGuardado}, aprendizId=${aprendizId}`);
             const documento = await servicioDocumentosAprendiz.obtenerDocumentoPorNombreGuardadoYAprendiz(nombreGuardado, aprendizId);
             console.log(`Documento encontrado en BD:`, documento ? 'SÍ' : 'NO');
             if (documento) {
