@@ -95,9 +95,14 @@ const AuthMiddleware = {
      * Middleware para proteger rutas de aprendices.
      */
     validarSesionAprendiz: (req, res, next) => {
+        console.log('Middleware validarSesionAprendiz ejecutado para:', req.path);
+        console.log('Sesión existe:', !!req.session);
+        console.log('userRole:', req.session?.userRole);
         if (!req.session || req.session.userRole !== 'aprendiz') {
+            console.log('Acceso denegado: redirigiendo a /auth/login');
             return res.redirect('/auth/login');
         }
+        console.log('Acceso permitido para aprendiz');
         AuthMiddleware.setNoCacheHeaders(res);
         next();
     },
