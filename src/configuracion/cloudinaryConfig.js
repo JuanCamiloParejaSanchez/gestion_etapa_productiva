@@ -2,7 +2,7 @@
 // Configuración para Cloudinary (alternativa gratuita a S3)
 
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const CloudinaryStorage = require('multer-storage-cloudinary').CloudinaryStorage;
 
 // Configurar Cloudinary
 cloudinary.config({
