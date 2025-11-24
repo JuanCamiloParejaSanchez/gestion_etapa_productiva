@@ -382,17 +382,34 @@ class ControladorDashboardAprendiz extends BaseController {
         try {
             const { nombreGuardado } = req.params;
             const aprendizId = req.session.userId;
+            console.log(`=== INICIO DESCARGA DOCUMENTO ===`);
+            console.log(`Nombre guardado solicitado: ${nombreGuardado}`);
+            console.log(`ID del aprendiz: ${aprendizId}`);
             if (!aprendizId) {
+                console.log('Error: No hay ID de aprendiz en la sesión');
                 return res.status(401).send('Acceso no autorizado.');
             }
             const documento = await servicioDocumentosAprendiz.obtenerDocumentoPorNombreGuardadoYAprendiz(nombreGuardado, aprendizId);
+            console.log(`Documento encontrado en BD:`, documento ? 'SÍ' : 'NO');
+            if (documento) {
+                console.log(`Detalles del documento:`, {
+                    id: documento.id,
+                    nombre_original: documento.nombre_original,
+                    nombre_guardado: documento.nombre_guardado,
+                    ruta_archivo: documento.ruta_archivo,
+                    tipo_mime: documento.tipo_mime
+                });
+            }
             if (!documento) {
+                console.log('Documento no encontrado en BD o no pertenece al aprendiz');
                 return res.status(404).send('Archivo no encontrado o no tiene permisos para descargarlo.');
             }
             // --- INICIO DE LA CORRECCIÓN ---
             // Se hace el código robusto para aceptar 'rutaArchivo' (camelCase) o 'ruta_archivo' (snake_case)
             const ruta = documento.ruta_archivo || documento.ruta_archivo;
             const nombre = documento.nombre_original || documento.nombre_original;
+            console.log(`Ruta del archivo: ${ruta}`);
+            console.log(`Nombre original: ${nombre}`);
 
             if (!ruta || typeof ruta !== 'string') {
                 console.error(`Error: El documento con nombre guardado ${nombreGuardado} no tiene una ruta válida.`);
@@ -400,15 +417,19 @@ class ControladorDashboardAprendiz extends BaseController {
             }
 
             const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+            console.log(`USE_CLOUDINARY: ${USE_CLOUDINARY}`);
 
             // Detectar si es archivo de Cloudinary (public_id que comienza con 'documentos/')
             // vs archivo local (que comienza con 'public/uploads/')
             const esArchivoCloudinary = USE_CLOUDINARY && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
+            console.log(`Es archivo de Cloudinary: ${esArchivoCloudinary}`);
 
             if (esArchivoCloudinary) {
                 // Archivo en Cloudinary - generar URL directa
                 try {
                     const cloudinaryUrl = getUrl(ruta);
+                    console.log(`URL de Cloudinary generada: ${cloudinaryUrl}`);
+                    console.log(`Redirigiendo a Cloudinary...`);
                     res.redirect(cloudinaryUrl);
                 } catch (cloudinaryError) {
                     console.error('Error generando URL de Cloudinary:', cloudinaryError);
@@ -417,13 +438,17 @@ class ControladorDashboardAprendiz extends BaseController {
             } else {
                 // Archivo local
                 const rutaCompleta = path.join(__dirname, '../../../..', ruta.trim());
+                console.log(`Ruta completa local: ${rutaCompleta}`);
+                console.log(`Archivo existe localmente: ${fs.existsSync(rutaCompleta)}`);
                 if (fs.existsSync(rutaCompleta)) {
+                    console.log(`Descargando archivo local...`);
                     res.download(rutaCompleta, nombre);
                 } else {
                     console.error(`Error: Archivo físico no encontrado en la ruta ${rutaCompleta}`);
                     res.status(404).send('El archivo que intenta descargar no se encuentra físicamente en el servidor.');
                 }
             }
+            console.log(`=== FIN DESCARGA DOCUMENTO ===`);
             // --- FIN DE LA CORRECCIÓN ---
         } catch (error) {
             console.error('Error en el controlador descargarDocumento:', error);
