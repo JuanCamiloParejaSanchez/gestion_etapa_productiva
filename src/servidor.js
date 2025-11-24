@@ -17,8 +17,14 @@ const rutasRegistroAdministrador = require('./modulos/administrador/rutas/rutasR
 const rutasGestionAprendices = require('./modulos/administrador/rutas/rutasGestionAprendices');
 const rutasAdministrador = require('./modulos/administrador/rutas/rutasAdministrador');
 const rutasRegistroAprendiz = require('./modulos/aprendiz/rutas/rutasRegistroAprendiz');
-const rutasAprendiz = require('./modulos/aprendiz/rutas/rutasAprendiz');
-console.log('RutasAprendiz cargado correctamente');
+let rutasAprendiz;
+try {
+    rutasAprendiz = require('./modulos/aprendiz/rutas/rutasAprendiz');
+    console.log('RutasAprendiz cargado correctamente');
+} catch (error) {
+    console.error('Error cargando rutasAprendiz:', error);
+    rutasAprendiz = null;
+}
 const rutasAutenticacion = require('./modulos/aprendiz/rutas/rutasAutenticacion');
 
 // Importar el controlador de autenticación general, aunque no se usa directamente aquí, es una buena práctica.
@@ -114,8 +120,12 @@ app.get('/', (req, res) => {
 
 // Rutas del módulo de aprendiz. Protegidas con el middleware de rol.
 // Nota: 'rutasAprendiz' ya contiene el middleware 'validarSesionAprendiz'.
-app.use('/aprendiz', rutasAprendiz);
-console.log('Rutas de aprendiz registradas en /aprendiz');
+if (rutasAprendiz) {
+    app.use('/aprendiz', rutasAprendiz);
+    console.log('Rutas de aprendiz registradas en /aprendiz');
+} else {
+    console.error('No se pudieron registrar las rutas de aprendiz debido a un error de carga');
+}
 
 // Rutas del módulo de administrador.
 // CORRECCIÓN: Registrar primero las rutas específicas del administrador (incluye perfil)
