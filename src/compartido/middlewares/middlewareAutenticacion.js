@@ -15,11 +15,14 @@ const AuthMiddleware = {
 
     /* Middleware para verificar expiración de sesión por inactividad */
     verificarExpiracionSesion: (req, res, next) => {
+        console.log('Middleware verificarExpiracionSesion ejecutado para:', req.path);
         if (req.session && req.session.userId) {
             const ahora = Date.now();
             const ultimaActividad = req.session.lastActivity || req.session.cookie._expires;
+            console.log('Sesión existe, ultimaActividad:', ultimaActividad, 'ahora:', ahora);
 
             if (ultimaActividad && (ahora - ultimaActividad) > AuthMiddleware.SESSION_TIMEOUT) {
+                console.log('Sesión expirada, redirigiendo a /');
                 // Sesión expirada, destruirla
                 req.session.destroy((err) => {
                     if (err) {
@@ -32,6 +35,9 @@ const AuthMiddleware = {
 
             // Actualizar timestamp de última actividad
             req.session.lastActivity = ahora;
+            console.log('Sesión válida, actualizando lastActivity');
+        } else {
+            console.log('No hay sesión');
         }
         next();
     },
