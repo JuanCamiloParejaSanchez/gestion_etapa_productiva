@@ -81,7 +81,7 @@ CREATE TABLE `aprendices` (
   CONSTRAINT `chk_fechas_productiva` CHECK (
     (`fechaInicioProductiva` IS NULL OR `fechaFinProductiva` IS NULL) OR 
     (`fechaInicioProductiva` <= `fechaFinProductiva`)
-  ),
+  )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla principal de aprendices del SENA';
 
 -- =====================================================
@@ -178,6 +178,7 @@ CREATE TABLE `documentos_aprendiz` (
   `tamano_bytes` bigint NOT NULL COMMENT 'Tamaño del archivo en bytes',
   `tipo_documento` varchar(100) DEFAULT NULL COMMENT 'Tipo de documento (ej: Hoja de Vida, Certificado, etc.)',
   `descripcion` text COMMENT 'Descripción opcional del documento',
+  `estado` ENUM('pendiente','aprobado','rechazado') DEFAULT 'pendiente' COMMENT 'Estado del documento',
   `activo` boolean DEFAULT TRUE COMMENT 'Estado activo/inactivo del documento',
   `fecha_subida` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de subida',
   `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
@@ -824,7 +825,6 @@ delete from aprendices where id='239'
 
 select * from administradores;
 delete from administradores where id='102'
-
 
 
 
