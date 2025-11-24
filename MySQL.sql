@@ -10,10 +10,10 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS `sena_etapa_productiva`
+CREATE DATABASE IF NOT EXISTS `defaultdb`
 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `sena_etapa_productiva`;
+USE `defaultdb`;
 
 -- =====================================================
 -- TABLA: APRENDICES
@@ -59,6 +59,11 @@ CREATE TABLE `aprendices` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación del registro',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
   `fechaUltimoCorreoAlerta` datetime DEFAULT NULL COMMENT 'Última fecha de envío de correo de alertas',
+  `documentoSoporte` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de documento de soporte',
+  `documentoSoporteOriginal` varchar(255) DEFAULT NULL COMMENT 'Nombre original del documento de soporte',
+  `documentoSoportePath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa del documento de soporte',
+  `fotoPerfil` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de foto de perfil',
+  `fotoPerfilPath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa de la foto de perfil',
 
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_numero_documento` (`numeroDocumento`),
@@ -733,7 +738,7 @@ DELIMITER ;
 -- =====================================================
 
 -- Seleccionar la base de datos
-USE `sena_etapa_productiva`;
+USE `defaultdb`;
 
 -- =====================================================
 -- 1. VERIFICACIÓN BÁSICA DE TABLAS
@@ -824,10 +829,15 @@ select * from aprendices;
 delete from aprendices where id='239'
 
 select * from administradores;
-delete from administradores where id='102'
+delete from administradores where id='1'
 
 
-
-
+DESCRIBE aprendices;
+ALTER TABLE `aprendices` 
+ADD COLUMN `documentoSoporte` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de documento de soporte' AFTER `fechaUltimoCorreoAlerta`,
+ADD COLUMN `documentoSoporteOriginal` varchar(255) DEFAULT NULL COMMENT 'Nombre original del documento de soporte' AFTER `documentoSoporte`,
+ADD COLUMN `documentoSoportePath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa del documento de soporte' AFTER `documentoSoporteOriginal`,
+ADD COLUMN `fotoPerfil` varchar(255) DEFAULT NULL COMMENT 'Nombre del archivo de foto de perfil' AFTER `documentoSoportePath`,
+ADD COLUMN `fotoPerfilPath` varchar(500) DEFAULT NULL COMMENT 'Ruta completa de la foto de perfil' AFTER `fotoPerfil`;
 
 
