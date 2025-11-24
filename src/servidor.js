@@ -1,6 +1,7 @@
 // Ruta: src/servidor.js
 // Propósito: Archivo principal de configuración del servidor y rutas
 
+console.log('Iniciando servidor...');
 require('dotenv').config();
 
 const express = require('express');
