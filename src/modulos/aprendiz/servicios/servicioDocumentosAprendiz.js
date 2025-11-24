@@ -56,8 +56,13 @@ const servicioDocumentosAprendiz = {
      */
     async obtenerDocumentoPorNombreGuardadoYAprendiz(nombreGuardado, aprendizId) {
         try {
+            console.log(`Buscando documento en BD: nombreGuardado=${nombreGuardado}, aprendizId=${aprendizId}`);
             const query = 'SELECT * FROM documentos_aprendiz WHERE nombre_guardado = ? AND aprendiz_id = ?';
             const [rows] = await pool.query(query, [nombreGuardado, aprendizId]);
+            console.log(`Resultado de búsqueda en BD: ${rows.length} documentos encontrados`);
+            if (rows.length > 0) {
+                console.log(`Documento encontrado:`, rows[0]);
+            }
             return rows.length > 0 ? rows[0] : null;
         } catch (error) {
             console.error('Error en servicioDocumentosAprendiz.obtenerDocumentoPorNombreGuardadoYAprendiz:', error);
