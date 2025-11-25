@@ -467,23 +467,61 @@ class ControladorDashboardAprendiz extends BaseController {
             archive.pipe(res);
             // --- INICIO DE LA CORRECCIÓN ---
             // Se hace el código robusto para aceptar camelCase y snake_case y se verifica que la ruta exista.
+            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+            const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+            const tempFiles = [];
+            const https = require('https');
+            const os = require('os');
+            const { getUrl } = require('../../../configuracion/cloudinaryConfig');
+
             for (const doc of documentos) {
                 const ruta = doc.ruta_archivo || doc.ruta_archivo;
                 const nombre = doc.nombre_original || doc.nombre_original;
-
+                const ext = path.extname(nombre).toLowerCase();
                 if (ruta && typeof ruta === 'string') {
-                    const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                    if (fs.existsSync(filePath)) {
-                        archive.file(filePath, { name: nombre });
+                    // Si es Cloudinary
+                    if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
+                        // Descargar temporalmente el archivo de Cloudinary
+                        const cloudinaryUrl = getUrl(ruta);
+                        const tempPath = path.join(os.tmpdir(), `${Date.now()}_${Math.random().toString(36).slice(2)}_${nombre}`);
+                        tempFiles.push(tempPath);
+                        await new Promise((resolve, reject) => {
+                            const file = fs.createWriteStream(tempPath);
+                            https.get(cloudinaryUrl, (response) => {
+                                response.pipe(file);
+                                file.on('finish', () => {
+                                    file.close(resolve);
+                                });
+                            }).on('error', (err) => {
+                                fs.unlink(tempPath, () => {});
+                                console.warn(`Error descargando archivo Cloudinary: ${cloudinaryUrl}`, err);
+                                resolve(); // No rechazar para no romper el ZIP
+                            });
+                        });
+                        if (fs.existsSync(tempPath)) {
+                            archive.file(tempPath, { name: nombre });
+                        }
                     } else {
-                        console.warn(`Archivo no encontrado: ${filePath}`);
+                        // Archivo local
+                        const filePath = path.join(__dirname, '../../../..', ruta.trim());
+                        if (fs.existsSync(filePath)) {
+                            archive.file(filePath, { name: nombre });
+                        } else {
+                            console.warn(`Archivo no encontrado: ${filePath}`);
+                        }
                     }
                 } else {
                     console.warn(`Documento con ID ${doc.id} no tiene una ruta de archivo válida.`);
                 }
             }
-            // --- FIN DE LA CORRECCIÓN ---
-            await archive.finalize();
+            archive.finalize().then(() => {
+                // Eliminar archivos temporales
+                for (const tempPath of tempFiles) {
+                    if (fs.existsSync(tempPath)) {
+                        fs.unlink(tempPath, () => {});
+                    }
+                }
+            });
         } catch (error) {
             console.error('Error al generar ZIP:', error);
             res.status(500).send('Error al generar el archivo ZIP.');
