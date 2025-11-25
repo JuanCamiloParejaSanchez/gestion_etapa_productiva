@@ -406,12 +406,22 @@ class ControladorDashboardAprendiz extends BaseController {
             const esArchivoCloudinary = USE_CLOUDINARY && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
 
             if (esArchivoCloudinary) {
-                // Archivo en Cloudinary - generar URL directa y forzar nombre y tipo MIME
+                // Archivo en Cloudinary - generar URL directa y forzar nombre y tipo MIME correcto
                 try {
                     const cloudinaryUrl = getUrl(ruta);
-                    // Forzar descarga con nombre y tipo MIME
-                    res.setHeader('Content-Disposition', `attachment; filename="${nombre.endsWith('.pdf') ? nombre : nombre + '.pdf'}"`);
-                    res.setHeader('Content-Type', 'application/pdf');
+                    // Detectar extensión y tipo MIME
+                    const ext = require('path').extname(nombre).toLowerCase();
+                    let mimeType = 'application/octet-stream';
+                    if (ext === '.pdf') mimeType = 'application/pdf';
+                    else if (ext === '.doc') mimeType = 'application/msword';
+                    else if (ext === '.docx') mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+                    else if (ext === '.xls') mimeType = 'application/vnd.ms-excel';
+                    else if (ext === '.xlsx') mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                    else if (ext === '.png') mimeType = 'image/png';
+                    else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+
+                    res.setHeader('Content-Disposition', `attachment; filename="${nombre}"`);
+                    res.setHeader('Content-Type', mimeType);
                     // Descargar el archivo desde Cloudinary y enviarlo al cliente
                     const https = require('https');
                     https.get(cloudinaryUrl, (fileRes) => {
