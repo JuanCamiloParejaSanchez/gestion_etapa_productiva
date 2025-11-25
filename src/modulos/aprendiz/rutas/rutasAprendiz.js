@@ -5,14 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const AuthMiddleware = require('../../../compartido/middlewares/middlewareAutenticacion');
-let controladorDashboardAprendiz;
-try {
-    controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
-    console.log('ControladorDashboardAprendiz cargado correctamente');
-} catch (error) {
-    console.error('Error cargando controladorDashboardAprendiz:', error);
-    controladorDashboardAprendiz = null;
-}
+const controladorDashboardAprendiz = require('../controladores/controladorDashboardAprendiz');
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
 const chatControlador = require('../../compartido/controladores/chatControlador');
 const upload = require('../../../compartido/middlewares/multerConfig');
@@ -54,9 +47,7 @@ router.get('/chat/buscar-usuarios', chatControlador.buscarUsuarios);
 router.get('/documentos', controladorDashboardAprendiz.mostrarGestionDocumentos);
 router.post('/documentos/subir', upload.single('documento'), controladorDashboardAprendiz.subirDocumento);
 router.get('/documentos/descargar/*', (req, res, next) => {
-    const nombreGuardado = req.params[0];
-    console.log('Ruta descargar documento llamada con nombreGuardado:', nombreGuardado);
-    req.params.nombreGuardado = nombreGuardado; // Asignar para que el controlador lo use
+    req.params.nombreGuardado = req.params[0]; // Asignar el wildcard a nombreGuardado
     controladorDashboardAprendiz.descargarDocumento(req, res, next);
 });
 router.post('/documentos/descargar-multiples', controladorDashboardAprendiz.descargarMultiplesDocumentos);
