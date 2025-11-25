@@ -495,14 +495,23 @@ class ControladorDashboardAprendiz extends BaseController {
             const ruta = docInfo.ruta_archivo || docInfo.ruta_archivo;
             if (ruta && typeof ruta === 'string') {
                 const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
-
-                // Eliminar de Cloudinary solo si es documento (PDF, DOC, etc.) y el public_id es correcto
                 const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
                 const ext = path.extname(docInfo.nombre_original || '').toLowerCase();
+                // Log para depuración
+                console.log('[Cloudinary Delete] Intentando eliminar:', {
+                    ruta,
+                    ext,
+                    esDocumento: documentExts.includes(ext),
+                    esCloudinary: USE_CLOUDINARY && ruta.startsWith('documentos/'),
+                    public_id: ruta
+                });
                 if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
                     try {
-                        await deleteCloudinaryFile(ruta); // deleteFile ya usa resource_type 'raw' para documentos
-                        console.log('Archivo eliminado de Cloudinary correctamente');
+                        const result = await deleteCloudinaryFile(ruta);
+                        console.log('[Cloudinary Delete] Resultado:', result);
+                        if (result.result !== 'ok') {
+                            console.warn('[Cloudinary Delete] No se eliminó el archivo en Cloudinary. Respuesta:', result);
+                        }
                     } catch (cloudinaryError) {
                         console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
                         return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de Cloudinary. No se eliminó de la base de datos.' });
