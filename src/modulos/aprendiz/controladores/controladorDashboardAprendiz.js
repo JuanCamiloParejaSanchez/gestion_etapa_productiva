@@ -511,9 +511,21 @@ class ControladorDashboardAprendiz extends BaseController {
                         console.log('[Cloudinary Delete] Resultado:', result);
                         if (result.result !== 'ok') {
                             console.warn('[Cloudinary Delete] No se eliminó el archivo en Cloudinary. Respuesta:', result);
+                            // Intentar eliminar archivo local si existe
+                            const filePath = path.join(__dirname, '../../../..', ruta.trim());
+                            if (fs.existsSync(filePath)) {
+                                fs.unlinkSync(filePath);
+                                console.warn('[Cloudinary Delete] Archivo local eliminado como respaldo.');
+                            }
                         }
                     } catch (cloudinaryError) {
                         console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
+                        // Intentar eliminar archivo local si existe
+                        const filePath = path.join(__dirname, '../../../..', ruta.trim());
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                            console.warn('[Cloudinary Delete] Archivo local eliminado como respaldo tras error Cloudinary.');
+                        }
                         return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de Cloudinary. No se eliminó de la base de datos.' });
                     }
                 } else {
@@ -549,9 +561,31 @@ class ControladorDashboardAprendiz extends BaseController {
                 return res.status(403).json({ success: false, message: 'Intento de eliminar documentos no autorizados.'});
             }
             // --- INICIO DE LA CORRECCIÓN ---
+            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
+            const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
             for (const doc of docsToDelete) {
                 const ruta = doc.ruta_archivo || doc.ruta_archivo;
-                if (ruta && typeof ruta === 'string') {
+                const ext = path.extname(doc.nombre_original || '').toLowerCase();
+                // Log para depuración
+                console.log('[Cloudinary Delete Multiple] Intentando eliminar:', {
+                    ruta,
+                    ext,
+                    esDocumento: documentExts.includes(ext),
+                    esCloudinary: USE_CLOUDINARY && ruta.startsWith('documentos/'),
+                    public_id: ruta
+                });
+                if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
+                    try {
+                        const result = await deleteCloudinaryFile(ruta);
+                        console.log('[Cloudinary Delete Multiple] Resultado:', result);
+                        if (result.result !== 'ok') {
+                            console.warn('[Cloudinary Delete Multiple] No se eliminó el archivo en Cloudinary. Respuesta:', result);
+                        }
+                    } catch (cloudinaryError) {
+                        console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
+                    }
+                } else {
+                    // Eliminar archivo local
                     const filePath = path.join(__dirname, '../../../..', ruta.trim());
                     if (fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
