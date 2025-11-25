@@ -65,19 +65,18 @@ const deleteFile = (publicId) => {
 
 // Función para obtener URL de Cloudinary (son públicas por defecto)
 const getUrl = (publicId, options = {}) => {
+    // Para archivos raw (documentos), construir URL manualmente
+    if (publicId.includes('documentos/')) {
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        return `https://res.cloudinary.com/${cloudName}/raw/upload/${publicId}`;
+    }
+
+    // Para otros archivos (imágenes), usar cloudinary.url normal
     let defaultOptions = {
         secure: true,
         quality: 'auto',
         fetch_format: 'auto'
     };
-
-    // Para PDFs y documentos, usar resource_type raw y no fetch_format
-    if (publicId.includes('.pdf') || publicId.includes('documentos/')) {
-        defaultOptions = {
-            secure: true,
-            resource_type: 'raw'
-        };
-    }
 
     return cloudinary.url(publicId, { ...defaultOptions, ...options });
 };
