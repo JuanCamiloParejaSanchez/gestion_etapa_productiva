@@ -406,10 +406,20 @@ class ControladorDashboardAprendiz extends BaseController {
             const esArchivoCloudinary = USE_CLOUDINARY && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
 
             if (esArchivoCloudinary) {
-                // Archivo en Cloudinary - generar URL directa
+                // Archivo en Cloudinary - generar URL directa y forzar nombre y tipo MIME
                 try {
                     const cloudinaryUrl = getUrl(ruta);
-                    res.redirect(cloudinaryUrl);
+                    // Forzar descarga con nombre y tipo MIME
+                    res.setHeader('Content-Disposition', `attachment; filename="${nombre.endsWith('.pdf') ? nombre : nombre + '.pdf'}"`);
+                    res.setHeader('Content-Type', 'application/pdf');
+                    // Descargar el archivo desde Cloudinary y enviarlo al cliente
+                    const https = require('https');
+                    https.get(cloudinaryUrl, (fileRes) => {
+                        fileRes.pipe(res);
+                    }).on('error', (err) => {
+                        console.error('Error descargando desde Cloudinary:', err);
+                        res.status(500).send('Error al descargar el archivo desde Cloudinary.');
+                    });
                 } catch (cloudinaryError) {
                     console.error('Error generando URL de Cloudinary:', cloudinaryError);
                     res.status(500).send('Error al generar el enlace de descarga.');
@@ -486,10 +496,12 @@ class ControladorDashboardAprendiz extends BaseController {
             if (ruta && typeof ruta === 'string') {
                 const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
 
-                if (USE_CLOUDINARY && ruta.includes('/')) {
-                    // Eliminar archivo de Cloudinary
+                // Eliminar de Cloudinary solo si es documento (PDF, DOC, etc.) y el public_id es correcto
+                const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+                const ext = path.extname(docInfo.nombre_original || '').toLowerCase();
+                if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
                     try {
-                        await deleteCloudinaryFile(ruta);
+                        await deleteCloudinaryFile(ruta); // deleteFile ya usa resource_type 'raw' para documentos
                         console.log('Archivo eliminado de Cloudinary correctamente');
                     } catch (cloudinaryError) {
                         console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
