@@ -71,7 +71,7 @@ const getUrl = (publicId, options = {}) => {
         fetch_format: 'auto'
     };
 
-    // Para PDFs y documentos, no usar fetch_format auto para evitar conversión a JPEG
+    // Para PDFs y documentos, usar resource_type raw y no fetch_format
     if (publicId.includes('.pdf') || publicId.includes('documentos/')) {
         defaultOptions = {
             secure: true,
