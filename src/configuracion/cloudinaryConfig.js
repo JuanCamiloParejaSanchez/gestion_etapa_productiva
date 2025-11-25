@@ -40,14 +40,21 @@ const createCloudinaryStorage = (folder = 'documentos') => {
             const sanitizedBasename = slugify(basename);
             const finalFilename = `${sanitizedBasename}-${Date.now()}`;
 
-            // Forzar resource_type 'raw' para documentos
+            // Definir extensiones permitidas
             const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+            const imageExts = ['.jpg', '.jpeg', '.png'];
             const isDocument = documentExts.includes(ext);
+            const isImage = imageExts.includes(ext);
+
+            // Validar extensión permitida
+            if (!isDocument && !isImage) {
+                throw new Error('Tipo de archivo no permitido. Solo PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG.');
+            }
 
             return {
                 folder: folder,
                 allowed_formats: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'],
-                resource_type: isDocument ? 'raw' : 'auto',
+                resource_type: isDocument ? 'raw' : 'image',
                 public_id: finalFilename
             };
         }
