@@ -53,8 +53,10 @@ router.get('/chat/buscar-usuarios', chatControlador.buscarUsuarios);
 // --- Rutas de Gestión de Documentos ---
 router.get('/documentos', controladorDashboardAprendiz.mostrarGestionDocumentos);
 router.post('/documentos/subir', upload.single('documento'), controladorDashboardAprendiz.subirDocumento);
-router.get('/documentos/descargar/*nombreGuardado', (req, res, next) => {
-    console.log('Ruta descargar documento llamada con nombreGuardado:', req.params.nombreGuardado);
+router.get('/documentos/descargar/*', (req, res, next) => {
+    const nombreGuardado = req.params[0];
+    console.log('Ruta descargar documento llamada con nombreGuardado:', nombreGuardado);
+    req.params.nombreGuardado = nombreGuardado; // Asignar para que el controlador lo use
     controladorDashboardAprendiz.descargarDocumento(req, res, next);
 });
 router.post('/documentos/descargar-multiples', controladorDashboardAprendiz.descargarMultiplesDocumentos);
