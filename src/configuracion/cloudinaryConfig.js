@@ -15,38 +15,41 @@ cloudinary.config({
 const createCloudinaryStorage = (folder = 'documentos') => {
     return new CloudinaryStorage({
         cloudinary: cloudinary,
-        params: {
-            folder: folder,
-            allowed_formats: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'],
-            resource_type: 'auto',
-            public_id: (req, file) => {
-                // Decodificar el nombre original para manejar tildes y caracteres especiales
-                const decodeOriginalName = (originalname) => {
-                    return Buffer.from(originalname, 'latin1').toString('utf8');
-                };
+        params: async (req, file) => {
+            // Decodificar el nombre original para manejar tildes y caracteres especiales
+            const decodeOriginalName = (originalname) => {
+                return Buffer.from(originalname, 'latin1').toString('utf8');
+            };
 
-                const slugify = (text) => {
-                    return text
-                        .toString()
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .toLowerCase()
-                        .trim()
-                        .replace(/\s+/g, '-')
-                        .replace(/[^\w-]+/g, '')
-                        .replace(/--+/g, '-');
-                };
+            const slugify = (text) => {
+                return text
+                    .toString()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w-]+/g, '')
+                    .replace(/--+/g, '-');
+            };
 
-                const nombreOriginalDecodificado = decodeOriginalName(file.originalname);
-                const path = require('path');
-                const ext = path.extname(nombreOriginalDecodificado);
-                const basename = path.basename(nombreOriginalDecodificado, ext);
+            const nombreOriginalDecodificado = decodeOriginalName(file.originalname);
+            const path = require('path');
+            const ext = path.extname(nombreOriginalDecodificado).toLowerCase();
+            const basename = path.basename(nombreOriginalDecodificado, ext);
+            const sanitizedBasename = slugify(basename);
+            const finalFilename = `${sanitizedBasename}-${Date.now()}`;
 
-                const sanitizedBasename = slugify(basename);
-                const finalFilename = `${sanitizedBasename}-${Date.now()}`;
+            // Forzar resource_type 'raw' para documentos
+            const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+            const isDocument = documentExts.includes(ext);
 
-                return finalFilename;
-            }
+            return {
+                folder: folder,
+                allowed_formats: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'],
+                resource_type: isDocument ? 'raw' : 'auto',
+                public_id: finalFilename
+            };
         }
     });
 };
