@@ -54,7 +54,9 @@ const createCloudinaryStorage = (folder = 'documentos') => {
 // Función para eliminar archivo de Cloudinary
 const deleteFile = (publicId) => {
     return new Promise((resolve, reject) => {
-        cloudinary.uploader.destroy(publicId, (error, result) => {
+        // Para documentos, usar resource_type: 'raw'
+        const options = publicId.includes('documentos/') ? { resource_type: 'raw' } : {};
+        cloudinary.uploader.destroy(publicId, options, (error, result) => {
             if (error) reject(error);
             else resolve(result);
         });
@@ -62,12 +64,22 @@ const deleteFile = (publicId) => {
 };
 
 // Función para obtener URL de Cloudinary (son públicas por defecto)
-const getUrl = (publicId) => {
-    return cloudinary.url(publicId, {
+const getUrl = (publicId, options = {}) => {
+    let defaultOptions = {
         secure: true,
         quality: 'auto',
         fetch_format: 'auto'
-    });
+    };
+
+    // Para PDFs y documentos, no usar fetch_format auto para evitar conversión a JPEG
+    if (publicId.includes('.pdf') || publicId.includes('documentos/')) {
+        defaultOptions = {
+            secure: true,
+            resource_type: 'raw'
+        };
+    }
+
+    return cloudinary.url(publicId, { ...defaultOptions, ...options });
 };
 
 module.exports = {

@@ -408,7 +408,7 @@ class ControladorDashboardAprendiz extends BaseController {
             if (esArchivoCloudinary) {
                 // Archivo en Cloudinary - generar URL directa
                 try {
-                    const cloudinaryUrl = getUrl(ruta);
+                    const cloudinaryUrl = getUrl(ruta, { flags: 'attachment' });
                     res.redirect(cloudinaryUrl);
                 } catch (cloudinaryError) {
                     console.error('Error generando URL de Cloudinary:', cloudinaryError);
