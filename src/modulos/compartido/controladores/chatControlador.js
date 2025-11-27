@@ -96,7 +96,7 @@ class ChatControlador extends BaseController {
     }
 
     /**
-     * Obtener historial de mensajes con un usuario específico
+     * Obtener historial de mensajes con un usuario específico (excluyendo los eliminados para el usuario actual)
      */
     async obtenerHistorialMensajes(req, res) {
         try {
@@ -106,6 +106,15 @@ class ChatControlador extends BaseController {
 
             if (!usuarioId) {
                 return res.status(401).json({ success: false, mensajes: [] });
+            }
+
+            // Verificar si la conversación está eliminada para el usuario actual
+            const [eliminada] = await pool.execute(
+                `SELECT id FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ? AND otro_usuario_id = ? AND otro_usuario_tipo = ?`,
+                [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]
+            );
+            if (eliminada.length > 0) {
+                return res.json({ success: true, mensajes: [] });
             }
 
             const query = `
@@ -249,7 +258,7 @@ class ChatControlador extends BaseController {
         }
     }
 
-    /* Eliminar conversación unilateralmente */
+    /* Eliminar conversación solo para el usuario activo */
     async eliminarConversacion(req, res) {
         try {
             const usuarioId = req.session.userId;
@@ -274,14 +283,12 @@ class ChatControlador extends BaseController {
                 return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
             }
 
-            // Eliminar todos los mensajes entre el usuario actual y el otro usuario
-            const deleteQuery = 'DELETE FROM mensajes WHERE (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?) OR (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?)';
-            await pool.execute(deleteQuery, [
-                usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo,
-                otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo
-            ]);
+            // Registrar la eliminación en la tabla conversaciones_eliminadas
+            const insertQuery = `REPLACE INTO conversaciones_eliminadas (usuario_id, usuario_tipo, otro_usuario_id, otro_usuario_tipo, fecha_eliminacion)
+                VALUES (?, ?, ?, ?, NOW())`;
+            await pool.execute(insertQuery, [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]);
 
-            res.json({ success: true, message: 'Conversación eliminada correctamente' });
+            res.json({ success: true, message: 'Conversación eliminada correctamente solo para el usuario actual' });
 
         } catch (error) {
             console.error('Error al eliminar conversación:', error);
@@ -290,7 +297,7 @@ class ChatControlador extends BaseController {
     }
 
     /**
-     * Obtener lista de conversaciones (usuarios con los que se ha chateado)
+     * Obtener lista de conversaciones (excluyendo las eliminadas para el usuario actual)
      */
     async obtenerConversaciones(req, res) {
         try {
@@ -329,10 +336,18 @@ class ChatControlador extends BaseController {
                 ORDER BY ultimo_mensaje DESC
             `;
 
-            const [conversaciones] = await pool.execute(query, [
+            const [todasConversaciones] = await pool.execute(query, [
                 usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioId, usuarioId, usuarioId, usuarioTipo,
                 usuarioId, usuarioTipo, usuarioId, usuarioTipo
             ]);
+
+            // Filtrar las conversaciones eliminadas para el usuario actual
+            const [eliminadas] = await pool.execute(
+                `SELECT otro_usuario_id, otro_usuario_tipo FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ?`,
+                [usuarioId, usuarioTipo]
+            );
+            const eliminadasSet = new Set(eliminadas.map(e => `${e.otro_usuario_id}_${e.otro_usuario_tipo}`));
+            const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
 
             res.json({ success: true, conversaciones });
         } catch (error) {
