@@ -249,9 +249,7 @@ class ChatControlador extends BaseController {
         }
     }
 
-    /**
-     * Eliminar conversación unilateralmente
-     */
+    /* Eliminar conversación unilateralmente */
     async eliminarConversacion(req, res) {
         try {
             const usuarioId = req.session.userId;
@@ -276,15 +274,12 @@ class ChatControlador extends BaseController {
                 return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
             }
 
-            // Insertar en conversaciones_eliminadas (ON DUPLICATE KEY UPDATE para evitar duplicados)
-            const query = `
-                INSERT INTO conversaciones_eliminadas (usuario_id, usuario_tipo, otro_usuario_id, otro_usuario_tipo)
-                VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE fecha_eliminacion = CURRENT_TIMESTAMP
-            `;
-
-            console.log('Eliminando conversación:', { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo });
-            await pool.execute(query, [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]);
+            // Eliminar todos los mensajes entre el usuario actual y el otro usuario
+            const deleteQuery = 'DELETE FROM mensajes WHERE (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?) OR (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?)';
+            await pool.execute(deleteQuery, [
+                usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo,
+                otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo
+            ]);
 
             res.json({ success: true, message: 'Conversación eliminada correctamente' });
 
@@ -329,17 +324,18 @@ class ChatControlador extends BaseController {
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
                 LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
                 LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
-                WHERE (m.remitente_id = ? AND m.remitente_tipo = ?) OR (m.destinatario_id = ? AND m.destinatario_tipo = ?)
-                AND NOT EXISTS (
-                    SELECT 1 FROM conversaciones_eliminadas ce
-                    WHERE ce.usuario_id = ? AND ce.usuario_tipo = ?
-                    AND ce.otro_usuario_id = CASE
-                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_id
-                        ELSE m.remitente_id
-                    END
-                    AND ce.otro_usuario_tipo = CASE
-                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_tipo
-                        ELSE m.remitente_tipo
+                    // Eliminar todos los mensajes entre el usuario actual y el otro usuario
+                    const deleteQuery = `
+                        DELETE FROM mensajes
+                        WHERE ((remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?)
+                            OR (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?))
+                    `;
+                    await pool.execute(deleteQuery, [
+                        usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo,
+                        otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo
+                    ]);
+
+                    res.json({ success: true, message: 'Conversación eliminada correctamente' });
                     END
                 )
                 GROUP BY otro_usuario_id, otro_usuario_tipo, nombre

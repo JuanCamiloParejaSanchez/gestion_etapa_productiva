@@ -785,38 +785,49 @@
 
     // Eliminar conversación
         function eliminarConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
-            mostrarConfirmacion({
-                titulo: '¿Eliminar conversación?',
-                mensaje: `¿Seguro que deseas eliminar la conversación con ${nombre}? Esta acción no se puede deshacer.`,
-                tipo: 'danger',
-                textoConfirmar: 'Eliminar',
-                textoCancelar: 'Cancelar',
-                onConfirm: () => {
-                    fetch(`/administrador/chat/conversaciones/${otroUsuarioId}/${otroUsuarioTipo}`, {
-                        method: 'DELETE'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            mostrarNotificacionExito('Conversación eliminada correctamente.');
-                            // Refrescar lista y limpiar mensajes
-                            cargarConversaciones();
-                            document.getElementById('chat-messages').innerHTML = `<div class='chat-empty'><i class='fas fa-comments fa-2x mb-2'></i><p>No hay mensajes aún. Selecciona un aprendiz para iniciar una conversación.</p></div>`;
-                            document.getElementById('chat-input').value = '';
-                            document.getElementById('chat-input').disabled = true;
-                            document.getElementById('send-chat-btn').disabled = true;
-                            document.getElementById('btn-regresar-chat').style.display = 'none';
-                            chatViewState = 'list';
-                            currentChatUser = null;
-                        } else {
-                            mostrarNotificacionExito(data.message || 'Error al eliminar la conversación.', 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error al eliminar conversación:', error);
-                        mostrarNotificacionExito('Error al eliminar la conversación.', 'danger');
-                    });
+            // Si no existe la función mostrarConfirmacion, usar confirm nativo
+            if (typeof mostrarConfirmacion === 'function') {
+                mostrarConfirmacion({
+                    titulo: '¿Eliminar conversación?',
+                    mensaje: `¿Seguro que deseas eliminar la conversación con ${nombre}? Esta acción no se puede deshacer.`,
+                    tipo: 'danger',
+                    textoConfirmar: 'Eliminar',
+                    textoCancelar: 'Cancelar',
+                    onConfirm: () => {
+                        eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo);
+                    }
+                });
+            } else {
+                if (confirm(`¿Seguro que deseas eliminar la conversación con ${nombre}? Esta acción no se puede deshacer.`)) {
+                    eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo);
                 }
+            }
+        }
+
+        function eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo) {
+            fetch(`/administrador/chat/conversaciones/${otroUsuarioId}/${otroUsuarioTipo}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarNotificacionExito('Conversación eliminada correctamente.');
+                    // Refrescar lista y limpiar mensajes
+                    cargarConversaciones();
+                    document.getElementById('chat-messages').innerHTML = `<div class='chat-empty'><i class='fas fa-comments fa-2x mb-2'></i><p>No hay mensajes aún. Selecciona un aprendiz para iniciar una conversación.</p></div>`;
+                    document.getElementById('chat-input').value = '';
+                    document.getElementById('chat-input').disabled = true;
+                    document.getElementById('send-chat-btn').disabled = true;
+                    document.getElementById('btn-regresar-chat').style.display = 'none';
+                    chatViewState = 'list';
+                    currentChatUser = null;
+                } else {
+                    mostrarNotificacionExito(data.message || 'Error al eliminar la conversación.', 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error al eliminar conversación:', error);
+                mostrarNotificacionExito('Error al eliminar la conversación.', 'danger');
             });
         }
 
