@@ -296,11 +296,11 @@ class ChatControlador extends BaseController {
         try {
             const usuarioId = req.session.userId;
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
-
             if (!usuarioId) {
                 return res.status(401).json({ success: false, conversaciones: [] });
             }
 
+            // Consulta para obtener los usuarios con los que se ha chateado
             const query = `
                 SELECT DISTINCT
                     CASE
@@ -324,32 +324,17 @@ class ChatControlador extends BaseController {
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
                 LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
                 LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
-                    // Eliminar todos los mensajes entre el usuario actual y el otro usuario
-                    const deleteQuery = `
-                        DELETE FROM mensajes
-                        WHERE ((remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?)
-                            OR (remitente_id = ? AND remitente_tipo = ? AND destinatario_id = ? AND destinatario_tipo = ?))
-                    `;
-                    await pool.execute(deleteQuery, [
-                        usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo,
-                        otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo
-                    ]);
-
-                    res.json({ success: true, message: 'Conversación eliminada correctamente' });
-                    END
-                )
+                WHERE (m.remitente_id = ? AND m.remitente_tipo = ?) OR (m.destinatario_id = ? AND m.destinatario_tipo = ?)
                 GROUP BY otro_usuario_id, otro_usuario_tipo, nombre
                 ORDER BY ultimo_mensaje DESC
             `;
 
             const [conversaciones] = await pool.execute(query, [
                 usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioId, usuarioId, usuarioId, usuarioTipo,
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo,
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioTipo
+                usuarioId, usuarioTipo, usuarioId, usuarioTipo
             ]);
 
             res.json({ success: true, conversaciones });
-
         } catch (error) {
             console.error('Error al obtener conversaciones:', error);
             res.status(500).json({ success: false, conversaciones: [] });
