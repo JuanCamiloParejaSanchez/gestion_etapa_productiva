@@ -157,16 +157,15 @@ class ChatControlador extends BaseController {
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
                 LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
                 LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
-                WHERE ((m.remitente_id = ? AND m.remitente_tipo = ?) OR (m.destinatario_id = ? AND m.destinatario_tipo = ?))
-                  AND ((m.remitente_id = ? AND m.destinatario_id = ?) OR (m.remitente_id = ? AND m.destinatario_id = ?))
+                WHERE ((m.remitente_id = ? AND m.remitente_tipo = ? AND m.destinatario_id = ? AND m.destinatario_tipo = ?)
+                   OR (m.remitente_id = ? AND m.remitente_tipo = ? AND m.destinatario_id = ? AND m.destinatario_tipo = ?))
                 ORDER BY m.fecha_creacion ASC
             `;
 
-            // CORRECCIÓN: Se eliminó el primer usuarioId redundante
             const params = [
                 usuarioId, // Para es_remitente
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo, // Filtro de participación
-                usuarioId, otroUsuarioId, otroUsuarioId, usuarioId // Filtro de par
+                usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo, // Mensajes enviados por usuario actual
+                otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo // Mensajes recibidos por usuario actual
             ];
 
             console.log('📨 [HISTORIAL] Ejecutando query con params:', params);
@@ -174,6 +173,9 @@ class ChatControlador extends BaseController {
             const [mensajes] = await pool.execute(query, params);
 
             console.log(`✅ [HISTORIAL] Encontrados ${mensajes.length} mensajes`);
+            if (mensajes.length > 0) {
+                console.log('📨 [HISTORIAL] Primer mensaje:', mensajes[0]);
+            }
 
             res.json({ success: true, mensajes });
 
