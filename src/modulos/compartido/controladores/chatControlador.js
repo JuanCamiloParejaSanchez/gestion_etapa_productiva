@@ -184,7 +184,7 @@ class ChatControlador extends BaseController {
                 console.log('📨 [HISTORIAL] Total mensajes para este usuario:', debugMensajes[0].total);
             }
 
-            res.json({ success: true, mensajes, debug: { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo, params, query } });
+            res.json({ success: true, mensajes });
 
         } catch (error) {
             console.error('❌ [HISTORIAL] Error al obtener historial:', error);
@@ -381,7 +381,9 @@ class ChatControlador extends BaseController {
                 [usuarioId, usuarioTipo]
             );
             const eliminadasSet = new Set(eliminadas.map(e => `${e.otro_usuario_id}_${e.otro_usuario_tipo}`));
-            const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
+            // TEMPORALMENTE COMENTADO PARA DEBUG
+            // const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
+            const conversaciones = todasConversaciones; // Mostrar todas las conversaciones por ahora
 
             res.json({ success: true, conversaciones });
         } catch (error) {
