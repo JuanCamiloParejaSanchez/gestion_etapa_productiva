@@ -12,31 +12,42 @@ class ChatControlador extends BaseController {
      */
     async enviarMensaje(req, res) {
         try {
+            console.log('📨 [CHAT] Iniciando envío de mensaje...');
+
             const remitenteId = req.session.userId;
             const remitenteTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
 
+            console.log('📨 [CHAT] Remitente:', { remitenteId, remitenteTipo });
+
             if (!remitenteId) {
+                console.log('❌ [CHAT] Usuario no autenticado');
                 return res.status(401).json({ success: false, message: 'Usuario no autenticado' });
             }
 
             const { destinatarioId, destinatarioTipo, mensaje } = req.body;
+            console.log('📨 [CHAT] Datos recibidos:', { destinatarioId, destinatarioTipo, mensajeLength: mensaje?.length });
 
             // Validar datos
             if (!destinatarioId || !destinatarioTipo || !mensaje || mensaje.trim() === '') {
+                console.log('❌ [CHAT] Datos incompletos o inválidos');
                 return res.status(400).json({ success: false, message: 'Datos incompletos o inválidos' });
             }
 
             // Validar que el remitente existe
             const tablaRemitente = remitenteTipo === 'aprendiz' ? 'aprendices' : 'administradores';
             const [remitente] = await pool.execute(`SELECT id FROM ${tablaRemitente} WHERE id = ?`, [remitenteId]);
+
             if (remitente.length === 0) {
+                console.log('❌ [CHAT] Usuario remitente no encontrado');
                 return res.status(401).json({ success: false, message: 'Usuario remitente no encontrado' });
             }
 
             // Validar que el destinatario existe
             const tablaDestinatario = destinatarioTipo === 'aprendiz' ? 'aprendices' : 'administradores';
             const [destinatario] = await pool.execute(`SELECT id FROM ${tablaDestinatario} WHERE id = ?`, [destinatarioId]);
+
             if (destinatario.length === 0) {
+                console.log('❌ [CHAT] Destinatario no encontrado');
                 return res.status(404).json({ success: false, message: 'Destinatario no encontrado' });
             }
 
@@ -45,13 +56,16 @@ class ChatControlador extends BaseController {
                 INSERT INTO mensajes (remitente_id, remitente_tipo, destinatario_id, destinatario_tipo, mensaje)
                 VALUES (?, ?, ?, ?, ?)
             `;
-            await pool.execute(query, [remitenteId, remitenteTipo, destinatarioId, destinatarioTipo, mensaje.trim()]);
+
+            const [result] = await pool.execute(query, [remitenteId, remitenteTipo, destinatarioId, destinatarioTipo, mensaje.trim()]);
+
+            console.log('✅ [CHAT] Mensaje insertado correctamente. ID:', result.insertId);
 
             res.status(201).json({ success: true, message: 'Mensaje enviado correctamente' });
 
         } catch (error) {
-            console.error('Error al enviar mensaje:', error);
-            res.status(500).json({ success: false, message: 'Error interno del servidor' });
+            console.error('❌ [CHAT] Error al enviar mensaje:', error);
+            res.status(500).json({ success: false, message: 'Error interno del servidor: ' + error.message });
         }
     }
 
@@ -104,6 +118,8 @@ class ChatControlador extends BaseController {
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
             const { otroUsuarioId, otroUsuarioTipo } = req.params;
 
+            console.log('📨 [HISTORIAL] Solicitando historial:', { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo });
+
             if (!usuarioId) {
                 return res.status(401).json({ success: false, mensajes: [] });
             }
@@ -113,7 +129,9 @@ class ChatControlador extends BaseController {
                 `SELECT id FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ? AND otro_usuario_id = ? AND otro_usuario_tipo = ?`,
                 [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]
             );
+
             if (eliminada.length > 0) {
+                console.log('📨 [HISTORIAL] Conversación marcada como eliminada');
                 return res.json({ success: true, mensajes: [] });
             }
 
@@ -144,16 +162,23 @@ class ChatControlador extends BaseController {
                 ORDER BY m.fecha_creacion ASC
             `;
 
-            const [mensajes] = await pool.execute(query, [
-                usuarioId,
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo,
-                usuarioId, otroUsuarioId, otroUsuarioId, usuarioId
-            ]);
+            // CORRECCIÓN: Se eliminó el primer usuarioId redundante
+            const params = [
+                usuarioId, // Para es_remitente
+                usuarioId, usuarioTipo, usuarioId, usuarioTipo, // Filtro de participación
+                usuarioId, otroUsuarioId, otroUsuarioId, usuarioId // Filtro de par
+            ];
+
+            console.log('📨 [HISTORIAL] Ejecutando query con params:', params);
+
+            const [mensajes] = await pool.execute(query, params);
+
+            console.log(`✅ [HISTORIAL] Encontrados ${mensajes.length} mensajes`);
 
             res.json({ success: true, mensajes });
 
         } catch (error) {
-            console.error('Error al obtener historial de mensajes:', error);
+            console.error('❌ [HISTORIAL] Error al obtener historial:', error);
             res.status(500).json({ success: false, mensajes: [] });
         }
     }
