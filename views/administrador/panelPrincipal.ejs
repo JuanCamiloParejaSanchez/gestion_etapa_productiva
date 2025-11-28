@@ -744,7 +744,12 @@
         `;
 
                         fetch(`/administrador/chat/historial/${otroUsuarioId}/${otroUsuarioTipo}`)
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Error HTTP: ${response.status}`);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 if (data.success) {
                                     mostrarMensajes(data.mensajes);
@@ -889,7 +894,7 @@
                                     // Recargar mensajes con delay para asegurar que el backend haya procesado
                                     setTimeout(() => {
                                         cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
-                                    }, 1000);
+                                    }, 2000);
                                     mostrarNotificacionExito('Mensaje enviado correctamente.');
                                 } else {
                                     mostrarNotificacionExito(data.message || 'Error al enviar el mensaje.', 'danger');
