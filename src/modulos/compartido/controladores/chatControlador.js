@@ -289,7 +289,13 @@ class ChatControlador extends BaseController {
 
             const [usuarios] = await pool.execute(query, params);
 
-            res.json({ success: true, usuarios });
+            // Agregar el tipo de usuario a cada resultado
+            const usuariosConTipo = usuarios.map(usuario => ({
+                ...usuario,
+                tipo: buscarTipo
+            }));
+
+            res.json({ success: true, usuarios: usuariosConTipo });
 
         } catch (error) {
             console.error('Error al buscar usuarios:', error);

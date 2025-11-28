@@ -1132,9 +1132,10 @@
                             .then(data => {
                                 if (data.success) {
                                     input.value = '';
-                                    // Recargar mensajes con delay para asegurar que el backend haya procesado
+                                    // Recargar mensajes y conversaciones con delay para asegurar que el backend haya procesado
                                     setTimeout(() => {
                                         cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+                                        cargarConversaciones(); // Recargar lista de conversaciones para mostrar la nueva
                                     }, 2000);
                                     mostrarNotificacionExito('Mensaje enviado correctamente.');
                                 } else {

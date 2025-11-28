@@ -1530,7 +1530,7 @@ function mostrarResultadosBusqueda(usuarios) {
                 ${usuarios.map(user => `
                     <button type="button" class="list-group-item list-group-item-action search-result-item"
                             data-user-id="${user.id}"
-                            data-user-tipo="admin">
+                            data-user-tipo="${user.tipo}">
                         <i class="fas fa-user-shield me-2"></i>${user.nombre}
                     </button>
                 `).join('')}
@@ -1686,9 +1686,10 @@ function enviarMensaje() {
     .then(data => {
         if (data.success) {
             input.value = '';
-            // Recargar mensajes con delay para asegurar que el backend haya procesado
+            // Recargar mensajes y conversaciones con delay para asegurar que el backend haya procesado
             setTimeout(() => {
                 cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+                cargarConversaciones(); // Recargar lista de conversaciones para mostrar la nueva
             }, 2000);
             mostrarNotificacionExito('Mensaje enviado correctamente.');
         } else {
