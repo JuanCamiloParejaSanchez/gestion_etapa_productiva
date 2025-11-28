@@ -51,6 +51,12 @@ class ChatControlador extends BaseController {
                 return res.status(404).json({ success: false, message: 'Destinatario no encontrado' });
             }
 
+            // Si el usuario había eliminado la conversación anteriormente, restaurarla eliminando el registro de eliminación
+            await pool.execute(
+                `DELETE FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ? AND otro_usuario_id = ? AND otro_usuario_tipo = ?`,
+                [remitenteId, remitenteTipo, destinatarioId, destinatarioTipo]
+            );
+
             // Insertar mensaje
             const query = `
                 INSERT INTO mensajes (remitente_id, remitente_tipo, destinatario_id, destinatario_tipo, mensaje)
