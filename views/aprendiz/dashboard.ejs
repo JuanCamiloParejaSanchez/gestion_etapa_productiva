@@ -1463,6 +1463,7 @@ function cargarContadorChat() {
 
 // Abrir modal de chat
 document.getElementById('btnChat').addEventListener('click', function() {
+    console.log('🎯 [CHAT] Modal de chat abierto');
     chatViewState = 'list';
     document.getElementById('btn-regresar-chat').style.display = 'none';
     document.getElementById('chat-input').disabled = true;
@@ -1473,13 +1474,18 @@ document.getElementById('btnChat').addEventListener('click', function() {
 
 // Cargar conversaciones disponibles
 function cargarConversaciones() {
+    console.log('📨 [CHAT] Cargando conversaciones...');
     fetch('/aprendiz/chat/conversaciones')
-        .then(response => response.json())
+        .then(response => {
+            console.log('📨 [CHAT] Respuesta de conversaciones:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('📨 [CHAT] Datos de conversaciones:', data);
             mostrarListaConversaciones(data.conversaciones || []);
         })
         .catch(error => {
-            console.error('Error al cargar conversaciones:', error);
+            console.error('❌ [CHAT] Error al cargar conversaciones:', error);
             mostrarListaConversaciones([]);
         });
 }
@@ -1603,6 +1609,7 @@ function mostrarResultadosBusqueda(usuarios) {
 
 // Abrir conversación específica
 function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
+    console.log('🎯 [CHAT] Abriendo conversación con:', { otroUsuarioId, otroUsuarioTipo, nombre });
     currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
     chatViewState = 'messages';
     document.getElementById('btn-regresar-chat').style.display = 'inline-block';
@@ -1616,6 +1623,7 @@ function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
 
 // Cargar mensajes de una conversación
 function cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo) {
+    console.log('📨 [CHAT] Cargando mensajes de conversación:', { otroUsuarioId, otroUsuarioTipo });
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = `
         <div class="text-center">
@@ -1627,12 +1635,14 @@ function cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo) {
 
     fetch(`/aprendiz/chat/historial/${otroUsuarioId}/${otroUsuarioTipo}`)
         .then(response => {
+            console.log('📨 [CHAT] Respuesta de historial:', response.status);
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('📨 [CHAT] Datos de historial:', data);
             if (data.success) {
                 mostrarMensajes(data.mensajes);
                 // Marcar mensajes como leídos
@@ -1642,15 +1652,17 @@ function cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo) {
             }
         })
         .catch(error => {
-            console.error('Error al cargar mensajes:', error);
+            console.error('❌ [CHAT] Error al cargar mensajes:', error);
             chatMessages.innerHTML = '<div class="alert alert-danger">Error al cargar los mensajes.</div>';
         });
 }
 
 // Mostrar mensajes en el chat
 function mostrarMensajes(mensajes) {
+    console.log('📨 [CHAT] Mostrando mensajes:', mensajes.length, 'mensajes');
     const chatMessages = document.getElementById('chat-messages');
     if (mensajes.length === 0) {
+        console.log('📨 [CHAT] No hay mensajes en la conversación');
         chatMessages.innerHTML = `
             <div class="chat-empty">
                 <i class="fas fa-comments fa-2x mb-2"></i>
@@ -1660,6 +1672,7 @@ function mostrarMensajes(mensajes) {
         return;
     }
 
+    console.log('📨 [CHAT] Renderizando mensajes...');
     chatMessages.innerHTML = mensajes.map(msg => `
         <div class="chat-message ${msg.es_remitente ? 'sent' : 'received'}">
             <div class="sender">${msg.es_remitente ? 'Tú' : msg.remitente_nombre}</div>
@@ -1670,6 +1683,7 @@ function mostrarMensajes(mensajes) {
 
     // Scroll al final
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    console.log('📨 [CHAT] Mensajes renderizados correctamente');
 }
 
 // Marcar mensajes como leídos
