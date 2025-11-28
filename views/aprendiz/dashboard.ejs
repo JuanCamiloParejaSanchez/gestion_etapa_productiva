@@ -1501,14 +1501,15 @@ function mostrarListaConversaciones(conversaciones) {
             <h6>Conversaciones activas:</h6>
             ${conversaciones.length > 0 ? conversaciones.map(conv => `
                 <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2 cursor-pointer conversation-item"
-                      data-otro-usuario-id="${conv.otro_usuario_id}"
-                      data-otro-usuario-tipo="${conv.otro_usuario_tipo}">
-                    <div class="flex-grow-1">
-                        <strong>${conv.nombre}</strong>
-                        ${conv.no_leidos > 0 ? `<span class="badge bg-danger ms-2">${conv.no_leidos}</span>` : ''}
-                        <br>
-                        <small class="text-muted">${new Date(conv.ultimo_mensaje).toLocaleString('es-CO')}</small>
-                    </div>
+                  data-otro-usuario-id="${conv.otro_usuario_id}"
+                  data-otro-usuario-tipo="${conv.otro_usuario_tipo}"
+                  data-nombre="${conv.nombre}">
+                <div class="flex-grow-1">
+                    <strong>${conv.nombre}</strong>
+                    ${conv.no_leidos > 0 ? `<span class="badge bg-danger ms-2">${conv.no_leidos}</span>` : ''}
+                    <br>
+                    <small class="text-muted">${new Date(conv.ultimo_mensaje).toLocaleString('es-CO')}</small>
+                </div>
                     <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-danger" onclick="eliminarConversacion(${conv.otro_usuario_id}, '${conv.otro_usuario_tipo}', '${conv.nombre}')" title="Eliminar conversación">
                             <i class="fas fa-trash"></i>
@@ -1525,7 +1526,7 @@ function mostrarListaConversaciones(conversaciones) {
         item.addEventListener('click', function() {
             const otroUsuarioId = this.dataset.otroUsuarioId;
             const otroUsuarioTipo = this.dataset.otroUsuarioTipo;
-            const nombre = this.querySelector('strong').textContent;
+            const nombre = this.dataset.nombre;
             abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre);
         });
     });
@@ -1610,8 +1611,7 @@ function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
     document.getElementById('chat-input').placeholder = 'Escribe tu mensaje...';
     document.getElementById('send-chat-btn').disabled = false;
     cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo);
-    // Actualizar badge al abrir conversación
-    setTimeout(cargarContadorChat, 500);
+    // El badge se actualiza automáticamente en marcarMensajesComoLeidos
 }
 
 // Cargar mensajes de una conversación
@@ -1728,8 +1728,10 @@ function enviarMensaje() {
     .then(data => {
         if (data.success) {
             input.value = '';
-            // Recargar mensajes
-            cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+            // Recargar mensajes con delay para asegurar que el backend haya procesado
+            setTimeout(() => {
+                cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+            }, 1000);
             mostrarNotificacionExito('Mensaje enviado correctamente.');
         } else {
             mostrarNotificacionExito(data.message || 'Error al enviar el mensaje.', 'danger');
