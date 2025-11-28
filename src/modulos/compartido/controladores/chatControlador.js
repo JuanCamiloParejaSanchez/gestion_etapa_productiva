@@ -130,11 +130,15 @@ class ChatControlador extends BaseController {
                 [usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo]
             );
 
-            if (eliminada.length > 0) {
-                console.log('📨 [HISTORIAL] Conversación marcada como eliminada');
-                return res.json({ success: true, mensajes: [] });
-            }
+            console.log('📨 [HISTORIAL] Conversación eliminada check:', eliminada.length > 0 ? 'SÍ eliminada' : 'NO eliminada');
 
+            // TEMPORALMENTE COMENTADO PARA DEBUG
+            // if (eliminada.length > 0) {
+            //     console.log('📨 [HISTORIAL] Conversación marcada como eliminada');
+            //     return res.json({ success: true, mensajes: [] });
+            // }
+
+            // Query simplificada para debug
             const query = `
                 SELECT
                     m.id,
@@ -145,27 +149,21 @@ class ChatControlador extends BaseController {
                         WHEN m.remitente_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido)
                         ELSE adm.nombreCompleto
                     END as remitente_nombre,
-                    CASE
-                        WHEN m.destinatario_tipo = 'aprendiz' THEN CONCAT(da.nombres, ' ', da.primerApellido)
-                        ELSE dadm.nombreCompleto
-                    END as destinatario_nombre,
                     m.remitente_tipo,
                     m.destinatario_tipo,
                     m.remitente_id = ? as es_remitente
                 FROM mensajes m
                 LEFT JOIN aprendices a ON m.remitente_id = a.id AND m.remitente_tipo = 'aprendiz'
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
-                LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
-                LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
-                WHERE ((m.remitente_id = ? AND m.remitente_tipo = ? AND m.destinatario_id = ? AND m.destinatario_tipo = ?)
-                   OR (m.remitente_id = ? AND m.remitente_tipo = ? AND m.destinatario_id = ? AND m.destinatario_tipo = ?))
+                WHERE (m.remitente_id = ? AND m.destinatario_id = ?)
+                   OR (m.remitente_id = ? AND m.destinatario_id = ?)
                 ORDER BY m.fecha_creacion ASC
             `;
 
             const params = [
                 usuarioId, // Para es_remitente
-                usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo, // Mensajes enviados por usuario actual
-                otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo // Mensajes recibidos por usuario actual
+                usuarioId, otroUsuarioId, // Mensajes enviados por usuario actual
+                otroUsuarioId, usuarioId // Mensajes recibidos por usuario actual
             ];
 
             console.log('📨 [HISTORIAL] Ejecutando query con params:', params);
@@ -173,11 +171,20 @@ class ChatControlador extends BaseController {
             const [mensajes] = await pool.execute(query, params);
 
             console.log(`✅ [HISTORIAL] Encontrados ${mensajes.length} mensajes`);
+            console.log('📨 [HISTORIAL] Todos los mensajes:', mensajes);
             if (mensajes.length > 0) {
                 console.log('📨 [HISTORIAL] Primer mensaje:', mensajes[0]);
+            } else {
+                console.log('📨 [HISTORIAL] No se encontraron mensajes, verificando si existen mensajes en la BD para este usuario');
+                // Query de debug para ver si hay mensajes en general
+                const [debugMensajes] = await pool.execute(
+                    `SELECT COUNT(*) as total FROM mensajes WHERE remitente_id = ? OR destinatario_id = ?`,
+                    [usuarioId, usuarioId]
+                );
+                console.log('📨 [HISTORIAL] Total mensajes para este usuario:', debugMensajes[0].total);
             }
 
-            res.json({ success: true, mensajes });
+            res.json({ success: true, mensajes, debug: { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo, params, query } });
 
         } catch (error) {
             console.error('❌ [HISTORIAL] Error al obtener historial:', error);
