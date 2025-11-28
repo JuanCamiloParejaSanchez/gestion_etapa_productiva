@@ -33,6 +33,19 @@ class ChatControlador extends BaseController {
                 return res.status(400).json({ success: false, message: 'Datos incompletos o inválidos' });
             }
 
+            // Convertir destinatarioId a número si es necesario
+            const destinatarioIdNum = parseInt(destinatarioId);
+            if (isNaN(destinatarioIdNum)) {
+                console.log('❌ [CHAT] ID de destinatario inválido:', destinatarioId);
+                return res.status(400).json({ success: false, message: 'ID de destinatario inválido' });
+            }
+
+            // Validar que el tipo de destinatario sea válido
+            if (destinatarioTipo !== 'aprendiz' && destinatarioTipo !== 'admin') {
+                console.log('❌ [CHAT] Tipo de destinatario inválido:', destinatarioTipo);
+                return res.status(400).json({ success: false, message: 'Tipo de destinatario inválido' });
+            }
+
             // Validar que el remitente existe
             const tablaRemitente = remitenteTipo === 'aprendiz' ? 'aprendices' : 'administradores';
             const [remitente] = await pool.execute(`SELECT id FROM ${tablaRemitente} WHERE id = ?`, [remitenteId]);
@@ -44,17 +57,30 @@ class ChatControlador extends BaseController {
 
             // Validar que el destinatario existe
             const tablaDestinatario = destinatarioTipo === 'aprendiz' ? 'aprendices' : 'administradores';
-            const [destinatario] = await pool.execute(`SELECT id FROM ${tablaDestinatario} WHERE id = ?`, [destinatarioId]);
+            const [destinatario] = await pool.execute(`SELECT id FROM ${tablaDestinatario} WHERE id = ?`, [destinatarioIdNum]);
 
             if (destinatario.length === 0) {
-                console.log('❌ [CHAT] Destinatario no encontrado');
+                console.log('❌ [CHAT] Destinatario no encontrado. Tabla:', tablaDestinatario, 'ID:', destinatarioIdNum);
                 return res.status(404).json({ success: false, message: 'Destinatario no encontrado' });
             }
 
-            // Si el usuario había eliminado la conversación anteriormente, restaurarla eliminando el registro de eliminación
+            // Validar que no se esté enviando un mensaje a sí mismo
+            if (remitenteId === destinatarioIdNum && remitenteTipo === destinatarioTipo) {
+                console.log('❌ [CHAT] No se puede enviar un mensaje a sí mismo');
+                return res.status(400).json({ success: false, message: 'No se puede enviar un mensaje a sí mismo' });
+            }
+
+            // Si el remitente había eliminado la conversación anteriormente, restaurarla eliminando el registro de eliminación
             await pool.execute(
                 `DELETE FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ? AND otro_usuario_id = ? AND otro_usuario_tipo = ?`,
-                [remitenteId, remitenteTipo, destinatarioId, destinatarioTipo]
+                [remitenteId, remitenteTipo, destinatarioIdNum, destinatarioTipo]
+            );
+
+            // Si el destinatario había eliminado la conversación anteriormente, también restaurarla
+            // Esto asegura que, si el administrador borró la conversación, vuelva a aparecer cuando el aprendiz envíe un nuevo mensaje
+            await pool.execute(
+                `DELETE FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ? AND otro_usuario_id = ? AND otro_usuario_tipo = ?`,
+                [destinatarioIdNum, destinatarioTipo, remitenteId, remitenteTipo]
             );
 
             // Insertar mensaje
@@ -63,7 +89,15 @@ class ChatControlador extends BaseController {
                 VALUES (?, ?, ?, ?, ?)
             `;
 
-            const [result] = await pool.execute(query, [remitenteId, remitenteTipo, destinatarioId, destinatarioTipo, mensaje.trim()]);
+            console.log('📨 [CHAT] Insertando mensaje con:', {
+                remitenteId,
+                remitenteTipo,
+                destinatarioId: destinatarioIdNum,
+                destinatarioTipo,
+                mensajeLength: mensaje.trim().length
+            });
+
+            const [result] = await pool.execute(query, [remitenteId, remitenteTipo, destinatarioIdNum, destinatarioTipo, mensaje.trim()]);
 
             console.log('✅ [CHAT] Mensaje insertado correctamente. ID:', result.insertId);
 
@@ -76,7 +110,7 @@ class ChatControlador extends BaseController {
     }
 
     /**
-     * Obtener mensajes no leídos para el usuario actual
+     * Obtener mensajes no leídos para el usuario actual (excluyendo conversaciones eliminadas)
      */
     async obtenerMensajesNoLeidos(req, res) {
         try {
@@ -87,7 +121,13 @@ class ChatControlador extends BaseController {
                 return res.status(401).json({ success: false, mensajes: [] });
             }
 
-            const query = `
+            // Obtener conversaciones eliminadas para este usuario
+            const [eliminadas] = await pool.execute(
+                `SELECT otro_usuario_id, otro_usuario_tipo FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ?`,
+                [usuarioId, usuarioTipo]
+            );
+
+            let query = `
                 SELECT
                     m.id,
                     m.mensaje,
@@ -102,10 +142,24 @@ class ChatControlador extends BaseController {
                 LEFT JOIN aprendices a ON m.remitente_id = a.id AND m.remitente_tipo = 'aprendiz'
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
                 WHERE m.destinatario_id = ? AND m.destinatario_tipo = ? AND m.leido = FALSE
-                ORDER BY m.fecha_creacion DESC
             `;
 
-            const [mensajes] = await pool.execute(query, [usuarioId, usuarioTipo]);
+            const params = [usuarioId, usuarioTipo];
+
+            // Si hay conversaciones eliminadas, excluirlas
+            if (eliminadas.length > 0) {
+                const condicionesExcluir = eliminadas.map(e => 
+                    `(m.remitente_id = ? AND m.remitente_tipo = ?)`
+                ).join(' OR ');
+                query += ` AND NOT (${condicionesExcluir})`;
+                eliminadas.forEach(e => {
+                    params.push(e.otro_usuario_id, e.otro_usuario_tipo);
+                });
+            }
+
+            query += ` ORDER BY m.fecha_creacion DESC`;
+
+            const [mensajes] = await pool.execute(query, params);
 
             res.json({ success: true, mensajes });
 
@@ -122,12 +176,15 @@ class ChatControlador extends BaseController {
         try {
             const usuarioId = req.session.userId;
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
-            const { otroUsuarioId, otroUsuarioTipo } = req.params;
+            // Convertir a número para asegurar comparación correcta
+            const otroUsuarioId = parseInt(req.params.otroUsuarioId);
+            const otroUsuarioTipo = req.params.otroUsuarioTipo;
 
             console.log('📨 [HISTORIAL] Solicitando historial:', { usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo });
 
-            if (!usuarioId) {
-                return res.status(401).json({ success: false, mensajes: [] });
+            if (!usuarioId || !otroUsuarioId || isNaN(otroUsuarioId)) {
+                console.log('❌ [HISTORIAL] Datos inválidos');
+                return res.status(400).json({ success: false, mensajes: [], message: 'Datos inválidos' });
             }
 
             // Verificar si la conversación está eliminada para el usuario actual
@@ -143,7 +200,8 @@ class ChatControlador extends BaseController {
                 return res.json({ success: true, mensajes: [] });
             }
 
-            // Query simplificada para debug
+            // Query para obtener mensajes entre los dos usuarios
+            // Asegurar que los IDs sean números para comparación correcta
             const query = `
                 SELECT
                     m.id,
@@ -156,19 +214,19 @@ class ChatControlador extends BaseController {
                     END as remitente_nombre,
                     m.remitente_tipo,
                     m.destinatario_tipo,
-                    m.remitente_id = ? as es_remitente
+                    (CAST(m.remitente_id AS UNSIGNED) = ? AND m.remitente_tipo = ?) as es_remitente
                 FROM mensajes m
                 LEFT JOIN aprendices a ON m.remitente_id = a.id AND m.remitente_tipo = 'aprendiz'
                 LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
-                WHERE (m.remitente_id = ? AND m.destinatario_id = ?)
-                   OR (m.remitente_id = ? AND m.destinatario_id = ?)
+                WHERE ((CAST(m.remitente_id AS UNSIGNED) = ? AND m.remitente_tipo = ? AND CAST(m.destinatario_id AS UNSIGNED) = ? AND m.destinatario_tipo = ?)
+                   OR (CAST(m.remitente_id AS UNSIGNED) = ? AND m.remitente_tipo = ? AND CAST(m.destinatario_id AS UNSIGNED) = ? AND m.destinatario_tipo = ?))
                 ORDER BY m.fecha_creacion ASC
             `;
 
             const params = [
-                usuarioId, // Para es_remitente
-                usuarioId, otroUsuarioId, // Mensajes enviados por usuario actual
-                otroUsuarioId, usuarioId // Mensajes recibidos por usuario actual
+                usuarioId, usuarioTipo, // Para es_remitente
+                usuarioId, usuarioTipo, otroUsuarioId, otroUsuarioTipo, // Mensajes enviados por usuario actual
+                otroUsuarioId, otroUsuarioTipo, usuarioId, usuarioTipo // Mensajes recibidos por usuario actual
             ];
 
             console.log('📨 [HISTORIAL] Ejecutando query con params:', params);
@@ -176,24 +234,20 @@ class ChatControlador extends BaseController {
             const [mensajes] = await pool.execute(query, params);
 
             console.log(`✅ [HISTORIAL] Encontrados ${mensajes.length} mensajes`);
-            console.log('📨 [HISTORIAL] Todos los mensajes:', mensajes);
             if (mensajes.length > 0) {
-                console.log('📨 [HISTORIAL] Primer mensaje:', mensajes[0]);
-            } else {
-                console.log('📨 [HISTORIAL] No se encontraron mensajes, verificando si existen mensajes en la BD para este usuario');
-                // Query de debug para ver si hay mensajes en general
-                const [debugMensajes] = await pool.execute(
-                    `SELECT COUNT(*) as total FROM mensajes WHERE remitente_id = ? OR destinatario_id = ?`,
-                    [usuarioId, usuarioId]
-                );
-                console.log('📨 [HISTORIAL] Total mensajes para este usuario:', debugMensajes[0].total);
+                console.log('📨 [HISTORIAL] Primer mensaje:', {
+                    id: mensajes[0].id,
+                    remitente_id: mensajes[0].remitente_id,
+                    destinatario_id: mensajes[0].destinatario_id,
+                    es_remitente: mensajes[0].es_remitente
+                });
             }
 
             res.json({ success: true, mensajes });
 
         } catch (error) {
             console.error('❌ [HISTORIAL] Error al obtener historial:', error);
-            res.status(500).json({ success: false, mensajes: [] });
+            res.status(500).json({ success: false, mensajes: [], message: error.message });
         }
     }
 
@@ -205,6 +259,8 @@ class ChatControlador extends BaseController {
             const usuarioId = req.session.userId;
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
             const mensajeId = req.params.id;
+
+            console.log('📨 [MARCAR LEIDO] Marcando mensaje:', { mensajeId, usuarioId, usuarioTipo });
 
             if (!usuarioId) {
                 return res.status(401).json({ success: false });
@@ -219,8 +275,10 @@ class ChatControlador extends BaseController {
             const [result] = await pool.execute(query, [mensajeId, usuarioId, usuarioTipo]);
 
             if (result.affectedRows > 0) {
+                console.log('📨 [MARCAR LEIDO] Mensaje marcado como leído correctamente');
                 res.json({ success: true });
             } else {
+                console.log('📨 [MARCAR LEIDO] Mensaje no encontrado o no autorizado');
                 res.status(404).json({ success: false, message: 'Mensaje no encontrado o no autorizado' });
             }
 
@@ -231,25 +289,62 @@ class ChatControlador extends BaseController {
     }
 
     /**
-     * Obtener contador de mensajes no leídos
+     * Obtener contador de mensajes no leídos (excluyendo conversaciones eliminadas)
      */
     async obtenerContadorMensajes(req, res) {
         try {
             const usuarioId = req.session.userId;
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
 
+            console.log('📨 [CONTADOR] Solicitando contador para:', { usuarioId, usuarioTipo });
+
             if (!usuarioId) {
                 return res.status(401).json({ success: false, count: 0 });
             }
+
+            // Obtener conversaciones eliminadas para este usuario
+            const [eliminadas] = await pool.execute(
+                `SELECT otro_usuario_id, otro_usuario_tipo FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ?`,
+                [usuarioId, usuarioTipo]
+            );
+
+            console.log('📨 [CONTADOR] Conversaciones eliminadas:', eliminadas.length);
+
+            // Si no hay conversaciones eliminadas, usar query simple
+            if (eliminadas.length === 0) {
+                const query = `
+                    SELECT COUNT(*) as count
+                    FROM mensajes
+                    WHERE destinatario_id = ? AND destinatario_tipo = ? AND leido = FALSE
+                `;
+                const [result] = await pool.execute(query, [usuarioId, usuarioTipo]);
+                const count = result[0].count;
+                console.log('📨 [CONTADOR] Contador (sin eliminadas):', count);
+                return res.json({ success: true, count });
+            }
+
+            // Construir condiciones para excluir conversaciones eliminadas usando parámetros preparados
+            const condicionesExcluir = eliminadas.map(() => 
+                `(remitente_id = ? AND remitente_tipo = ?)`
+            ).join(' OR ');
 
             const query = `
                 SELECT COUNT(*) as count
                 FROM mensajes
                 WHERE destinatario_id = ? AND destinatario_tipo = ? AND leido = FALSE
+                AND NOT (${condicionesExcluir})
             `;
 
-            const [result] = await pool.execute(query, [usuarioId, usuarioTipo]);
+            // Construir array de parámetros: usuarioId, usuarioTipo, y luego cada par de eliminadas
+            const params = [usuarioId, usuarioTipo];
+            eliminadas.forEach(e => {
+                params.push(e.otro_usuario_id, e.otro_usuario_tipo);
+            });
+
+            const [result] = await pool.execute(query, params);
             const count = result[0].count;
+
+            console.log('📨 [CONTADOR] Contador (con eliminadas):', count);
 
             res.json({ success: true, count });
 
@@ -308,10 +403,12 @@ class ChatControlador extends BaseController {
         try {
             const usuarioId = req.session.userId;
             const usuarioTipo = req.session.userRole === 'aprendiz' ? 'aprendiz' : 'admin';
-            const { otroUsuarioId, otroUsuarioTipo } = req.params;
+            // Convertir a número para asegurar comparación correcta
+            const otroUsuarioId = parseInt(req.params.otroUsuarioId);
+            const otroUsuarioTipo = req.params.otroUsuarioTipo;
 
-            if (!usuarioId) {
-                return res.status(401).json({ success: false, message: 'Usuario no autenticado' });
+            if (!usuarioId || !otroUsuarioId || isNaN(otroUsuarioId)) {
+                return res.status(400).json({ success: false, message: 'Datos inválidos' });
             }
 
             // Validar que el usuario actual existe
@@ -352,38 +449,47 @@ class ChatControlador extends BaseController {
                 return res.status(401).json({ success: false, conversaciones: [] });
             }
 
-            // Consulta para obtener los usuarios con los que se ha chateado
+            // Consulta optimizada para obtener los usuarios con los que se ha chateado
+            // Usamos UNION para separar mensajes enviados y recibidos, luego agrupamos
             const query = `
-                SELECT DISTINCT
-                    CASE
-                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_id
-                        ELSE m.remitente_id
-                    END as otro_usuario_id,
-                    CASE
-                        WHEN m.remitente_id = ? AND m.remitente_tipo = ? THEN m.destinatario_tipo
-                        ELSE m.remitente_tipo
-                    END as otro_usuario_tipo,
-                    CASE
-                        WHEN m.remitente_tipo = 'aprendiz' AND m.remitente_id != ? THEN CONCAT(a.nombres, ' ', a.primerApellido)
-                        WHEN m.destinatario_tipo = 'aprendiz' AND m.destinatario_id != ? THEN CONCAT(da.nombres, ' ', da.primerApellido)
-                        WHEN m.remitente_tipo = 'admin' AND m.remitente_id != ? THEN adm.nombreCompleto
-                        ELSE dadm.nombreCompleto
-                    END as nombre,
-                    MAX(m.fecha_creacion) as ultimo_mensaje,
-                    SUM(CASE WHEN m.destinatario_id = ? AND m.destinatario_tipo = ? AND m.leido = FALSE THEN 1 ELSE 0 END) as no_leidos
-                FROM mensajes m
-                LEFT JOIN aprendices a ON m.remitente_id = a.id AND m.remitente_tipo = 'aprendiz'
-                LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
-                LEFT JOIN aprendices da ON m.destinatario_id = da.id AND m.destinatario_tipo = 'aprendiz'
-                LEFT JOIN administradores dadm ON m.destinatario_id = dadm.id AND m.destinatario_tipo = 'admin'
-                WHERE (m.remitente_id = ? AND m.remitente_tipo = ?) OR (m.destinatario_id = ? AND m.destinatario_tipo = ?)
-                GROUP BY otro_usuario_id, otro_usuario_tipo, nombre
+                SELECT
+                    otro_usuario_id,
+                    otro_usuario_tipo,
+                    COALESCE(
+                        CASE WHEN otro_usuario_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido) END,
+                        CASE WHEN otro_usuario_tipo = 'admin' THEN adm.nombreCompleto END,
+                        'Usuario desconocido'
+                    ) as nombre,
+                    MAX(ultimo_mensaje) as ultimo_mensaje,
+                    SUM(no_leidos) as no_leidos
+                FROM (
+                    SELECT
+                        m.destinatario_id as otro_usuario_id,
+                        m.destinatario_tipo as otro_usuario_tipo,
+                        m.fecha_creacion as ultimo_mensaje,
+                        CASE WHEN m.leido = FALSE THEN 1 ELSE 0 END as no_leidos
+                    FROM mensajes m
+                    WHERE m.remitente_id = ? AND m.remitente_tipo = ?
+                    
+                    UNION ALL
+                    
+                    SELECT
+                        m.remitente_id as otro_usuario_id,
+                        m.remitente_tipo as otro_usuario_tipo,
+                        m.fecha_creacion as ultimo_mensaje,
+                        0 as no_leidos
+                    FROM mensajes m
+                    WHERE m.destinatario_id = ? AND m.destinatario_tipo = ?
+                ) as conversaciones_base
+                LEFT JOIN aprendices a ON conversaciones_base.otro_usuario_tipo = 'aprendiz' AND conversaciones_base.otro_usuario_id = a.id
+                LEFT JOIN administradores adm ON conversaciones_base.otro_usuario_tipo = 'admin' AND conversaciones_base.otro_usuario_id = adm.id
+                GROUP BY otro_usuario_id, otro_usuario_tipo
                 ORDER BY ultimo_mensaje DESC
             `;
 
             const [todasConversaciones] = await pool.execute(query, [
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo, usuarioId, usuarioId, usuarioId, usuarioId, usuarioTipo,
-                usuarioId, usuarioTipo, usuarioId, usuarioTipo
+                usuarioId, usuarioTipo, // Para mensajes enviados (remitente)
+                usuarioId, usuarioTipo  // Para mensajes recibidos (destinatario)
             ]);
 
             // Filtrar las conversaciones eliminadas para el usuario actual

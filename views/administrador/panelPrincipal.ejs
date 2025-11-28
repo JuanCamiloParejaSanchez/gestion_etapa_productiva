@@ -642,6 +642,10 @@
                                 document.getElementById('chat-input').disabled = true;
                                 document.getElementById('chat-input').placeholder = 'Selecciona una conversación para enviar mensajes';
                                 document.getElementById('send-chat-btn').disabled = true;
+                                // Si ya tenemos conversaciones en cache, mostrarlas primero, luego actualizar
+                                if (cachedConversations.length > 0) {
+                                    mostrarListaConversaciones(cachedConversations);
+                                }
                                 cargarConversaciones();
                             });
                         }
@@ -850,9 +854,32 @@
                             });
                     }
 
+                    // Actualizar conversaciones en cache sin cambiar la vista actual
+                    function actualizarConversacionesEnCache() {
+                        fetch('/administrador/chat/conversaciones')
+                            .then(response => response.json())
+                            .then(data => {
+                                cachedConversations = data.conversaciones || [];
+                                console.log('📨 [FRONTEND] Conversaciones actualizadas en cache:', cachedConversations.length);
+                                // Solo actualizar la vista si estamos en la lista de conversaciones
+                                if (chatViewState === 'list') {
+                                    mostrarListaConversaciones(cachedConversaciones);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al actualizar conversaciones:', error);
+                            });
+                    }
+
                     // Mostrar lista de conversaciones
                     function mostrarListaConversaciones(conversaciones) {
                         cachedConversations = conversaciones;
+                        // Solo actualizar la vista si estamos en modo lista
+                        if (chatViewState !== 'list') {
+                            console.log('📨 [FRONTEND] No se actualiza la vista porque estamos en modo mensajes');
+                            return;
+                        }
+                        
                         const chatMessages = document.getElementById('chat-messages');
                         chatMessages.innerHTML = `
             <div class="mb-3">
@@ -890,22 +917,30 @@
                         // Agregar event listeners para las conversaciones
                         document.querySelectorAll('.conversation-item').forEach(item => {
                             item.addEventListener('click', function () {
-                                const otroUsuarioId = this.dataset.otroUsuarioId;
+                                const otroUsuarioId = parseInt(this.dataset.otroUsuarioId);
                                 const otroUsuarioTipo = this.dataset.otroUsuarioTipo;
                                 const nombre = this.dataset.nombre;
-                                abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre);
+                                if (!isNaN(otroUsuarioId)) {
+                                    abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre);
+                                }
                             });
                         });
 
                         // Agregar event listener para búsqueda en tiempo real
-                        document.getElementById('search-user-input').addEventListener('input', function () {
-                            const query = this.value.trim();
-                            if (query.length >= 2) {
-                                buscarUsuarios(query);
-                            } else {
-                                document.getElementById('search-results').style.display = 'none';
-                            }
-                        });
+                        const searchInput = document.getElementById('search-user-input');
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function () {
+                                const query = this.value.trim();
+                                if (query.length >= 2) {
+                                    buscarUsuarios(query);
+                                } else {
+                                    const searchResults = document.getElementById('search-results');
+                                    if (searchResults) {
+                                        searchResults.style.display = 'none';
+                                    }
+                                }
+                            });
+                        }
                     }
 
                     // Buscar usuarios
@@ -954,11 +989,13 @@
                             // Agregar event listeners para los resultados de búsqueda
                             document.querySelectorAll('.search-result-item').forEach(item => {
                                 item.addEventListener('click', function () {
-                                    const userId = this.dataset.userId;
+                                    const userId = parseInt(this.dataset.userId);
                                     const userTipo = this.dataset.userTipo;
                                     // Extraer el nombre del texto del botón (después del icono)
                                     const nombreCompleto = this.textContent.trim();
-                                    abrirConversacion(userId, userTipo, nombreCompleto);
+                                    if (!isNaN(userId)) {
+                                        abrirConversacion(userId, userTipo, nombreCompleto);
+                                    }
                                 });
                             });
                         } else {
@@ -969,14 +1006,21 @@
 
                     // Abrir conversación específica
                     function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
-                        currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
+                        // Asegurar que el ID sea un número
+                        const otroUsuarioIdNum = parseInt(otroUsuarioId);
+                        if (isNaN(otroUsuarioIdNum)) {
+                            mostrarNotificacionExito('Error: ID de usuario inválido.', 'danger');
+                            return;
+                        }
+                        
+                        currentChatUser = { id: otroUsuarioIdNum, tipo: otroUsuarioTipo };
                         chatViewState = 'messages';
                         document.getElementById('btn-regresar-chat').style.display = 'inline-block';
                         document.getElementById('modalChatLabel').textContent = `Chat con ${nombre || 'Usuario'}`;
                         document.getElementById('chat-input').disabled = false;
                         document.getElementById('chat-input').placeholder = 'Escribe tu mensaje...';
                         document.getElementById('send-chat-btn').disabled = false;
-                        cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo);
+                        cargarMensajesConversacion(otroUsuarioIdNum, otroUsuarioTipo);
                         // El badge se actualiza automáticamente en marcarMensajesComoLeidos
                     }
 
@@ -991,32 +1035,47 @@
             </div>
         `;
 
-                        fetch(`/administrador/chat/historial/${otroUsuarioId}/${otroUsuarioTipo}`)
+                        // Asegurar que el ID sea un número
+                        const otroUsuarioIdNum = parseInt(otroUsuarioId);
+                        if (isNaN(otroUsuarioIdNum)) {
+                            console.error('Error: ID de usuario inválido:', otroUsuarioId);
+                            chatMessages.innerHTML = '<div class="alert alert-danger">Error: ID de usuario inválido.</div>';
+                            return;
+                        }
+
+                        console.log('📨 [FRONTEND] Cargando mensajes:', { otroUsuarioId: otroUsuarioIdNum, otroUsuarioTipo });
+
+                        fetch(`/administrador/chat/historial/${otroUsuarioIdNum}/${otroUsuarioTipo}`)
                             .then(response => {
                                 if (!response.ok) {
-                                    throw new Error(`Error HTTP: ${response.status}`);
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || `Error HTTP: ${response.status}`);
+                                    });
                                 }
                                 return response.json();
                             })
                             .then(data => {
+                                console.log('📨 [FRONTEND] Mensajes recibidos:', data);
                                 if (data.success) {
-                                    mostrarMensajes(data.mensajes);
+                                    console.log('📨 [FRONTEND] Total mensajes:', data.mensajes?.length || 0);
+                                    mostrarMensajes(data.mensajes || []);
                                     // Marcar mensajes como leídos
-                                    marcarMensajesComoLeidos(data.mensajes);
+                                    marcarMensajesComoLeidos(data.mensajes || []);
                                 } else {
+                                    console.error('📨 [FRONTEND] Error en respuesta:', data);
                                     chatMessages.innerHTML = '<div class="alert alert-warning">Error al cargar los mensajes.</div>';
                                 }
                             })
                             .catch(error => {
                                 console.error('Error al cargar mensajes:', error);
-                                chatMessages.innerHTML = '<div class="alert alert-danger">Error al cargar los mensajes.</div>';
+                                chatMessages.innerHTML = `<div class="alert alert-danger">Error al cargar los mensajes: ${error.message}</div>`;
                             });
                     }
 
                     // Mostrar mensajes en el chat
                     function mostrarMensajes(mensajes) {
                         const chatMessages = document.getElementById('chat-messages');
-                        if (mensajes.length === 0) {
+                        if (!mensajes || mensajes.length === 0) {
                             chatMessages.innerHTML = `
                 <div class="chat-empty">
                     <i class="fas fa-comments fa-2x mb-2"></i>
@@ -1026,24 +1085,44 @@
                             return;
                         }
 
-                        chatMessages.innerHTML = mensajes.map(msg => `
-            <div class="chat-message ${msg.es_remitente ? 'sent' : 'received'}">
-                <div class="sender">${msg.es_remitente ? 'Tú' : msg.remitente_nombre}</div>
-                <div>${msg.mensaje}</div>
+                        console.log('📨 [FRONTEND] Mostrando mensajes:', mensajes.length);
+
+                        chatMessages.innerHTML = mensajes.map(msg => {
+                            // Asegurar que es_remitente sea un booleano
+                            const esRemitente = msg.es_remitente === 1 || msg.es_remitente === true || msg.es_remitente === '1';
+                            return `
+            <div class="chat-message ${esRemitente ? 'sent' : 'received'}">
+                <div class="sender">${esRemitente ? 'Tú' : (msg.remitente_nombre || 'Usuario')}</div>
+                <div>${msg.mensaje || ''}</div>
                 <div class="timestamp">${new Date(msg.fecha_creacion).toLocaleString('es-CO')}</div>
             </div>
-        `).join('');
+        `;
+                        }).join('');
 
                         // Scroll al final
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        setTimeout(() => {
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }, 100);
                     }
 
                     // Marcar mensajes como leídos
                     function marcarMensajesComoLeidos(mensajes) {
-                        const mensajesNoLeidos = mensajes.filter(msg => !msg.es_remitente && !msg.leido);
+                        if (!mensajes || mensajes.length === 0) {
+                            return;
+                        }
+                        
+                        // Asegurar que es_remitente sea un booleano para la comparación
+                        const mensajesNoLeidos = mensajes.filter(msg => {
+                            const esRemitente = msg.es_remitente === 1 || msg.es_remitente === true || msg.es_remitente === '1';
+                            const leido = msg.leido === 1 || msg.leido === true || msg.leido === '1';
+                            return !esRemitente && !leido;
+                        });
+                        
                         if (mensajesNoLeidos.length === 0) {
                             return;
                         }
+                        
+                        console.log('📨 [FRONTEND] Marcando mensajes como leídos:', mensajesNoLeidos.length);
 
                         mensajesNoLeidos.forEach(msg => {
                             fetch(`/administrador/chat/mensajes/${msg.id}/marcar-leido`, {
@@ -1059,6 +1138,13 @@
 
                     // Eliminar conversación
                     function eliminarConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
+                        // Asegurar que el ID sea un número
+                        const otroUsuarioIdNum = parseInt(otroUsuarioId);
+                        if (isNaN(otroUsuarioIdNum)) {
+                            mostrarNotificacionExito('Error: ID de usuario inválido.', 'danger');
+                            return;
+                        }
+                        
                         mostrarConfirmacion({
                             titulo: '¿Eliminar conversación?',
                             mensaje: `¿Estás seguro de que deseas eliminar la conversación con ${nombre}? Solo se eliminará para ti, el otro usuario seguirá viendo los mensajes.`,
@@ -1066,7 +1152,7 @@
                             textoConfirmar: 'Eliminar',
                             textoCancelar: 'Cancelar',
                             onConfirm: () => {
-                                eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo);
+                                eliminarConversacionBackend(otroUsuarioIdNum, otroUsuarioTipo);
                             }
                         });
                     }
@@ -1079,15 +1165,21 @@
                             .then(data => {
                                 if (data.success) {
                                     mostrarNotificacionExito('Conversación eliminada correctamente.');
-                                    // Refrescar lista y limpiar mensajes
-                                    cargarConversaciones();
-                                    document.getElementById('chat-messages').innerHTML = `<div class='chat-empty'><i class='fas fa-comments fa-2x mb-2'></i><p>No hay mensajes aún. Selecciona un aprendiz para iniciar una conversación.</p></div>`;
-                                    document.getElementById('chat-input').value = '';
-                                    document.getElementById('chat-input').disabled = true;
-                                    document.getElementById('send-chat-btn').disabled = true;
-                                    document.getElementById('btn-regresar-chat').style.display = 'none';
-                                    chatViewState = 'list';
-                                    currentChatUser = null;
+                                    // Si estamos en la conversación eliminada, regresar a la lista
+                                    if (currentChatUser && currentChatUser.id == otroUsuarioId && currentChatUser.tipo == otroUsuarioTipo) {
+                                        chatViewState = 'list';
+                                        document.getElementById('btn-regresar-chat').style.display = 'none';
+                                        document.getElementById('modalChatLabel').textContent = 'Chat con Aprendices';
+                                        document.getElementById('chat-input').disabled = true;
+                                        document.getElementById('chat-input').placeholder = 'Selecciona una conversación para enviar mensajes';
+                                        document.getElementById('send-chat-btn').disabled = true;
+                                        mostrarListaConversaciones(cachedConversations.filter(conv =>
+                                            !(parseInt(conv.otro_usuario_id) == otroUsuarioId && conv.otro_usuario_tipo == otroUsuarioTipo)
+                                        ));
+                                    } else {
+                                        // Recargar conversaciones
+                                        cargarConversaciones();
+                                    }
                                 } else {
                                     mostrarNotificacionExito(data.message || 'Error al eliminar la conversación.', 'danger');
                                 }
@@ -1112,6 +1204,27 @@
                             return;
                         }
 
+                        // Validar que currentChatUser tiene los datos correctos
+                        if (!currentChatUser.id || !currentChatUser.tipo) {
+                            console.error('Error: currentChatUser inválido:', currentChatUser);
+                            mostrarNotificacionExito('Error: Datos de conversación inválidos.', 'danger');
+                            return;
+                        }
+
+                        // Asegurar que el ID sea un número
+                        const destinatarioId = parseInt(currentChatUser.id);
+                        if (isNaN(destinatarioId)) {
+                            console.error('Error: ID de destinatario inválido:', currentChatUser.id);
+                            mostrarNotificacionExito('Error: ID de destinatario inválido.', 'danger');
+                            return;
+                        }
+
+                        console.log('📨 [FRONTEND] Enviando mensaje:', {
+                            destinatarioId,
+                            destinatarioTipo: currentChatUser.tipo,
+                            mensajeLength: mensaje.length
+                        });
+
                         // Deshabilitar botón mientras se envía
                         const btn = document.getElementById('send-chat-btn');
                         btn.disabled = true;
@@ -1123,20 +1236,29 @@
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                destinatarioId: currentChatUser.id,
+                                destinatarioId: destinatarioId,
                                 destinatarioTipo: currentChatUser.tipo,
                                 mensaje: mensaje
                             })
                         })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(data => {
+                                        throw new Error(data.message || `Error HTTP: ${response.status}`);
+                                    });
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 if (data.success) {
                                     input.value = '';
-                                    // Recargar mensajes y conversaciones con delay para asegurar que el backend haya procesado
+                                    // Recargar mensajes inmediatamente
+                                    cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
+                                    // Actualizar conversaciones en cache y contador sin cambiar la vista actual
                                     setTimeout(() => {
-                                        cargarMensajesConversacion(currentChatUser.id, currentChatUser.tipo);
-                                        cargarConversaciones(); // Recargar lista de conversaciones para mostrar la nueva
-                                    }, 2000);
+                                        actualizarConversacionesEnCache();
+                                        cargarContadorChat();
+                                    }, 500);
                                     mostrarNotificacionExito('Mensaje enviado correctamente.');
                                 } else {
                                     mostrarNotificacionExito(data.message || 'Error al enviar el mensaje.', 'danger');
@@ -1144,7 +1266,7 @@
                             })
                             .catch(error => {
                                 console.error('Error al enviar mensaje:', error);
-                                mostrarNotificacionExito('Error al enviar el mensaje.', 'danger');
+                                mostrarNotificacionExito(error.message || 'Error al enviar el mensaje.', 'danger');
                             })
                             .finally(() => {
                                 // Rehabilitar botón
