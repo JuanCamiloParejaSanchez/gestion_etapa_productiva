@@ -448,50 +448,74 @@ class ChatControlador extends BaseController {
             if (!usuarioId) {
                 return res.status(401).json({ success: false, conversaciones: [] });
             }
-
-            // Consulta optimizada para obtener los usuarios con los que se ha chateado
-            // Usamos UNION para separar mensajes enviados y recibidos, luego agrupamos
+    
+            // Consulta mejorada para obtener conversaciones y el conteo correcto de no leídos
             const query = `
                 SELECT
-                    otro_usuario_id,
-                    otro_usuario_tipo,
-                    COALESCE(
-                        CASE WHEN otro_usuario_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido) END,
-                        CASE WHEN otro_usuario_tipo = 'admin' THEN adm.nombreCompleto END,
-                        'Usuario desconocido'
-                    ) as nombre,
-                    MAX(ultimo_mensaje) as ultimo_mensaje,
-                    SUM(no_leidos) as no_leidos
+                    conv.otro_usuario_id,
+                    conv.otro_usuario_tipo,
+                    conv.nombre,
+                    conv.ultimo_mensaje,
+                    (SELECT COUNT(*)
+                     FROM mensajes m
+                     WHERE m.destinatario_id = ? 
+                       AND m.destinatario_tipo = ?
+                       AND m.remitente_id = conv.otro_usuario_id
+                       AND m.remitente_tipo = conv.otro_usuario_tipo
+                       AND m.leido = FALSE
+                    ) as no_leidos
                 FROM (
                     SELECT
-                        m.destinatario_id as otro_usuario_id,
-                        m.destinatario_tipo as otro_usuario_tipo,
-                        m.fecha_creacion as ultimo_mensaje,
-                        CASE WHEN m.leido = FALSE THEN 1 ELSE 0 END as no_leidos
-                    FROM mensajes m
-                    WHERE m.remitente_id = ? AND m.remitente_tipo = ?
-                    
-                    UNION ALL
-                    
-                    SELECT
-                        m.remitente_id as otro_usuario_id,
-                        m.remitente_tipo as otro_usuario_tipo,
-                        m.fecha_creacion as ultimo_mensaje,
-                        0 as no_leidos
-                    FROM mensajes m
-                    WHERE m.destinatario_id = ? AND m.destinatario_tipo = ?
-                ) as conversaciones_base
-                LEFT JOIN aprendices a ON conversaciones_base.otro_usuario_tipo = 'aprendiz' AND conversaciones_base.otro_usuario_id = a.id
-                LEFT JOIN administradores adm ON conversaciones_base.otro_usuario_tipo = 'admin' AND conversaciones_base.otro_usuario_id = adm.id
-                GROUP BY otro_usuario_id, otro_usuario_tipo
-                ORDER BY ultimo_mensaje DESC
+                        otro_usuario_id,
+                        otro_usuario_tipo,
+                        MAX(ultimo_mensaje) as ultimo_mensaje,
+                        ANY_VALUE(nombre) as nombre
+                    FROM (
+                        -- Mensajes enviados por el usuario actual
+                        SELECT
+                            m.destinatario_id as otro_usuario_id,
+                            m.destinatario_tipo as otro_usuario_tipo,
+                            m.fecha_creacion as ultimo_mensaje,
+                            COALESCE(
+                                CONCAT(a.nombres, ' ', a.primerApellido),
+                                adm.nombreCompleto,
+                                'Usuario desconocido'
+                            ) as nombre
+                        FROM mensajes m
+                        LEFT JOIN aprendices a ON m.destinatario_id = a.id AND m.destinatario_tipo = 'aprendiz'
+                        LEFT JOIN administradores adm ON m.destinatario_id = adm.id AND m.destinatario_tipo = 'admin'
+                        WHERE m.remitente_id = ? AND m.remitente_tipo = ?
+                        
+                        UNION
+                        
+                        -- Mensajes recibidos por el usuario actual
+                        SELECT
+                            m.remitente_id as otro_usuario_id,
+                            m.remitente_tipo as otro_usuario_tipo,
+                            m.fecha_creacion as ultimo_mensaje,
+                            COALESCE(
+                                CONCAT(a.nombres, ' ', a.primerApellido),
+                                adm.nombreCompleto,
+                                'Usuario desconocido'
+                            ) as nombre
+                        FROM mensajes m
+                        LEFT JOIN aprendices a ON m.remitente_id = a.id AND m.remitente_tipo = 'aprendiz'
+                        LEFT JOIN administradores adm ON m.remitente_id = adm.id AND m.remitente_tipo = 'admin'
+                        WHERE m.destinatario_id = ? AND m.destinatario_tipo = ?
+                    ) as base
+                    GROUP BY otro_usuario_id, otro_usuario_tipo
+                ) as conv
+                ORDER BY conv.ultimo_mensaje DESC
             `;
+    
+            const params = [
+                usuarioId, usuarioTipo, // Para la subconsulta de no_leidos
+                usuarioId, usuarioTipo, // Para mensajes enviados
+                usuarioId, usuarioTipo  // Para mensajes recibidos
+            ];
 
-            const [todasConversaciones] = await pool.execute(query, [
-                usuarioId, usuarioTipo, // Para mensajes enviados (remitente)
-                usuarioId, usuarioTipo  // Para mensajes recibidos (destinatario)
-            ]);
-
+            const [todasConversaciones] = await pool.execute(query, params);
+    
             // Filtrar las conversaciones eliminadas para el usuario actual
             const [eliminadas] = await pool.execute(
                 `SELECT otro_usuario_id, otro_usuario_tipo FROM conversaciones_eliminadas WHERE usuario_id = ? AND usuario_tipo = ?`,
@@ -499,7 +523,7 @@ class ChatControlador extends BaseController {
             );
             const eliminadasSet = new Set(eliminadas.map(e => `${e.otro_usuario_id}_${e.otro_usuario_tipo}`));
             const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
-
+    
             res.json({ success: true, conversaciones });
         } catch (error) {
             console.error('Error al obtener conversaciones:', error);
