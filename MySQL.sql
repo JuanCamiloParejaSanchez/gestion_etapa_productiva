@@ -897,3 +897,7 @@ select * from administradores;
 delete from administradores where id='1'
 
 SELECT * FROM mensajes ORDER BY fecha_creacion DESC LIMIT 5;
+SELECT * FROM mensajes 
+WHERE (remitente_id = 1 AND destinatario_id = 2) 
+   OR (remitente_id = 1 AND destinatario_id = 2)
+ORDER BY fecha_creacion ASC

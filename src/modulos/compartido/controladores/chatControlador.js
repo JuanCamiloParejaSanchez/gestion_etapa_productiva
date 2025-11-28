@@ -132,11 +132,10 @@ class ChatControlador extends BaseController {
 
             console.log('📨 [HISTORIAL] Conversación eliminada check:', eliminada.length > 0 ? 'SÍ eliminada' : 'NO eliminada');
 
-            // TEMPORALMENTE COMENTADO PARA DEBUG
-            // if (eliminada.length > 0) {
-            //     console.log('📨 [HISTORIAL] Conversación marcada como eliminada');
-            //     return res.json({ success: true, mensajes: [] });
-            // }
+            if (eliminada.length > 0) {
+                console.log('📨 [HISTORIAL] Conversación marcada como eliminada');
+                return res.json({ success: true, mensajes: [] });
+            }
 
             // Query simplificada para debug
             const query = `
@@ -381,9 +380,7 @@ class ChatControlador extends BaseController {
                 [usuarioId, usuarioTipo]
             );
             const eliminadasSet = new Set(eliminadas.map(e => `${e.otro_usuario_id}_${e.otro_usuario_tipo}`));
-            // TEMPORALMENTE COMENTADO PARA DEBUG
-            // const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
-            const conversaciones = todasConversaciones; // Mostrar todas las conversaciones por ahora
+            const conversaciones = todasConversaciones.filter(c => !eliminadasSet.has(`${c.otro_usuario_id}_${c.otro_usuario_tipo}`));
 
             res.json({ success: true, conversaciones });
         } catch (error) {

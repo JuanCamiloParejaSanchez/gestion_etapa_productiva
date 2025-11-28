@@ -142,6 +142,179 @@
             color: #8b949e !important;
         }
 
+        /* Estilos para popup de confirmación elegante */
+        .confirm-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            animation: fadeIn 0.2s forwards;
+        }
+    
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    
+        @keyframes fadeOut {
+            to { opacity: 0; }
+        }
+    
+        .confirm-popup {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+    
+        .dark-mode .confirm-popup {
+            background: #161b22;
+            border: 1px solid #30363d;
+        }
+    
+        @keyframes popIn {
+            to { transform: scale(1); }
+        }
+    
+        @keyframes popOut {
+            to { transform: scale(0.9); }
+        }
+    
+        .confirm-popup-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+    
+        .confirm-popup-icon.warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffc107 100%);
+            color: #856404;
+        }
+    
+        .confirm-popup-icon.success {
+            background: linear-gradient(135deg, #d4edda 0%, #28a745 100%);
+            color: #155724;
+        }
+    
+        .confirm-popup-icon.danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #dc3545 100%);
+            color: #721c24;
+        }
+    
+        .dark-mode .confirm-popup-icon.warning {
+            background: linear-gradient(135deg, #4d3800 0%, #9e6a03 100%);
+            color: #f0ad4e;
+        }
+    
+        .dark-mode .confirm-popup-icon.success {
+            background: linear-gradient(135deg, #0f3d1a 0%, #28a745 100%);
+            color: #4caf50;
+        }
+    
+        .dark-mode .confirm-popup-icon.danger {
+            background: linear-gradient(135deg, #5a0a0a 0%, #8b0000 100%);
+            color: #ff6b6b;
+        }
+    
+        .confirm-popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+    
+        .dark-mode .confirm-popup-title {
+            color: #f0f6fc;
+        }
+    
+        .confirm-popup-message {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+    
+        .dark-mode .confirm-popup-message {
+            color: #8b949e;
+        }
+    
+        .confirm-popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+    
+        .confirm-popup-btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+    
+        .confirm-popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    
+        .confirm-popup-btn:active {
+            transform: translateY(0);
+        }
+    
+        .confirm-popup-btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+    
+        .confirm-popup-btn-cancel:hover {
+            background: #5a6268;
+        }
+    
+        .dark-mode .confirm-popup-btn-cancel {
+            background: #444c56;
+            color: #e6edf3;
+        }
+    
+        .dark-mode .confirm-popup-btn-cancel:hover {
+            background: #586069;
+        }
+    
+        .confirm-popup-btn-confirm {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+    
+        .confirm-popup-btn-confirm:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        }
+    
+        .dark-mode .confirm-popup-btn-confirm {
+            background: linear-gradient(135deg, #8b0000 0%, #dc3545 100%);
+        }
+    
+        .dark-mode .confirm-popup-btn-confirm:hover {
+            background: linear-gradient(135deg, #a00000 0%, #ff4757 100%);
+        }
+    
         /* Variante de éxito para notificaciones */
         .success-popup-overlay {
             position: fixed;
@@ -150,31 +323,31 @@
             z-index: 9999;
             animation: slideInRight 0.3s ease-out forwards;
         }
-
+    
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
                 opacity: 0;
             }
-
+    
             to {
                 transform: translateX(0);
                 opacity: 1;
             }
         }
-
+    
         @keyframes slideOutRight {
             from {
                 transform: translateX(0);
                 opacity: 1;
             }
-
+    
             to {
                 transform: translateX(100%);
                 opacity: 0;
             }
         }
-
+    
         .success-popup {
             background: white;
             border-radius: 12px;
@@ -186,13 +359,13 @@
             min-width: 300px;
             border-left: 4px solid #28a745;
         }
-
+    
         .dark-mode .success-popup {
             background: #161b22;
             border-left-color: #4caf50;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
-
+    
         .success-popup-icon {
             width: 40px;
             height: 40px;
@@ -205,33 +378,33 @@
             font-size: 1.25rem;
             flex-shrink: 0;
         }
-
+    
         .dark-mode .success-popup-icon {
             background: linear-gradient(135deg, #0f3d1a 0%, #28a745 100%);
             color: #4caf50;
         }
-
+    
         .success-popup-content {
             flex: 1;
         }
-
+    
         .success-popup-title {
             font-weight: 600;
             color: #155724;
             margin-bottom: 0.25rem;
             font-size: 0.95rem;
         }
-
+    
         .dark-mode .success-popup-title {
             color: #4caf50;
         }
-
+    
         .success-popup-message {
             color: #666;
             font-size: 0.9rem;
             margin: 0;
         }
-
+    
         .dark-mode .success-popup-message {
             color: #8b949e;
         }
@@ -463,9 +636,7 @@
                         // Agregar event listeners del chat
                         const btnChat = document.getElementById('btnChat');
                         if (btnChat) {
-                            console.log('🎯 [CHAT] Botón de chat encontrado, agregando event listener');
                             btnChat.addEventListener('click', function () {
-                                console.log('🎯 [CHAT] Botón de chat clickeado');
                                 chatViewState = 'list';
                                 document.getElementById('btn-regresar-chat').style.display = 'none';
                                 document.getElementById('chat-input').disabled = true;
@@ -473,8 +644,6 @@
                                 document.getElementById('send-chat-btn').disabled = true;
                                 cargarConversaciones();
                             });
-                        } else {
-                            console.log('❌ [CHAT] Botón de chat NO encontrado');
                         }
 
                         // Event listener para el botón de regresar
@@ -517,6 +686,81 @@
                     });
                 </script>
                 <script>
+                    /**
+                    * Mostrar popup de confirmación elegante
+                    */
+                    function mostrarConfirmacion({ titulo, mensaje, tipo = 'warning', textoConfirmar = 'Confirmar', textoCancelar = 'Cancelar', onConfirm, onCancel }) {
+                        // Crear overlay
+                        const overlay = document.createElement('div');
+                        overlay.className = 'confirm-popup-overlay';
+
+                        // Crear popup
+                        const popup = document.createElement('div');
+                        popup.className = 'confirm-popup';
+
+                        // Determinar icono según tipo
+                        let icono = 'fas fa-exclamation-triangle';
+                        if (tipo === 'success') icono = 'fas fa-check-circle';
+                        if (tipo === 'danger') icono = 'fas fa-exclamation-circle';
+
+                        popup.innerHTML = `
+                            <div class="confirm-popup-icon ${tipo}">
+                                <i class="${icono}"></i>
+                            </div>
+                            <h3 class="confirm-popup-title text-center">${titulo}</h3>
+                            <p class="confirm-popup-message text-center">${mensaje}</p>
+                            <div class="confirm-popup-buttons">
+                                <button class="confirm-popup-btn confirm-popup-btn-cancel" id="popup-cancel">
+                                    <i class="fas fa-times me-2"></i>${textoCancelar}
+                                </button>
+                                <button class="confirm-popup-btn confirm-popup-btn-confirm" id="popup-confirm">
+                                    <i class="fas fa-check me-2"></i>${textoConfirmar}
+                                </button>
+                            </div>
+                        `;
+
+                        overlay.appendChild(popup);
+                        document.body.appendChild(overlay);
+
+                        // Función para cerrar el popup
+                        const cerrarPopup = () => {
+                            overlay.style.animation = 'fadeOut 0.2s forwards';
+                            popup.style.animation = 'popOut 0.2s forwards';
+                            setTimeout(() => {
+                                document.body.removeChild(overlay);
+                            }, 200);
+                        };
+
+                        // Event listeners
+                        document.getElementById('popup-cancel').addEventListener('click', () => {
+                            cerrarPopup();
+                            if (onCancel) onCancel();
+                        });
+
+                        document.getElementById('popup-confirm').addEventListener('click', () => {
+                            cerrarPopup();
+                            if (onConfirm) onConfirm();
+                        });
+
+                        // Cerrar al hacer clic fuera del popup
+                        overlay.addEventListener('click', (e) => {
+                            if (e.target === overlay) {
+                                cerrarPopup();
+                                if (onCancel) onCancel();
+                            }
+                        });
+
+                        // Cerrar con tecla Escape
+                        const handleEscape = (e) => {
+                            if (e.key === 'Escape') {
+                                cerrarPopup();
+                                if (onCancel) onCancel();
+                                document.removeEventListener('keydown', handleEscape);
+                            }
+                        };
+                        document.addEventListener('keydown', handleEscape);
+                    }
+
                     /**
                     * Mostrar notificación de éxito/error tipo toast
                     */
@@ -595,18 +839,13 @@
 
                     // Cargar conversaciones disponibles
                     function cargarConversaciones() {
-                        console.log('📨 [CHAT] Cargando conversaciones...');
                         fetch('/administrador/chat/conversaciones')
-                            .then(response => {
-                                console.log('📨 [CHAT] Respuesta de conversaciones:', response.status);
-                                return response.json();
-                            })
+                            .then(response => response.json())
                             .then(data => {
-                                console.log('📨 [CHAT] Datos de conversaciones:', data);
                                 mostrarListaConversaciones(data.conversaciones || []);
                             })
                             .catch(error => {
-                                console.error('❌ [CHAT] Error al cargar conversaciones:', error);
+                                console.error('Error al cargar conversaciones:', error);
                                 mostrarListaConversaciones([]);
                             });
                     }
@@ -730,7 +969,6 @@
 
                     // Abrir conversación específica
                     function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
-                        console.log('🎯 [CHAT] Abriendo conversación con:', { otroUsuarioId, otroUsuarioTipo, nombre });
                         currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
                         chatViewState = 'messages';
                         document.getElementById('btn-regresar-chat').style.display = 'inline-block';
@@ -744,7 +982,6 @@
 
                     // Cargar mensajes de una conversación
                     function cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo) {
-                        console.log('📨 [CHAT] Cargando mensajes de conversación:', { otroUsuarioId, otroUsuarioTipo });
                         const chatMessages = document.getElementById('chat-messages');
                         chatMessages.innerHTML = `
             <div class="text-center">
@@ -756,14 +993,12 @@
 
                         fetch(`/administrador/chat/historial/${otroUsuarioId}/${otroUsuarioTipo}`)
                             .then(response => {
-                                console.log('📨 [CHAT] Respuesta de historial:', response.status);
                                 if (!response.ok) {
                                     throw new Error(`Error HTTP: ${response.status}`);
                                 }
                                 return response.json();
                             })
                             .then(data => {
-                                console.log('📨 [CHAT] Datos de historial:', data);
                                 if (data.success) {
                                     mostrarMensajes(data.mensajes);
                                     // Marcar mensajes como leídos
@@ -773,17 +1008,15 @@
                                 }
                             })
                             .catch(error => {
-                                console.error('❌ [CHAT] Error al cargar mensajes:', error);
+                                console.error('Error al cargar mensajes:', error);
                                 chatMessages.innerHTML = '<div class="alert alert-danger">Error al cargar los mensajes.</div>';
                             });
                     }
 
                     // Mostrar mensajes en el chat
                     function mostrarMensajes(mensajes) {
-                        console.log('📨 [CHAT] Mostrando mensajes:', mensajes.length, 'mensajes');
                         const chatMessages = document.getElementById('chat-messages');
                         if (mensajes.length === 0) {
-                            console.log('📨 [CHAT] No hay mensajes en la conversación');
                             chatMessages.innerHTML = `
                 <div class="chat-empty">
                     <i class="fas fa-comments fa-2x mb-2"></i>
@@ -793,7 +1026,6 @@
                             return;
                         }
 
-                        console.log('📨 [CHAT] Renderizando mensajes...');
                         chatMessages.innerHTML = mensajes.map(msg => `
             <div class="chat-message ${msg.es_remitente ? 'sent' : 'received'}">
                 <div class="sender">${msg.es_remitente ? 'Tú' : msg.remitente_nombre}</div>
@@ -804,7 +1036,6 @@
 
                         // Scroll al final
                         chatMessages.scrollTop = chatMessages.scrollHeight;
-                        console.log('📨 [CHAT] Mensajes renderizados correctamente');
                     }
 
                     // Marcar mensajes como leídos
@@ -828,23 +1059,16 @@
 
                     // Eliminar conversación
                     function eliminarConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
-                        // Si no existe la función mostrarConfirmacion, usar confirm nativo
-                        if (typeof mostrarConfirmacion === 'function') {
-                            mostrarConfirmacion({
-                                titulo: '¿Eliminar conversación?',
-                                mensaje: `¿Seguro que deseas eliminar la conversación con ${nombre}? Esta acción no se puede deshacer.`,
-                                tipo: 'danger',
-                                textoConfirmar: 'Eliminar',
-                                textoCancelar: 'Cancelar',
-                                onConfirm: () => {
-                                    eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo);
-                                }
-                            });
-                        } else {
-                            if (confirm(`¿Seguro que deseas eliminar la conversación con ${nombre}? Esta acción no se puede deshacer.`)) {
+                        mostrarConfirmacion({
+                            titulo: '¿Eliminar conversación?',
+                            mensaje: `¿Estás seguro de que deseas eliminar la conversación con ${nombre}? Solo se eliminará para ti, el otro usuario seguirá viendo los mensajes.`,
+                            tipo: 'warning',
+                            textoConfirmar: 'Eliminar',
+                            textoCancelar: 'Cancelar',
+                            onConfirm: () => {
                                 eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo);
                             }
-                        }
+                        });
                     }
 
                     function eliminarConversacionBackend(otroUsuarioId, otroUsuarioTipo) {
