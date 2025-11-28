@@ -1589,7 +1589,9 @@ function mostrarResultadosBusqueda(usuarios) {
             item.addEventListener('click', function() {
                 const userId = this.dataset.userId;
                 const userTipo = this.dataset.userTipo;
-                abrirConversacion(userId, userTipo);
+                // Extraer el nombre del texto del botón (después del icono)
+                const nombreCompleto = this.textContent.trim();
+                abrirConversacion(userId, userTipo, nombreCompleto);
             });
         });
     } else {
@@ -1603,11 +1605,13 @@ function abrirConversacion(otroUsuarioId, otroUsuarioTipo, nombre) {
     currentChatUser = { id: otroUsuarioId, tipo: otroUsuarioTipo };
     chatViewState = 'messages';
     document.getElementById('btn-regresar-chat').style.display = 'inline-block';
-    document.getElementById('modalChatLabel').textContent = `Chat con ${nombre}`;
+    document.getElementById('modalChatLabel').textContent = `Chat con ${nombre || 'Usuario'}`;
     document.getElementById('chat-input').disabled = false;
     document.getElementById('chat-input').placeholder = 'Escribe tu mensaje...';
     document.getElementById('send-chat-btn').disabled = false;
     cargarMensajesConversacion(otroUsuarioId, otroUsuarioTipo);
+    // Actualizar badge al abrir conversación
+    setTimeout(cargarContadorChat, 500);
 }
 
 // Cargar mensajes de una conversación
@@ -1666,14 +1670,19 @@ function mostrarMensajes(mensajes) {
 // Marcar mensajes como leídos
 function marcarMensajesComoLeidos(mensajes) {
     const mensajesNoLeidos = mensajes.filter(msg => !msg.es_remitente && !msg.leido);
+    if (mensajesNoLeidos.length === 0) {
+        return;
+    }
+    
     mensajesNoLeidos.forEach(msg => {
         fetch(`/aprendiz/chat/mensajes/${msg.id}/marcar-leido`, {
             method: 'POST'
         }).catch(error => console.error('Error al marcar mensaje como leído:', error));
     });
 
-    // Actualizar contador después de marcar como leídos
-    setTimeout(cargarContadorChat, 1000);
+    // Actualizar contador inmediatamente y después de un breve delay
+    cargarContadorChat();
+    setTimeout(cargarContadorChat, 500);
 }
 
 // Enviar mensaje
