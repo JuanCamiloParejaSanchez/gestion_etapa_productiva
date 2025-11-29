@@ -901,3 +901,6 @@ SELECT * FROM mensajes
 WHERE (remitente_id = 1 AND destinatario_id = 2) 
    OR (remitente_id = 1 AND destinatario_id = 2)
 ORDER BY fecha_creacion ASC
+
+DELETE FROM mensajes;
+TRUNCATE TABLE mensajes;

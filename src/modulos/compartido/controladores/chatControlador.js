@@ -134,7 +134,7 @@ class ChatControlador extends BaseController {
                     m.fecha_creacion,
                     m.leido,
                     CASE
-                        WHEN m.remitente_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido)
+                        WHEN m.remitente_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido, ' ', IFNULL(a.segundoApellido, ''))
                         ELSE adm.nombreCompleto
                     END as remitente_nombre,
                     m.remitente_tipo
@@ -209,7 +209,7 @@ class ChatControlador extends BaseController {
                     m.fecha_creacion,
                     m.leido,
                     CASE
-                        WHEN m.remitente_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido)
+                        WHEN m.remitente_tipo = 'aprendiz' THEN CONCAT(a.nombres, ' ', a.primerApellido, ' ', IFNULL(a.segundoApellido, ''))
                         ELSE adm.nombreCompleto
                     END as remitente_nombre,
                     m.remitente_tipo,
@@ -370,7 +370,7 @@ class ChatControlador extends BaseController {
             // Determinar qué tipo de usuarios buscar
             const buscarTipo = usuarioTipo === 'aprendiz' ? 'admin' : 'aprendiz';
             const tabla = buscarTipo === 'aprendiz' ? 'aprendices' : 'administradores';
-            const nombreCampo = buscarTipo === 'aprendiz' ? "CONCAT(nombres, ' ', primerApellido)" : 'nombreCompleto';
+            const nombreCampo = buscarTipo === 'aprendiz' ? "CONCAT(nombres, ' ', primerApellido, ' ', IFNULL(segundoApellido, ''))" : 'nombreCompleto';
 
             let query = `SELECT id, ${nombreCampo} as nombre FROM ${tabla} WHERE 1=1`;
             let params = [];
@@ -458,7 +458,7 @@ class ChatControlador extends BaseController {
                     conv.ultimo_mensaje,
                     (SELECT COUNT(*)
                      FROM mensajes m
-                     WHERE m.destinatario_id = ? 
+                     WHERE m.destinatario_id = ?
                        AND m.destinatario_tipo = ?
                        AND m.remitente_id = conv.otro_usuario_id
                        AND m.remitente_tipo = conv.otro_usuario_tipo
@@ -477,7 +477,7 @@ class ChatControlador extends BaseController {
                             m.destinatario_tipo as otro_usuario_tipo,
                             m.fecha_creacion as ultimo_mensaje,
                             COALESCE(
-                                CONCAT(a.nombres, ' ', a.primerApellido),
+                                CONCAT(a.nombres, ' ', a.primerApellido, ' ', IFNULL(a.segundoApellido, '')),
                                 adm.nombreCompleto,
                                 'Usuario desconocido'
                             ) as nombre
@@ -485,16 +485,16 @@ class ChatControlador extends BaseController {
                         LEFT JOIN aprendices a ON m.destinatario_id = a.id AND m.destinatario_tipo = 'aprendiz'
                         LEFT JOIN administradores adm ON m.destinatario_id = adm.id AND m.destinatario_tipo = 'admin'
                         WHERE m.remitente_id = ? AND m.remitente_tipo = ?
-                        
+
                         UNION
-                        
+
                         -- Mensajes recibidos por el usuario actual
                         SELECT
                             m.remitente_id as otro_usuario_id,
                             m.remitente_tipo as otro_usuario_tipo,
                             m.fecha_creacion as ultimo_mensaje,
                             COALESCE(
-                                CONCAT(a.nombres, ' ', a.primerApellido),
+                                CONCAT(a.nombres, ' ', a.primerApellido, ' ', IFNULL(a.segundoApellido, '')),
                                 adm.nombreCompleto,
                                 'Usuario desconocido'
                             ) as nombre
