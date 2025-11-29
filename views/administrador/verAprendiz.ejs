@@ -341,6 +341,10 @@ function formatearFechaHoraLocal(fecha) {
                     <strong>Fecha creación de usuario:</strong>
                     <%= formatearFechaHoraLocal(aprendiz.created_at) %>
                 </div>
+                <div class="mb-3">
+                    <strong>Fecha última actualización:</strong>
+                    <%= formatearFechaHoraLocal(aprendiz.updated_at) %> - Usuario: <%= typeof userName !== 'undefined' ? userName : 'Administrador' %>
+                </div>
             <% } else { %>
                 <div class="alert alert-danger">
                     No se encontraron datos del aprendiz.

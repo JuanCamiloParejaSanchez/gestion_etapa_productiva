@@ -22,10 +22,20 @@ const gestionAprendicesControlador = {
         try {
             // Obtener alertas para el administrador
             const alertas = await servicioAlertas.obtenerAlertasAdministrador();
+
+            // Obtener el nombre completo actual del administrador desde la BD
+            const [adminResult] = await pool.query(
+                'SELECT nombreCompleto FROM administradores WHERE id = ?',
+                [req.session.userId]
+            );
+
+            const nombreCompleto = adminResult.length > 0 ? adminResult[0].nombreCompleto : 'Administrador';
+
             res.render('administrador/panelPrincipal', {
                 title: 'Panel del Administrador',
                 userRole: 'admin',
                 alertas: alertas,
+                userName: nombreCompleto,
                 layout: 'plantillas/principal'
             });
         } catch (error) {
@@ -614,7 +624,7 @@ const gestionAprendicesControlador = {
                 });
             }
 
-            const aprendiz = aprendizResult[0];
+            const aprendiz = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
 
             // Obtener documentos subidos del aprendiz usando el ID del aprendiz
             const consultaDocumentosSubidos = `

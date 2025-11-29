@@ -33,7 +33,7 @@ const ALTERNATIVAS = {
 function eliminarCamposVacios(objeto) {
     const objetoLimpio = {};
     Object.keys(objeto).forEach(key => {
-        if (objeto[key] !== null && objeto[key] !== undefined && objeto[key] !== '') {
+        if (objeto[key] !== undefined && objeto[key] !== '') {
             objetoLimpio[key] = objeto[key];
         }
     });

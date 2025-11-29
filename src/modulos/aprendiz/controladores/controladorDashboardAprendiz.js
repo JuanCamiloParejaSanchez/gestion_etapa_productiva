@@ -51,6 +51,14 @@ class ControladorDashboardAprendiz extends BaseController {
                 }
             });
 
+            // Campos opcionales de texto que pueden ser null si vienen vacíos
+            const camposOpcionales = ['segundoApellido'];
+            camposOpcionales.forEach(campo => {
+                if (datosActualizados[campo] === '') {
+                    datosActualizados[campo] = null;
+                }
+            });
+
             const camposRequeridos = [
                 'nombres', 'primerApellido', 'tipoDocumento', 'numeroDocumento', 'fechaNacimiento', 'eps',
                 'celular', 'direccion', 'barrio', 'departamento', 'municipio', 'correoElectronico',
