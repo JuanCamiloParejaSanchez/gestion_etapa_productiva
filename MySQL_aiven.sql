@@ -1,6 +1,12 @@
 -- =====================================================
 -- SCRIPT SQL OPTIMIZADO - SENA ETAPA PRODUCTIVA
--- Versión: 2.0
+-- Versión: 2.1 - Actualizado con columnas de revisión y notificaciones
+--
+-- CAMBIOS EN VERSIÓN 2.1:
+-- - Agregadas columnas fecha_revision y revisado_por a tabla documentos_aprendiz
+-- - Agregados índices idx_fecha_revision e idx_revisado_por
+-- - Agregada clave foránea fk_documentos_revisado_por
+-- - Agregadas columnas retroalimentacion y archivo_adjunto a tabla notificaciones
 -- =====================================================
 
 -- Configuración inicial
@@ -187,15 +193,20 @@ CREATE TABLE `documentos_aprendiz` (
   `activo` boolean DEFAULT TRUE COMMENT 'Estado activo/inactivo del documento',
   `fecha_subida` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de subida',
   `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
-  
+  `fecha_revision` TIMESTAMP NULL DEFAULT NULL COMMENT 'Fecha de revisión del documento',
+  `revisado_por` INT NULL COMMENT 'ID del administrador que revisó el documento',
+
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_nombre_guardado` (`nombre_guardado`),
   KEY `idx_aprendiz_id` (`aprendiz_id`),
   KEY `idx_tipo_documento` (`tipo_documento`),
   KEY `idx_fecha_subida` (`fecha_subida`),
   KEY `idx_activo` (`activo`),
-  
+  KEY `idx_fecha_revision` (`fecha_revision`),
+  KEY `idx_revisado_por` (`revisado_por`),
+
   CONSTRAINT `fk_documentos_aprendiz` FOREIGN KEY (`aprendiz_id`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_documentos_revisado_por` FOREIGN KEY (`revisado_por`) REFERENCES `administradores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `chk_tamano_archivo` CHECK (`tamano_bytes` > 0 AND `tamano_bytes` <= 10485760) -- Máximo 10MB
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Documentos subidos por los aprendices';
 
@@ -212,20 +223,22 @@ CREATE TABLE IF NOT EXISTS `notificaciones` (
   `mensaje` TEXT NOT NULL COMMENT 'Mensaje de la notificación',
   `referencia_id` INT NULL COMMENT 'ID del documento u otro elemento relacionado',
   `referencia_tipo` VARCHAR(50) NULL COMMENT 'Tipo de referencia (documento, bitacora, etc.)',
+  `retroalimentacion` TEXT NULL COMMENT 'Retroalimentación o comentarios adicionales',
+  `archivo_adjunto` VARCHAR(500) NULL COMMENT 'Ruta del archivo adjunto',
   `leida` BOOLEAN DEFAULT FALSE COMMENT 'Indica si la notificación fue leída',
   `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
   `fecha_lectura` DATETIME NULL COMMENT 'Fecha en que se leyó la notificación',
-  
+
   PRIMARY KEY (`id`),
   KEY `idx_usuario_id` (`usuario_id`),
   KEY `idx_leida` (`leida`),
   KEY `idx_tipo` (`tipo`),
   KEY `idx_fecha_creacion` (`fecha_creacion`),
-  
-  CONSTRAINT `fk_notificaciones_aprendiz` 
-  FOREIGN KEY (`usuario_id`) REFERENCES `aprendices` (`id`) 
+
+  CONSTRAINT `fk_notificaciones_aprendiz`
+  FOREIGN KEY (`usuario_id`) REFERENCES `aprendices` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 COMMENT='Notificaciones del sistema para aprendices';
 
 -- =====================================================

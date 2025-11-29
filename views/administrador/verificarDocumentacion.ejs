@@ -385,189 +385,6 @@ function formatearFechaLocal(fecha) {
     }
 </style>
 
-<%- contentFor('scripts') %>
-<script src="/js/utilidades/sessionTimeout.js"></script>
-<script>
-let modalRetroalimentacion;
-let modalRetroalimentacionAprobacion;
-
-document.addEventListener('DOMContentLoaded', function() {
-    const modalEl = document.getElementById('modalRetroalimentacion');
-    if (modalEl) {
-        modalRetroalimentacion = new bootstrap.Modal(modalEl);
-    }
-    
-    const modalAprobacionEl = document.getElementById('modalRetroalimentacionAprobacion');
-    if (modalAprobacionEl) {
-        modalRetroalimentacionAprobacion = new bootstrap.Modal(modalAprobacionEl);
-    }
-});
-
-function aprobarDocumento(idDocumento) {
-    Swal.fire({
-        title: '¿Aprobar documento?',
-        text: "Puedes aprobar directamente o agregar una retroalimentación",
-        icon: 'question',
-        showCancelButton: true,
-        showDenyButton: true,
-        confirmButtonColor: '#28a745',
-        denyButtonColor: '#17a2b8',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Aprobar sin comentario',
-        denyButtonText: 'Aprobar con comentario',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Aprobar sin retroalimentación
-            enviarAprobacion(idDocumento, null, false);
-        } else if (result.isDenied) {
-            // Mostrar modal para agregar retroalimentación
-            mostrarModalAprobacion(idDocumento);
-        }
-    });
-}
-
-function mostrarModalAprobacion(idDocumento) {
-    document.getElementById('documentoIdAprobacion').value = idDocumento;
-    document.getElementById('retroalimentacionAprobacion').value = '';
-    modalRetroalimentacionAprobacion.show();
-}
-
-function aprobarConRetroalimentacion() {
-    const idDocumento = document.getElementById('documentoIdAprobacion').value;
-    const retroalimentacion = document.getElementById('retroalimentacionAprobacion').value;
-    const enviarEmail = document.getElementById('enviarEmailAprobacion').checked;
-    const archivoInput = document.getElementById('archivoAdjunto');
-    const archivo = archivoInput.files[0];
-
-    if (!retroalimentacion.trim() && !archivo) {
-        Swal.fire('Atención', 'Debes proporcionar una retroalimentación o adjuntar un archivo', 'warning');
-        return;
-    }
-
-    // Validar archivo si existe
-    if (archivo) {
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                             'image/jpeg', 'image/png', 'image/jpg', 'application/zip'];
-
-        if (archivo.size > maxSize) {
-            Swal.fire('Archivo demasiado grande', 'El archivo no puede superar los 10MB', 'error');
-            return;
-        }
-
-        if (!allowedTypes.includes(archivo.type)) {
-            Swal.fire('Tipo de archivo no permitido', 'Solo se permiten PDF, DOC, DOCX, imágenes y archivos ZIP', 'error');
-            return;
-        }
-    }
-
-    modalRetroalimentacionAprobacion.hide();
-
-    // Crear FormData para enviar archivo
-    const formData = new FormData();
-    formData.append('retroalimentacion', retroalimentacion);
-    formData.append('enviarEmail', enviarEmail);
-    if (archivo) {
-        formData.append('archivoAdjunto', archivo);
-    }
-
-    enviarAprobacionConArchivo(idDocumento, formData);
-}
-
-function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
-    const body = {};
-    if (retroalimentacion) {
-        body.retroalimentacion = retroalimentacion;
-        body.enviarEmail = enviarEmail;
-    }
-
-    fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
-                .then(() => location.reload());
-        } else {
-            Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
-    });
-}
-
-function enviarAprobacionConArchivo(idDocumento, formData) {
-    fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
-                .then(() => location.reload());
-        } else {
-            Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
-    });
-}
-
-function mostrarModalRetroalimentacion(idDocumento, tipoDocumento) {
-    document.getElementById('documentoId').value = idDocumento;
-    document.getElementById('retroalimentacion').value = '';
-    document.getElementById('tipoDocumentoTexto').textContent = tipoDocumento || 'este documento';
-    modalRetroalimentacion.show();
-}
-
-function rechazarDocumento() {
-    const idDocumento = document.getElementById('documentoId').value;
-    const retroalimentacion = document.getElementById('retroalimentacion').value;
-    const enviarEmail = document.getElementById('enviarEmail').checked;
-
-    if (!retroalimentacion.trim()) {
-        Swal.fire('Atención', 'Debes proporcionar una retroalimentación', 'warning');
-        return;
-    }
-
-    fetch(`/administrador/documentos/${idDocumento}/rechazar`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            retroalimentacion: retroalimentacion,
-            enviarEmail: enviarEmail
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            modalRetroalimentacion.hide();
-            Swal.fire('¡Rechazado!', 'El aprendiz ha sido notificado', 'success')
-                .then(() => location.reload());
-        } else {
-            Swal.fire('Error', data.message || 'No se pudo rechazar el documento', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'Ocurrió un error al rechazar el documento', 'error');
-    });
-}
-</script>
-
 <%- contentFor('body') %>
 
 <div class="container-fluid mt-4">
@@ -764,8 +581,8 @@ function rechazarDocumento() {
                                class="form-control"
                                id="archivoAdjunto"
                                name="archivoAdjunto"
-                               accept=".pdf,.doc,.docx,.jpg,.png,.zip">
-                        <small class="text-muted">Puedes adjuntar un documento adicional, guía o recurso para el aprendiz (máx. 10MB).</small>
+                               accept=".pdf,.doc,.docx,.xlsx,.jpg,.jpeg,.png,.zip">
+                        <small class="text-muted">Puedes adjuntar un documento adicional (PDF, DOC, DOCX, XLSX), guía o recurso para el aprendiz (máx. 10MB).</small>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" 
@@ -786,3 +603,187 @@ function rechazarDocumento() {
         </div>
     </div>
 </div>
+
+<%- contentFor('scripts') %>
+<script src="/js/utilidades/sessionTimeout.js"></script>
+<script>
+    let modalRetroalimentacion;
+    let modalRetroalimentacionAprobacion;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalEl = document.getElementById('modalRetroalimentacion');
+        if (modalEl) {
+            modalRetroalimentacion = new bootstrap.Modal(modalEl);
+        }
+        
+        const modalAprobacionEl = document.getElementById('modalRetroalimentacionAprobacion');
+        if (modalAprobacionEl) {
+            modalRetroalimentacionAprobacion = new bootstrap.Modal(modalAprobacionEl);
+        }
+    });
+
+    function aprobarDocumento(idDocumento) {
+        Swal.fire({
+            title: '¿Aprobar documento?',
+            text: "Puedes aprobar directamente o agregar una retroalimentación",
+            icon: 'question',
+            showCancelButton: true,
+            showDenyButton: true,
+            confirmButtonColor: '#28a745',
+            denyButtonColor: '#17a2b8',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Aprobar sin comentario',
+            denyButtonText: 'Aprobar con comentario',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Aprobar sin retroalimentación
+                enviarAprobacion(idDocumento, null, false);
+            } else if (result.isDenied) {
+                // Mostrar modal para agregar retroalimentación
+                mostrarModalAprobacion(idDocumento);
+            }
+        });
+    }
+
+    function mostrarModalAprobacion(idDocumento) {
+        document.getElementById('documentoIdAprobacion').value = idDocumento;
+        document.getElementById('retroalimentacionAprobacion').value = '';
+        modalRetroalimentacionAprobacion.show();
+    }
+
+    function aprobarConRetroalimentacion() {
+        const idDocumento = document.getElementById('documentoIdAprobacion').value;
+        const retroalimentacion = document.getElementById('retroalimentacionAprobacion').value;
+        const enviarEmail = document.getElementById('enviarEmailAprobacion').checked;
+        const archivoInput = document.getElementById('archivoAdjunto');
+        const archivo = archivoInput.files[0];
+
+        if (!retroalimentacion.trim() && !archivo) {
+            Swal.fire('Atención', 'Debes proporcionar una retroalimentación o adjuntar un archivo', 'warning');
+            return;
+        }
+
+        // Validar archivo si existe
+        if (archivo) {
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'image/jpeg', 'image/png', 'image/jpg', 'application/zip'];
+
+            if (archivo.size > maxSize) {
+                Swal.fire('Archivo demasiado grande', 'El archivo no puede superar los 10MB', 'error');
+                return;
+            }
+
+            if (!allowedTypes.includes(archivo.type)) {
+                Swal.fire('Tipo de archivo no permitido', 'Solo se permiten PDF, DOC, DOCX, XLSX, imágenes y archivos ZIP', 'error');
+                return;
+            }
+        }
+
+        modalRetroalimentacionAprobacion.hide();
+
+        // Crear FormData para enviar archivo
+        const formData = new FormData();
+        formData.append('retroalimentacion', retroalimentacion);
+        formData.append('enviarEmail', enviarEmail);
+        if (archivo) {
+            formData.append('archivoAdjunto', archivo);
+        }
+
+        enviarAprobacionConArchivo(idDocumento, formData);
+    }
+
+    function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
+        const body = {};
+        if (retroalimentacion) {
+            body.retroalimentacion = retroalimentacion;
+            body.enviarEmail = enviarEmail;
+        }
+
+        fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
+                    .then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
+        });
+    }
+
+    function enviarAprobacionConArchivo(idDocumento, formData) {
+        fetch(`/administrador/documentos/${idDocumento}/aprobar`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('¡Aprobado!', 'El documento ha sido aprobado', 'success')
+                    .then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo aprobar el documento', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Ocurrió un error al aprobar el documento', 'error');
+        });
+    }
+
+    function mostrarModalRetroalimentacion(idDocumento, tipoDocumento) {
+        document.getElementById('documentoId').value = idDocumento;
+        document.getElementById('retroalimentacion').value = '';
+        document.getElementById('tipoDocumentoTexto').textContent = tipoDocumento || 'este documento';
+        modalRetroalimentacion.show();
+    }
+
+    function rechazarDocumento() {
+        const idDocumento = document.getElementById('documentoId').value;
+        const retroalimentacion = document.getElementById('retroalimentacion').value;
+        const enviarEmail = document.getElementById('enviarEmail').checked;
+
+        if (!retroalimentacion.trim()) {
+            Swal.fire('Atención', 'Debes proporcionar una retroalimentación', 'warning');
+            return;
+        }
+
+        fetch(`/administrador/documentos/${idDocumento}/rechazar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                retroalimentacion: retroalimentacion,
+                enviarEmail: enviarEmail
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modalRetroalimentacion.hide();
+                Swal.fire('¡Rechazado!', 'El aprendiz ha sido notificado', 'success')
+                    .then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo rechazar el documento', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Ocurrió un error al rechazar el documento', 'error');
+        });
+    }
+</script>

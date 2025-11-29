@@ -134,6 +134,19 @@
 
 
     /* Estilos para cards de notificaciones */
+
+    .btn-outline-danger-eliminar {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
+    .btn-outline-danger-eliminar:hover {
+        background-color: #ad2b38;
+        border-color: #ad2b38;
+        color: white;
+    }
+
     .btn-primary-check {
         background-color: #0d6efd;
         border-color: #0d6efd;
@@ -911,7 +924,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-danger" onclick="eliminarTodasLeidas()">
+        <button type="button" class="btn btn-outline-danger-eliminar" onclick="eliminarTodasLeidas()">
           <i class="fas fa-trash me-2"></i>Eliminar leídas
         </button>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

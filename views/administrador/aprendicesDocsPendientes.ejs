@@ -1263,9 +1263,10 @@
                                 margin-bottom: 12px;
                                 margin-top: 12px;
                             }
-                            .header h1 { 
-                                margin: 0 0 10px 0; 
-                                font-size: 18px; 
+                            .header h1 {
+                                margin: 0 0 10px 0;
+                                font-size: 18px;
+                                color: white !important;
                             }
                             .header p { 
                                 margin: 0; 
@@ -1433,22 +1434,22 @@
 
                 // Configuración simplificada para html2pdf
                 const nombreArchivo = `Documentos_${nombreCompleto.replace(/[^a-zA-Z0-9\s]/g, '')}_${aprendizInfo.numeroDocumento}.pdf`;
-                
+
                 const opt = {
-                    margin: [0, 10, 0, 10], // [top, right, bottom, left] en mm - Solo márgenes laterales
+                    margin: [10, 15, 15, 15], // [top, right, bottom, left] en mm - Márgenes más amplios para evitar cortes
                     filename: nombreArchivo,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
+                    html2canvas: {
                         scale: 2,
                         useCORS: true,
                         allowTaint: true,
                         scrollX: 0,
                         scrollY: 0
                     },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
-                        orientation: 'portrait',
+                    jsPDF: {
+                        unit: 'mm',
+                        format: 'a4',
+                        orientation: 'landscape', // Cambiar a landscape para mejor distribución
                         compress: true
                     }
                 };

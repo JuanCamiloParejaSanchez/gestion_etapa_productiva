@@ -458,7 +458,11 @@ const validarArchivo = (req, res, next) => {
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'application/zip'
     ];
 
     const maxSize = 10 * 1024 * 1024; // 10MB
@@ -474,7 +478,7 @@ const validarArchivo = (req, res, next) => {
         });
 
         return res.status(400).json({
-            error: 'Tipo de archivo no permitido. Solo se permiten PDF, DOC, DOCX, XLS y XLSX.'
+            error: 'Tipo de archivo no permitido. Solo se permiten PDF, DOC, DOCX, XLS, XLSX, imágenes y ZIP.'
         });
     }
 

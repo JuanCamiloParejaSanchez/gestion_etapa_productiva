@@ -37,11 +37,12 @@ const storageAdjuntos = multer.diskStorage({
 // Filtro para validar tipos de archivo
 const fileFilterAdjuntos = (req, file, cb) => {
     const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                          'image/jpeg', 'image/png', 'image/jpg', 'application/zip'];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Tipo de archivo no permitido. Solo se permiten PDF, DOC, DOCX, imágenes y ZIP.'), false);
+        cb(new Error('Tipo de archivo no permitido. Solo se permiten PDF, DOC, DOCX, XLSX, imágenes y ZIP.'), false);
     }
 };
 

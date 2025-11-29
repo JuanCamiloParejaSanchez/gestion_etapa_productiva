@@ -1151,30 +1151,15 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento con o sin retroalimentación
-            let query;
-            let params;
-
-            if (retroalimentacion && retroalimentacion.trim()) {
-                query = `
-                    UPDATE documentos_aprendiz
-                    SET estado = 'aprobado',
-                        retroalimentacion = ?,
-                        fecha_revision = NOW(),
-                        revisado_por = ?
-                    WHERE id = ?
-                `;
-                params = [retroalimentacion, adminId, documentoId];
-            } else {
-                query = `
-                    UPDATE documentos_aprendiz
-                    SET estado = 'aprobado',
-                        fecha_revision = NOW(),
-                        revisado_por = ?
-                    WHERE id = ?
-                `;
-                params = [adminId, documentoId];
-            }
+            // Actualizar el documento (sin retroalimentacion, esa va en la notificación)
+            const query = `
+                UPDATE documentos_aprendiz
+                SET estado = 'aprobado',
+                    fecha_revision = NOW(),
+                    revisado_por = ?
+                WHERE id = ?
+            `;
+            const params = [adminId, documentoId];
 
             await pool.query(query, params);
 
@@ -1202,7 +1187,7 @@ const gestionAprendicesControlador = {
             });
 
             // Enviar email si está habilitado
-            if (enviarEmail) {
+            if (enviarEmail === 'true' || enviarEmail === true) {
                 try {
                     const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
                     const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoAprobado({
@@ -1278,17 +1263,16 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento
+            // Actualizar el documento (sin retroalimentacion, esa va en la notificación)
             const query = `
                 UPDATE documentos_aprendiz
                 SET estado = 'rechazado',
-                    retroalimentacion = ?,
                     fecha_revision = NOW(),
                     revisado_por = ?
                 WHERE id = ?
             `;
 
-            await pool.query(query, [retroalimentacion, adminId, documentoId]);
+            await pool.query(query, [adminId, documentoId]);
 
             // Crear notificación SIEMPRE que se rechace un documento
             // Esto asegura que el aprendiz reciba notificación incluso si es un re-rechazo
@@ -1309,7 +1293,7 @@ const gestionAprendicesControlador = {
             });
 
             // Enviar email si está habilitado
-            if (enviarEmail) {
+            if (enviarEmail === 'true' || enviarEmail === true) {
                 try {
                     const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
                     const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoRechazado({
