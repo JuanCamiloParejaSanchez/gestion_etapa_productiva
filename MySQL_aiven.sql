@@ -1,12 +1,6 @@
 -- =====================================================
 -- SCRIPT SQL OPTIMIZADO - SENA ETAPA PRODUCTIVA
--- Versión: 2.1 - Actualizado con columnas de revisión y notificaciones
---
--- CAMBIOS EN VERSIÓN 2.1:
--- - Agregadas columnas fecha_revision y revisado_por a tabla documentos_aprendiz
--- - Agregados índices idx_fecha_revision e idx_revisado_por
--- - Agregada clave foránea fk_documentos_revisado_por
--- - Agregadas columnas retroalimentacion y archivo_adjunto a tabla notificaciones
+-- Versión: 2.1
 -- =====================================================
 
 -- Configuración inicial
@@ -614,7 +608,7 @@ BEGIN
         LEFT JOIN documentos_aprendiz da ON a.id = da.aprendiz_id AND da.activo = 1
         WHERE a.estadoFormacion = 'activo'
         AND a.fechaInicioProductiva IS NOT NULL
-        AND (p_mes IS NULL OR p_anio IS NULL OR (YEAR(a.fechaInicioProductiva) = p_anio AND MONTH(a.fechaInicioProductiva) = p_mes))
+        AND (p_mes IS NULL OR p_anio IS NULL OR (a.fechaInicioProductiva <= LAST_DAY(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01')) AND (a.fechaFinProductiva IS NULL OR a.fechaFinProductiva >= CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'))))
         GROUP BY a.id, a.fechaInicioProductiva
     ) cumplimiento
     GROUP BY estado_documentos
@@ -662,7 +656,7 @@ BEGIN
         LEFT JOIN bitacoras b ON a.id = b.aprendizId AND b.estado = 'enviada'
         WHERE a.estadoFormacion = 'activo'
         AND a.fechaInicioProductiva IS NOT NULL
-        AND (p_mes IS NULL OR p_anio IS NULL OR (YEAR(a.fechaInicioProductiva) = p_anio AND MONTH(a.fechaInicioProductiva) = p_mes))
+        AND (p_mes IS NULL OR p_anio IS NULL OR (a.fechaInicioProductiva <= LAST_DAY(CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01')) AND (a.fechaFinProductiva IS NULL OR a.fechaFinProductiva >= CONCAT(p_anio, '-', LPAD(p_mes, 2, '0'), '-01'))))
         GROUP BY a.id, a.fechaInicioProductiva
     ) cumplimiento
     GROUP BY estado_seguimiento
@@ -917,3 +911,4 @@ ORDER BY fecha_creacion ASC
 
 DELETE FROM mensajes;
 TRUNCATE TABLE mensajes;
+

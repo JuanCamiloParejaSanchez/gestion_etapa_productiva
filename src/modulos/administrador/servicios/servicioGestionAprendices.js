@@ -342,11 +342,15 @@ class ServicioGestionAprendices {
 
             const cached = await Cache.getOrSet(cacheKey, async () => {
                 // Construir condición de fecha si se especifica mes/año
+                // Filtrar aprendices que estaban activos durante el mes seleccionado
                 let fechaCondition = '';
                 const fechaParams = [];
                 if (filtros.mes && filtros.anio) {
-                    fechaCondition = 'WHERE YEAR(fechaInicioProductiva) = ? AND MONTH(fechaInicioProductiva) = ?';
-                    fechaParams.push(filtros.anio, filtros.mes);
+                    const fechaInicioMes = `${filtros.anio}-${filtros.mes.toString().padStart(2, '0')}-01`;
+                    const fechaFinMes = new Date(filtros.anio, filtros.mes, 0);
+                    const fechaFinMesStr = fechaFinMes.toISOString().split('T')[0];
+                    fechaCondition = 'WHERE fechaInicioProductiva <= ? AND (fechaFinProductiva IS NULL OR fechaFinProductiva >= ?)';
+                    fechaParams.push(fechaFinMesStr, fechaInicioMes);
                 }
 
                 // Consulta programas de formación
@@ -461,8 +465,31 @@ class ServicioGestionAprendices {
                 data: estadosResult.length > 0 ? estadosResult.map(row => row.cantidad) : [0]
             };
 
+            // Función auxiliar para normalizar alternativaSeleccionada
+            const normalizarAlternativa = (valor) => {
+                if (!valor) return NOMBRES_ALTERNATIVAS.default;
+
+                // Intentar búsqueda directa primero
+                let nombreAlternativa = NOMBRES_ALTERNATIVAS[valor];
+
+                // Si no encuentra, intentar búsqueda sin distinción de mayúsculas
+                if (!nombreAlternativa) {
+                    const valorOriginal = valor.toUpperCase();
+                    nombreAlternativa = NOMBRES_ALTERNATIVAS[valorOriginal];
+                }
+
+                // Si aún no encuentra, intentar sin espacios ni guiones
+                if (!nombreAlternativa) {
+                    const valorLimpio = valor.replace(/[\s-_]/g, '').toUpperCase();
+                    nombreAlternativa = NOMBRES_ALTERNATIVAS[valorLimpio];
+                }
+
+                // Usar el nombre encontrado o el valor original en mayúsculas
+                return nombreAlternativa || valor.toUpperCase();
+            };
+
             const datosAlternativas = {
-                labels: alternativasResult.length > 0 ? alternativasResult.map(row => NOMBRES_ALTERNATIVAS[row.alternativaSeleccionada] || NOMBRES_ALTERNATIVAS.default) : ['No hay datos'],
+                labels: alternativasResult.length > 0 ? alternativasResult.map(row => normalizarAlternativa(row.alternativaSeleccionada)) : ['No hay datos'],
                 data: alternativasResult.length > 0 ? alternativasResult.map(row => row.cantidad) : [0]
             };
 
