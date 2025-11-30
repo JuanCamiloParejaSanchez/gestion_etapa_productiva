@@ -896,7 +896,7 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 -- ===============================================================================================
 
-use `defaultdb`;
+
 select * from aprendices;
 delete from aprendices where id='239'
 

@@ -233,7 +233,7 @@ const servicioCorreo = {
                         ${hayInstructor ? `
                             <div style="background-color: #e8f5e8; border: 1px solid #4caf50; border-radius: 5px; padding: 15px; margin: 20px 0;">
                                 <p style="margin: 0; color: #2e7d32; font-size: 14px;">
-                                    <strong>ℹ️ Información:</strong> Se ha enviado una copia de este correo a tu instructor(a) responsable de etapa productiva para que pueda apoyarte en la resolución de estas alertas.
+                                    <strong>ℹ️ Información:</strong> Se ha enviado una copia de este correo a tu instructor(a) responsable de tu etapa productiva para que pueda apoyarte en la resolución de estas alertas.
                                 </p>
                             </div>
                         ` : ''}
