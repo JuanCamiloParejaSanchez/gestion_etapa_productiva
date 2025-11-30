@@ -315,11 +315,23 @@ const gestionAprendicesControlador = {
                 });
             }
             
-            // Obtener documentos del aprendiz
-            const [documentosResult] = await pool.query(
-                'SELECT * FROM documentos_aprendiz WHERE aprendiz_id = ? ORDER BY fecha_subida DESC',
-                [id]
-            );
+            // Obtener documentos del aprendiz con su retroalimentación más reciente
+            const [documentosResult] = await pool.query(`
+                SELECT
+                    d.*,
+                    n.retroalimentacion
+                FROM documentos_aprendiz d
+                LEFT JOIN (
+                    SELECT
+                        referencia_id,
+                        retroalimentacion,
+                        ROW_NUMBER() OVER (PARTITION BY referencia_id ORDER BY fecha_creacion DESC) as rn
+                    FROM notificaciones
+                    WHERE referencia_tipo = 'documento' AND retroalimentacion IS NOT NULL AND retroalimentacion != ''
+                ) n ON d.id = n.referencia_id AND n.rn = 1
+                WHERE d.aprendiz_id = ?
+                ORDER BY d.fecha_subida DESC
+            `, [id]);
             
             // Normalizar datos del aprendiz para mostrar uniformemente
             const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
