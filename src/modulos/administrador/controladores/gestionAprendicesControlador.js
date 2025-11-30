@@ -49,11 +49,20 @@ const gestionAprendicesControlador = {
 
     async mostrarPaginaReportes(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -64,7 +73,8 @@ const gestionAprendicesControlador = {
                 alternativas: datosReportes.datosAlternativas.labels.length,
                 documentos: datosReportes.datosDocumentos.labels.length,
                 seguimiento: datosReportes.datosSeguimiento.labels.length,
-                departamentos: datosReportes.datosDepartamentos.labels.length
+                departamentos: datosReportes.datosDepartamentos.labels.length,
+                filtrosAplicados: filtros
             });
 
             res.render('administrador/reportes', {
@@ -79,7 +89,10 @@ const gestionAprendicesControlador = {
                 datosDepartamentos: JSON.stringify(datosReportes.datosDepartamentos),
                 estadisticasGenerales: datosReportes.estadisticasGenerales,
                 mes: filtros.mes,
-                anio: filtros.anio
+                anio: filtros.anio,
+                programa: filtros.programa,
+                estado: filtros.estado,
+                alternativa: filtros.alternativa
             });
 
         } catch (error) {
@@ -701,11 +714,20 @@ const gestionAprendicesControlador = {
 
     async exportarProgramasExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -753,11 +775,20 @@ const gestionAprendicesControlador = {
 
     async exportarEstadosExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -804,11 +835,20 @@ const gestionAprendicesControlador = {
 
     async exportarAlternativasExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -855,11 +895,20 @@ const gestionAprendicesControlador = {
 
     async exportarDocumentosExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -906,11 +955,20 @@ const gestionAprendicesControlador = {
 
     async exportarSeguimientoExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);
@@ -957,11 +1015,20 @@ const gestionAprendicesControlador = {
 
     async exportarReporteCompletoExcel(req, res) {
         try {
-            // Obtener filtros de fecha desde query parameters
+            // Obtener filtros desde query parameters
             const filtros = {};
             if (req.query.mes && req.query.anio) {
                 filtros.mes = parseInt(req.query.mes);
                 filtros.anio = parseInt(req.query.anio);
+            }
+            if (req.query.programa) {
+                filtros.programa = req.query.programa;
+            }
+            if (req.query.estado) {
+                filtros.estado = req.query.estado;
+            }
+            if (req.query.alternativa) {
+                filtros.alternativa = req.query.alternativa;
             }
 
             const datosReportes = await servicioGestionAprendices.obtenerDatosReportes(filtros);

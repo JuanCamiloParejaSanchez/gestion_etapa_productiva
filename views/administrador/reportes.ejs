@@ -128,7 +128,7 @@
                         <div class="flex-grow-1">
                             <label for="mesAnio" class="form-label">Seleccionar Mes y Año (Fecha Inicio Productiva)</label>
                             <input type="month" class="form-control" id="mesAnio" name="mesAnio"
-                                   value="<%= (typeof mes !== 'undefined' && typeof anio !== 'undefined') ? `${anio}-${mes.toString().padStart(2, '0')}` : '' %>">
+                                    value="<%= (typeof mes !== 'undefined' && typeof anio !== 'undefined') ? `${anio}-${mes.toString().padStart(2, '0')}` : '' %>">
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-filter me-2"></i>Filtrar
@@ -156,6 +156,57 @@
                             <strong>Mostrando datos generales</strong> (todos los períodos)
                         </div>
                     <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Adicionales -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Filtros Adicionales</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filtrosAdicionalesForm" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="programa" class="form-label">Programa de Formación</label>
+                            <select class="form-select" id="programa" name="programa">
+                                <option value="">Todos los programas</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="estado" class="form-label">Estado de Aprendiz</label>
+                            <select class="form-select" id="estado" name="estado">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="aplazado">Aplazado</option>
+                                <option value="retirado">Retirado</option>
+                                <option value="certificado">Certificado</option>
+                                <option value="por certificar">Por Certificar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="alternativa" class="form-label">Alternativa de Etapa Productiva</label>
+                            <select class="form-select" id="alternativa" name="alternativa">
+                                <option value="">Todas las alternativas</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="limpiarFiltrosAdicionales">
+                                    <i class="fas fa-times me-2"></i>Limpiar Filtros Adicionales
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -596,12 +647,25 @@
 
         // Obtener parámetros de filtro de la URL actual
         const urlParams = new URLSearchParams(window.location.search);
+        const params = [];
+
+        // Agregar todos los parámetros de filtro
         const mes = urlParams.get('mes');
         const anio = urlParams.get('anio');
+        const programa = urlParams.get('programa');
+        const estado = urlParams.get('estado');
+        const alternativa = urlParams.get('alternativa');
 
-        // Agregar parámetros de filtro a la URL si existen
         if (mes && anio) {
-            url += `?mes=${mes}&anio=${anio}`;
+            params.push(`mes=${mes}&anio=${anio}`);
+        }
+        if (programa) params.push(`programa=${encodeURIComponent(programa)}`);
+        if (estado) params.push(`estado=${encodeURIComponent(estado)}`);
+        if (alternativa) params.push(`alternativa=${encodeURIComponent(alternativa)}`);
+
+        // Construir URL con todos los parámetros
+        if (params.length > 0) {
+            url += '?' + params.join('&');
         }
 
         console.log('Exportando Excel:', tipo, 'URL:', url);
@@ -762,11 +826,97 @@
         window.location.href = '/administrador/reportes';
     });
 
-    // Establecer el valor del input si hay filtros aplicados
-    <% if (typeof mes !== 'undefined' && typeof anio !== 'undefined') { %>
+    // --- FUNCIONALIDAD DE FILTROS ADICIONALES ---
+
+    // Cargar opciones de filtros dinámicamente
+    async function cargarOpcionesFiltros() {
+        try {
+            const response = await fetch('/api/opciones-filtros');
+            const data = await response.json();
+
+            if (data.success) {
+                // Cargar programas
+                const programaSelect = document.getElementById('programa');
+                data.data.programas.forEach(programa => {
+                    const option = document.createElement('option');
+                    option.value = programa.value;
+                    option.textContent = programa.label;
+                    programaSelect.appendChild(option);
+                });
+
+                // Cargar alternativas
+                const alternativaSelect = document.getElementById('alternativa');
+                data.data.alternativas.forEach(alternativa => {
+                    const option = document.createElement('option');
+                    option.value = alternativa.value;
+                    option.textContent = alternativa.label;
+                    alternativaSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar opciones de filtros:', error);
+        }
+    }
+
+    // Manejar el envío del formulario de filtros adicionales
+    document.getElementById('filtrosAdicionalesForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const programa = document.getElementById('programa').value;
+        const estado = document.getElementById('estado').value;
+        const alternativa = document.getElementById('alternativa').value;
+
+        // Obtener parámetros de fecha actuales
+        const urlParams = new URLSearchParams(window.location.search);
+        const mes = urlParams.get('mes');
+        const anio = urlParams.get('anio');
+
+        // Construir nueva URL con todos los filtros
+        const params = [];
+        if (mes && anio) {
+            params.push(`mes=${mes}&anio=${anio}`);
+        }
+        if (programa) params.push(`programa=${encodeURIComponent(programa)}`);
+        if (estado) params.push(`estado=${encodeURIComponent(estado)}`);
+        if (alternativa) params.push(`alternativa=${encodeURIComponent(alternativa)}`);
+
+        const newUrl = params.length > 0 ? `/administrador/reportes?${params.join('&')}` : '/administrador/reportes';
+        window.location.href = newUrl;
+    });
+
+    // Manejar el botón de limpiar filtros adicionales
+    document.getElementById('limpiarFiltrosAdicionales').addEventListener('click', function() {
+        // Limpiar solo los filtros adicionales, mantener fecha
+        const urlParams = new URLSearchParams(window.location.search);
+        const mes = urlParams.get('mes');
+        const anio = urlParams.get('anio');
+
+        const newUrl = (mes && anio) ? `/administrador/reportes?mes=${mes}&anio=${anio}` : '/administrador/reportes';
+        window.location.href = newUrl;
+    });
+
+    // Establecer los valores de los filtros cuando se carga la página
+    function establecerValoresFiltros() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const programa = urlParams.get('programa');
+        const estado = urlParams.get('estado');
+        const alternativa = urlParams.get('alternativa');
+
+        if (programa) document.getElementById('programa').value = programa;
+        if (estado) document.getElementById('estado').value = estado;
+        if (alternativa) document.getElementById('alternativa').value = alternativa;
+    }
+
+    // Inicializar filtros cuando se carga la página
     document.addEventListener('DOMContentLoaded', function() {
+        cargarOpcionesFiltros();
+        establecerValoresFiltros();
+
+        // Establecer el valor del input de fecha si hay filtros aplicados
+        <% if (typeof mes !== 'undefined' && typeof anio !== 'undefined') { %>
         const mesAnioInput = document.getElementById('mesAnio');
         mesAnioInput.value = '<%= anio %>-<%= mes.toString().padStart(2, '0') %>';
+        <% } %>
     });
-    <% } %>
 </script>

@@ -329,38 +329,67 @@ class ServicioGestionAprendices {
 
     /**
      * Obtiene datos para reportes con métricas adicionales
-     * @param {Object} filtros - Filtros opcionales (mes, anio)
+     * @param {Object} filtros - Filtros opcionales (mes, anio, programa, estado, alternativa)
      * @returns {Promise<Object>} - Datos para gráficos y KPIs
      */
     async obtenerDatosReportes(filtros = {}) {
         try {
-            // Crear clave de cache que incluya filtros de fecha
-            const cacheKey = filtros.mes && filtros.anio
-                ? `reportes_aprendices_${filtros.anio}_${filtros.mes}`
-                : 'reportes_aprendices_completos';
+            // Crear clave de cache que incluya todos los filtros
+            let cacheKey = 'reportes_aprendices';
+            if (filtros.mes && filtros.anio) {
+                cacheKey += `_${filtros.anio}_${filtros.mes}`;
+            } else {
+                cacheKey += '_completos';
+            }
+            if (filtros.programa) cacheKey += `_prog_${filtros.programa}`;
+            if (filtros.estado) cacheKey += `_est_${filtros.estado}`;
+            if (filtros.alternativa) cacheKey += `_alt_${filtros.alternativa}`;
+
             const cacheTTL = 1800; // 30 minutos
 
             const cached = await Cache.getOrSet(cacheKey, async () => {
-                // Construir condición de fecha si se especifica mes/año
-                // Filtrar aprendices que estaban activos durante el mes seleccionado
-                let fechaCondition = '';
-                const fechaParams = [];
+                // Construir condición WHERE dinámica
+                let whereConditions = [];
+                const queryParams = [];
+
+                // Condición de fecha si se especifica mes/año
                 if (filtros.mes && filtros.anio) {
                     const fechaInicioMes = `${filtros.anio}-${filtros.mes.toString().padStart(2, '0')}-01`;
                     const fechaFinMes = new Date(filtros.anio, filtros.mes, 0);
                     const fechaFinMesStr = fechaFinMes.toISOString().split('T')[0];
-                    fechaCondition = 'WHERE fechaInicioProductiva <= ? AND (fechaFinProductiva IS NULL OR fechaFinProductiva >= ?)';
-                    fechaParams.push(fechaFinMesStr, fechaInicioMes);
+                    whereConditions.push('fechaInicioProductiva <= ? AND (fechaFinProductiva IS NULL OR fechaFinProductiva >= ?)');
+                    queryParams.push(fechaFinMesStr, fechaInicioMes);
                 }
+
+                // Condición de programa
+                if (filtros.programa) {
+                    whereConditions.push('programaFormacion = ?');
+                    queryParams.push(filtros.programa);
+                }
+
+                // Condición de estado
+                if (filtros.estado) {
+                    whereConditions.push('LOWER(estadoFormacion) = LOWER(?)');
+                    queryParams.push(filtros.estado);
+                }
+
+                // Condición de alternativa
+                if (filtros.alternativa) {
+                    whereConditions.push('alternativaSeleccionada = ?');
+                    queryParams.push(filtros.alternativa);
+                }
+
+                const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
+                const fechaParams = [...queryParams]; // Copia para consultas que necesitan parámetros de fecha
 
                 // Consulta programas de formación
                 const [programasResult] = await pool.execute(`
                     SELECT programaFormacion, COUNT(*) as cantidad
                     FROM aprendices
-                    ${fechaCondition}
+                    ${whereClause}
                     GROUP BY programaFormacion
                     ORDER BY cantidad DESC
-                `, fechaParams);
+                `, queryParams);
 
                 // Consulta estados de formación
                 const [estadosResult] = await pool.execute(`
@@ -376,26 +405,29 @@ class ServicioGestionAprendices {
                         END as estado_normalizado,
                         COUNT(*) as cantidad
                     FROM aprendices
-                    ${fechaCondition}
+                    ${whereClause}
                     GROUP BY estado_normalizado
                     ORDER BY cantidad DESC
-                `, fechaParams);
+                `, queryParams);
 
                 // Consulta alternativas de etapa productiva
                 const [alternativasResult] = await pool.execute(`
                     SELECT alternativaSeleccionada, COUNT(*) as cantidad
                     FROM aprendices
                     WHERE alternativaSeleccionada IS NOT NULL AND alternativaSeleccionada != ''
-                    ${fechaCondition ? 'AND ' + fechaCondition.substring(6) : ''}
+                    ${whereClause ? 'AND ' + whereClause.substring(6) : ''}
                     GROUP BY alternativaSeleccionada
                     ORDER BY cantidad DESC
-                `, fechaParams);
+                `, queryParams);
 
                 // Consulta cumplimiento de documentos (usando procedimiento almacenado con filtros de fecha)
+                // NOTA: Los procedimientos almacenados actuales solo filtran por fecha.
+                // Para filtros adicionales, necesitaríamos modificar los procedimientos o filtrar en JS.
+                // Por ahora, obtenemos todos los datos y filtramos en memoria si es necesario.
                 const [documentosResult] = await pool.execute(`CALL sp_cumplimiento_documentos(?, ?)`, [filtros.mes || null, filtros.anio || null]);
                 // Los procedimientos almacenados devuelven un array de result sets
                 // El primer elemento [0] contiene las filas del resultado
-                const documentosRows = Array.isArray(documentosResult) && documentosResult.length > 0 ? documentosResult[0] : [];
+                let documentosRows = Array.isArray(documentosResult) && documentosResult.length > 0 ? documentosResult[0] : [];
 
                 logger.debug('Datos de documentos obtenidos del procedimiento almacenado', {
                     documentosResultType: typeof documentosResult,
@@ -408,7 +440,7 @@ class ServicioGestionAprendices {
                 const [seguimientoResult] = await pool.execute(`CALL sp_cumplimiento_seguimiento(?, ?)`, [filtros.mes || null, filtros.anio || null]);
                 // Los procedimientos almacenados devuelven un array de result sets
                 // El primer elemento [0] contiene las filas del resultado
-                const seguimientoRows = Array.isArray(seguimientoResult) && seguimientoResult.length > 0 ? seguimientoResult[0] : [];
+                let seguimientoRows = Array.isArray(seguimientoResult) && seguimientoResult.length > 0 ? seguimientoResult[0] : [];
 
                 logger.debug('Datos de seguimiento obtenidos del procedimiento almacenado', {
                     seguimientoResultType: typeof seguimientoResult,
@@ -422,11 +454,11 @@ class ServicioGestionAprendices {
                     SELECT departamento, COUNT(*) as cantidad
                     FROM aprendices
                     WHERE departamento IS NOT NULL AND departamento != ''
-                    ${fechaCondition ? 'AND ' + fechaCondition.substring(6) : ''}
+                    ${whereClause ? 'AND ' + whereClause.substring(6) : ''}
                     GROUP BY departamento
                     ORDER BY cantidad DESC
                     LIMIT 10
-                `, fechaParams);
+                `, queryParams);
 
                 // Estadísticas generales
                 const [estadisticasGenerales] = await pool.execute(`
@@ -439,8 +471,8 @@ class ServicioGestionAprendices {
                         COUNT(CASE WHEN LOWER(estadoFormacion) = 'certificado' THEN 1 END) as certificados,
                         COUNT(CASE WHEN LOWER(estadoFormacion) = 'por certificar' THEN 1 END) as por_certificar
                     FROM aprendices
-                    ${fechaCondition}
-                `, fechaParams);
+                    ${whereClause}
+                `, queryParams);
 
                 return {
                     programasResult,
