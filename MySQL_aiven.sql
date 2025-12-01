@@ -433,12 +433,7 @@ CREATE TABLE `mensajes` (
   KEY `idx_remitente` (`remitente_id`, `remitente_tipo`),
   KEY `idx_destinatario` (`destinatario_id`, `destinatario_tipo`),
   KEY `idx_leido` (`leido`),
-  KEY `idx_fecha_creacion` (`fecha_creacion`),
-
-  CONSTRAINT `fk_mensajes_remitente_aprendiz` FOREIGN KEY (`remitente_id`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_mensajes_remitente_admin` FOREIGN KEY (`remitente_id`) REFERENCES `administradores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_mensajes_destinatario_aprendiz` FOREIGN KEY (`destinatario_id`) REFERENCES `aprendices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_mensajes_destinatario_admin` FOREIGN KEY (`destinatario_id`) REFERENCES `administradores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `idx_fecha_creacion` (`fecha_creacion`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Mensajes del sistema de chat entre aprendices y administradores';
 
 
