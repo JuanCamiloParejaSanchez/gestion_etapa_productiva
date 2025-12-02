@@ -22,8 +22,9 @@ const opcionesFormularioServicio = require('../../../compartido/servicios/opcion
 const ServicioGestionAprendices = require('../../administrador/servicios/servicioGestionAprendices');
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
-// Importar configuración de Cloudinary
-const { getUrl, deleteFile: deleteCloudinaryFile } = require('../../../configuracion/cloudinaryConfig');
+// Importar configuración de Azure Blob Storage
+const { getUrl, deleteFile: deleteAzureFile, uploadFile, downloadFile } = require('../../../configuracion/azureBlobConfig');
+const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
 
 class ControladorDashboardAprendiz extends BaseController {
 
@@ -349,22 +350,25 @@ class ControladorDashboardAprendiz extends BaseController {
                 await servicioDocumentosAprendiz.eliminarDocumentoPorId(documentoExistente.id);
             }
             // Determinar la ruta del archivo basada en el entorno
-            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
             let rutaArchivo;
+            let nombreGuardado;
 
-            if (USE_CLOUDINARY) {
-                // En Cloudinary, la ruta es el public_id
-                rutaArchivo = file.filename; // multer-storage-cloudinary usa 'filename' para el public_id
+            if (USE_AZURE_BLOB) {
+                // Subir a Azure Blob Storage
+                const uploadResult = await uploadFile(file.buffer, nombreOriginalNormalizado, 'documentos');
+                rutaArchivo = uploadResult.blobName;
+                nombreGuardado = uploadResult.blobName.split('/').pop();
             } else {
                 // En desarrollo local, usar ruta relativa
                 rutaArchivo = `public/uploads/documentos/${file.filename}`.trim();
+                nombreGuardado = file.filename;
             }
 
             // Forzar la categoría a 'certificado' para evitar errores de ENUM
             const datosDocumento = {
                 aprendiz_id: aprendizId,
                 nombre_original: nombreOriginalNormalizado,
-                nombre_guardado: file.filename,
+                nombre_guardado: nombreGuardado,
                 ruta_archivo: rutaArchivo,
                 tipo_mime: file.mimetype,
                 tamano_bytes: file.size,
@@ -407,17 +411,13 @@ class ControladorDashboardAprendiz extends BaseController {
                 return res.status(404).send('La ruta del archivo para este documento no es válida o no existe.');
             }
 
-            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
-
-            // Detectar si es archivo de Cloudinary (public_id que comienza con 'documentos/')
+            // Detectar si es archivo de Azure Blob Storage (blobName que comienza con 'documentos/')
             // vs archivo local (que comienza con 'public/uploads/')
-            const esArchivoCloudinary = USE_CLOUDINARY && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
+            const esArchivoAzure = USE_AZURE_BLOB && ruta.startsWith('documentos/') && !ruta.startsWith('public/uploads/');
 
-            if (esArchivoCloudinary) {
-                // Archivo en Cloudinary - generar URL directa y forzar nombre y tipo MIME correcto
+            if (esArchivoAzure) {
+                // Archivo en Azure Blob Storage - descargar y enviar al cliente
                 try {
-                    const cloudinaryUrl = getUrl(ruta);
-                    // Detectar extensión y tipo MIME
                     const ext = require('path').extname(nombre).toLowerCase();
                     let mimeType = 'application/octet-stream';
                     if (ext === '.pdf') mimeType = 'application/pdf';
@@ -430,17 +430,12 @@ class ControladorDashboardAprendiz extends BaseController {
 
                     res.setHeader('Content-Disposition', `attachment; filename="${nombre}"`);
                     res.setHeader('Content-Type', mimeType);
-                    // Descargar el archivo desde Cloudinary y enviarlo al cliente
-                    const https = require('https');
-                    https.get(cloudinaryUrl, (fileRes) => {
-                        fileRes.pipe(res);
-                    }).on('error', (err) => {
-                        console.error('Error descargando desde Cloudinary:', err);
-                        res.status(500).send('Error al descargar el archivo desde Cloudinary.');
-                    });
-                } catch (cloudinaryError) {
-                    console.error('Error generando URL de Cloudinary:', cloudinaryError);
-                    res.status(500).send('Error al generar el enlace de descarga.');
+                    
+                    // Descargar el archivo desde Azure Blob Storage y enviarlo al cliente
+                    const stream = await downloadFile(ruta);
+                    stream.pipe(res); (azureError) {
+                    console.error('Error descargando desde Azure Blob Storage:', azureError);
+                    res.status(500).send('Error al descargar el archivo desde Azure Blob Storage.');
                 }
             } else {
                 // Archivo local
@@ -475,39 +470,39 @@ class ControladorDashboardAprendiz extends BaseController {
             archive.pipe(res);
             // --- INICIO DE LA CORRECCIÓN ---
             // Se hace el código robusto para aceptar camelCase y snake_case y se verifica que la ruta exista.
-            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
             const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
             const tempFiles = [];
-            const https = require('https');
             const os = require('os');
-            const { getUrl } = require('../../../configuracion/cloudinaryConfig');
 
             for (const doc of documentos) {
                 const ruta = doc.ruta_archivo || doc.ruta_archivo;
                 const nombre = doc.nombre_original || doc.nombre_original;
                 const ext = path.extname(nombre).toLowerCase();
                 if (ruta && typeof ruta === 'string') {
-                    // Si es Cloudinary
-                    if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
-                        // Descargar temporalmente el archivo de Cloudinary
-                        const cloudinaryUrl = getUrl(ruta);
+                    // Si es Azure Blob Storage
+                    if (USE_AZURE_BLOB && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
+                        // Descargar temporalmente el archivo de Azure Blob Storage
                         const tempPath = path.join(os.tmpdir(), `${Date.now()}_${Math.random().toString(36).slice(2)}_${nombre}`);
                         tempFiles.push(tempPath);
-                        await new Promise((resolve, reject) => {
+                        try {
+                            const stream = await downloadFile(ruta);
                             const file = fs.createWriteStream(tempPath);
-                            https.get(cloudinaryUrl, (response) => {
-                                response.pipe(file);
+                            await new Promise((resolve, reject) => {
+                                stream.pipe(file);
                                 file.on('finish', () => {
                                     file.close(resolve);
                                 });
-                            }).on('error', (err) => {
-                                fs.unlink(tempPath, () => {});
-                                console.warn(`Error descargando archivo Cloudinary: ${cloudinaryUrl}`, err);
-                                resolve(); // No rechazar para no romper el ZIP
+                                stream.on('error', (err) => {
+                                    fs.unlink(tempPath, () => {});
+                                    console.warn(`Error descargando archivo Azure: ${ruta}`, err);
+                                    resolve(); // No rechazar para no romper el ZIP
+                                });
                             });
-                        });
-                        if (fs.existsSync(tempPath)) {
-                            archive.file(tempPath, { name: nombre });
+                            if (fs.existsSync(tempPath)) {
+                                archive.file(tempPath, { name: nombre });
+                            }
+                        } catch (err) {
+                            console.warn(`Error descargando archivo Azure: ${ruta}`, err);
                         }
                     } else {
                         // Archivo local
@@ -550,39 +545,38 @@ class ControladorDashboardAprendiz extends BaseController {
             // --- INICIO DE LA CORRECCIÓN ---
             const ruta = docInfo.ruta_archivo || docInfo.ruta_archivo;
             if (ruta && typeof ruta === 'string') {
-                const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
                 const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
                 const ext = path.extname(docInfo.nombre_original || '').toLowerCase();
                 // Log para depuración
-                console.log('[Cloudinary Delete] Intentando eliminar:', {
+                console.log('[Azure Delete] Intentando eliminar:', {
                     ruta,
                     ext,
                     esDocumento: documentExts.includes(ext),
-                    esCloudinary: USE_CLOUDINARY && ruta.startsWith('documentos/'),
-                    public_id: ruta
+                    esAzure: USE_AZURE_BLOB && ruta.startsWith('documentos/'),
+                    blobName: ruta
                 });
-                if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
+                if (USE_AZURE_BLOB && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
                     try {
-                        const result = await deleteCloudinaryFile(ruta);
-                        console.log('[Cloudinary Delete] Resultado:', result);
-                        if (result.result !== 'ok') {
-                            console.warn('[Cloudinary Delete] No se eliminó el archivo en Cloudinary. Respuesta:', result);
+                        const result = await deleteAzureFile(ruta);
+                        console.log('[Azure Delete] Resultado:', result);
+                        if (!result.success) {
+                            console.warn('[Azure Delete] No se eliminó el archivo en Azure. Respuesta:', result);
                             // Intentar eliminar archivo local si existe
                             const filePath = path.join(__dirname, '../../../..', ruta.trim());
                             if (fs.existsSync(filePath)) {
                                 fs.unlinkSync(filePath);
-                                console.warn('[Cloudinary Delete] Archivo local eliminado como respaldo.');
+                                console.warn('[Azure Delete] Archivo local eliminado como respaldo.');
                             }
                         }
-                    } catch (cloudinaryError) {
-                        console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
+                    } catch (azureError) {
+                        console.error('Error eliminando archivo de Azure Blob Storage:', azureError);
                         // Intentar eliminar archivo local si existe
                         const filePath = path.join(__dirname, '../../../..', ruta.trim());
                         if (fs.existsSync(filePath)) {
                             fs.unlinkSync(filePath);
-                            console.warn('[Cloudinary Delete] Archivo local eliminado como respaldo tras error Cloudinary.');
+                            console.warn('[Azure Delete] Archivo local eliminado como respaldo tras error Azure.');
                         }
-                        return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de Cloudinary. No se eliminó de la base de datos.' });
+                        return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de Azure Blob Storage. No se eliminó de la base de datos.' });
                     }
                 } else {
                     // Eliminar archivo local
@@ -617,28 +611,27 @@ class ControladorDashboardAprendiz extends BaseController {
                 return res.status(403).json({ success: false, message: 'Intento de eliminar documentos no autorizados.'});
             }
             // --- INICIO DE LA CORRECCIÓN ---
-            const USE_CLOUDINARY = process.env.USE_CLOUDINARY === 'true';
             const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
             for (const doc of docsToDelete) {
                 const ruta = doc.ruta_archivo || doc.ruta_archivo;
                 const ext = path.extname(doc.nombre_original || '').toLowerCase();
                 // Log para depuración
-                console.log('[Cloudinary Delete Multiple] Intentando eliminar:', {
+                console.log('[Azure Delete Multiple] Intentando eliminar:', {
                     ruta,
                     ext,
                     esDocumento: documentExts.includes(ext),
-                    esCloudinary: USE_CLOUDINARY && ruta.startsWith('documentos/'),
-                    public_id: ruta
+                    esAzure: USE_AZURE_BLOB && ruta.startsWith('documentos/'),
+                    blobName: ruta
                 });
-                if (USE_CLOUDINARY && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
+                if (USE_AZURE_BLOB && ruta.startsWith('documentos/') && documentExts.includes(ext)) {
                     try {
-                        const result = await deleteCloudinaryFile(ruta);
-                        console.log('[Cloudinary Delete Multiple] Resultado:', result);
-                        if (result.result !== 'ok') {
-                            console.warn('[Cloudinary Delete Multiple] No se eliminó el archivo en Cloudinary. Respuesta:', result);
+                        const result = await deleteAzureFile(ruta);
+                        console.log('[Azure Delete Multiple] Resultado:', result);
+                        if (!result.success) {
+                            console.warn('[Azure Delete Multiple] No se eliminó el archivo en Azure. Respuesta:', result);
                         }
-                    } catch (cloudinaryError) {
-                        console.error('Error eliminando archivo de Cloudinary:', cloudinaryError);
+                    } catch (azureError) {
+                        console.error('Error eliminando archivo de Azure Blob Storage:', azureError);
                     }
                 } else {
                     // Eliminar archivo local

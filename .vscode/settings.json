@@ -2,5 +2,11 @@
     "github.branchProtection": true,
     "IDX.aI.enableInlineCompletion": true,
     "IDX.aI.enableCodebaseIndexing": true,
-    "kiroAgent.configureMCP": "Enabled"
+    "kiroAgent.configureMCP": "Enabled",
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/f7fa174b-76d1-435f-a935-2b2360f7f946/resourceGroups/rg-sena-etapa-productiva/providers/Microsoft.Web/sites/sena-etapa-productiva",
+    "appService.deploySubpath": "."
 }
