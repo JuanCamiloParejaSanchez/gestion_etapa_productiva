@@ -2,6 +2,8 @@
 // Propósito: Configuración y conexión a la base de datos
 
 const mysql = require('mysql2/promise');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 // Configuración de la base de datos
@@ -10,12 +12,29 @@ const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: parseInt(process.env.DB_PORT) || 3305,
+    port: parseInt(process.env.DB_PORT) || 3306,
     waitForConnections: true,
     connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 10,
     queueLimit: 0,
     charset: 'utf8mb4'
 };
+
+// Configurar SSL para Azure MySQL si está habilitado
+if (process.env.DB_SSL === 'true') {
+    const certPath = path.join(__dirname, '../../', process.env.DB_SSL_CA_PATH || 'DigiCertGlobalRootCA.crt.pem');
+    
+    if (fs.existsSync(certPath)) {
+        dbConfig.ssl = {
+            ca: fs.readFileSync(certPath),
+            rejectUnauthorized: true
+        };
+        console.log('✅ SSL configurado para MySQL Azure');
+        console.log(`📄 Certificado SSL: ${certPath}`);
+    } else {
+        console.warn('⚠️ Certificado SSL no encontrado:', certPath);
+        console.warn('⚠️ Intentando conexión sin SSL - puede fallar en Azure');
+    }
+}
 
 const pool = mysql.createPool(dbConfig);
 
