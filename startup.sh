@@ -6,10 +6,10 @@
 echo "Iniciando configuración de Azure App Service..."
 
 # Descargar certificado SSL de MySQL si no existe
-if [ ! -f "/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem" ]; then
+if [ ! -f "/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem" ]; then
     echo "Descargando certificado SSL de DigiCert..."
     cd /home/site/wwwroot
-    curl -sSL https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem -o DigiCertGlobalRootCA.crt.pem
+    curl -sSL https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem -o DigiCertGlobalRootG2.crt.pem
     
     if [ $? -eq 0 ]; then
         echo "✅ Certificado SSL descargado exitosamente"
