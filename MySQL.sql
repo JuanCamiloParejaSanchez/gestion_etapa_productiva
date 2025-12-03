@@ -10,10 +10,10 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS `defaultdb`
+CREATE DATABASE IF NOT EXISTS `mysql-sena-etapa-productiva`
 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `defaultdb`;
+USE `mysql-sena-etapa-productiva`;
 
 -- =====================================================
 -- TABLA: APRENDICES
@@ -805,7 +805,7 @@ DELIMITER ;
 -- =====================================================
 
 -- Seleccionar la base de datos
-USE `defaultdb`;
+USE `mysql-sena-etapa-productiva`;
 
 -- =====================================================
 -- 1. VERIFICACIÓN BÁSICA DE TABLAS
@@ -906,4 +906,5 @@ ORDER BY fecha_creacion ASC
 
 DELETE FROM mensajes;
 TRUNCATE TABLE mensajes;
+
 
