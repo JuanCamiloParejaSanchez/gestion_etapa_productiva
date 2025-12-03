@@ -4,7 +4,27 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 require('dotenv').config();
+
+// Función para descargar el certificado SSL si no existe
+async function downloadSSLCertificate(certPath) {
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(certPath);
+        https.get('https://dl.cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem', (response) => {
+            response.pipe(file);
+            file.on('finish', () => {
+                file.close();
+                console.log('✅ Certificado SSL descargado exitosamente');
+                resolve(certPath);
+            });
+        }).on('error', (err) => {
+            fs.unlink(certPath, () => {});
+            console.error('❌ Error descargando certificado SSL:', err.message);
+            reject(err);
+        });
+    });
+}
 
 // Configuración de la base de datos
 const dbConfig = {
@@ -20,21 +40,43 @@ const dbConfig = {
 };
 
 // Configurar SSL para Azure MySQL si está habilitado
-if (process.env.DB_SSL === 'true') {
-    const certPath = path.join(__dirname, '../../', process.env.DB_SSL_CA_PATH || 'DigiCertGlobalRootCA.crt.pem');
-    
-    if (fs.existsSync(certPath)) {
+async function initializeSSL() {
+    if (process.env.DB_SSL === 'true') {
+        let certPath = process.env.DB_SSL_CA_PATH || 'DigiCertGlobalRootCA.crt.pem';
+        
+        // Si es una ruta relativa, hacerla absoluta
+        if (!path.isAbsolute(certPath)) {
+            certPath = path.join(__dirname, '../../', certPath);
+        }
+        
+        // Descargar el certificado si no existe
+        if (!fs.existsSync(certPath)) {
+            console.log('⬇️ Certificado SSL no encontrado, descargando...');
+            try {
+                await downloadSSLCertificate(certPath);
+            } catch (error) {
+                console.warn('⚠️ No se pudo descargar el certificado SSL');
+                console.warn('⚠️ Intentando conexión sin SSL - puede fallar en Azure');
+                return;
+            }
+        }
+        
         dbConfig.ssl = {
             ca: fs.readFileSync(certPath),
             rejectUnauthorized: true
         };
         console.log('✅ SSL configurado para MySQL Azure');
         console.log(`📄 Certificado SSL: ${certPath}`);
-    } else {
-        console.warn('⚠️ Certificado SSL no encontrado:', certPath);
-        console.warn('⚠️ Intentando conexión sin SSL - puede fallar en Azure');
     }
 }
+
+// Inicializar SSL de forma asíncrona
+let sslInitialized = false;
+initializeSSL().then(() => {
+    sslInitialized = true;
+}).catch(err => {
+    console.error('Error inicializando SSL:', err);
+});
 
 const pool = mysql.createPool(dbConfig);
 
