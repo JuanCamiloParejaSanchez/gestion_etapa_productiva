@@ -25,6 +25,7 @@ const controladorAutenticacionGeneral = require('./modulos/compartido/controlado
 
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const fs = require('fs');
 
 const app = express();
 
@@ -52,14 +53,28 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 app.use('/data', express.static(path.join(__dirname, '../data')));
 
 // Configuración de almacenamiento de sesiones MySQL
-const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT)
-});
+const mysqlOptions = {
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT),
+  waitForConnections: true,
+};
+
+if (String(process.env.DB_SSL).toLowerCase() === 'true') {
+  try {
+    const caPath = process.env.DB_SSL_CA_PATH || '/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem';
+    if (fs.existsSync(caPath)) {
+      mysqlOptions.ssl = { ca: fs.readFileSync(caPath, 'utf8') };
+    }
+  } catch (e) {
+    console.error('Error cargando CA SSL para MySQL:', e && e.message ? e.message : e);
+  }
+}
+
+const sessionStore = new MySQLStore(mysqlOptions);
 
 // Configuración de sesiones
 app.use(session({
