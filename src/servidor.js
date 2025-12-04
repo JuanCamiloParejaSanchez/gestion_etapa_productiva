@@ -26,6 +26,7 @@ const controladorAutenticacionGeneral = require('./modulos/compartido/controlado
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const fs = require('fs');
+const mysql = require('mysql2/promise');
 
 const app = express();
 
@@ -55,11 +56,11 @@ app.use('/data', express.static(path.join(__dirname, '../data')));
 // Configuración de almacenamiento de sesiones MySQL
 const mysqlOptions = {
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
+  port: parseInt(String(process.env.DB_PORT || '3306')),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT),
+  connectionLimit: parseInt(String(process.env.DB_CONNECTION_LIMIT || '10')),
   waitForConnections: true,
 };
 
@@ -67,10 +68,13 @@ if (String(process.env.DB_SSL).toLowerCase() === 'true') {
   try {
     const caPath = process.env.DB_SSL_CA_PATH || '/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem';
     if (fs.existsSync(caPath)) {
-      mysqlOptions.ssl = { ca: fs.readFileSync(caPath, 'utf8') };
+      // eslint-disable-next-line no-unused-vars
+      const caContent = fs.readFileSync(caPath, 'utf8');
+      // @ts-ignore - Propiedad ssl aceptada por mysql2 en tiempo de ejecución
+      mysqlOptions.ssl = { ca: caContent };
     }
   } catch (e) {
-    console.error('Error cargando CA SSL para MySQL:', e && e.message ? e.message : e);
+    console.error('Error cargando CA SSL para MySQL:', String(e));
   }
 }
 
@@ -79,12 +83,12 @@ const sessionStore = new MySQLStore(mysqlOptions);
 // Configuración de sesiones
 app.use(session({
   name: process.env.SESSION_NAME,
-  secret: process.env.SESSION_SECRET,
+   secret: process.env.SESSION_SECRET || 'change_this_secret',
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: parseInt(process.env.COOKIE_MAX_AGE),
+   	 maxAge: parseInt(String(process.env.COOKIE_MAX_AGE || '86400000')),
     secure: process.env.NODE_ENV === 'production'
   }
 }));
@@ -153,6 +157,7 @@ app.use((req, res) => {
 });
 
 // Manejo de errores generales (middleware de 4 argumentos)
+// @ts-ignore - parámetros sin tipar en JS
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(err.status || 500).render('compartido/paginaError', {
@@ -164,6 +169,27 @@ app.use((err, req, res, next) => {
         },
         layout: 'plantillas/principal'
     });
+});
+
+// Endpoint de salud para verificar estado de la app y la base de datos
+app.get('/health', async (req, res) => {
+  const result = { app: 'ok', db: 'unknown' };
+  try {
+    const conn = await mysql.createConnection(mysqlOptions);
+    const [rows] = await conn.query('SELECT 1 AS ok');
+    await conn.end();
+    const firstRow = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+    // @ts-ignore - acceso dinámico al campo 'ok' en resultado de mysql2
+    if (firstRow && firstRow['ok'] === 1) {
+      result.db = 'ok';
+      return res.status(200).json(result);
+    }
+    result.db = 'bad';
+    return res.status(500).json(result);
+  } catch (e) {
+    result.db = 'error';
+    return res.status(500).json({ ...result, error: String(e) });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
