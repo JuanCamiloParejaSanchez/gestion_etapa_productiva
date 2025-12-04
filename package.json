@@ -5,6 +5,7 @@
   "main": "src/servidor.js",
   "scripts": {
     "start": "node src/servidor.js",
+    "build": "echo 'Build completed successfully'",
     "dev": "nodemon src/servidor.js",
     "test": "jest",
     "test:watch": "jest --watch",
