@@ -5,6 +5,26 @@
 
 echo "Iniciando configuración de Azure App Service..."
 
+# Verificar versión de Node.js
+echo "Versión de Node.js: $(node --version)"
+echo "Versión de npm: $(npm --version)"
+
+# Instalar dependencias si no existen
+if [ ! -d "/home/site/wwwroot/node_modules" ] || [ ! -d "/home/site/wwwroot/node_modules/dotenv" ]; then
+    echo "Instalando dependencias de npm..."
+    cd /home/site/wwwroot
+    npm ci --omit=dev --prefer-offline --no-audit
+    
+    if [ $? -eq 0 ]; then
+        echo "✅ Dependencias instaladas exitosamente"
+    else
+        echo "⚠️  Error al instalar dependencias, intentando con npm install..."
+        npm install --omit=dev --prefer-offline --no-audit
+    fi
+else
+    echo "✅ Las dependencias ya están instaladas"
+fi
+
 # Descargar certificado SSL de MySQL si no existe
 if [ ! -f "/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem" ]; then
     echo "Descargando certificado SSL de DigiCert..."
