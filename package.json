@@ -33,6 +33,10 @@
   ],
   "author": "JuanBogotá",
   "license": "ISC",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "dependencies": {
     "@azure/identity": "^4.13.0",
     "@azure/storage-blob": "^12.29.1",
