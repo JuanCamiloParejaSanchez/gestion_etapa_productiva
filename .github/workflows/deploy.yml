@@ -1,0 +1,32 @@
+name: Deploy to Azure App Service
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies (prod)
+        run: |
+          npm ci --omit=dev --no-audit
+
+      - name: Create deployment zip
+        run: |
+          git archive -o site.zip HEAD
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: sena-etapa-productiva
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: site.zip

@@ -9,20 +9,16 @@ echo "Iniciando configuración de Azure App Service..."
 echo "Versión de Node.js: $(node --version)"
 echo "Versión de npm: $(npm --version)"
 
-# Instalar dependencias si no existen
-if [ ! -d "/home/site/wwwroot/node_modules" ] || [ ! -d "/home/site/wwwroot/node_modules/dotenv" ]; then
-    echo "Instalando dependencias de npm..."
-    cd /home/site/wwwroot
-    npm ci --omit=dev --prefer-offline --no-audit
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ Dependencias instaladas exitosamente"
-    else
-        echo "⚠️  Error al instalar dependencias, intentando con npm install..."
-        npm install --omit=dev --prefer-offline --no-audit
-    fi
+# Instalar dependencias SIEMPRE (ZipDeploy/Kudu puede sobrescribir wwwroot)
+echo "Instalando dependencias de npm..."
+cd /home/site/wwwroot
+npm ci --omit=dev --prefer-offline --no-audit
+
+if [ $? -eq 0 ]; then
+    echo "✅ Dependencias instaladas exitosamente"
 else
-    echo "✅ Las dependencias ya están instaladas"
+    echo "⚠️  Error al instalar dependencias, intentando con npm install..."
+    npm install --omit=dev --prefer-offline --no-audit
 fi
 
 # Descargar certificado SSL de MySQL si no existe
@@ -50,4 +46,6 @@ echo "- USE_AZURE_BLOB: $USE_AZURE_BLOB"
 # Iniciar la aplicación
 echo "Iniciando aplicación Node.js..."
 cd /home/site/wwwroot
+# Chequeo rápido de MySQL Flexible con SSL (no bloquea el arranque)
+node scripts/check-mysql-ssl.js || true
 npm start
