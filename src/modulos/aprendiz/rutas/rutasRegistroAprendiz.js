@@ -100,7 +100,15 @@ router.post('/registrar-aprendiz',
             
             // Leer el archivo desde disco para procesarlo con Sharp
             try {
-                const buffer = fs.readFileSync(fotoFile.path);
+                // Verificar si existe path (diskStorage) o buffer (memoryStorage)
+                let buffer;
+                if (fotoFile.path) {
+                    buffer = fs.readFileSync(fotoFile.path);
+                } else if (fotoFile.buffer) {
+                    buffer = fotoFile.buffer;
+                } else {
+                    throw new Error('No se pudo obtener el contenido de la imagen');
+                }
                 
                 // Crear un objeto similar al que devuelve multer.memoryStorage
                 const reqConFoto = { 
@@ -113,9 +121,13 @@ router.post('/registrar-aprendiz',
                 
                 // Procesar la foto con Sharp
                 return procesarFotoPerfil(reqConFoto, res, () => {
-                    // Eliminar el archivo temporal original
+                    // Eliminar el archivo temporal original SOLO si existe path (diskStorage)
                     if (fotoFile.path && fs.existsSync(fotoFile.path)) {
-                        fs.unlinkSync(fotoFile.path);
+                        try {
+                            fs.unlinkSync(fotoFile.path);
+                        } catch (e) {
+                            console.warn('No se pudo eliminar archivo temporal:', e.message);
+                        }
                     }
                     
                     req.fotoPerfilProcesada = reqConFoto.fotoPerfilProcesada;
