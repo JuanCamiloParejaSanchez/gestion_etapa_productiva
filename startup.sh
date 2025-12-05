@@ -48,6 +48,9 @@ echo "- USE_AZURE_BLOB: $USE_AZURE_BLOB"
 # Iniciar la aplicación
 echo "Iniciando aplicación Node.js..."
 cd /home/site/wwwroot
+
 # Chequeo rápido de MySQL Flexible con SSL (no bloquea el arranque)
-node scripts/check-mysql-ssl.js || true
-npm start
+# node scripts/check-mysql-ssl.js || true
+
+# Iniciar directamente sin npm para ahorrar memoria y tiempo
+node src/servidor.js
