@@ -30,6 +30,8 @@ const mysql = require('mysql2/promise');
 
 const app = express();
 
+// Confiar en el proxy de Azure (necesario para cookies seguras tras balanceador de carga)
+app.set('trust proxy', 1); 
 
 app.get('/test-login', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/test/test-login.html'));
