@@ -55,35 +55,17 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // Servir archivos de data
 app.use('/data', express.static(path.join(__dirname, '../data')));
 
+// Importar pool de baseDatos.js para reutilizar la conexión y configuración SSL
+const { pool } = require('./configuracion/baseDatos');
+
 // Configuración de almacenamiento de sesiones MySQL
-const mysqlOptions = {
-  host: process.env.DB_HOST,
-  port: parseInt(String(process.env.DB_PORT || '3306')),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  connectionLimit: parseInt(String(process.env.DB_CONNECTION_LIMIT || '10')),
-  waitForConnections: true,
-};
-
-if (String(process.env.DB_SSL).toLowerCase() === 'true') {
-  try {
-    const caPath = process.env.DB_SSL_CA_PATH || path.join(__dirname, '../certs/DigiCertGlobalRootG2.crt.pem');
-    if (fs.existsSync(caPath)) {
-      // eslint-disable-next-line no-unused-vars
-      const caContent = fs.readFileSync(caPath, 'utf8');
-      // @ts-ignore - Propiedad ssl aceptada por mysql2 en tiempo de ejecución
-      mysqlOptions.ssl = { ca: caContent };
-      console.log(`✅ SSL configurado en servidor.js usando: ${caPath}`);
-    } else {
-      console.warn(`⚠️ No se encontró el certificado SSL en: ${caPath}`);
+const sessionStore = new MySQLStore({
+    expiration: parseInt(String(process.env.COOKIE_MAX_AGE || '86400000')),
+    createDatabaseTable: true,
+    schema: {
+        tableName: 'sessions'
     }
-  } catch (e) {
-    console.error('Error cargando CA SSL para MySQL:', String(e));
-  }
-}
-
-const sessionStore = new MySQLStore(mysqlOptions);
+}, pool);
 
 // Configuración de sesiones
 app.use(session({
@@ -179,10 +161,10 @@ app.use((err, req, res, next) => {
 // Endpoint de salud para verificar estado de la app y la base de datos
 app.get('/health', async (req, res) => {
   const result = { app: 'ok', db: 'unknown' };
+  let conn;
   try {
-    const conn = await mysql.createConnection(mysqlOptions);
+    conn = await pool.getConnection();
     const [rows] = await conn.query('SELECT 1 AS ok');
-    await conn.end();
     const firstRow = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
     // @ts-ignore - acceso dinámico al campo 'ok' en resultado de mysql2
     if (firstRow && firstRow['ok'] === 1) {
@@ -194,6 +176,8 @@ app.get('/health', async (req, res) => {
   } catch (e) {
     result.db = 'error';
     return res.status(500).json({ ...result, error: String(e) });
+  } finally {
+    if (conn) conn.release();
   }
 });
 
