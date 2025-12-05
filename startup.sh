@@ -10,31 +10,33 @@ echo "Versión de Node.js: $(node --version)"
 echo "Versión de npm: $(npm --version)"
 
 # Instalar dependencias SIEMPRE (ZipDeploy/Kudu puede sobrescribir wwwroot)
-echo "Instalando dependencias de npm..."
-cd /home/site/wwwroot
-npm ci --omit=dev --prefer-offline --no-audit
+# COMENTADO: No ejecutar npm ci en inicio si ya se hizo en build (GitHub Actions)
+# echo "Instalando dependencias de npm..."
+# cd /home/site/wwwroot
+# npm ci --omit=dev --prefer-offline --no-audit
 
-if [ $? -eq 0 ]; then
-    echo "✅ Dependencias instaladas exitosamente"
-else
-    echo "⚠️  Error al instalar dependencias, intentando con npm install..."
-    npm install --omit=dev --prefer-offline --no-audit
-fi
+# if [ $? -eq 0 ]; then
+#     echo "✅ Dependencias instaladas exitosamente"
+# else
+#     echo "⚠️  Error al instalar dependencias, intentando con npm install..."
+#     npm install --omit=dev --prefer-offline --no-audit
+# fi
 
 # Descargar certificado SSL de MySQL si no existe
-if [ ! -f "/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem" ]; then
-    echo "Descargando certificado SSL de DigiCert..."
-    cd /home/site/wwwroot
-    curl -sSL https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem -o DigiCertGlobalRootG2.crt.pem
-    
-    if [ $? -eq 0 ]; then
-        echo "✅ Certificado SSL descargado exitosamente"
-    else
-        echo "⚠️  Error al descargar el certificado SSL, continuando de todas formas..."
-    fi
-else
-    echo "✅ Certificado SSL ya existe"
-fi
+# COMENTADO: El certificado ya debe estar en la carpeta certs/ del proyecto
+# if [ ! -f "/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem" ]; then
+#     echo "Descargando certificado SSL de DigiCert..."
+#     cd /home/site/wwwroot
+#     curl -sSL https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem -o DigiCertGlobalRootG2.crt.pem
+#     
+#     if [ $? -eq 0 ]; then
+#         echo "✅ Certificado SSL descargado exitosamente"
+#     else
+#         echo "⚠️  Error al descargar el certificado SSL, continuando de todas formas..."
+#     fi
+# else
+#     echo "✅ Certificado SSL ya existe"
+# fi
 
 # Mostrar información de configuración
 echo "Variables de entorno configuradas:"

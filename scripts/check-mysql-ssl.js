@@ -20,7 +20,12 @@ async function main() {
       process.exit(0); // do not fail startup due to missing check
     }
 
-    const certPath = path.join('/home/site/wwwroot', 'DigiCertGlobalRootG2.crt.pem');
+    // Intentar ruta relativa primero, luego absoluta de Azure
+    let certPath = path.join(__dirname, '../certs/DigiCertGlobalRootG2.crt.pem');
+    if (!fs.existsSync(certPath)) {
+        certPath = '/home/site/wwwroot/certs/DigiCertGlobalRootG2.crt.pem';
+    }
+    
     let ca;
     if (fs.existsSync(certPath)) {
       ca = fs.readFileSync(certPath, 'utf8');

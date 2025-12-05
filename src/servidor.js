@@ -66,12 +66,15 @@ const mysqlOptions = {
 
 if (String(process.env.DB_SSL).toLowerCase() === 'true') {
   try {
-    const caPath = process.env.DB_SSL_CA_PATH || '/home/site/wwwroot/DigiCertGlobalRootG2.crt.pem';
+    const caPath = process.env.DB_SSL_CA_PATH || path.join(__dirname, '../certs/DigiCertGlobalRootG2.crt.pem');
     if (fs.existsSync(caPath)) {
       // eslint-disable-next-line no-unused-vars
       const caContent = fs.readFileSync(caPath, 'utf8');
       // @ts-ignore - Propiedad ssl aceptada por mysql2 en tiempo de ejecución
       mysqlOptions.ssl = { ca: caContent };
+      console.log(`✅ SSL configurado en servidor.js usando: ${caPath}`);
+    } else {
+      console.warn(`⚠️ No se encontró el certificado SSL en: ${caPath}`);
     }
   } catch (e) {
     console.error('Error cargando CA SSL para MySQL:', String(e));
