@@ -433,7 +433,8 @@ class ControladorDashboardAprendiz extends BaseController {
                     
                     // Descargar el archivo desde Azure Blob Storage y enviarlo al cliente
                     const stream = await downloadFile(ruta);
-                    stream.pipe(res); (azureError) {
+                    stream.pipe(res);
+                } catch (azureError) {
                     console.error('Error descargando desde Azure Blob Storage:', azureError);
                     res.status(500).send('Error al descargar el archivo desde Azure Blob Storage.');
                 }
