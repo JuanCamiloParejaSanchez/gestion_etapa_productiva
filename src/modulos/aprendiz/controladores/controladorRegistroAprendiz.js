@@ -123,11 +123,18 @@ const registrarAprendiz = async (req, res) => {
         if (req.file && resultado.id && documentoSoporteInfo) {
             console.log('📎 Insertando documento de soporte en documentos_aprendiz...');
             try {
+                // Asegurar que tenemos un nombre de archivo y ruta válidos
+                // Si estamos en Azure Blob Storage o memoria, filename puede ser undefined
+                const nombreGuardado = documentoSoporteInfo.filename || documentoSoporteInfo.originalname;
+                
+                // Si path es undefined (memoria), construir una ruta lógica
+                const rutaArchivo = documentoSoporteInfo.path || `/uploads/documentos/${nombreGuardado}`;
+
                 const datosDocumento = {
                     aprendiz_id: resultado.id,
                     nombre_original: documentoSoporteInfo.originalname,
-                    nombre_guardado: documentoSoporteInfo.filename,
-                    ruta_archivo: documentoSoporteInfo.path,
+                    nombre_guardado: nombreGuardado,
+                    ruta_archivo: rutaArchivo,
                     tipo_mime: documentoSoporteInfo.mimetype,
                     tamano_bytes: documentoSoporteInfo.size,
                     tipo_documento: 'Documento de soporte',
