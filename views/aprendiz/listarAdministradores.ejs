@@ -754,7 +754,37 @@
             },
             language: { url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/es-ES.json' },
             info: false,
-            dom: 'rtip',
+            dom: 'Brtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    className: 'buttons-excel d-none',
+                    title: 'Listado de Administradores',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    className: 'buttons-pdf d-none',
+                    title: 'Listado de Administradores',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    customize: function(doc) {
+                        doc.content[1].table.widths = ['10%', '20%', '10%', '20%', '10%', '20%', '10%'];
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.defaultStyle.fontSize = 9;
+                        doc.content[1].table.body.forEach(function(row) {
+                            row.forEach(function(cell) {
+                                cell.alignment = 'center';
+                            });
+                        });
+                    }
+                }
+            ],
             pageLength: 10,
             ordering: false, // Deshabilitar ordenamiento nativo de DataTables
             columns: columnasConfig.map(col => {

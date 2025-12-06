@@ -207,6 +207,12 @@
             height: 120px;
         }
     }
+
+    /* Ajuste para que los campos de fecha tengan la misma altura que los demás inputs */
+    input[type="date"].form-control {
+        height: calc(1.5em + 1rem + 2px);
+        padding: 0.5rem 1rem;
+    }
 </style>
 
 <%- contentFor('navigation') %>

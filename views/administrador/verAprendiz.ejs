@@ -109,11 +109,17 @@ html.dark-mode .profile-photo-section {
 function formatearFechaLocal(fecha) {
     if (!fecha) return 'N/A';
     
-    // Si es string, parsearlo como fecha local
     let date;
+    // Si es string, intentar parsearlo como UTC si tiene formato YYYY-MM-DD
     if (typeof fecha === 'string') {
-        const [year, month, day] = fecha.split('T')[0].split('-');
-        date = new Date(year, month - 1, day);
+        const partes = fecha.split('T')[0].split('-');
+        if (partes.length === 3) {
+            // Crear fecha en UTC explícitamente: Date.UTC(año, mes-1, dia)
+            // Esto crea un timestamp que corresponde a las 00:00:00 UTC de ese día
+            date = new Date(Date.UTC(partes[0], partes[1] - 1, partes[2]));
+        } else {
+            date = new Date(fecha);
+        }
     } else {
         date = new Date(fecha);
     }
@@ -121,7 +127,9 @@ function formatearFechaLocal(fecha) {
     // Verificar si la fecha es válida
     if (isNaN(date.getTime())) return 'N/A';
     
+    // Usar timeZone: 'UTC' para asegurar que se formatea la fecha UTC tal cual
     return date.toLocaleDateString('es-ES', {
+        timeZone: 'UTC',
         weekday: 'long',
         year: 'numeric',
         month: 'long',

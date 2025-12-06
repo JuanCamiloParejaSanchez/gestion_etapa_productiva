@@ -354,7 +354,7 @@ class ControladorDashboardAprendiz extends BaseController {
         const file = req.file;
         try {
             if (!aprendizId) {
-                if (file) fs.unlinkSync(file.path);
+                if (file && file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
                 return res.status(401).json({ success: false, message: 'ID de usuario no encontrado.' });
             }
             if (!file) {
@@ -368,8 +368,21 @@ class ControladorDashboardAprendiz extends BaseController {
             const documentos = await servicioDocumentosAprendiz.obtenerDocumentosPorAprendiz(aprendizId);
             const documentoExistente = documentos.find(doc => normalizarNombreDocumento(doc.nombre_original) === nombreOriginalComparacion);
             if (documentoExistente) {
-                const oldFilePath = path.join(__dirname, '../../../..', documentoExistente.ruta_archivo);
-                if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+                // Solo intentar eliminar archivo local si no es Azure Blob Storage o si la ruta no parece de Azure
+                const ruta = documentoExistente.ruta_archivo;
+                const esAzure = USE_AZURE_BLOB && ruta.startsWith('documentos/');
+                
+                if (esAzure) {
+                    try {
+                        await deleteAzureFile(ruta);
+                    } catch (e) {
+                        console.warn('No se pudo eliminar el archivo antiguo de Azure:', e.message);
+                    }
+                } else {
+                    const oldFilePath = path.join(__dirname, '../../../..', ruta);
+                    if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+                }
+                
                 await servicioDocumentosAprendiz.eliminarDocumentoPorId(documentoExistente.id);
             }
             // Determinar la ruta del archivo basada en el entorno
@@ -403,11 +416,11 @@ class ControladorDashboardAprendiz extends BaseController {
             if (resultado.success) {
                 res.status(201).json({ success: true, message: 'Documento subido.', documentoId: resultado.id });
             } else {
-                if (file) fs.unlinkSync(file.path);
+                if (file && file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
                 res.status(500).json({ success: false, message: 'Error al guardar el documento.' });
             }
         } catch (error) {
-            if (file) fs.unlinkSync(file.path);
+            if (file && file.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
             console.error('Error al subir documento:', error);
             res.status(500).json({ success: false, message: 'No se pudo subir el documento.' });
         }

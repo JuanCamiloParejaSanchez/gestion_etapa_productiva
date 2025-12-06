@@ -7,6 +7,7 @@ const servicioDocumentosAprendiz = require('../servicios/servicioDocumentosApren
 const { decodeOriginalName, USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
 const { uploadFile } = require('../../../configuracion/azureBlobConfig');
 const fs = require('fs');
+const path = require('path');
 const servicioAprendiz = new ServicioAprendiz();
 
 const registrarAprendiz = async (req, res) => {
@@ -34,19 +35,28 @@ const registrarAprendiz = async (req, res) => {
                 path: req.file.path
             });
             
-                // Decodificar el nombre original para manejar correctamente caracteres especiales
+            // Decodificar el nombre original para manejar correctamente caracteres especiales
             const nombreOriginalDecodificado = decodeOriginalName(req.file.originalname);
             
+            // Determinar nombre de archivo y ruta (manejo de Azure/MemoryStorage)
+            // Si filename es undefined (Azure/MemoryStorage), generamos uno temporal o usamos el original
+            const filename = req.file.filename || `${Date.now()}-${path.basename(nombreOriginalDecodificado).replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+            
+            // Si path es undefined (Azure/MemoryStorage), definimos una ruta lógica
+            // Nota: Si es Azure, la ruta final se actualizará tras la subida exitosa
+            // Preferimos construir la ruta relativa para evitar rutas absolutas del sistema de archivos local
+            const rutaArchivo = USE_AZURE_BLOB ? `documentos/${filename}` : `/uploads/documentos/${filename}`;
+
             // Agregar documento de soporte a los datos del aprendiz (columnas: documentoSoporte, documentoSoporteOriginal, documentoSoportePath)
-            datosAprendiz.documentoSoporte = req.file.filename;
+            datosAprendiz.documentoSoporte = filename;
             datosAprendiz.documentoSoporteOriginal = nombreOriginalDecodificado;
-            datosAprendiz.documentoSoportePath = `/uploads/documentos/${req.file.filename}`;
+            datosAprendiz.documentoSoportePath = rutaArchivo;
             
             // Guardar información del documento temporalmente para documentos_aprendiz
             documentoSoporteInfo = {
-                filename: req.file.filename,
+                filename: filename,
                 originalname: nombreOriginalDecodificado,
-                path: `/uploads/documentos/${req.file.filename}`,
+                path: rutaArchivo,
                 mimetype: req.file.mimetype,
                 size: req.file.size
             };
@@ -193,7 +203,10 @@ const registrarAprendiz = async (req, res) => {
                         // La foto procesada ya debería estar en disco (procesada por Sharp)
                         // Ojo: en rutasRegistroAprendiz.js vimos que req.fotoPerfilProcesada tiene path
                         let buffer;
-                        if (req.fotoPerfilProcesada.path && fs.existsSync(req.fotoPerfilProcesada.path)) {
+                        // Intentar leer usando fullPath (absoluto) primero, luego path (relativo)
+                        if (req.fotoPerfilProcesada.fullPath && fs.existsSync(req.fotoPerfilProcesada.fullPath)) {
+                            buffer = fs.readFileSync(req.fotoPerfilProcesada.fullPath);
+                        } else if (req.fotoPerfilProcesada.path && fs.existsSync(req.fotoPerfilProcesada.path)) {
                             buffer = fs.readFileSync(req.fotoPerfilProcesada.path);
                         }
 

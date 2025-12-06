@@ -8,6 +8,12 @@
  */
 function formatearFechaParaDB(fecha) {
     if (!fecha) return null;
+    
+    // Si ya está en formato YYYY-MM-DD, devolverlo tal cual
+    if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        return fecha;
+    }
+
     const fechaObj = new Date(fecha);
     return fechaObj.toISOString().split('T')[0];
 }
