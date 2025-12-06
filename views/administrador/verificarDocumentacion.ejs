@@ -427,9 +427,35 @@ function formatearFechaLocal(fecha) {
                                     const nombreOriginal = doc.nombreOriginal || doc.nombre_original;
                                     const fechaSubida = doc.fechaSubida || doc.fecha_subida;
                                     const nombreGuardado = doc.nombreGuardado || doc.nombre_guardado;
+                                    const rutaArchivo = doc.rutaArchivo || doc.ruta_archivo;
                                     const estado = doc.estado || 'pendiente';
                                     const idDocumento = doc.id;
                                     const retroalimentacion = doc.retroalimentacion;
+
+                                    let fileUrl;
+                                    // Verificar si estamos usando Azure Blob Storage (variable pasada desde el controlador)
+                                    if (typeof useAzure !== 'undefined' && useAzure) {
+                                        // Si rutaArchivo ya es una URL completa (http/https), la usamos directamente
+                                        if (rutaArchivo && (rutaArchivo.startsWith('http://') || rutaArchivo.startsWith('https://'))) {
+                                            fileUrl = rutaArchivo;
+                                        } else {
+                                            // Construir URL de Azure Blob Storage
+                                            // rutaArchivo suele ser "documentos/archivo.pdf" (blobName)
+                                            const path = rutaArchivo || nombreGuardado;
+                                            // Limpiar slash inicial si existe
+                                            const cleanPath = path && path.startsWith('/') ? path.substring(1) : path;
+                                            
+                                            if (cleanPath) {
+                                                fileUrl = `https://${azureAccountName}.blob.core.windows.net/${azureContainerName}/${cleanPath}`;
+                                            } else {
+                                                fileUrl = '#'; // Fallback si no hay path
+                                            }
+                                        }
+                                    } else {
+                                        // Entorno local o servidor sin Azure Blob
+                                        // Usar rutaArchivo si existe, o construir la ruta local por defecto
+                                        fileUrl = rutaArchivo || `/uploads/documentos/${nombreGuardado}`;
+                                    }
                                 %>
                                 <tr>
                                     <td><%= tipoDocumento %></td>
@@ -447,7 +473,7 @@ function formatearFechaLocal(fecha) {
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a href="/uploads/documentos/<%= nombreGuardado %>" 
+                                            <a href="<%= fileUrl %>" 
                                                class="btn btn-info btn-sm" 
                                                target="_blank" 
                                                title="Ver Documento">

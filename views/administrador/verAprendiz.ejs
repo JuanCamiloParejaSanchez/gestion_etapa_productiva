@@ -145,6 +145,7 @@ function formatearFechaHoraLocal(fecha) {
     if (isNaN(date.getTime())) return 'N/A';
     
     return date.toLocaleString('es-ES', {
+        timeZone: 'America/Bogota',
         weekday: 'long',
         year: 'numeric',
         month: 'long',

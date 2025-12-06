@@ -10,6 +10,7 @@ const { logger } = require('../../../compartido/utilidades/logger');
 const ExcelJS = require('exceljs');
 const servicioCorreo = require('../../../compartido/servicios/servicioCorreo');
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
+const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
 
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
@@ -341,7 +342,10 @@ const gestionAprendicesControlador = {
                 userRole: 'admin',
                 layout: 'plantillas/principal',
                 aprendiz: aprendizNormalizado,
-                documentos: documentosResult
+                documentos: documentosResult,
+                useAzure: USE_AZURE_BLOB,
+                azureAccountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
+                azureContainerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'documentos'
             });
             
         } catch (error) {
@@ -659,6 +663,7 @@ const gestionAprendicesControlador = {
                     descripcion,
                     nombre_original as nombreOriginal,
                     nombre_guardado as nombreGuardado,
+                    ruta_archivo as rutaArchivo,
                     fecha_subida as fechaSubida,
                     tamano_bytes as tamanoBytes,
                     tipo_mime as tipoMime
@@ -680,6 +685,10 @@ const gestionAprendicesControlador = {
                     tipo: tipo
                 }));
 
+            // Configuración de Azure
+            const azureAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+            const azureContainerName = process.env.AZURE_STORAGE_CONTAINER_NAME || 'documentos';
+
             // Formatear respuesta
             const respuesta = {
                 success: true,
@@ -692,16 +701,36 @@ const gestionAprendicesControlador = {
                     programaFormacion: aprendiz.programaFormacion,
                     correoElectronico: aprendiz.correoElectronico
                 },
-                subidos: documentosSubidos.map(doc => ({
-                    id: doc.id,
-                    tipoDocumento: doc.tipoDocumento,
-                    descripcion: doc.descripcion,
-                    nombreOriginal: doc.nombreOriginal,
-                    nombreGuardado: doc.nombreGuardado,
-                    fechaSubida: doc.fechaSubida,
-                    tamanoBytes: doc.tamanoBytes,
-                    tipoMime: doc.tipoMime
-                })),
+                subidos: documentosSubidos.map(doc => {
+                    let fileUrl;
+                    if (USE_AZURE_BLOB) {
+                        if (doc.rutaArchivo && (doc.rutaArchivo.startsWith('http://') || doc.rutaArchivo.startsWith('https://'))) {
+                            fileUrl = doc.rutaArchivo;
+                        } else {
+                            const path = doc.rutaArchivo || doc.nombreGuardado;
+                            const cleanPath = path && path.startsWith('/') ? path.substring(1) : path;
+                            if (cleanPath) {
+                                fileUrl = `https://${azureAccountName}.blob.core.windows.net/${azureContainerName}/${cleanPath}`;
+                            } else {
+                                fileUrl = '#';
+                            }
+                        }
+                    } else {
+                        fileUrl = doc.rutaArchivo || `/uploads/documentos/${doc.nombreGuardado}`;
+                    }
+
+                    return {
+                        id: doc.id,
+                        tipoDocumento: doc.tipoDocumento,
+                        descripcion: doc.descripcion,
+                        nombreOriginal: doc.nombreOriginal,
+                        nombreGuardado: doc.nombreGuardado,
+                        url: fileUrl,
+                        fechaSubida: doc.fechaSubida,
+                        tamanoBytes: doc.tamanoBytes,
+                        tipoMime: doc.tipoMime
+                    };
+                }),
                 pendientes: documentosPendientes,
                 total: {
                     subidos: documentosSubidos.length,

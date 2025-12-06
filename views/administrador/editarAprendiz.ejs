@@ -331,6 +331,7 @@ function formatearFechaParaInput(fecha) {
                 <label for="created_at" class="form-label">Fecha creación de usuario</label>
                 <input type="text" class="form-control" id="created_at" name="created_at" 
                        value="<%= aprendiz.created_at ? new Date(aprendiz.created_at).toLocaleString('es-ES', {
+                           timeZone: 'America/Bogota',
                            weekday: 'long',
                            year: 'numeric',
                            month: 'long',
@@ -347,6 +348,7 @@ function formatearFechaParaInput(fecha) {
                 <label for="updated_at" class="form-label">Fecha última actualización</label>
                 <input type="text" class="form-control" id="updated_at" name="updated_at" 
                        value="<%= aprendiz.updated_at ? new Date(aprendiz.updated_at).toLocaleString('es-ES', {
+                           timeZone: 'America/Bogota',
                            weekday: 'long',
                            year: 'numeric',
                            month: 'long',
