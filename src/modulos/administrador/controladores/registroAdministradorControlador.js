@@ -1,5 +1,8 @@
 const bcrypt = require('bcrypt');
 const servicioConsultasAdministrador = require('../servicios/servicioConsultasAdministrador');
+const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
+const { uploadFile } = require('../../../configuracion/azureBlobConfig');
+const fs = require('fs');
 
 // Mostrar formulario de registro
 exports.mostrarFormulario = (req, res) => {
@@ -74,6 +77,25 @@ exports.registrarAdministrador = async (req, res) => {
             path: req.fotoPerfilProcesada.path
         });
 
+        let fotoFilename = req.fotoPerfilProcesada.filename;
+        let fotoPath = req.fotoPerfilProcesada.path;
+
+        // Subir a Azure Blob Storage si está habilitado
+        if (USE_AZURE_BLOB) {
+            try {
+                console.log('☁️ Subiendo foto de perfil de admin a Azure Blob Storage...');
+                if (req.fotoPerfilProcesada.fullPath && fs.existsSync(req.fotoPerfilProcesada.fullPath)) {
+                    const buffer = fs.readFileSync(req.fotoPerfilProcesada.fullPath);
+                    const azureResult = await uploadFile(buffer, req.fotoPerfilProcesada.originalname, 'documentos');
+                    console.log('✅ Foto de admin subida a Azure:', azureResult.blobName);
+                    fotoFilename = azureResult.blobName;
+                    fotoPath = azureResult.blobName;
+                }
+            } catch (azureError) {
+                console.error('❌ Error subiendo foto de admin a Azure:', azureError);
+            }
+        }
+
         // Normalizar email a minúsculas y otros campos a mayúsculas
         if (correoInstitucional) {
             correoInstitucional = correoInstitucional.toLowerCase().trim();
@@ -114,8 +136,8 @@ exports.registrarAdministrador = async (req, res) => {
             departamento,
             cargo,
             fichaGrupo,
-            fotoPerfil: req.fotoPerfilProcesada.filename,
-            fotoPerfilPath: req.fotoPerfilProcesada.path,
+            fotoPerfil: fotoFilename,
+            fotoPerfilPath: fotoPath,
             password: null, // Contraseña se creará después
             rol: 'admin',
             activo: true

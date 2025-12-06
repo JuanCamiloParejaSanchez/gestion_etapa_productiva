@@ -81,12 +81,35 @@ class ControladorDashboardAprendiz extends BaseController {
                 const aprendizActual = await servicioAprendiz.obtenerAprendizPorId(aprendizId);
                 if (aprendizActual && aprendizActual.fotoPerfilPath) {
                     const { eliminarFotoAnterior } = require('../../../compartido/middlewares/multerConfigFotos');
+                    // Si es Azure, deberíamos eliminar el blob también, pero eliminarFotoAnterior es para local
+                    // TODO: Implementar eliminación en Azure si es necesario
                     await eliminarFotoAnterior(aprendizActual.fotoPerfilPath);
                 }
                 
+                let fotoFilename = req.fotoPerfilProcesada.filename;
+                let fotoPath = req.fotoPerfilProcesada.path;
+
+                // Subir a Azure Blob Storage si está habilitado
+                if (USE_AZURE_BLOB) {
+                    try {
+                        console.log('☁️ Subiendo foto de perfil optimizada a Azure Blob Storage...');
+                        // La foto procesada está en disco local (fullPath)
+                        if (req.fotoPerfilProcesada.fullPath && fs.existsSync(req.fotoPerfilProcesada.fullPath)) {
+                            const buffer = fs.readFileSync(req.fotoPerfilProcesada.fullPath);
+                            const azureResult = await uploadFile(buffer, req.fotoPerfilProcesada.originalname, 'documentos'); // Usamos 'documentos' o un contenedor específico para fotos
+                            console.log('✅ Foto de perfil subida a Azure:', azureResult.blobName);
+                            
+                            fotoFilename = azureResult.blobName;
+                            fotoPath = azureResult.blobName;
+                        }
+                    } catch (azureError) {
+                        console.error('❌ Error subiendo foto de perfil a Azure:', azureError);
+                    }
+                }
+
                 // Agregar datos de la nueva foto
-                datosActualizados.fotoPerfil = req.fotoPerfilProcesada.filename;
-                datosActualizados.fotoPerfilPath = req.fotoPerfilProcesada.path;
+                datosActualizados.fotoPerfil = fotoFilename;
+                datosActualizados.fotoPerfilPath = fotoPath;
             }
 
             const resultado = await servicioAprendiz.actualizarAprendiz(aprendizId, datosActualizados);

@@ -893,7 +893,7 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 select * from aprendices;
-delete from aprendices where id='239'
+delete from aprendices;
 
 select * from administradores;
 delete from administradores;

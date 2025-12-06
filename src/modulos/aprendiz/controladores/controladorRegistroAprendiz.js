@@ -4,7 +4,9 @@
 
 const ServicioAprendiz = require('../servicios/servicioAprendiz');
 const servicioDocumentosAprendiz = require('../servicios/servicioDocumentosAprendiz');
-const { decodeOriginalName } = require('../../../compartido/middlewares/multerConfig');
+const { decodeOriginalName, USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
+const { uploadFile } = require('../../../configuracion/azureBlobConfig');
+const fs = require('fs');
 const servicioAprendiz = new ServicioAprendiz();
 
 const registrarAprendiz = async (req, res) => {
@@ -123,12 +125,34 @@ const registrarAprendiz = async (req, res) => {
         if (req.file && resultado.id && documentoSoporteInfo) {
             console.log('📎 Insertando documento de soporte en documentos_aprendiz...');
             try {
-                // Asegurar que tenemos un nombre de archivo y ruta válidos
-                // Si estamos en Azure Blob Storage o memoria, filename puede ser undefined
-                const nombreGuardado = documentoSoporteInfo.filename || documentoSoporteInfo.originalname;
-                
-                // Si path es undefined (memoria), construir una ruta lógica
-                const rutaArchivo = documentoSoporteInfo.path || `/uploads/documentos/${nombreGuardado}`;
+                let nombreGuardado = documentoSoporteInfo.filename || documentoSoporteInfo.originalname;
+                let rutaArchivo = documentoSoporteInfo.path || `/uploads/documentos/${nombreGuardado}`;
+
+                // Subir a Azure Blob Storage si está habilitado
+                if (USE_AZURE_BLOB) {
+                    try {
+                        console.log('☁️ Subiendo documento de soporte a Azure Blob Storage...');
+                        let buffer;
+                        if (req.file.buffer) {
+                            buffer = req.file.buffer;
+                        } else if (req.file.path && fs.existsSync(req.file.path)) {
+                            buffer = fs.readFileSync(req.file.path);
+                        }
+
+                        if (buffer) {
+                            const azureResult = await uploadFile(buffer, documentoSoporteInfo.originalname, 'documentos');
+                            console.log('✅ Documento subido a Azure:', azureResult.blobName);
+                            // Actualizar ruta y nombre para la BD
+                            rutaArchivo = azureResult.blobName;
+                            nombreGuardado = azureResult.blobName;
+                        } else {
+                            console.warn('⚠️ No se pudo obtener el buffer del archivo para subir a Azure');
+                        }
+                    } catch (azureError) {
+                        console.error('❌ Error subiendo a Azure:', azureError);
+                        // Continuamos, pero quedará con la ruta local (que podría no existir en Azure App Service)
+                    }
+                }
 
                 const datosDocumento = {
                     aprendiz_id: resultado.id,
@@ -159,11 +183,39 @@ const registrarAprendiz = async (req, res) => {
         if (req.fotoPerfilProcesada && resultado.id && fotoPerfilInfo) {
             console.log('📸 Insertando foto de perfil en documentos_aprendiz...');
             try {
+                let nombreGuardadoFoto = fotoPerfilInfo.filename || fotoPerfilInfo.originalname;
+                let rutaArchivoFoto = fotoPerfilInfo.path || `/uploads/documentos/${nombreGuardadoFoto}`;
+
+                // Subir a Azure Blob Storage si está habilitado
+                if (USE_AZURE_BLOB) {
+                    try {
+                        console.log('☁️ Subiendo foto de perfil a Azure Blob Storage...');
+                        // La foto procesada ya debería estar en disco (procesada por Sharp)
+                        // Ojo: en rutasRegistroAprendiz.js vimos que req.fotoPerfilProcesada tiene path
+                        let buffer;
+                        if (req.fotoPerfilProcesada.path && fs.existsSync(req.fotoPerfilProcesada.path)) {
+                            buffer = fs.readFileSync(req.fotoPerfilProcesada.path);
+                        }
+
+                        if (buffer) {
+                            const azureResult = await uploadFile(buffer, fotoPerfilInfo.originalname, 'documentos');
+                            console.log('✅ Foto subida a Azure:', azureResult.blobName);
+                            rutaArchivoFoto = azureResult.blobName;
+                            nombreGuardadoFoto = azureResult.blobName;
+                            
+                            // Actualizar también en datosAprendiz si es necesario (aunque ya se usó para crearAprendiz)
+                            // Pero la tabla documentos_aprendiz es la importante para descargas
+                        }
+                    } catch (azureError) {
+                        console.error('❌ Error subiendo foto a Azure:', azureError);
+                    }
+                }
+
                 const datosFoto = {
                     aprendiz_id: resultado.id,
                     nombre_original: fotoPerfilInfo.originalname,
-                    nombre_guardado: fotoPerfilInfo.filename,
-                    ruta_archivo: fotoPerfilInfo.path,
+                    nombre_guardado: nombreGuardadoFoto,
+                    ruta_archivo: rutaArchivoFoto,
                     tipo_mime: fotoPerfilInfo.mimetype,
                     tamano_bytes: fotoPerfilInfo.size,
                     tipo_documento: 'Foto de perfil',
