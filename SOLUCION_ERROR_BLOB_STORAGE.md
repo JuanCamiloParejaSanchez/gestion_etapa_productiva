@@ -24,12 +24,15 @@ Sigue estos pasos para habilitar la identidad y dar permisos:
 3. Haz clic en **+ Add** > **Add role assignment**.
 4. Busca y selecciona el rol: **Storage Blob Data Contributor** (Colaborador de datos de blobs de almacenamiento).
    *Nota: Es importante que sea este rol específico, no solo "Contributor".*
-5. Haz clic en **Next**.
-6. En **Assign access to**, selecciona **Managed identity**.
-7. Haz clic en **+ Select members**.
-8. En la suscripción, selecciona **App Service**.
-9. Busca y selecciona tu App Service.
-10. Haz clic en **Select** y luego en **Review + assign**.
+5. **IMPORTANTE**: Para que la aplicación pueda generar enlaces seguros (SAS Tokens) para ver los archivos, TAMBIÉN debes agregar el rol **Storage Blob Data Delegator** (Delegador de datos de blobs de almacenamiento).
+   *Sin este rol, verás errores XML "PublicAccessNotPermitted" al intentar abrir los documentos.*
+6. Haz clic en **Next**.
+7. En **Assign access to**, selecciona **Managed identity**.
+8. Haz clic en **+ Select members**.
+9. En la suscripción, selecciona **App Service**.
+10. Busca y selecciona tu App Service.
+11. Haz clic en **Select** y luego en **Review + assign**.
+   *Repite el proceso para asignar ambos roles si es necesario.*
 
 ### 3. Verificar Variables de Entorno
 Asegúrate de que en la configuración del App Service (Configuration > Application settings) tengas definida la variable:

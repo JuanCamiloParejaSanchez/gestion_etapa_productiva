@@ -2,6 +2,7 @@
 // Propósito: Maneja las operaciones CRUD para la gestión de administradores.
 
 const { pool } = require('../../../configuracion/baseDatos');
+const { generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 
 /**
  * Muestra la página de listado de administradores
@@ -176,6 +177,18 @@ const verAdministrador = async (req, res) => {
 
         const administrador = resultados[0];
 
+        // Generar SAS URL si se usa Azure Blob Storage
+        if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
+            if (!administrador.fotoPerfilPath.startsWith('/')) {
+                try {
+                    const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
+                    administrador.fotoPerfilPath = sasUrl;
+                } catch (sasError) {
+                    console.error('❌ Error generando SAS URL:', sasError);
+                }
+            }
+        }
+
         res.render('administrador/verMiPerfilAdministrador', {
             layout: 'plantillas/principal',
             title: 'Ver Administrador',
@@ -211,7 +224,9 @@ const editarAdministrador = async (req, res) => {
                 numeroIdentificacion,
                 telefono,
                 departamento,
-                cargo
+                cargo,
+                fotoPerfil,
+                fotoPerfilPath
             FROM administradores
             WHERE id = ?
         `;
@@ -228,6 +243,18 @@ const editarAdministrador = async (req, res) => {
         }
 
         const administrador = resultados[0];
+
+        // Generar SAS URL si se usa Azure Blob Storage
+        if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
+            if (!administrador.fotoPerfilPath.startsWith('/')) {
+                try {
+                    const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
+                    administrador.fotoPerfilPath = sasUrl;
+                } catch (sasError) {
+                    console.error('❌ Error generando SAS URL:', sasError);
+                }
+            }
+        }
 
         res.render('administrador/editarPerfilAdministrador', {
             layout: 'plantillas/principal',

@@ -277,7 +277,11 @@ html.dark-mode .profile-photo-info {
                                     // Construir la ruta correcta de la foto
                                     let rutaFoto = null;
                                     if (administrador.fotoPerfilPath) {
-                                        rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                                        if (administrador.fotoPerfilPath.startsWith('http')) {
+                                            rutaFoto = administrador.fotoPerfilPath;
+                                        } else {
+                                            rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                                        }
                                     } else if (administrador.fotoPerfil) {
                                         rutaFoto = `/uploads/fotos/optimized/${administrador.fotoPerfil}`;
                                     }

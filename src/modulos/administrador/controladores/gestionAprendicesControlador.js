@@ -341,7 +341,9 @@ const gestionAprendicesControlador = {
             // Generar SAS URLs para documentos si se usa Azure Blob Storage
             if (USE_AZURE_BLOB && documentosResult.length > 0) {
                 for (const doc of documentosResult) {
-                    const path = doc.rutaArchivo || doc.nombreGuardado;
+                    // Asegurar compatibilidad con camelCase y snake_case
+                    const path = doc.rutaArchivo || doc.ruta_archivo || doc.nombreGuardado || doc.nombre_guardado;
+                    
                     // Limpiar slash inicial si existe y asegurar que no sea una URL completa
                     if (path && !path.startsWith('http')) {
                         const cleanPath = path.startsWith('/') ? path.substring(1) : path;

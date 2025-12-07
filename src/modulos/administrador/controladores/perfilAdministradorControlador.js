@@ -2,6 +2,22 @@
 // Propósito: Maneja las operaciones del perfil personal del administrador
 
 const { pool } = require('../../../configuracion/baseDatos');
+const { generateSasUrl } = require('../../../configuracion/azureBlobConfig');
+
+// Helper para procesar la URL de la foto
+const procesarFotoPerfil = async (administrador) => {
+    if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
+        // Si la ruta no empieza con /, asumimos que es un blob path
+        if (!administrador.fotoPerfilPath.startsWith('/')) {
+            try {
+                const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
+                administrador.fotoPerfilPath = sasUrl;
+            } catch (sasError) {
+                console.error('❌ Error generando SAS URL:', sasError);
+            }
+        }
+    }
+};
 
 const perfilAdministradorControlador = {
 
@@ -47,6 +63,9 @@ const perfilAdministradorControlador = {
             }
 
             const administrador = resultados[0];
+            
+            // Procesar foto de perfil (SAS URL si es necesario)
+            await procesarFotoPerfil(administrador);
             
             // Verificar si hay mensaje de éxito
             const success = req.query.success === '1';
@@ -105,6 +124,9 @@ const perfilAdministradorControlador = {
             }
 
             const administrador = resultados[0];
+            
+            // Procesar foto de perfil (SAS URL si es necesario)
+            await procesarFotoPerfil(administrador);
             
             res.render('administrador/editarPerfilAdministrador', {
                 titulo: 'Editar Mi Perfil - Administrador',
