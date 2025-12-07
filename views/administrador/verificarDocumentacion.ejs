@@ -435,8 +435,12 @@ function formatearFechaLocal(fecha) {
                                     let fileUrl;
                                     // Verificar si estamos usando Azure Blob Storage (variable pasada desde el controlador)
                                     if (typeof useAzure !== 'undefined' && useAzure) {
+                                        // Si ya tenemos una URL SAS generada desde el controlador, usarla
+                                        if (doc.sasUrl) {
+                                            fileUrl = doc.sasUrl;
+                                        }
                                         // Si rutaArchivo ya es una URL completa (http/https), la usamos directamente
-                                        if (rutaArchivo && (rutaArchivo.startsWith('http://') || rutaArchivo.startsWith('https://'))) {
+                                        else if (rutaArchivo && (rutaArchivo.startsWith('http://') || rutaArchivo.startsWith('https://'))) {
                                             fileUrl = rutaArchivo;
                                         } else {
                                             // Construir URL de Azure Blob Storage

@@ -1,7 +1,13 @@
 // src/configuracion/azureBlobConfig.js
 // Configuración para Azure Blob Storage
 
-const { BlobServiceClient } = require('@azure/storage-blob');
+const { 
+    BlobServiceClient, 
+    generateBlobSASQueryParameters, 
+    BlobSASPermissions, 
+    StorageSharedKeyCredential,
+    SASProtocol
+} = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { v4: uuidv4 } = require('uuid');
 
@@ -38,9 +44,7 @@ const uploadFile = async (buffer, originalName, folder = 'documentos') => {
         const containerClient = client.getContainerClient(containerName);
 
         // Crear contenedor si no existe
-        await containerClient.createIfNotExists({
-            access: 'blob' // Acceso público a los blobs
-        });
+        await containerClient.createIfNotExists();
 
         // Generar nombre único para el blob
         const path = require('path');
@@ -59,6 +63,8 @@ const uploadFile = async (buffer, originalName, folder = 'documentos') => {
         };
         const sanitizedBasename = slugify(basename);
         const blobName = `${folder}/${sanitizedBasename}-${Date.now()}${ext}`;
+
+        console.log(`[Azure Upload] Subiendo archivo: ${blobName} al contenedor: ${containerName}`);
 
         // Subir archivo
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -105,10 +111,26 @@ const downloadFile = async (blobName) => {
     try {
         const client = blobServiceClient || initializeBlobServiceClient();
         const containerClient = client.getContainerClient(containerName);
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
         
-        const downloadResponse = await blockBlobClient.download();
-        return downloadResponse.readableStreamBody;
+        console.log(`[Azure Download] Intentando descargar blob: ${blobName} del contenedor: ${containerName}`);
+        let blockBlobClient = containerClient.getBlockBlobClient(blobName);
+        
+        try {
+            const downloadResponse = await blockBlobClient.download();
+            return downloadResponse.readableStreamBody;
+        } catch (initialError) {
+            // Si falla y el blobName comienza con el nombre del contenedor, intentamos sin el prefijo
+            // Esto maneja el caso donde la ruta guardada incluye el contenedor pero el blob está en la raíz
+            if (initialError.statusCode === 404 && blobName.startsWith(containerName + '/')) {
+                const newBlobName = blobName.substring(containerName.length + 1);
+                console.log(`[Azure Download] Blob no encontrado en ${blobName}. Intentando ruta alternativa: ${newBlobName}`);
+                
+                blockBlobClient = containerClient.getBlockBlobClient(newBlobName);
+                const retryResponse = await blockBlobClient.download();
+                return retryResponse.readableStreamBody;
+            }
+            throw initialError;
+        }
     } catch (error) {
         console.error('Error al descargar archivo de Azure Blob Storage:', error);
         throw error;
@@ -130,11 +152,72 @@ const getMimeType = (ext) => {
     return mimeTypes[ext] || 'application/octet-stream';
 };
 
+// Función para generar URL con SAS (Shared Access Signature)
+const generateSasUrl = async (blobName, permissions = 'r', expiresInMinutes = 60) => {
+    try {
+        const client = blobServiceClient || initializeBlobServiceClient();
+        const containerClient = client.getContainerClient(containerName);
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+        // Definir permisos y tiempo de expiración
+        const sasPermissions = BlobSASPermissions.parse(permissions);
+        const startsOn = new Date();
+        // Ajustar startsOn un poco hacia atrás para evitar problemas de reloj
+        startsOn.setMinutes(startsOn.getMinutes() - 5);
+        const expiresOn = new Date(new Date().valueOf() + expiresInMinutes * 60 * 1000);
+
+        if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
+            // Caso 1: Usando Connection String (Desarrollo/Pruebas)
+            const matches = process.env.AZURE_STORAGE_CONNECTION_STRING.match(/AccountName=([^;]+);AccountKey=([^;]+)/);
+            if (!matches) {
+                throw new Error('Invalid Connection String');
+            }
+            const accountName = matches[1];
+            const accountKey = matches[2];
+            const credential = new StorageSharedKeyCredential(accountName, accountKey);
+
+            const sasToken = generateBlobSASQueryParameters({
+                containerName,
+                blobName,
+                permissions: sasPermissions,
+                startsOn,
+                expiresOn,
+                protocol: SASProtocol.HttpsAndHttp
+            }, credential).toString();
+
+            return `${blockBlobClient.url}?${sasToken}`;
+
+        } else {
+            // Caso 2: Usando Managed Identity (Producción)
+            const userDelegationKey = await client.getUserDelegationKey(
+                startsOn, 
+                expiresOn
+            );
+
+            const sasToken = generateBlobSASQueryParameters({
+                containerName,
+                blobName,
+                permissions: sasPermissions,
+                startsOn,
+                expiresOn,
+                protocol: SASProtocol.Https
+            }, userDelegationKey, accountName).toString();
+
+            return `${blockBlobClient.url}?${sasToken}`;
+        }
+    } catch (error) {
+        console.error('Error al generar SAS URL:', error);
+        // Fallback a URL pública si falla
+        return getUrl(blobName);
+    }
+};
+
 module.exports = {
     initializeBlobServiceClient,
     uploadFile,
     deleteFile,
     getUrl,
     downloadFile,
-    getMimeType
+    getMimeType,
+    generateSasUrl
 };

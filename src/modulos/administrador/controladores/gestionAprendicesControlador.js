@@ -11,6 +11,7 @@ const ExcelJS = require('exceljs');
 const servicioCorreo = require('../../../compartido/servicios/servicioCorreo');
 const opcionesFormularioServicio = require('../../../compartido/servicios/opcionesFormularioServicio');
 const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
+const { generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
@@ -336,6 +337,23 @@ const gestionAprendicesControlador = {
             
             // Normalizar datos del aprendiz para mostrar uniformemente
             const aprendizNormalizado = servicioGestionAprendices.normalizarAprendiz(aprendizResult[0]);
+
+            // Generar SAS URLs para documentos si se usa Azure Blob Storage
+            if (USE_AZURE_BLOB && documentosResult.length > 0) {
+                for (const doc of documentosResult) {
+                    const path = doc.rutaArchivo || doc.nombreGuardado;
+                    // Limpiar slash inicial si existe y asegurar que no sea una URL completa
+                    if (path && !path.startsWith('http')) {
+                        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+                        try {
+                            // Generar URL con firma de acceso compartido (SAS) válida por 60 minutos
+                            doc.sasUrl = await generateSasUrl(cleanPath, 'r', 60);
+                        } catch (error) {
+                            console.error(`Error generando SAS URL para documento ${doc.id}:`, error);
+                        }
+                    }
+                }
+            }
 
             res.render('administrador/verificarDocumentacion', {
                 title: 'Verificar Documentación',
@@ -701,7 +719,7 @@ const gestionAprendicesControlador = {
                     programaFormacion: aprendiz.programaFormacion,
                     correoElectronico: aprendiz.correoElectronico
                 },
-                subidos: documentosSubidos.map(doc => {
+                subidos: await Promise.all(documentosSubidos.map(async doc => {
                     let fileUrl;
                     if (USE_AZURE_BLOB) {
                         if (doc.rutaArchivo && (doc.rutaArchivo.startsWith('http://') || doc.rutaArchivo.startsWith('https://'))) {
@@ -710,7 +728,12 @@ const gestionAprendicesControlador = {
                             const path = doc.rutaArchivo || doc.nombreGuardado;
                             const cleanPath = path && path.startsWith('/') ? path.substring(1) : path;
                             if (cleanPath) {
-                                fileUrl = `https://${azureAccountName}.blob.core.windows.net/${azureContainerName}/${cleanPath}`;
+                                try {
+                                    fileUrl = await generateSasUrl(cleanPath);
+                                } catch (e) {
+                                    console.error('Error generando SAS URL:', e);
+                                    fileUrl = '#';
+                                }
                             } else {
                                 fileUrl = '#';
                             }
@@ -730,7 +753,7 @@ const gestionAprendicesControlador = {
                         tamanoBytes: doc.tamanoBytes,
                         tipoMime: doc.tipoMime
                     };
-                }),
+                })),
                 pendientes: documentosPendientes,
                 total: {
                     subidos: documentosSubidos.length,
