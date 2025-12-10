@@ -152,11 +152,22 @@ function formatearFechaHoraLocal(fecha) {
                             // Construir la ruta correcta de la foto
                             let rutaFoto = null;
                             if (administrador.fotoPerfilPath) {
-                                // Si tiene fotoPerfilPath, usarla (puede ser ruta relativa ya correcta)
-                                rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                                // Si es una URL completa (Azure Blob), usarla tal cual
+                                if (administrador.fotoPerfilPath.startsWith('http')) {
+                                    rutaFoto = administrador.fotoPerfilPath;
+                                } else {
+                                    // Si es ruta local, asegurar que empiece con /
+                                    rutaFoto = administrador.fotoPerfilPath.startsWith('/') ? administrador.fotoPerfilPath : '/' + administrador.fotoPerfilPath;
+                                }
                             } else if (administrador.fotoPerfil) {
                                 // Si solo tiene fotoPerfil (nombre del archivo), construir ruta completa
                                 rutaFoto = `/uploads/fotos/optimized/${administrador.fotoPerfil}`;
+                            }
+                            
+                            // Agregar timestamp para evitar caché del navegador
+                            if (rutaFoto) {
+                                const separator = rutaFoto.includes('?') ? '&' : '?';
+                                rutaFoto += separator + 't=' + Date.now();
                             }
                             %>
 
