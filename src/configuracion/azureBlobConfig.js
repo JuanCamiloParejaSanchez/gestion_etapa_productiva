@@ -155,6 +155,7 @@ const getMimeType = (ext) => {
 // Función para generar URL con SAS (Shared Access Signature)
 const generateSasUrl = async (blobName, permissions = 'r', expiresInMinutes = 60) => {
     try {
+        console.log(`🔑 [SAS] Generando token para blob: ${blobName} en contenedor: ${containerName}`);
         const client = blobServiceClient || initializeBlobServiceClient();
         const containerClient = client.getContainerClient(containerName);
         const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -203,10 +204,12 @@ const generateSasUrl = async (blobName, permissions = 'r', expiresInMinutes = 60
                 protocol: SASProtocol.Https
             }, userDelegationKey, accountName).toString();
 
-            return `${blockBlobClient.url}?${sasToken}`;
+            const fullUrl = `${blockBlobClient.url}?${sasToken}`;
+            // console.log(`✅ [SAS] URL generada exitosamente`);
+            return fullUrl;
         }
     } catch (error) {
-        console.error('Error al generar SAS URL:', error);
+        console.error('❌ Error al generar SAS URL:', error);
         // Fallback a URL pública si falla
         return getUrl(blobName);
     }

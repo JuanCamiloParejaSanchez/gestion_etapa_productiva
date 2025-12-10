@@ -896,7 +896,7 @@ select * from aprendices;
 delete from aprendices;
 
 select * from administradores;
-delete from administradores where id='6';
+delete from administradores where id='7';
 
 SELECT * FROM mensajes ORDER BY fecha_creacion DESC LIMIT 5;
 SELECT * FROM mensajes 

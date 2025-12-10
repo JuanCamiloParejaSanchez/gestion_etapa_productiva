@@ -181,6 +181,7 @@ const verAdministrador = async (req, res) => {
         if (administrador.fotoPerfilPath && !administrador.fotoPerfilPath.startsWith('/') && !administrador.fotoPerfilPath.startsWith('http')) {
             if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
                 try {
+                    console.log(`🔄 [ADMIN-VER] Generando SAS URL para: ${administrador.fotoPerfilPath}`);
                     const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
                     administrador.fotoPerfilPath = sasUrl;
                 } catch (sasError) {
@@ -248,6 +249,7 @@ const editarAdministrador = async (req, res) => {
         if (administrador.fotoPerfilPath && !administrador.fotoPerfilPath.startsWith('/') && !administrador.fotoPerfilPath.startsWith('http')) {
             if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
                 try {
+                    console.log(`🔄 [ADMIN-EDIT] Generando SAS URL para: ${administrador.fotoPerfilPath}`);
                     const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
                     administrador.fotoPerfilPath = sasUrl;
                 } catch (sasError) {

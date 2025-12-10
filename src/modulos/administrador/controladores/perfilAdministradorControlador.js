@@ -17,13 +17,18 @@ const procesarFotoPerfil = async (administrador) => {
         // Verificamos si tenemos configuración de Azure
         if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
             try {
-                // console.log(`🔄 Generando SAS URL para: ${administrador.fotoPerfilPath}`);
+                console.log(`🔄 [PERFIL] Generando SAS URL para: ${administrador.fotoPerfilPath}`);
                 const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
+                console.log(`✅ [PERFIL] SAS URL generada: ${sasUrl.substring(0, 50)}...`);
                 administrador.fotoPerfilPath = sasUrl;
             } catch (sasError) {
                 console.error('❌ Error generando SAS URL:', sasError);
             }
+        } else {
+            console.warn('⚠️ [PERFIL] AZURE_STORAGE_ACCOUNT_NAME no configurado, no se puede generar SAS URL');
         }
+    } else {
+        console.log('ℹ️ [PERFIL] No hay fotoPerfilPath para procesar');
     }
 };
 
