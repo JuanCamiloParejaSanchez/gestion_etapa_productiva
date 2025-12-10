@@ -178,8 +178,8 @@ const verAdministrador = async (req, res) => {
         const administrador = resultados[0];
 
         // Generar SAS URL si se usa Azure Blob Storage
-        if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
-            if (!administrador.fotoPerfilPath.startsWith('/')) {
+        if (administrador.fotoPerfilPath && !administrador.fotoPerfilPath.startsWith('/') && !administrador.fotoPerfilPath.startsWith('http')) {
+            if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
                 try {
                     const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
                     administrador.fotoPerfilPath = sasUrl;
@@ -245,8 +245,8 @@ const editarAdministrador = async (req, res) => {
         const administrador = resultados[0];
 
         // Generar SAS URL si se usa Azure Blob Storage
-        if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
-            if (!administrador.fotoPerfilPath.startsWith('/')) {
+        if (administrador.fotoPerfilPath && !administrador.fotoPerfilPath.startsWith('/') && !administrador.fotoPerfilPath.startsWith('http')) {
+            if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
                 try {
                     const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
                     administrador.fotoPerfilPath = sasUrl;

@@ -6,10 +6,18 @@ const { generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 
 // Helper para procesar la URL de la foto
 const procesarFotoPerfil = async (administrador) => {
-    if (process.env.USE_AZURE_BLOB === 'true' && administrador.fotoPerfilPath) {
-        // Si la ruta no empieza con /, asumimos que es un blob path
-        if (!administrador.fotoPerfilPath.startsWith('/')) {
+    if (administrador.fotoPerfilPath) {
+        // Si ya es una URL completa, no hacemos nada
+        if (administrador.fotoPerfilPath.startsWith('http')) return;
+
+        // Si es una ruta local (empieza con /), no hacemos nada
+        if (administrador.fotoPerfilPath.startsWith('/')) return;
+
+        // Si llegamos aquí, asumimos que es un blob path (ej: documentos/foto.jpg)
+        // Verificamos si tenemos configuración de Azure
+        if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
             try {
+                // console.log(`🔄 Generando SAS URL para: ${administrador.fotoPerfilPath}`);
                 const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
                 administrador.fotoPerfilPath = sasUrl;
             } catch (sasError) {
