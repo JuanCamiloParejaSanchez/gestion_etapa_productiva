@@ -1115,6 +1115,9 @@ class ControladorDashboardAprendiz extends BaseController {
 
             const administrador = resultados[0];
 
+            // Procesar foto de perfil (SAS URL si es necesario)
+            await procesarFotoPerfil(administrador);
+
             res.render('aprendiz/verAdministrador', {
                 layout: 'plantillas/principal',
                 title: 'Ver Administrador',
