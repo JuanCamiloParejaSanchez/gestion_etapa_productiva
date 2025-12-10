@@ -288,7 +288,8 @@ html.dark-mode .profile-photo-info {
                                     
                                     // Agregar timestamp para evitar caché del navegador
                                     if (rutaFoto) {
-                                        rutaFoto += '?t=' + Date.now();
+                                        const separator = rutaFoto.includes('?') ? '&' : '?';
+                                        rutaFoto += separator + 't=' + Date.now();
                                     }
                                     %>
                                     
