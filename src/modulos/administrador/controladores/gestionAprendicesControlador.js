@@ -1415,7 +1415,8 @@ const gestionAprendicesControlador = {
                 mensaje: mensajeNotificacion,
                 referenciaId: documentoId,
                 referenciaTipo: 'documento',
-                retroalimentacion: retroalimentacion
+                retroalimentacion: retroalimentacion,
+                archivoAdjunto: null
             });
 
             // Enviar email si está habilitado
