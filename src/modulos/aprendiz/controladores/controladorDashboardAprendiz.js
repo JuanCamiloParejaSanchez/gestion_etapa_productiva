@@ -23,8 +23,30 @@ const ServicioGestionAprendices = require('../../administrador/servicios/servici
 const servicioGestionAprendices = new ServicioGestionAprendices();
 const gestionAdministradoresControlador = require('../../administrador/controladores/gestionAdministradoresControlador');
 // Importar configuración de Azure Blob Storage
-const { getUrl, deleteFile: deleteAzureFile, uploadFile, downloadFile } = require('../../../configuracion/azureBlobConfig');
+const { getUrl, deleteFile: deleteAzureFile, uploadFile, downloadFile, generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
+
+// Helper para procesar la URL de la foto
+const procesarFotoPerfil = async (administrador) => {
+    if (administrador.fotoPerfilPath) {
+        // Si ya es una URL completa, no hacemos nada
+        if (administrador.fotoPerfilPath.startsWith('http')) return;
+
+        // Si es una ruta local (empieza con /), no hacemos nada
+        if (administrador.fotoPerfilPath.startsWith('/')) return;
+
+        // Si llegamos aquí, asumimos que es un blob path (ej: documentos/foto.jpg)
+        // Verificamos si tenemos configuración de Azure
+        if (process.env.AZURE_STORAGE_ACCOUNT_NAME) {
+            try {
+                const sasUrl = await generateSasUrl(administrador.fotoPerfilPath);
+                administrador.fotoPerfilPath = sasUrl;
+            } catch (sasError) {
+                console.error('❌ Error generando SAS URL:', sasError);
+            }
+        }
+    }
+};
 
 class ControladorDashboardAprendiz extends BaseController {
 
