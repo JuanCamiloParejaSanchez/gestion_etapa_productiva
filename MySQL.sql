@@ -189,6 +189,7 @@ CREATE TABLE `documentos_aprendiz` (
   `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
   `fecha_revision` TIMESTAMP NULL DEFAULT NULL COMMENT 'Fecha de revisión del documento',
   `revisado_por` INT NULL COMMENT 'ID del administrador que revisó el documento',
+  `retroalimentacion` TEXT DEFAULT NULL COMMENT 'Retroalimentación del tutor',
 
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_nombre_guardado` (`nombre_guardado`),

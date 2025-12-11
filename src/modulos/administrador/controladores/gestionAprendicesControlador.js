@@ -317,20 +317,11 @@ const gestionAprendicesControlador = {
                 });
             }
             
-            // Obtener documentos del aprendiz con su retroalimentación más reciente
+            // Obtener documentos del aprendiz con su retroalimentación
             const [documentosResult] = await pool.query(`
                 SELECT
-                    d.*,
-                    n.retroalimentacion
+                    d.*
                 FROM documentos_aprendiz d
-                LEFT JOIN (
-                    SELECT
-                        referencia_id,
-                        retroalimentacion,
-                        ROW_NUMBER() OVER (PARTITION BY referencia_id ORDER BY fecha_creacion DESC) as rn
-                    FROM notificaciones
-                    WHERE referencia_tipo = 'documento' AND retroalimentacion IS NOT NULL AND retroalimentacion != ''
-                ) n ON d.id = n.referencia_id AND n.rn = 1
                 WHERE d.aprendiz_id = ?
                 ORDER BY d.fecha_subida DESC
             `, [id]);
@@ -1284,15 +1275,16 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento (sin retroalimentacion, esa va en la notificación)
+            // Actualizar el documento con la retroalimentación
             const query = `
                 UPDATE documentos_aprendiz
                 SET estado = 'aprobado',
                     fecha_revision = NOW(),
-                    revisado_por = ?
+                    revisado_por = ?,
+                    retroalimentacion = ?
                 WHERE id = ?
             `;
-            const params = [adminId, documentoId];
+            const params = [adminId, retroalimentacion || null, documentoId];
 
             await pool.query(query, params);
 
@@ -1396,16 +1388,17 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento (sin retroalimentacion, esa va en la notificación)
+            // Actualizar el documento con la retroalimentación
             const query = `
                 UPDATE documentos_aprendiz
                 SET estado = 'rechazado',
                     fecha_revision = NOW(),
-                    revisado_por = ?
+                    revisado_por = ?,
+                    retroalimentacion = ?
                 WHERE id = ?
             `;
 
-            await pool.query(query, [adminId, documentoId]);
+            await pool.query(query, [adminId, retroalimentacion, documentoId]);
 
             // Crear notificación SIEMPRE que se rechace un documento
             // Esto asegura que el aprendiz reciba notificación incluso si es un re-rechazo
