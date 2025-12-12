@@ -1,4 +1,4 @@
-# Documentación Técnica Completa Unificada - Gestión Etapa Productiva SENA
+# Documentación Técnica Completa - Gestión Etapa Productiva SENA
 
 ## 📖 Índice
 
@@ -14,7 +14,10 @@
 - [🗄️ Modelo de Datos](#️-modelo-de-datos)
   - [Diagrama Entidad-Relación Actualizado](#diagrama-entidad-relación-actualizado)
   - [Descripción Técnica del Script de Base de Datos](#descripción-técnica-del-script-de-base-de-datos)
-- [🔔 Sistema de Notificaciones](#-sistema-de-notificaciones)
+- [� Flujos de Usuario Críticos](#-flujos-de-usuario-críticos)
+  - [Ciclo de Vida de Bitácora](#ciclo-de-vida-de-bitácora)
+  - [Gestión de Documentos](#gestión-de-documentos)
+- [�🔔 Sistema de Notificaciones](#-sistema-de-notificaciones)
   - [Arquitectura de Notificaciones](#arquitectura-de-notificaciones)
   - [Funcionalidades Implementadas](#funcionalidades-implementadas)
   - [API de Notificaciones](#api-de-notificaciones)
@@ -36,26 +39,30 @@
   - [Estrategia de Testing](#estrategia-de-testing)
   - [Ejecución de Tests](#ejecución-de-tests)
   - [Estructura de Tests](#estructura-de-tests)
+- [� Requisitos del Sistema](#-requisitos-del-sistema)
+- [🛠️ Guía de Instalación Manual](#️-guía-de-instalación-manual)
 - [🔧 Despliegue y DevOps](#-despliegue-y-devops)
   - [Variables de Entorno](#variables-de-entorno)
   - [Docker Compose](#docker-compose)
   - [CI/CD Pipeline](#cicd-pipeline)
+- [💾 Políticas de Respaldo y Recuperación](#-políticas-de-respaldo-y-recuperación)
 - [📈 Optimización y Rendimiento](#-optimización-y-rendimiento)
   - [Optimizaciones Implementadas](#optimizaciones-implementadas)
   - [Benchmarks de Rendimiento](#benchmarks-de-rendimiento)
 - [🔍 Troubleshooting](#-troubleshooting)
   - [Problemas Comunes y Soluciones](#problemas-comunes-y-soluciones)
 - [🚀 Roadmap y Mejoras Futuras](#-roadmap-y-mejoras-futuras)
-- [📞 Soporte y Contacto](#-soporte-y-contacto)
+- [� Glosario de Términos](#-glosario-de-términos)
+- [�📞 Soporte y Contacto](#-soporte-y-contacto)
 
 ---
 
 ## 📋 Información General
 
 **Nombre del Proyecto:** Gestión Etapa Productiva SENA
-**Versión:** 1.1.0
-**Fecha:** Noviembre 2025
-**Última Actualización:** 3 de noviembre de 2025
+**Versión:** 1.0
+**Fecha:** Diciembre 2025
+**Última Actualización:** 11 de diciembre de 2025
 **Autor:** Juan Camilo Pareja Sánchez
 **Institución:** Servicio Nacional de Aprendizaje (SENA)
 **Tecnologías:** Node.js, Express.js, MySQL, EJS, IBM Watson, Redis, PM2
@@ -120,6 +127,7 @@ graph TB
         F[Middleware de Autenticación]
         G[Middleware de Validación]
         O[Servicio de Notificaciones]
+        P[Controlador de Chat]
     end
 
     subgraph "Capa de Datos"
@@ -140,6 +148,7 @@ graph TB
     C --> A
     D --> E
     D --> O
+    D --> P
     E --> F
     F --> G
     G --> H
@@ -151,6 +160,7 @@ graph TB
     E --> N
     O --> J
     O --> L
+    P --> J
 ```
 
 ## 📁 Estructura del Proyecto
@@ -249,7 +259,7 @@ gestion-etapa-productiva/
   "joi": "^18.0.1",
   "natural": "^6.12.0",
   "sentiment": "^5.0.2",
-  "xlsx": "^0.18.5"
+  "exceljs": "^4.4.0"
 }
 ```
 
@@ -273,12 +283,15 @@ erDiagram
     aprendices ||--o{ bitacoras : registra
     aprendices ||--o{ documentos_aprendiz : sube
     aprendices ||--o{ notificaciones : recibe
+    aprendices ||--o{ mensajes : envia_recibe
     administradores ||--o{ aprendices : gestiona
+    administradores ||--o{ mensajes : envia_recibe
     aprendices {
         int id PK
         varchar tipoDocumento
         varchar numeroDocumento UK
-        enum estadoFormacion "activo|inactivo|aplazado|retirado|certificado"
+        enum genero "MASCULINO|FEMENINO|TRANSEXUAL|NO BINARIO|OTROS"
+        enum estadoFormacion "activo|inactivo|aplazado|retirado|por certificar|certificado"
         varchar nombres
         varchar primerApellido
         varchar segundoApellido
@@ -315,6 +328,8 @@ erDiagram
         tinyint activo
         datetime fechaRegistro
         datetime fechaUltimoCorreoAlerta
+        varchar documentoSoporte
+        varchar fotoPerfil
     }
     bitacoras {
         int id PK
@@ -375,17 +390,29 @@ erDiagram
         varchar telefono
         varchar departamento
         varchar cargo
+        varchar fichaGrupo
         varchar password
         varchar rol
         tinyint activo
         datetime fechaRegistro
+    }
+    mensajes {
+        int id PK
+        int remitente_id
+        enum remitente_tipo "aprendiz|admin"
+        int destinatario_id
+        enum destinatario_tipo "aprendiz|admin"
+        text mensaje
+        boolean leido
+        datetime fecha_creacion
+        datetime fecha_lectura
     }
 ```
 
 #### Descripción Técnica del Script de Base de Datos
 
 ### Información General del Script
-- **Versión:** 2.0
+- **Versión:** 1.0
 - **Base de Datos:** sena_etapa_productiva
 - **Charset:** utf8mb4_unicode_ci (soporte completo para caracteres Unicode)
 - **Motor:** InnoDB (transacciones ACID, integridad referencial)
@@ -399,9 +426,10 @@ erDiagram
 **Propósito:** Almacena información completa de los aprendices del SENA
 **Características Técnicas:**
 - **Campos principales:** Información personal, académica y laboral
+- **Nuevos campos (Dic 2025):** `genero`, `fotoPerfil`, `documentoSoporte`
 - **Validaciones:** Constraints de integridad para fechas de formación
 - **Índices:** Optimizados para búsquedas por documento, correo, programa, estado
-- **Relaciones:** Padre de bitacoras y documentos_aprendiz
+- **Relaciones:** Padre de bitacoras, documentos_aprendiz y mensajes
 - **Auditoría:** Trigger automático para cambios de estado
 
 ##### 2. bitacoras
@@ -425,11 +453,12 @@ erDiagram
 **Propósito:** Usuarios administrativos del sistema
 **Características Técnicas:**
 - **Campos principales:** Información de contacto, roles, estado de cuenta
+- **Nuevos campos (Dic 2025):** `fichaGrupo` para asignación específica
 - **Seguridad:** Sistema de intentos fallidos, bloqueo automático
 - **Roles:** Jerarquía admin/super_admin/instructor
 - **Auditoría:** Triggers para logging de cambios
 
-##### 5. notificaciones (NUEVO - Nov 2025)
+##### 5. notificaciones
 **Propósito:** Sistema de notificaciones en tiempo real para aprendices
 **Características Técnicas:**
 - **Campos principales:** tipo, título, mensaje, referencia, retroalimentación, estado de lectura
@@ -440,30 +469,45 @@ erDiagram
 - **Campos opcionales:** referencia_id, referencia_tipo (para documentos o bitácoras relacionados)
 - **Retroalimentación:** Campo text para almacenar comentarios del administrador
 
+##### 6. mensajes
+**Propósito:** Sistema de chat en tiempo real entre aprendices y administradores
+**Características Técnicas:**
+- **Campos principales:** remitente, destinatario, mensaje, estado de lectura
+- **Tipos de usuario:** Soporte polimórfico para remitente/destinatario (aprendiz/admin)
+- **Índices:** Optimizados para recuperación de historial de conversaciones
+- **Funcionalidad:** Soporte para mensajes no leídos y ordenamiento cronológico
+
+##### 7. conversaciones_eliminadas
+**Propósito:** Gestión de eliminación unilateral de conversaciones
+**Características Técnicas:**
+- **Lógica:** Permite que un usuario "elimine" una conversación sin afectar al otro participante
+- **Restricción:** Unique key para evitar duplicados por par de usuarios
+- **Privacidad:** Garantiza que el historial eliminado no sea visible para el usuario que lo borró
+
 #### Tablas de Soporte (System)
 
-##### 6. reset_tokens
+##### 8. reset_tokens
 **Propósito:** Gestión segura de tokens para reset de contraseñas
 **Características Técnicas:**
 - **Seguridad:** Tokens únicos con expiración automática
 - **Auditoría:** Registro de IP y user agent
 - **Limpieza:** Evento automático diario para tokens expirados
 
-##### 7. sessions
+##### 9. sessions
 **Propósito:** Almacenamiento de sesiones de usuario (MySQL store)
 **Características Técnicas:**
 - **Persistencia:** Sesiones sobrevivientes a reinicios de servidor
 - **Limpieza:** Evento automático por hora
 - **Auditoría:** Tracking de IP y user agent
 
-##### 8. logs_acceso
+##### 10. logs_acceso
 **Propósito:** Auditoría completa de accesos y acciones del sistema
 **Características Técnicas:**
 - **Campos JSON:** Detalles flexibles de eventos
 - **Índices:** Búsqueda eficiente por usuario, acción, fecha
 - **Retención:** Histórico completo de actividades
 
-##### 9. configuracion_sistema
+##### 11. configuracion_sistema
 **Propósito:** Configuración dinámica del sistema
 **Características Técnicas:**
 - **Flexibilidad:** Valores de diferentes tipos (string, number, boolean, json)
@@ -567,7 +611,25 @@ El script incluye configuraciones por defecto para:
 - **Auditoría Integral:** Logging sin impactar rendimiento principal
 - **Configuración Dinámica:** Adaptabilidad sin redeploys
 
-## 🔔 Sistema de Notificaciones
+## � Flujos de Usuario Críticos
+
+### Ciclo de Vida de Bitácora
+1. **Registro**: El aprendiz ingresa el contenido de la bitácora quincenal.
+2. **Análisis IA**: Watson NLU procesa el texto en tiempo real para detectar sentimientos y entidades.
+3. **Persistencia**: Se guarda la bitácora con los metadatos del análisis.
+4. **Notificación**: El sistema alerta al instructor si hay sentimientos negativos o riesgos.
+5. **Revisión**: El instructor visualiza la bitácora y el análisis.
+6. **Retroalimentación**: El instructor agrega comentarios y calificación.
+
+### Gestión de Documentos
+1. **Carga**: Aprendiz sube documento (PDF/Img).
+2. **Validación**: Sistema verifica tipo MIME y tamaño.
+3. **Almacenamiento**: Archivo se guarda en sistema de archivos/nube.
+4. **Cola de Revisión**: Documento aparece en dashboard de administrador.
+5. **Decisión**: Administrador aprueba o rechaza con feedback.
+6. **Notificación**: Aprendiz recibe alerta en tiempo real y correo.
+
+## �🔔 Sistema de Notificaciones
 
 ### Arquitectura de Notificaciones
 
@@ -924,7 +986,78 @@ El sistema maneja tres estados principales:
 - Estadísticas de cumplimiento
 - Exportación de reportes
 
-## 🔐 Seguridad
+## � Sistema de Chat
+
+### Arquitectura del Chat
+
+El sistema de chat implementado en diciembre 2025 permite la comunicación directa y asíncrona entre aprendices y administradores, facilitando el soporte y la resolución de dudas.
+
+```mermaid
+graph TB
+    subgraph "Usuarios"
+        A[Aprendiz]
+        B[Administrador]
+    end
+    
+    subgraph "Backend"
+        C[Chat Controller]
+        D[Base de Datos]
+    end
+    
+    subgraph "Frontend"
+        E[Interfaz de Chat]
+        F[Polling/Recarga]
+    end
+    
+    A --> E
+    B --> E
+    E --> C
+    C --> D
+    F --> C
+```
+
+### Funcionalidades Implementadas
+
+#### 1. Mensajería Bidireccional
+- **Comunicación:** Aprendiz ↔ Administrador
+- **Historial:** Persistencia completa de conversaciones
+- **Estado:** Indicadores de mensajes leídos/no leídos
+- **Ordenamiento:** Cronológico inverso para lista de conversaciones
+
+#### 2. Gestión de Conversaciones
+- **Listado:** Vista de todas las conversaciones activas
+- **Búsqueda:** Filtrado por nombre de usuario
+- **Contadores:** Badge de mensajes no leídos por conversación
+
+#### 3. Eliminación de Conversaciones
+- **Tipo:** Eliminación unilateral (Soft Delete lógico por usuario)
+- **Privacidad:** Si un usuario elimina la conversación, desaparece de su vista pero se mantiene para la contraparte
+- **Seguridad:** Confirmación requerida antes de eliminar
+
+### API de Chat
+
+#### Endpoints Principales
+
+```javascript
+// Enviar mensaje
+POST /chat/enviar
+Body: { destinatarioId, mensaje }
+
+// Obtener historial de conversación
+GET /chat/historial/:usuarioId
+
+// Listar conversaciones
+GET /chat/conversaciones
+
+// Marcar mensajes como leídos
+POST /chat/marcar-leidos
+Body: { remitenteId }
+
+// Eliminar conversación
+DELETE /chat/conversacion/:usuarioId
+```
+
+## �🔐 Seguridad
 
 ### Medidas Implementadas
 
@@ -1162,7 +1295,66 @@ tests/
 └── setup.js
 ```
 
-## 🔧 Despliegue y DevOps
+## � Requisitos del Sistema
+
+### Hardware Recomendado (Servidor)
+- **Procesador**: 2 vCPU o superior (2.0 GHz+)
+- **Memoria RAM**: 4 GB mínimo (8 GB recomendado para producción)
+- **Almacenamiento**: 20 GB SSD disponibles
+- **Red**: Conexión estable con IP estática pública
+
+### Software Base
+- **Sistema Operativo**: Ubuntu Server 20.04/22.04 LTS, CentOS 8+, o Windows Server 2019+
+- **Runtime**: Node.js v18.17.0 (LTS) o superior
+- **Base de Datos**: MySQL Community Server 8.0+
+- **Cache**: Redis 6.0+
+- **Gestor de Procesos**: PM2 (última versión estable)
+
+## 🛠️ Guía de Instalación Manual
+
+### 1. Preparación del Entorno
+```bash
+# Actualizar sistema
+sudo apt update && sudo apt upgrade -y
+
+# Instalar Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Instalar Redis
+sudo apt install redis-server
+```
+
+### 2. Configuración de la Aplicación
+```bash
+# Clonar repositorio
+git clone https://github.com/JuanCamiloParejaSanchez/gestion_etapa_productiva.git
+cd gestion_etapa_productiva
+
+# Instalar dependencias
+npm install --production
+
+# Configurar variables de entorno
+cp .env.example .env
+nano .env # Editar con credenciales reales
+```
+
+### 3. Base de Datos
+```bash
+# Importar esquema
+mysql -u root -p < MySQL.sql
+```
+
+### 4. Ejecución
+```bash
+# Iniciar con PM2
+npm install -g pm2
+pm2 start ecosystem.config.js --env production
+pm2 save
+pm2 startup
+```
+
+## �🔧 Despliegue y DevOps
 
 ### Variables de Entorno
 
@@ -1273,7 +1465,27 @@ jobs:
           docker push ghcr.io/${{ github.repository }}/gestion-sena:latest
 ```
 
-## 📈 Optimización y Rendimiento
+## � Políticas de Respaldo y Recuperación
+
+### Base de Datos
+- **Frecuencia**: Diaria (00:00 hrs)
+- **Herramienta**: `mysqldump` automatizado con cron job
+- **Retención**: 30 días rotativos
+- **Almacenamiento**: S3 Bucket o servidor externo seguro
+
+### Archivos de Usuario (Uploads)
+- **Estrategia**: Sincronización incremental diaria
+- **Directorios**: `public/uploads/documentos`, `public/uploads/fotos`
+- **Recuperación**: Restauración granular por archivo o masiva por fecha
+
+### Plan de Recuperación ante Desastres (DRP)
+1. Provisionar nuevo servidor con requisitos base.
+2. Restaurar último dump de MySQL.
+3. Restaurar carpeta `uploads` desde backup.
+4. Desplegar código fuente desde repositorio (tag de versión estable).
+5. Restaurar archivo `.env` desde gestor de secretos.
+
+## �📈 Optimización y Rendimiento
 
 ### Optimizaciones Implementadas
 
@@ -1401,51 +1613,17 @@ grep "lento\|slow" logs/combined.log
 - [ ] PWA (Progressive Web App)
 - [ ] Aplicación móvil nativa
 
-## 📞 Soporte y Contacto
+## � Glosario de Términos
+
+- **Aprendiz**: Estudiante del SENA en proceso de formación.
+- **Etapa Productiva**: Fase práctica donde el aprendiz aplica conocimientos en una empresa.
+- **Bitácora**: Registro periódico (quincenal) de actividades y experiencias del aprendiz.
+- **Ficha**: Código único que identifica al grupo de formación del aprendiz.
+- **Instructor de Seguimiento**: Docente encargado de monitorear el progreso del aprendiz.
+- **Watson NLU**: Servicio de IBM para análisis de lenguaje natural usado para evaluar sentimientos.
+
+## �📞 Soporte y Contacto
 
 ### Equipo de Desarrollo
 - **Líder Técnico**: Juan Camilo Pareja Sánchez
-- **Email**: juan.pareja@sena.edu.co
-- **Repositorio**: https://github.com/juanpareja/gestion-etapa-productiva
-
-### Documentación Adicional
-- [Manual de Usuario](./Manual%20de%20usuario.pdf)
-- [Documentación Técnica](./Documentacion%20Tecnica.pdf)
-- [Guía de Instalación](./README.md)
-
-### Canales de Soporte
-- **Issues**: GitHub Issues
-- **Wiki**: Documentación interna
-- **Slack**: Canal #gestion-etapa-productiva
-
----
-
-**Última actualización**: 3 de noviembre de 2025
-**Versión de documentación**: 2.1.0
-
-### Registro de Cambios (Changelog)
-
-#### v2.1.0 (3 de noviembre de 2025)
-- ✅ Sistema completo de notificaciones en tiempo real
-- ✅ Sistema de revisión de documentos con aprobación/rechazo
-- ✅ Servicio de correo mejorado con templates HTML profesionales
-- ✅ Estado 'certificado' agregado a aprendices
-- ✅ Nuevos tipos de documentos obligatorios (18 tipos)
-- ✅ Alertas optimizadas a frecuencia de 6 días
-- ✅ Exportación de reportes a Excel (biblioteca XLSX)
-- ✅ Vista optimizada para documentos pendientes de revisión
-- ✅ Mejoras en UI/UX del dashboard de aprendiz
-- ✅ Campo de retroalimentación en notificaciones
-
-#### v2.0.0 (30 de octubre de 2025)
-- Sistema base implementado
-- Integración con Watson NLU
-- Sistema de bitácoras quincenales
-- Gestión de documentos
-- Dashboard administrativo
-
----
-
-**Documentación mantenida por:** Juan Camilo Pareja Sánchez
-**Contacto:** juan.pareja@sena.edu.co
-**Repositorio:** https://github.com/JuanCamiloParejaSanchez/gestion_etapa_productiva
+- **Email**: camilo_pareja@hotmail.com

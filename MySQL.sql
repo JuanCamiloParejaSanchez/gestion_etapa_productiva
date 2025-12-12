@@ -1,6 +1,6 @@
 -- =====================================================
 -- SCRIPT SQL OPTIMIZADO - SENA ETAPA PRODUCTIVA
--- Versión: 2.1
+-- Versión: 1.0
 -- =====================================================
 
 -- Configuración inicial
@@ -891,21 +891,3 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 -- ===============================================================================================
-
-
-select * from aprendices;
-delete from aprendices;
-
-select * from administradores;
-delete from administradores;
-
-SELECT * FROM mensajes ORDER BY fecha_creacion DESC LIMIT 5;
-SELECT * FROM mensajes 
-WHERE (remitente_id = 1 AND destinatario_id = 2) 
-   OR (remitente_id = 1 AND destinatario_id = 2)
-ORDER BY fecha_creacion ASC
-
-DELETE FROM mensajes;
-TRUNCATE TABLE mensajes;
-
-
