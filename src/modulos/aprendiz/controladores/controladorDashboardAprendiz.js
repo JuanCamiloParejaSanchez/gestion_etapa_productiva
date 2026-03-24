@@ -268,7 +268,7 @@ class ControladorDashboardAprendiz extends BaseController {
             const ahora = new Date();
             const diaSemana = ahora.getDay(); // 0=domingo, 1=lunes, 2=martes, ..., 6=sábado
             /* const esLunes = diaSemana === 1; */
-            const esLunes = false;
+            const esLunes = true;
             const fechaUltimoCorreo = aprendiz.fechaUltimoCorreoAlerta;
             console.log('Fecha último correo en BD:', fechaUltimoCorreo);
             console.log('Día de la semana actual:', diaSemana, '(0=domingo, 1=lunes, etc.)');
