@@ -69,9 +69,10 @@ async function verificarConexion() {
  * @param {string} opciones.asunto - Asunto del correo
  * @param {string} opciones.texto - Texto plano del correo
  * @param {string} opciones.html - HTML del correo
+ * @param {Array<Object>} [opciones.adjuntos] - Archivos adjuntos para el correo
  * @returns {Promise<Object>} - Resultado del envío
  */
-async function enviarCorreo({ para, asunto, texto, html }) {
+async function enviarCorreo({ para, asunto, texto, html, adjuntos = [] }) {
     try {
         const trans = inicializarTransportador();
         if (!trans) {
@@ -83,7 +84,8 @@ async function enviarCorreo({ para, asunto, texto, html }) {
             to: para,
             subject: asunto,
             text: texto,
-            html: html
+            html: html,
+            attachments: adjuntos
         };
 
         const resultado = await trans.sendMail(mailOptions);
@@ -120,9 +122,19 @@ async function enviarCorreo({ para, asunto, texto, html }) {
  * @param {string} datos.tipoDocumento - Tipo de documento aprobado
  * @param {string} datos.retroalimentacion - Retroalimentación del tutor (opcional)
  * @param {boolean} datos.esReaprobacion - Si es una reaprobación
+ * @param {string} datos.archivoAdjuntoPath - Ruta local del adjunto (opcional)
+ * @param {string} datos.archivoAdjuntoNombre - Nombre del archivo adjunto (opcional)
  * @returns {Promise<Object>} - Resultado del envío
  */
-async function enviarCorreoDocumentoAprobado({ correoAprendiz, nombreAprendiz, tipoDocumento, retroalimentacion = null, esReaprobacion = false }) {
+async function enviarCorreoDocumentoAprobado({
+    correoAprendiz,
+    nombreAprendiz,
+    tipoDocumento,
+    retroalimentacion = null,
+    esReaprobacion = false,
+    archivoAdjuntoPath = null,
+    archivoAdjuntoNombre = null
+}) {
     const asunto = esReaprobacion 
         ? `✅ Documento reaprobado: ${tipoDocumento}`
         : `✅ Documento aprobado: ${tipoDocumento}`;
@@ -138,6 +150,10 @@ async function enviarCorreoDocumentoAprobado({ correoAprendiz, nombreAprendiz, t
             </div>
         `;
     }
+
+    const mensajeAdjunto = archivoAdjuntoPath
+        ? `<p style="font-size: 14px; color: #0c5460; margin-top: 10px;"><strong>📎 Se adjunta un archivo de apoyo enviado por tu tutor(a).</strong></p>`
+        : '';
 
     const html = `
         <!DOCTYPE html>
@@ -179,6 +195,7 @@ async function enviarCorreoDocumentoAprobado({ correoAprendiz, nombreAprendiz, t
                     </div>
 
                     ${mensajeRetroalimentacion}
+                    ${mensajeAdjunto}
 
                     <p style="font-size: 16px; margin: 20px 0;">
                         ${retroalimentacion 
@@ -220,17 +237,26 @@ Documento: ${tipoDocumento}
 Estado: Aprobado
 
 ${retroalimentacion ? `Comentarios del Tutor:\n${retroalimentacion}\n` : ''}
+${archivoAdjuntoPath ? `Se adjunta un archivo de apoyo enviado por tu tutor(a).\n` : ''}
 
 ---
 Este es un correo automático del Sistema de Gestión de Etapa Productiva del SENA.
 Por favor, no respondas a este correo.
     `.trim();
 
+    const adjuntos = archivoAdjuntoPath
+        ? [{
+            filename: archivoAdjuntoNombre || 'adjunto',
+            path: archivoAdjuntoPath
+        }]
+        : [];
+
     return await enviarCorreo({
         para: correoAprendiz,
         asunto,
         texto,
-        html
+        html,
+        adjuntos
     });
 }
 

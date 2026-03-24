@@ -54,6 +54,33 @@ const uploadAdjunto = multer({
     }
 });
 
+const manejarAdjuntoAprobacion = (req, res, next) => {
+    uploadAdjunto.single('archivoAdjunto')(req, res, (error) => {
+        if (!error) {
+            return next();
+        }
+
+        if (error instanceof multer.MulterError) {
+            if (error.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'El archivo adjunto no puede superar los 10MB.'
+                });
+            }
+
+            return res.status(400).json({
+                success: false,
+                message: `Error al cargar archivo adjunto: ${error.message}`
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: error.message || 'No se pudo procesar el archivo adjunto.'
+        });
+    });
+};
+
 // --- Rutas del Panel y Reportes ---
 router.get('/reportes', gestionAprendicesControlador.mostrarPaginaReportes);
 
@@ -76,7 +103,7 @@ router.delete('/aprendiz/:id', gestionAprendicesControlador.eliminarAprendiz);
 // --- Ruta para Documentación ---
 router.get('/aprendiz/verificar-documentacion/:id', gestionAprendicesControlador.verificarDocumentacion);
 router.get('/aprendiz/:id/documentos', gestionAprendicesControlador.obtenerDocumentosAprendiz);
-router.post('/documentos/:id/aprobar', uploadAdjunto.single('archivoAdjunto'), gestionAprendicesControlador.aprobarDocumento);
+router.post('/documentos/:id/aprobar', manejarAdjuntoAprobacion, gestionAprendicesControlador.aprobarDocumento);
 router.post('/documentos/:id/rechazar', gestionAprendicesControlador.rechazarDocumento);
 
 // --- Ruta para Bitácoras ---

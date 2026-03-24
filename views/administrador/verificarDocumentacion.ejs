@@ -457,8 +457,27 @@ function formatearFechaLocal(fecha) {
                                         }
                                     } else {
                                         // Entorno local o servidor sin Azure Blob
-                                        // Usar rutaArchivo si existe, o construir la ruta local por defecto
-                                        fileUrl = rutaArchivo || `/uploads/documentos/${nombreGuardado}`;
+                                        // Normalizar rutas heredadas para evitar 404
+                                        if (rutaArchivo && typeof rutaArchivo === 'string') {
+                                            const rutaNormalizada = rutaArchivo.trim().replace(/\\/g, '/');
+
+                                            if (rutaNormalizada.startsWith('http://') || rutaNormalizada.startsWith('https://')) {
+                                                fileUrl = rutaNormalizada;
+                                            } else if (rutaNormalizada.startsWith('/uploads/')) {
+                                                fileUrl = rutaNormalizada;
+                                            } else if (rutaNormalizada.startsWith('uploads/')) {
+                                                fileUrl = `/${rutaNormalizada}`;
+                                            } else if (rutaNormalizada.startsWith('/public/uploads/')) {
+                                                fileUrl = rutaNormalizada.replace('/public', '');
+                                            } else if (rutaNormalizada.startsWith('public/uploads/')) {
+                                                fileUrl = `/${rutaNormalizada.replace('public/', '')}`;
+                                            } else {
+                                                // Fallback para rutas no reconocidas (evita rutas relativas rotas)
+                                                fileUrl = rutaNormalizada.startsWith('/') ? rutaNormalizada : `/${rutaNormalizada}`;
+                                            }
+                                        } else {
+                                            fileUrl = `/uploads/documentos/${nombreGuardado}`;
+                                        }
                                     }
                                 %>
                                 <tr>
@@ -668,7 +687,7 @@ function formatearFechaLocal(fecha) {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Aprobar sin retroalimentación
-                enviarAprobacion(idDocumento, null, false);
+                enviarAprobacion(idDocumento, null, true);
             } else if (result.isDenied) {
                 // Mostrar modal para agregar retroalimentación
                 mostrarModalAprobacion(idDocumento);
@@ -679,6 +698,7 @@ function formatearFechaLocal(fecha) {
     function mostrarModalAprobacion(idDocumento) {
         document.getElementById('documentoIdAprobacion').value = idDocumento;
         document.getElementById('retroalimentacionAprobacion').value = '';
+        document.getElementById('archivoAdjunto').value = '';
         modalRetroalimentacionAprobacion.show();
     }
 
@@ -726,10 +746,12 @@ function formatearFechaLocal(fecha) {
     }
 
     function enviarAprobacion(idDocumento, retroalimentacion, enviarEmail) {
-        const body = {};
-        if (retroalimentacion) {
-            body.retroalimentacion = retroalimentacion;
-            body.enviarEmail = enviarEmail;
+        const body = {
+            enviarEmail: enviarEmail
+        };
+
+        if (retroalimentacion && retroalimentacion.trim()) {
+            body.retroalimentacion = retroalimentacion.trim();
         }
 
         fetch(`/administrador/documentos/${idDocumento}/aprobar`, {

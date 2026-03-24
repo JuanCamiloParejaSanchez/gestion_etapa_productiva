@@ -16,6 +16,105 @@ const { generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 // Crear una instancia del servicio de análisis de sentimientos con Watson
 const servicioAnalisisSentimientos = new ServicioWatsonSentimientos();
 
+const normalizarUrlLocalDocumento = (rutaArchivo, nombreGuardado) => {
+    if (!rutaArchivo || typeof rutaArchivo !== 'string') {
+        return `/uploads/documentos/${nombreGuardado}`;
+    }
+
+    const rutaNormalizada = rutaArchivo.trim().replace(/\\/g, '/');
+
+    if (!rutaNormalizada) {
+        return `/uploads/documentos/${nombreGuardado}`;
+    }
+
+    if (rutaNormalizada.startsWith('http://') || rutaNormalizada.startsWith('https://')) {
+        return rutaNormalizada;
+    }
+
+    if (rutaNormalizada.startsWith('/uploads/')) {
+        return rutaNormalizada;
+    }
+
+    if (rutaNormalizada.startsWith('uploads/')) {
+        return `/${rutaNormalizada}`;
+    }
+
+    if (rutaNormalizada.startsWith('/public/uploads/')) {
+        return rutaNormalizada.replace('/public', '');
+    }
+
+    if (rutaNormalizada.startsWith('public/uploads/')) {
+        return `/${rutaNormalizada.replace('public/', '')}`;
+    }
+
+    return rutaNormalizada.startsWith('/') ? rutaNormalizada : `/${rutaNormalizada}`;
+};
+
+const normalizarNombreAdjunto = (nombreArchivo) => {
+    if (!nombreArchivo || typeof nombreArchivo !== 'string') {
+        return null;
+    }
+
+    try {
+        return Buffer.from(nombreArchivo, 'latin1').toString('utf8');
+    } catch (error) {
+        return nombreArchivo;
+    }
+};
+
+const actualizarEstadoDocumento = async ({ documentoId, adminId, estado, retroalimentacion }) => {
+    const retroalimentacionNormalizada =
+        typeof retroalimentacion === 'string' && retroalimentacion.trim()
+            ? retroalimentacion.trim()
+            : null;
+
+    try {
+        await pool.query(`
+            UPDATE documentos_aprendiz
+            SET estado = ?,
+                fecha_revision = NOW(),
+                revisado_por = ?,
+                retroalimentacion = ?
+            WHERE id = ?
+        `, [estado, adminId, retroalimentacionNormalizada, documentoId]);
+
+        return { guardoRetroalimentacionEnDocumento: true };
+    } catch (error) {
+        const esErrorColumnaRetroalimentacion =
+            error?.code === 'ER_BAD_FIELD_ERROR' &&
+            `${error?.sqlMessage || ''}`.includes('retroalimentacion');
+
+        if (!esErrorColumnaRetroalimentacion) {
+            throw error;
+        }
+
+        let baseActiva = null;
+        try {
+            const [resultadoBase] = await pool.query('SELECT DATABASE() AS db');
+            baseActiva = resultadoBase?.[0]?.db || null;
+        } catch (_) {
+            baseActiva = null;
+        }
+
+        logger.warn('Columna retroalimentacion no encontrada en documentos_aprendiz. Se actualiza sin ese campo.', {
+            documentoId,
+            estado,
+            adminId,
+            baseActiva,
+            dbNameEnv: process.env.DB_NAME
+        });
+
+        await pool.query(`
+            UPDATE documentos_aprendiz
+            SET estado = ?,
+                fecha_revision = NOW(),
+                revisado_por = ?
+            WHERE id = ?
+        `, [estado, adminId, documentoId]);
+
+        return { guardoRetroalimentacionEnDocumento: false };
+    }
+};
 
 const gestionAprendicesControlador = {
 
@@ -732,7 +831,7 @@ const gestionAprendicesControlador = {
                             }
                         }
                     } else {
-                        fileUrl = doc.rutaArchivo || `/uploads/documentos/${doc.nombreGuardado}`;
+                        fileUrl = normalizarUrlLocalDocumento(doc.rutaArchivo, doc.nombreGuardado);
                     }
 
                     return {
@@ -1239,6 +1338,8 @@ const gestionAprendicesControlador = {
             const adminId = req.session.userId;
             const { retroalimentacion, enviarEmail } = req.body || {};
             const archivoAdjunto = req.file; // Archivo subido con multer
+            const enviarCorreoNotificacion = enviarEmail === true || enviarEmail === 'true' || enviarEmail === 1 || enviarEmail === '1';
+            const nombreAdjunto = archivoAdjunto ? normalizarNombreAdjunto(archivoAdjunto.originalname || archivoAdjunto.filename) : null;
 
             logger.info('Intentando aprobar documento', {
                 documentoId,
@@ -1275,18 +1376,12 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento con la retroalimentación
-            const query = `
-                UPDATE documentos_aprendiz
-                SET estado = 'aprobado',
-                    fecha_revision = NOW(),
-                    revisado_por = ?,
-                    retroalimentacion = ?
-                WHERE id = ?
-            `;
-            const params = [adminId, retroalimentacion || null, documentoId];
-
-            await pool.query(query, params);
+            const resultadoActualizacion = await actualizarEstadoDocumento({
+                documentoId,
+                adminId,
+                estado: 'aprobado',
+                retroalimentacion
+            });
 
             // Crear notificación SIEMPRE al aprobar
             const notificacionesService = require('../../../compartido/servicios/notificacionesService');
@@ -1312,7 +1407,7 @@ const gestionAprendicesControlador = {
             });
 
             // Enviar email si está habilitado
-            if (enviarEmail === 'true' || enviarEmail === true) {
+            if (enviarCorreoNotificacion) {
                 try {
                     const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
                     const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoAprobado({
@@ -1320,7 +1415,9 @@ const gestionAprendicesControlador = {
                         nombreAprendiz: nombreCompleto,
                         tipoDocumento: tipo_documento,
                         retroalimentacion: retroalimentacion && retroalimentacion.trim() ? retroalimentacion : null,
-                        esReaprobacion: estado_actual === 'aprobado'
+                        esReaprobacion: estado_actual === 'aprobado',
+                        archivoAdjuntoPath: archivoAdjunto ? archivoAdjunto.path : null,
+                        archivoAdjuntoNombre: nombreAdjunto
                     });
 
                     if (resultadoEmail.success) {
@@ -1347,8 +1444,9 @@ const gestionAprendicesControlador = {
                 adminId, 
                 aprendiz_id,
                 conRetroalimentacion: !!retroalimentacion,
+                guardoRetroalimentacionEnDocumento: resultadoActualizacion.guardoRetroalimentacionEnDocumento,
                 esReaprobacion: estado_actual === 'aprobado',
-                emailEnviado: !!enviarEmail
+                emailEnviado: enviarCorreoNotificacion
             });
 
             res.json({ success: true, message: 'Documento aprobado correctamente' });
@@ -1366,6 +1464,7 @@ const gestionAprendicesControlador = {
             const documentoId = req.params.id;
             const adminId = req.session.userId;
             const { retroalimentacion, enviarEmail } = req.body;
+            const enviarCorreoNotificacion = enviarEmail === true || enviarEmail === 'true' || enviarEmail === 1 || enviarEmail === '1';
 
             // Obtener información del documento y del aprendiz
             const [documentoInfo] = await pool.query(`
@@ -1388,17 +1487,12 @@ const gestionAprendicesControlador = {
 
             const { aprendiz_id, tipo_documento, estado_actual, correoElectronico, nombres, primerApellido, segundoApellido } = documentoInfo[0];
 
-            // Actualizar el documento con la retroalimentación
-            const query = `
-                UPDATE documentos_aprendiz
-                SET estado = 'rechazado',
-                    fecha_revision = NOW(),
-                    revisado_por = ?,
-                    retroalimentacion = ?
-                WHERE id = ?
-            `;
-
-            await pool.query(query, [adminId, retroalimentacion, documentoId]);
+            const resultadoActualizacion = await actualizarEstadoDocumento({
+                documentoId,
+                adminId,
+                estado: 'rechazado',
+                retroalimentacion
+            });
 
             // Crear notificación SIEMPRE que se rechace un documento
             // Esto asegura que el aprendiz reciba notificación incluso si es un re-rechazo
@@ -1420,7 +1514,7 @@ const gestionAprendicesControlador = {
             });
 
             // Enviar email si está habilitado
-            if (enviarEmail === 'true' || enviarEmail === true) {
+            if (enviarCorreoNotificacion) {
                 try {
                     const nombreCompleto = `${nombres} ${primerApellido} ${segundoApellido || ''}`.trim();
                     const resultadoEmail = await servicioCorreo.enviarCorreoDocumentoRechazado({
@@ -1454,8 +1548,9 @@ const gestionAprendicesControlador = {
                 documentoId, 
                 adminId, 
                 aprendiz_id,
+                guardoRetroalimentacionEnDocumento: resultadoActualizacion.guardoRetroalimentacionEnDocumento,
                 esRerechazo: estado_actual === 'rechazado',
-                emailEnviado: !!enviarEmail
+                emailEnviado: enviarCorreoNotificacion
             });
 
             res.json({ success: true, message: 'Documento rechazado y aprendiz notificado' });

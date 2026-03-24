@@ -26,6 +26,50 @@ const gestionAdministradoresControlador = require('../../administrador/controlad
 const { getUrl, deleteFile: deleteAzureFile, uploadFile, downloadFile, generateSasUrl } = require('../../../configuracion/azureBlobConfig');
 const { USE_AZURE_BLOB } = require('../../../compartido/middlewares/multerConfig');
 
+const PROJECT_ROOT = path.resolve(__dirname, '../../../..');
+
+const obtenerRutaDocumento = (documento) => documento?.ruta_archivo || documento?.rutaArchivo || '';
+const obtenerNombreDocumento = (documento) => documento?.nombre_original || documento?.nombreOriginal || 'archivo';
+
+const resolverRutaLocalDocumento = (rutaArchivo) => {
+    if (!rutaArchivo || typeof rutaArchivo !== 'string') {
+        return null;
+    }
+
+    const rutaLimpia = rutaArchivo.trim();
+    if (!rutaLimpia) {
+        return null;
+    }
+
+    const rutaNormalizada = rutaLimpia.replace(/\\/g, '/');
+    const posiblesRutas = [];
+
+    if (path.isAbsolute(rutaLimpia)) {
+        posiblesRutas.push(rutaLimpia);
+    }
+
+    if (rutaNormalizada.startsWith('public/')) {
+        posiblesRutas.push(path.join(PROJECT_ROOT, rutaNormalizada));
+    }
+
+    if (rutaNormalizada.startsWith('/public/')) {
+        posiblesRutas.push(path.join(PROJECT_ROOT, rutaNormalizada.slice(1)));
+    }
+
+    if (rutaNormalizada.startsWith('/uploads/')) {
+        posiblesRutas.push(path.join(PROJECT_ROOT, 'public', rutaNormalizada.slice(1)));
+    }
+
+    if (rutaNormalizada.startsWith('uploads/')) {
+        posiblesRutas.push(path.join(PROJECT_ROOT, 'public', rutaNormalizada));
+    }
+
+    posiblesRutas.push(path.join(PROJECT_ROOT, rutaNormalizada));
+
+    const rutaExistente = posiblesRutas.find((ruta) => fs.existsSync(ruta));
+    return rutaExistente || posiblesRutas[0] || null;
+};
+
 // Helper para procesar la URL de la foto
 const procesarFotoPerfil = async (administrador) => {
     if (administrador.fotoPerfilPath) {
@@ -401,8 +445,8 @@ class ControladorDashboardAprendiz extends BaseController {
                         console.warn('No se pudo eliminar el archivo antiguo de Azure:', e.message);
                     }
                 } else {
-                    const oldFilePath = path.join(__dirname, '../../../..', ruta);
-                    if (fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
+                    const oldFilePath = resolverRutaLocalDocumento(ruta);
+                    if (oldFilePath && fs.existsSync(oldFilePath)) fs.unlinkSync(oldFilePath);
                 }
                 
                 await servicioDocumentosAprendiz.eliminarDocumentoPorId(documentoExistente.id);
@@ -461,8 +505,8 @@ class ControladorDashboardAprendiz extends BaseController {
             }
             // --- INICIO DE LA CORRECCIÓN ---
             // Se hace el código robusto para aceptar 'rutaArchivo' (camelCase) o 'ruta_archivo' (snake_case)
-            const ruta = documento.ruta_archivo || documento.ruta_archivo;
-            const nombre = documento.nombre_original || documento.nombre_original;
+            const ruta = obtenerRutaDocumento(documento);
+            const nombre = obtenerNombreDocumento(documento);
 
             if (!ruta || typeof ruta !== 'string') {
                 console.error(`Error: El documento con nombre guardado ${nombreGuardado} no tiene una ruta válida.`);
@@ -498,8 +542,8 @@ class ControladorDashboardAprendiz extends BaseController {
                 }
             } else {
                 // Archivo local
-                const rutaCompleta = path.join(__dirname, '../../../..', ruta.trim());
-                if (fs.existsSync(rutaCompleta)) {
+                const rutaCompleta = resolverRutaLocalDocumento(ruta);
+                if (rutaCompleta && fs.existsSync(rutaCompleta)) {
                     res.download(rutaCompleta, nombre);
                 } else {
                     console.error(`Error: Archivo físico no encontrado en la ruta ${rutaCompleta}`);
@@ -534,8 +578,8 @@ class ControladorDashboardAprendiz extends BaseController {
             const os = require('os');
 
             for (const doc of documentos) {
-                const ruta = doc.ruta_archivo || doc.ruta_archivo;
-                const nombre = doc.nombre_original || doc.nombre_original;
+                const ruta = obtenerRutaDocumento(doc);
+                const nombre = obtenerNombreDocumento(doc);
                 const ext = path.extname(nombre).toLowerCase();
                 if (ruta && typeof ruta === 'string') {
                     // Si es Azure Blob Storage
@@ -565,8 +609,8 @@ class ControladorDashboardAprendiz extends BaseController {
                         }
                     } else {
                         // Archivo local
-                        const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                        if (fs.existsSync(filePath)) {
+                        const filePath = resolverRutaLocalDocumento(ruta);
+                        if (filePath && fs.existsSync(filePath)) {
                             archive.file(filePath, { name: nombre });
                         } else {
                             console.warn(`Archivo no encontrado: ${filePath}`);
@@ -602,10 +646,10 @@ class ControladorDashboardAprendiz extends BaseController {
                 return res.status(404).json({ success: false, message: 'Documento no encontrado o no autorizado.' });
             }
             // --- INICIO DE LA CORRECCIÓN ---
-            const ruta = docInfo.ruta_archivo || docInfo.ruta_archivo;
+            const ruta = obtenerRutaDocumento(docInfo);
             if (ruta && typeof ruta === 'string') {
                 const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
-                const ext = path.extname(docInfo.nombre_original || '').toLowerCase();
+                const ext = path.extname(obtenerNombreDocumento(docInfo)).toLowerCase();
                 // Log para depuración
                 console.log('[Azure Delete] Intentando eliminar:', {
                     ruta,
@@ -621,8 +665,8 @@ class ControladorDashboardAprendiz extends BaseController {
                         if (!result.success) {
                             console.warn('[Azure Delete] No se eliminó el archivo en Azure. Respuesta:', result);
                             // Intentar eliminar archivo local si existe
-                            const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                            if (fs.existsSync(filePath)) {
+                            const filePath = resolverRutaLocalDocumento(ruta);
+                            if (filePath && fs.existsSync(filePath)) {
                                 fs.unlinkSync(filePath);
                                 console.warn('[Azure Delete] Archivo local eliminado como respaldo.');
                             }
@@ -630,8 +674,8 @@ class ControladorDashboardAprendiz extends BaseController {
                     } catch (azureError) {
                         console.error('Error eliminando archivo de Azure Blob Storage:', azureError);
                         // Intentar eliminar archivo local si existe
-                        const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                        if (fs.existsSync(filePath)) {
+                        const filePath = resolverRutaLocalDocumento(ruta);
+                        if (filePath && fs.existsSync(filePath)) {
                             fs.unlinkSync(filePath);
                             console.warn('[Azure Delete] Archivo local eliminado como respaldo tras error Azure.');
                         }
@@ -639,8 +683,8 @@ class ControladorDashboardAprendiz extends BaseController {
                     }
                 } else {
                     // Eliminar archivo local
-                    const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                    if (fs.existsSync(filePath)) {
+                    const filePath = resolverRutaLocalDocumento(ruta);
+                    if (filePath && fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
                     }
                 }
@@ -672,8 +716,8 @@ class ControladorDashboardAprendiz extends BaseController {
             // --- INICIO DE LA CORRECCIÓN ---
             const documentExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
             for (const doc of docsToDelete) {
-                const ruta = doc.ruta_archivo || doc.ruta_archivo;
-                const ext = path.extname(doc.nombre_original || '').toLowerCase();
+                const ruta = obtenerRutaDocumento(doc);
+                const ext = path.extname(obtenerNombreDocumento(doc)).toLowerCase();
                 // Log para depuración
                 console.log('[Azure Delete Multiple] Intentando eliminar:', {
                     ruta,
@@ -694,8 +738,8 @@ class ControladorDashboardAprendiz extends BaseController {
                     }
                 } else {
                     // Eliminar archivo local
-                    const filePath = path.join(__dirname, '../../../..', ruta.trim());
-                    if (fs.existsSync(filePath)) {
+                    const filePath = resolverRutaLocalDocumento(ruta);
+                    if (filePath && fs.existsSync(filePath)) {
                         fs.unlinkSync(filePath);
                     }
                 }

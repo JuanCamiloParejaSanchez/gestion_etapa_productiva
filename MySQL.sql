@@ -10,10 +10,10 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS `mysql-sena-etapa-productiva`
+CREATE DATABASE IF NOT EXISTS `defaultdb`
 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE `mysql-sena-etapa-productiva`;
+USE `defaultdb`;
 
 -- =====================================================
 -- TABLA: APRENDICES
@@ -204,6 +204,14 @@ CREATE TABLE `documentos_aprendiz` (
   CONSTRAINT `fk_documentos_revisado_por` FOREIGN KEY (`revisado_por`) REFERENCES `administradores` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `chk_tamano_archivo` CHECK (`tamano_bytes` > 0 AND `tamano_bytes` <= 10485760) -- Máximo 10MB
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Documentos subidos por los aprendices';
+
+-- Asegurar columna retroalimentacion en entornos existentes
+SET @sql = IF((SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'documentos_aprendiz' AND COLUMN_NAME = 'retroalimentacion') = 0,
+    'ALTER TABLE documentos_aprendiz ADD COLUMN `retroalimentacion` TEXT NULL COMMENT ''Retroalimentación del tutor'' AFTER `revisado_por`',
+    'SELECT ''La columna retroalimentacion ya existe'' AS mensaje');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 
 -- =====================================================
@@ -891,3 +899,5 @@ SELECT 'Todas las tablas han sido creadas exitosamente' as detalle;
 
 
 -- ===============================================================================================
+select *from aprendices;
+select *from administradores;

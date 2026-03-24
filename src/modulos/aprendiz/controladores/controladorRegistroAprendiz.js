@@ -45,7 +45,7 @@ const registrarAprendiz = async (req, res) => {
             // Si path es undefined (Azure/MemoryStorage), definimos una ruta lógica
             // Nota: Si es Azure, la ruta final se actualizará tras la subida exitosa
             // Preferimos construir la ruta relativa para evitar rutas absolutas del sistema de archivos local
-            const rutaArchivo = USE_AZURE_BLOB ? `documentos/${filename}` : `/uploads/documentos/${filename}`;
+            const rutaArchivo = USE_AZURE_BLOB ? `documentos/${filename}` : `public/uploads/documentos/${filename}`;
 
             // Agregar documento de soporte a los datos del aprendiz (columnas: documentoSoporte, documentoSoporteOriginal, documentoSoportePath)
             datosAprendiz.documentoSoporte = filename;
@@ -136,7 +136,7 @@ const registrarAprendiz = async (req, res) => {
             console.log('📎 Insertando documento de soporte en documentos_aprendiz...');
             try {
                 let nombreGuardado = documentoSoporteInfo.filename || documentoSoporteInfo.originalname;
-                let rutaArchivo = documentoSoporteInfo.path || `/uploads/documentos/${nombreGuardado}`;
+                let rutaArchivo = documentoSoporteInfo.path || `public/uploads/documentos/${nombreGuardado}`;
 
                 // Subir a Azure Blob Storage si está habilitado
                 if (USE_AZURE_BLOB) {
@@ -194,7 +194,7 @@ const registrarAprendiz = async (req, res) => {
             console.log('📸 Insertando foto de perfil en documentos_aprendiz...');
             try {
                 let nombreGuardadoFoto = fotoPerfilInfo.filename || fotoPerfilInfo.originalname;
-                let rutaArchivoFoto = fotoPerfilInfo.path || `/uploads/documentos/${nombreGuardadoFoto}`;
+                let rutaArchivoFoto = fotoPerfilInfo.path || `public/uploads/fotos/optimized/${nombreGuardadoFoto}`;
 
                 // Subir a Azure Blob Storage si está habilitado
                 if (USE_AZURE_BLOB) {

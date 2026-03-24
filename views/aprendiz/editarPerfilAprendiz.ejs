@@ -31,6 +31,15 @@ function formatearFechaParaInput(fecha) {
     
     return `${year}-${month}-${day}`;
 }
+
+function normalizarTexto(valor) {
+    if (valor === null || valor === undefined) return '';
+    return String(valor)
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
 %>
 
 <style>
@@ -479,7 +488,15 @@ function formatearFechaParaInput(fecha) {
                                         <option value="">SELECCIONE...</option>
                                         <% if (typeof opciones !== 'undefined' && opciones.programaFormacion) { %>
                                             <% opciones.programaFormacion.forEach(opcion => { %>
-                                                <option value="<%= opcion.value %>" <%= aprendiz.programaFormacion === opcion.value ? 'selected' : '' %>><%= opcion.label %></option>
+                                                <% 
+                                                const programaGuardado = normalizarTexto(aprendiz.programaFormacion);
+                                                const programaOpcionValor = normalizarTexto(opcion.value);
+                                                const programaOpcionLabel = normalizarTexto(opcion.label);
+                                                const esProgramaSeleccionado =
+                                                    programaGuardado === programaOpcionValor ||
+                                                    programaGuardado === programaOpcionLabel;
+                                                %>
+                                                <option value="<%= opcion.value %>" <%= esProgramaSeleccionado ? 'selected' : '' %>><%= opcion.label %></option>
                                             <% }); %>
                                         <% } %>
                                     </select>
